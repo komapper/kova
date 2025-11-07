@@ -1,0 +1,140 @@
+package org.komapper.extension.validator
+
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
+import kotlin.test.assertTrue
+
+class ValidatorTest :
+    FunSpec({
+
+        context("validate") {
+            val validator = Kova.int().min(1).max(10)
+
+            test("success") {
+                val result = validator.validate(5)
+                result shouldBe 5
+            }
+
+            test("failure") {
+                val ex =
+                    shouldThrow<ValidationException> {
+                        validator.validate(0)
+                    }
+                ex.messages.size shouldBe 1
+                ex.messages[0] shouldBe "Number 0 must be greater than or equal to 1"
+            }
+        }
+
+        context("plus") {
+            val a = Kova.int().max(2) as Validator<Int, Int>
+            val b = Kova.int().max(3) as Validator<Int, Int>
+            val c = a + b
+            a.shouldBeInstanceOf<NumberValidator<Int>>()
+            c.shouldBeInstanceOf<Validator<Int, Int>>()
+
+            test("success") {
+                val result = c.tryValidate(1)
+                assertTrue(result.isSuccess())
+            }
+            test("failure") {
+                val result = c.tryValidate(4)
+                assertTrue(result.isFailure())
+            }
+        }
+
+        context("or") {
+            val length2 = Kova.string().length(2)
+            val length5 = Kova.string().length(5)
+            val length2or5 = length2 or length5
+
+            test("success - length(2)") {
+                val result = length2or5.tryValidate("ab")
+                assertTrue(result.isSuccess())
+            }
+            test("success - length(5)") {
+                val result = length2or5.tryValidate("abcde")
+                assertTrue(result.isSuccess())
+            }
+            test("failure - length(3)") {
+                val result = length2or5.tryValidate("abc")
+                assertTrue(result.isFailure())
+                result.messages.size shouldBe 2
+            }
+        }
+
+        context("map") {
+            val validator = Kova.int().min(1).map { it * 2 }
+            test("success") {
+                val result = validator.tryValidate(2)
+                assertTrue(result.isSuccess())
+                result.value shouldBe 4
+            }
+            test("failure") {
+                val result = validator.tryValidate(-1)
+                assertTrue(result.isFailure())
+                result.messages.size shouldBe 1
+                result.messages[0] shouldBe "Number -1 must be greater than or equal to 1"
+            }
+        }
+
+        context("compose") {
+            val validator = Kova.string().max(1).compose(Kova.int().min(3).map { it.toString() })
+            test("success") {
+                val result = validator.tryValidate(3)
+                assertTrue(result.isSuccess())
+                result.value shouldBe "3"
+            }
+            test("failure - first constraint violated") {
+                val result = validator.tryValidate(2)
+                assertTrue(result.isFailure())
+                result.messages.single() shouldBe "Number 2 must be greater than or equal to 3"
+            }
+            test("failure - second constraint violated") {
+                val result = validator.tryValidate(10)
+                assertTrue(result.isFailure())
+                result.messages.single() shouldBe "\"10\" must be at most 1 characters"
+            }
+        }
+
+        context("andThen") {
+            val validator =
+                Kova
+                    .int()
+                    .min(3)
+                    .map { it.toString() }
+                    .andThen(Kova.string().max(1))
+            test("success") {
+                val result = validator.tryValidate(3)
+                assertTrue(result.isSuccess())
+                result.value shouldBe "3"
+            }
+            test("failure - first constraint violated") {
+                val result = validator.tryValidate(2)
+                assertTrue(result.isFailure())
+                result.messages.single() shouldBe "Number 2 must be greater than or equal to 3"
+            }
+            test("failure - second constraint violated") {
+                val result = validator.tryValidate(10)
+                assertTrue(result.isFailure())
+                result.messages.single() shouldBe "\"10\" must be at most 1 characters"
+            }
+        }
+
+        context("constraint") {
+            val validator =
+                (Kova.string() as Validator<String, String>).constraint {
+                    Constraint.check({ it.input == "OK" }) { Message.Text("Constraint failed") }
+                }
+            test("success") {
+                val result = validator.tryValidate("OK")
+                assertTrue(result.isSuccess())
+            }
+            test("failure") {
+                val result = validator.tryValidate("NG")
+                assertTrue(result.isFailure())
+                result.messages.single() shouldBe "Constraint failed"
+            }
+        }
+    })

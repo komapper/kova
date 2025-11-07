@@ -1,0 +1,125 @@
+package org.komapper.extension.validator
+
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldEndWith
+import kotlin.test.assertTrue
+
+class ListValidatorTest :
+    FunSpec({
+        context("plus") {
+            val validator = Kova.list<String>().min(2).min(3)
+
+            test("success") {
+                val result = validator.tryValidate(listOf("1", "2", "3"))
+                assertTrue(result.isSuccess())
+                result.value shouldBe listOf("1", "2", "3")
+            }
+
+            test("failure") {
+                val result = validator.tryValidate(listOf("1"))
+                assertTrue(result.isFailure())
+                result.messages.size shouldBe 2
+                result.messages[0] shouldBe "Collection(size=1) must have at least 2 elements"
+                result.messages[1] shouldBe "Collection(size=1) must have at least 3 elements"
+            }
+        }
+
+        context("constraint") {
+            val validator =
+                Kova.list<String>().constraint {
+                    if (it.input.size == 1) {
+                        ConstraintResult.Satisfied
+                    } else {
+                        ConstraintResult.Violated("Constraint failed")
+                    }
+                }
+
+            test("success") {
+                val result = validator.tryValidate(listOf("1"))
+                assertTrue(result.isSuccess())
+            }
+
+            test("failure") {
+                val result = validator.tryValidate(listOf("1", "2"))
+                assertTrue(result.isFailure())
+                result.messages.size shouldBe 1
+                result.messages[0] shouldBe "Constraint failed"
+            }
+        }
+
+        context("onEach") {
+            val validator = Kova.list<String>().onEach(Kova.string().length(3))
+
+            test("success") {
+                val result = validator.tryValidate(listOf("123", "456"))
+                assertTrue(result.isSuccess())
+            }
+
+            test("failure") {
+                val result = validator.tryValidate(listOf("123", "4567", "8910"))
+                assertTrue(result.isFailure())
+                result.details.size shouldBe 2
+                result.details[0].let {
+                    it.root shouldBe ""
+                    it.path shouldBe "[1]<collection element>"
+                    it.messages.size shouldBe 1
+                    it.messages[0] shouldBe "\"4567\" must be exactly 3 characters"
+                }
+                result.details[1].let {
+                    it.root shouldBe ""
+                    it.path shouldBe "[2]<collection element>"
+                    it.messages.size shouldBe 1
+                    it.messages[0] shouldBe "\"8910\" must be exactly 3 characters"
+                }
+            }
+
+            test("failure - failFast is true") {
+                val result = validator.tryValidate(listOf("123", "4567", "8910"), ValidationContext(failFast = true))
+                assertTrue(result.isFailure())
+                result.details.size shouldBe 1
+                result.details[0].let {
+                    it.root shouldBe ""
+                    it.path shouldBe "[1]<collection element>"
+                    it.messages.size shouldBe 1
+                    it.messages[0] shouldBe "\"4567\" must be exactly 3 characters"
+                }
+            }
+        }
+
+        // TODO
+        context("obj and rule") {
+            val validator =
+                Kova.validator {
+                    ListHolder::class {
+                        ListHolder::list {
+                            Kova.list<String>().onEach(Kova.string().length(3)).constraint {
+                                ConstraintResult.Satisfied
+                            }
+                        }
+                    }
+                }
+
+            test("success") {
+                val result = validator.tryValidate(ListHolder(listOf("123", "456")))
+                assertTrue(result.isSuccess())
+                result.value shouldBe ListHolder(listOf("123", "456"))
+            }
+
+            test("failure") {
+                val result = validator.tryValidate(ListHolder(listOf("123", "4567")))
+                assertTrue(result.isFailure())
+                result.details.size shouldBe 1
+                result.details[0].let {
+                    it.root shouldEndWith $$"$ListHolder"
+                    it.path shouldBe "list[1]<collection element>"
+                    it.messages.size shouldBe 1
+                    it.messages[0] shouldBe "\"4567\" must be exactly 3 characters"
+                }
+            }
+        }
+    }) {
+    data class ListHolder(
+        val list: List<String>,
+    )
+}
