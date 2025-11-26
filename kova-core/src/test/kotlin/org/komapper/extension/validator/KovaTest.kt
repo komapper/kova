@@ -20,19 +20,19 @@ class KovaTest :
             test("success - null") {
                 val request = Request(emptyMap())
                 val result = nullOrLength3.tryValidate(request)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
             }
 
             test("success - non-null") {
                 val request = Request(mapOf("a" to "abc"))
                 val result = nullOrLength3.tryValidate(request)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
             }
 
             test("failure") {
                 val request = Request(mapOf("a" to "abcd"))
                 val result = nullOrLength3.tryValidate(request)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
             }
         }
 
@@ -41,13 +41,13 @@ class KovaTest :
 
             test("failFast = false") {
                 val result = validator.tryValidate("ab")
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 2
             }
 
             test("failFast = true") {
                 val result = validator.tryValidate("ab", failFast = true)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
             }
         }
@@ -57,13 +57,13 @@ class KovaTest :
 
             test("failFast = false") {
                 val result = validator.tryValidate("ab")
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 2
             }
 
             test("failFast = true") {
                 val result = validator.tryValidate("ab", failFast = true)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
             }
         }

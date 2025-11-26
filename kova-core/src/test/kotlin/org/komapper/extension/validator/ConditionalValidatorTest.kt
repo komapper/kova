@@ -10,13 +10,13 @@ class ConditionalValidatorTest :
 
             test("success") {
                 val result = validator.tryValidate(1)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
                 result.value shouldBe 1
             }
 
             test("failure") {
                 val result = validator.tryValidate(2)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].content shouldBe "Number 2 must be greater than or equal to 3"
             }
@@ -27,13 +27,13 @@ class ConditionalValidatorTest :
 
             test("success - plus") {
                 val result = validator.tryValidate(1)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
                 result.value shouldBe 1
             }
 
             test("failure - plus") {
                 val result = validator.tryValidate(0)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 2
                 result.messages[0].content shouldBe "Number 0 must be greater than or equal to 3"
                 result.messages[1].content shouldBe "Number 0 must be greater than or equal to 1"

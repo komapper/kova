@@ -11,13 +11,12 @@ class UIntValidatorTest :
 
             test("success") {
                 val result = validator.tryValidate(1u)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
                 result.value shouldBe 1u
             }
 
             test("failure") {
                 val result = validator.tryValidate(5u)
-                assertTrue(result.isFailure())
                 result.messages.size shouldBe 2
                 result.messages[0].content shouldBe "Comparable 5 must be less than or equal to 2"
                 result.messages[1].content shouldBe "Comparable 5 must be less than or equal to 3"
@@ -32,12 +31,11 @@ class UIntValidatorTest :
 
             test("success") {
                 val result = validator.tryValidate(10u)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
             }
 
             test("failure") {
                 val result = validator.tryValidate(20u)
-                assertTrue(result.isFailure())
                 result.messages.single().content shouldBe "Constraint failed"
             }
         }

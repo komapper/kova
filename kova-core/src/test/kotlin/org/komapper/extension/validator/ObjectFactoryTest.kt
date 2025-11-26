@@ -17,7 +17,7 @@ class ObjectFactoryTest :
 
             test("success - tryCreate") {
                 val result = factory.tryCreate(1)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
                 result.value shouldBe User1(1)
             }
 
@@ -28,7 +28,7 @@ class ObjectFactoryTest :
 
             test("failure - tryCreate") {
                 val result = factory.tryCreate(-1)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.details.size shouldBe 1
                 val detail = result.details.first()
                 detail.root shouldEndWith ".User1"
@@ -59,19 +59,19 @@ class ObjectFactoryTest :
 
             test("success") {
                 val result = factory.tryCreate(1, "abc")
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
                 result.value shouldBe User2(1, "abc")
             }
 
             test("failure") {
                 val result = factory.tryCreate(0, "")
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.details.size shouldBe 2
             }
 
             test("failure - failFast is true") {
                 val result = factory.tryCreate(0, "", failFast = true)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.details.size shouldBe 1
             }
         }
@@ -83,7 +83,7 @@ class ObjectFactoryTest :
                 }
             test("success") {
                 val result = factory.tryCreate(1, "abc")
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
                 result.value shouldBe User2(1, "abc")
             }
         }

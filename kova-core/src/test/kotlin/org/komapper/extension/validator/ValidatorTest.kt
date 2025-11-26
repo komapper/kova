@@ -35,11 +35,11 @@ class ValidatorTest :
 
             test("success") {
                 val result = c.tryValidate(1)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
             }
             test("failure") {
                 val result = c.tryValidate(4)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
             }
         }
 
@@ -50,15 +50,15 @@ class ValidatorTest :
 
             test("success - length(2)") {
                 val result = length2or5.tryValidate("ab")
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
             }
             test("success - length(5)") {
                 val result = length2or5.tryValidate("abcde")
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
             }
             test("failure - length(3)") {
                 val result = length2or5.tryValidate("abc")
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 2
             }
         }
@@ -67,12 +67,12 @@ class ValidatorTest :
             val validator = Kova.int().min(1).map { it * 2 }
             test("success") {
                 val result = validator.tryValidate(2)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
                 result.value shouldBe 4
             }
             test("failure") {
                 val result = validator.tryValidate(-1)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].content shouldBe "Number -1 must be greater than or equal to 1"
             }
@@ -82,17 +82,17 @@ class ValidatorTest :
             val validator = Kova.string().max(1).compose(Kova.int().min(3).map { it.toString() })
             test("success") {
                 val result = validator.tryValidate(3)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
                 result.value shouldBe "3"
             }
             test("failure - first constraint violated") {
                 val result = validator.tryValidate(2)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.single().content shouldBe "Number 2 must be greater than or equal to 3"
             }
             test("failure - second constraint violated") {
                 val result = validator.tryValidate(10)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.single().content shouldBe "\"10\" must be at most 1 characters"
             }
         }
@@ -106,17 +106,17 @@ class ValidatorTest :
                     .andThen(Kova.string().max(1))
             test("success") {
                 val result = validator.tryValidate(3)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
                 result.value shouldBe "3"
             }
             test("failure - first constraint violated") {
                 val result = validator.tryValidate(2)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.single().content shouldBe "Number 2 must be greater than or equal to 3"
             }
             test("failure - second constraint violated") {
                 val result = validator.tryValidate(10)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.single().content shouldBe "\"10\" must be at most 1 characters"
             }
         }
@@ -128,11 +128,11 @@ class ValidatorTest :
                 }
             test("success") {
                 val result = validator.tryValidate("OK")
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
             }
             test("failure") {
                 val result = validator.tryValidate("NG")
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.single().content shouldBe "Constraint failed"
             }
         }

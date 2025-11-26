@@ -12,13 +12,13 @@ class EnumValidatorTest :
 
             test("success") {
                 val result = validator.tryValidate(Color.RED)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
                 result.value shouldBe Color.RED
             }
 
             test("failure") {
                 val result = validator.tryValidate(Color.BLUE)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages[0].content shouldBe "Enum BLUE must be one of [RED, GREEN]"
             }
         }

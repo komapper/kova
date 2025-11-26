@@ -11,13 +11,13 @@ class ListValidatorTest :
 
             test("success") {
                 val result = validator.tryValidate(listOf("1", "2", "3"))
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
                 result.value shouldBe listOf("1", "2", "3")
             }
 
             test("failure") {
                 val result = validator.tryValidate(listOf("1"))
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 2
                 result.messages[0].content shouldBe "Collection(size=1) must have at least 2 elements"
                 result.messages[1].content shouldBe "Collection(size=1) must have at least 3 elements"
@@ -36,12 +36,12 @@ class ListValidatorTest :
 
             test("success") {
                 val result = validator.tryValidate(listOf("1"))
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
             }
 
             test("failure") {
                 val result = validator.tryValidate(listOf("1", "2"))
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].content shouldBe "Constraint failed"
             }
@@ -52,12 +52,12 @@ class ListValidatorTest :
 
             test("success") {
                 val result = validator.tryValidate(listOf("123", "456"))
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
             }
 
             test("failure") {
                 val result = validator.tryValidate(listOf("123", "4567", "8910"))
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.details.size shouldBe 2
                 result.details[0].let {
                     it.root shouldBe ""
@@ -75,7 +75,7 @@ class ListValidatorTest :
 
             test("failure - failFast is true") {
                 val result = validator.tryValidate(listOf("123", "4567", "8910"), failFast = true)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.details.size shouldBe 1
                 result.details[0].let {
                     it.root shouldBe ""
@@ -100,13 +100,13 @@ class ListValidatorTest :
 
             test("success") {
                 val result = validator.tryValidate(ListHolder(listOf("123", "456")))
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
                 result.value shouldBe ListHolder(listOf("123", "456"))
             }
 
             test("failure") {
                 val result = validator.tryValidate(ListHolder(listOf("123", "4567")))
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.details.size shouldBe 1
                 result.details[0].let {
                     it.root shouldEndWith $$"$ListHolder"

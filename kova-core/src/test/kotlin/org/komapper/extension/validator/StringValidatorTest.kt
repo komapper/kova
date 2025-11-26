@@ -13,13 +13,13 @@ class StringValidatorTest :
 
             test("success") {
                 val result = validator.tryValidate("1")
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
                 result.value shouldBe "1"
             }
 
             test("failure") {
                 val result = validator.tryValidate("1234")
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 2
                 result.messages[0].content shouldBe "\"1234\" must be at most 2 characters"
                 result.messages[1].content shouldBe "\"1234\" must be at most 3 characters"
@@ -38,12 +38,12 @@ class StringValidatorTest :
 
             test("success") {
                 val result = validator.tryValidate("OK")
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
             }
 
             test("failure") {
                 val result = validator.tryValidate("NG")
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.single().content shouldBe "Constraint failed"
             }
         }
@@ -53,12 +53,12 @@ class StringValidatorTest :
 
             test("success") {
                 val result = min.tryValidate("abc")
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
             }
 
             test("failure") {
                 val result = min.tryValidate("ab")
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.single().content shouldBe "\"ab\" must be at least 3 characters"
             }
         }
@@ -68,12 +68,12 @@ class StringValidatorTest :
 
             test("success") {
                 val result = max.tryValidate("a")
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
             }
 
             test("failure") {
                 val result = max.tryValidate("ab")
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.single().content shouldBe "\"ab\" must be at most 1 characters"
             }
         }
@@ -83,12 +83,12 @@ class StringValidatorTest :
 
             test("success") {
                 val result = length.tryValidate("a")
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
             }
 
             test("failure") {
                 val result = length.tryValidate("ab")
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.single().content shouldBe "\"ab\" must be exactly 1 characters"
             }
         }
@@ -98,12 +98,12 @@ class StringValidatorTest :
 
             test("success") {
                 val result = isBlank.tryValidate("   ")
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
             }
 
             test("failure") {
                 val result = isBlank.tryValidate("ab")
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.single().content shouldBe "\"ab\" must be blank"
             }
         }
@@ -113,11 +113,11 @@ class StringValidatorTest :
 
             test("success") {
                 val result = isNotBlank.tryValidate("ab")
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
             }
             test("failure") {
                 val result = isNotBlank.tryValidate("")
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.single().content shouldBe "\"\" must not be blank"
             }
         }
@@ -127,12 +127,12 @@ class StringValidatorTest :
 
             test("success") {
                 val result = isEmpty.tryValidate("")
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
             }
 
             test("failure") {
                 val result = isEmpty.tryValidate("ab")
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.single().content shouldBe "\"ab\" must be empty"
             }
         }
@@ -142,12 +142,12 @@ class StringValidatorTest :
 
             test("success") {
                 val result = isNotEmpty.tryValidate("ab")
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
             }
 
             test("failure") {
                 val result = isNotEmpty.tryValidate("")
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.single().content shouldBe "\"\" must not be empty"
             }
         }
@@ -157,11 +157,11 @@ class StringValidatorTest :
 
             test("success") {
                 val result = startsWith.tryValidate("abcde")
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
             }
             test("failure") {
                 val result = startsWith.tryValidate("cde")
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.single().content shouldBe "\"cde\" must start with \"ab\""
             }
         }
@@ -171,11 +171,11 @@ class StringValidatorTest :
 
             test("success") {
                 val result = endsWith.tryValidate("abcde")
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
             }
             test("failure") {
                 val result = endsWith.tryValidate("ab")
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.single().content shouldBe "\"ab\" must end with \"de\""
             }
         }
@@ -185,11 +185,11 @@ class StringValidatorTest :
 
             test("success") {
                 val result = contains.tryValidate("abcde")
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
             }
             test("failure") {
                 val result = contains.tryValidate("fg")
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.single().content shouldBe "\"fg\" must contain \"cd\""
             }
         }
@@ -199,12 +199,12 @@ class StringValidatorTest :
 
             test("success") {
                 val result = isInt.tryValidate("123")
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
                 result.value shouldBe "123"
             }
             test("failure") {
                 val result = isInt.tryValidate("123a")
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.single().content shouldBe "\"123a\" must be an int"
             }
         }
@@ -214,12 +214,12 @@ class StringValidatorTest :
 
             test("success") {
                 val result = toInt.tryValidate("123")
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
                 result.value shouldBe 123
             }
             test("failure") {
                 val result = toInt.tryValidate("123a")
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.single().content shouldBe "\"123a\" must be an int"
             }
         }
@@ -233,16 +233,16 @@ class StringValidatorTest :
 
             test("success") {
                 val result = max1.tryValidate("1")
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
                 result.value shouldBe "1"
             }
             test("failure - null") {
                 val result = max1.tryValidate(null)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
             }
             test("failure") {
                 val result = max1.tryValidate("12")
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.single().content shouldBe "\"12\" must be at most 1 characters"
             }
         }

@@ -4,7 +4,7 @@ import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
 @OptIn(ExperimentalContracts::class)
-fun assertTrue(actual: Boolean) {
-    contract { returns() implies actual }
-    if (!actual) AssertionError("Expected value to be true.")
+fun Boolean.mustBeTrue() {
+    contract { returns() implies this@mustBeTrue }
+    if (!this) AssertionError("Expected value to be true.")
 }

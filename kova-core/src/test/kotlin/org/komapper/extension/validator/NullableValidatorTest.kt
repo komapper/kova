@@ -15,12 +15,12 @@ class NullableValidatorTest :
 
             test("success - null") {
                 val result = nullable.tryValidate(null)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
             }
 
             test("success - non null") {
                 val result = nullable.tryValidate(123)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
             }
         }
 
@@ -29,19 +29,19 @@ class NullableValidatorTest :
 
             test("success") {
                 val result = isNull.tryValidate(null)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
             }
 
             test("failure") {
                 val result = isNull.tryValidate(4)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].content shouldBe "Value 4 must be null"
             }
 
             test("failure - min constraint violated") {
                 val result = isNull.tryValidate(2)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].content shouldBe "Value 2 must be null"
             }
@@ -60,17 +60,17 @@ class NullableValidatorTest :
 
             test("success - null") {
                 val result = isNullOrMin3Max3.tryValidate(null)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
             }
 
             test("success - 3") {
                 val result = isNullOrMin3Max3.tryValidate(3)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
             }
 
             test("failure") {
                 val result = isNullOrMin3Max3.tryValidate(5)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 2
                 result.messages[0].content shouldBe "Value 5 must be null"
                 result.messages[1].content shouldBe "Number 5 must be less than or equal to 3"
@@ -84,17 +84,17 @@ class NullableValidatorTest :
 
             test("success - null") {
                 val result = isNullOrMin3Max3.tryValidate(null)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
             }
 
             test("success - non-null") {
                 val result = isNullOrMin3Max3.tryValidate(3)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
             }
 
             test("failure - isNull and max3 constraints violated") {
                 val result = isNullOrMin3Max3.tryValidate(5)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 2
                 result.messages[0].content shouldBe "Value 5 must be null"
                 result.messages[1].content shouldBe "Number 5 must be less than or equal to 3"
@@ -108,22 +108,22 @@ class NullableValidatorTest :
 
             test("success - isNull constraint satisfied") {
                 val result = isNullOrMin3OrMin5.tryValidate(null)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
             }
 
             test("success - min3 constraint satisfied") {
                 val result = isNullOrMin3OrMin5.tryValidate(3)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
             }
 
             test("success - min3 and min5 constraints satisfied") {
                 val result = isNullOrMin3OrMin5.tryValidate(5)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
             }
 
             test("failure - all constraints violated") {
                 val result = isNullOrMin3OrMin5.tryValidate(2)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 3
                 result.messages[0].content shouldBe "Value 2 must be null"
                 result.messages[1].content shouldBe "Number 2 must be greater than or equal to 3"
@@ -143,24 +143,24 @@ class NullableValidatorTest :
 
             test("success - isNull constraint satisfied") {
                 val result = isNullOrMin3OrMin5AndThenMax4.tryValidate(null)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
             }
 
             test("success - min3 constraint satisfied") {
                 val result = isNullOrMin3OrMin5AndThenMax4.tryValidate(3)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
             }
 
             test("success - max4 constraint failed") {
                 val result = isNullOrMin3OrMin5AndThenMax4.tryValidate(5)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].content shouldBe "Number 5 must be less than or equal to 4"
             }
 
             test("failure - all constraints violated") {
                 val result = isNullOrMin3OrMin5AndThenMax4.tryValidate(2)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 3
                 result.messages[0].content shouldBe "Value 2 must be null"
                 result.messages[1].content shouldBe "Number 2 must be greater than or equal to 3"
@@ -175,26 +175,26 @@ class NullableValidatorTest :
 
             test("success") {
                 val result = isNotNullAndMin3AndMax3.tryValidate(4)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
             }
 
             test("failure - isNotNull constraint is violated") {
                 val result = isNotNullAndMin3AndMax3.tryValidate(null)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].content shouldBe "Value must not be null"
             }
 
             test("failure - min3 constraint is violated") {
                 val result = isNotNullAndMin3AndMax3.tryValidate(2)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].content shouldBe "Number 2 must be greater than or equal to 3"
             }
 
             test("failure - max5 constraint violated") {
                 val result = isNotNullAndMin3AndMax3.tryValidate(6)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].content shouldBe "Number 6 must be less than or equal to 5"
             }
@@ -206,19 +206,19 @@ class NullableValidatorTest :
 
             test("success") {
                 val result = isNotNullAndMin3.tryValidate(4)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
             }
 
             test("failure - isNotNull constraint violated") {
                 val result = isNotNullAndMin3.tryValidate(null)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].content shouldBe "Value must not be null"
             }
 
             test("failure - min3 constraint violated") {
                 val result = isNotNullAndMin3.tryValidate(2)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].content shouldBe "Number 2 must be greater than or equal to 3"
             }
@@ -231,26 +231,26 @@ class NullableValidatorTest :
 
             test("success") {
                 val result = isNotNullAndMin3AndMax3.tryValidate(4)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
             }
 
             test("failure - isNotNull constraint violated") {
                 val result = isNotNullAndMin3AndMax3.tryValidate(null)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].content shouldBe "Value must not be null"
             }
 
             test("failure - min3 constraint violated") {
                 val result = isNotNullAndMin3AndMax3.tryValidate(2)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].content shouldBe "Number 2 must be greater than or equal to 3"
             }
 
             test("failure - max5 constraint violated") {
                 val result = isNotNullAndMin3AndMax3.tryValidate(6)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].content shouldBe "Number 6 must be less than or equal to 5"
             }
@@ -263,19 +263,19 @@ class NullableValidatorTest :
             test("failure - null") {
                 val request = Request(emptyMap())
                 val result = validator.tryValidate(request)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
             }
 
             test("success - non-null") {
                 val request = Request(mapOf("a" to "abc"))
                 val result = validator.tryValidate(request)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
             }
 
             test("failure") {
                 val request = Request(mapOf("a" to "abcd"))
                 val result = validator.tryValidate(request)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
             }
         }
 
@@ -285,17 +285,17 @@ class NullableValidatorTest :
 
             test("success - non-null") {
                 val result = whenNotNullMin3.tryValidate(4)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
             }
 
             test("success - null") {
                 val result = whenNotNullMin3.tryValidate(null)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
             }
 
             test("failure - min 3constraint violated") {
                 val result = whenNotNullMin3.tryValidate(2)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].content shouldBe "Number 2 must be greater than or equal to 3"
             }
@@ -308,17 +308,17 @@ class NullableValidatorTest :
 
             test("success - non-null") {
                 val result = onEachWhenNotNullMin3.tryValidate(listOf(4, 5))
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
             }
 
             test("success - null") {
                 val result = onEachWhenNotNullMin3.tryValidate(listOf(null, null))
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
             }
 
             test("failure - min3　constraint violated") {
                 val result = onEachWhenNotNullMin3.tryValidate(listOf(2, null))
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].content shouldBe "Number 2 must be greater than or equal to 3"
             }
@@ -334,21 +334,21 @@ class NullableValidatorTest :
 
             test("success - non-null") {
                 val result = isNotNullAndMin3.tryValidate(4)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
                 val value: Int? = result.value // The type is "Int?" instead of "Int"
                 value shouldBe 4
             }
 
             test("failure - isNotNull constraint is violated") {
                 val result = isNotNullAndMin3.tryValidate(null)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].content shouldBe "Value must not be null"
             }
 
             test("failure - min3 constraint is violated") {
                 val result = isNotNullAndMin3.tryValidate(2)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].content shouldBe "Number 2 must be greater than or equal to 3"
             }
@@ -363,21 +363,21 @@ class NullableValidatorTest :
 
             test("success - non-null") {
                 val result = nullableMin3.tryValidate(4)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
                 val value: Int = result.value // The type is "Int" instead of "Int?"
                 value shouldBe 4
             }
 
             test("failure - null") {
                 val result = nullableMin3.tryValidate(null)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].content shouldBe "Value must not be null"
             }
 
             test("failure - min3 constraint is violated") {
                 val result = nullableMin3.tryValidate(2)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].content shouldBe "Number 2 must be greater than or equal to 3"
             }
@@ -393,21 +393,21 @@ class NullableValidatorTest :
 
             test("success - non-null") {
                 val result = nullableMin3.tryValidate(4)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
                 val value: Int = result.value // The type is "Int" instead of "Int?"
                 value shouldBe 4
             }
 
             test("failure - null") {
                 val result = nullableMin3.tryValidate(null)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].content shouldBe "Value must not be null"
             }
 
             test("failure - min3 constraint is violated") {
                 val result = nullableMin3.tryValidate(2)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].content shouldBe "Number 2 must be greater than or equal to 3"
             }
@@ -424,21 +424,21 @@ class NullableValidatorTest :
 
             test("success - non-null") {
                 val result = isNotNullAndMin3.tryValidate(4)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
                 val value: Int = result.value // The type is Int instead of Int?
                 value shouldBe 4
             }
 
             test("failure - isNotNull constraint is violated") {
                 val result = isNotNullAndMin3.tryValidate(null)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].content shouldBe "Value must not be null"
             }
 
             test("failure - min3 constraint is violated") {
                 val result = isNotNullAndMin3.tryValidate(2)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].content shouldBe "Number 2 must be greater than or equal to 3"
             }
@@ -454,21 +454,21 @@ class NullableValidatorTest :
 
             test("success - non-null") {
                 val result = isNotNullAndMin3.tryValidate(4)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
                 val value: Int = result.value // The type is Int instead of Int?
                 value shouldBe 4
             }
 
             test("failure - isNotNull constraint is violated") {
                 val result = isNotNullAndMin3.tryValidate(null)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].content shouldBe "Value must not be null"
             }
 
             test("failure - min3 constraint is violated") {
                 val result = isNotNullAndMin3.tryValidate(2)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].content shouldBe "Number 2 must be greater than or equal to 3"
             }

@@ -11,13 +11,13 @@ class IntValidatorTest :
 
             test("success") {
                 val result = validator.tryValidate(1)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
                 result.value shouldBe 1
             }
 
             test("failure") {
                 val result = validator.tryValidate(5)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 2
                 result.messages[0].content shouldBe "Number 5 must be less than or equal to 2"
                 result.messages[1].content shouldBe "Number 5 must be less than or equal to 3"
@@ -32,12 +32,12 @@ class IntValidatorTest :
 
             test("success") {
                 val result = validator.tryValidate(10)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
             }
 
             test("failure") {
                 val result = validator.tryValidate(20)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages[0].content shouldBe "Constraint failed"
             }
         }

@@ -11,7 +11,7 @@ class MapValidatorTest :
 
             test("success") {
                 val result = validator.tryValidate(mapOf("a" to "1", "b" to "2", "c" to "3"))
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
                 result.value shouldBe
                     mapOf(
                         "a" to "1",
@@ -22,7 +22,7 @@ class MapValidatorTest :
 
             test("failure") {
                 val result = validator.tryValidate(mapOf("a" to "1"))
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 2
                 result.messages[0].content shouldBe "Map(size=1) must have at least 2 entries"
                 result.messages[1].content shouldBe "Map(size=1) must have at least 3 entries"
@@ -41,13 +41,13 @@ class MapValidatorTest :
 
             test("success") {
                 val result = validator.tryValidate(mapOf("a" to "1"))
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
                 result.value shouldBe mapOf("a" to "1")
             }
 
             test("failure") {
                 val result = validator.tryValidate(mapOf("a" to "1", "b" to "2"))
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.single().content shouldBe "Constraint failed"
             }
         }
@@ -66,13 +66,13 @@ class MapValidatorTest :
 
             test("success") {
                 val result = validator.tryValidate(mapOf("a" to "1", "b" to "1"))
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
                 result.value shouldBe mapOf("a" to "1", "b" to "1")
             }
 
             test("failure") {
                 val result = validator.tryValidate(mapOf("a" to "a", "b" to "b"))
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages[0].content shouldBe "Constraint failed: a"
                 result.messages[1].content shouldBe "Constraint failed: b"
             }
@@ -83,13 +83,13 @@ class MapValidatorTest :
 
             test("success") {
                 val result = validator.tryValidate(mapOf("a" to "1", "b" to "2"))
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
                 result.value shouldBe mapOf("a" to "1", "b" to "2")
             }
 
             test("failure") {
                 val result = validator.tryValidate(mapOf("a" to "1", "bb" to "2", "ccc" to "3"))
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.details.size shouldBe 2
                 result.details[0].let {
                     it.root shouldBe ""
@@ -109,13 +109,13 @@ class MapValidatorTest :
 
             test("success") {
                 val result = validator.tryValidate(mapOf("a" to "1", "b" to "2"))
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
                 result.value shouldBe mapOf("a" to "1", "b" to "2")
             }
 
             test("failure") {
                 val result = validator.tryValidate(mapOf("a" to "1", "b" to "22", "c" to "333"))
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.details.size shouldBe 2
                 result.details[0].let {
                     it.root shouldBe ""

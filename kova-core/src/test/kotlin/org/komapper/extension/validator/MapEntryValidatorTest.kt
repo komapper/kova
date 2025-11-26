@@ -17,12 +17,12 @@ class MapEntryValidatorTest :
 
             test("success") {
                 val result = validator.tryValidate(mapOf("a" to "1").entries.first())
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
             }
 
             test("failure") {
                 val result = validator.tryValidate(mapOf("a" to "a").entries.first())
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.messages.single().content shouldBe "Constraint failed: a"
             }
         }

@@ -26,7 +26,7 @@ class ObjectValidatorTest :
             test("success") {
                 val user = User(1, "abc")
                 val result = validator.tryValidate(user)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
                 result.value shouldBe user
             }
 
@@ -37,14 +37,14 @@ class ObjectValidatorTest :
                         .merge {
                             User::id { Kova.int().min(-1) }
                         }.tryValidate(user)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
                 result.value shouldBe user
             }
 
             test("failure - 1 rule violated") {
                 val user = User(2, "too-long-name")
                 val result = validator.tryValidate(user)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.details.size shouldBe 1
                 result.details[0].let {
                     it.root shouldEndWith $$"$User"
@@ -56,7 +56,7 @@ class ObjectValidatorTest :
             test("failure - 2 rules violated") {
                 val user = User(0, "too-long-name")
                 val result = validator.tryValidate(user)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
 
                 result.details.size shouldBe 2
                 result.details[0].let {
@@ -90,14 +90,14 @@ class ObjectValidatorTest :
             test("success") {
                 val period = Period(LocalDate.of(2020, 1, 1), LocalDate.of(2021, 1, 1))
                 val result = validator.tryValidate(period)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
                 result.value shouldBe period
             }
 
             test("failure") {
                 val period = Period(LocalDate.of(2020, 1, 1), LocalDate.of(2019, 1, 1))
                 val result = validator.tryValidate(period)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.details.size shouldBe 1
                 result.details[0].let {
                     it.root shouldEndWith $$"$Period"
@@ -119,14 +119,14 @@ class ObjectValidatorTest :
             test("success") {
                 val user = User(1, "abc")
                 val result = validator.tryValidate(user)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
                 result.value shouldBe user
             }
 
             test("failure - 1 constraint violated") {
                 val user = User(2, "too-long-name")
                 val result = validator.tryValidate(user)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.details.size shouldBe 1
                 result.details[0].let {
                     it.root shouldEndWith $$"$User"
@@ -138,7 +138,7 @@ class ObjectValidatorTest :
             test("failure - 2 constraints violated") {
                 val user = User(0, "too-long-name")
                 val result = validator.tryValidate(user)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
 
                 result.details.size shouldBe 2
                 result.details[0].let {
@@ -167,13 +167,13 @@ class ObjectValidatorTest :
             test("success - non null") {
                 val user = User(1, "abc")
                 val result = validator.tryValidate(user)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
                 result.value shouldBe user
             }
 
             test("success - null") {
                 val result = validator.tryValidate(null)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
                 result.value shouldBe null
             }
         }
@@ -201,14 +201,14 @@ class ObjectValidatorTest :
             test("success") {
                 val employee = Employee(1, "abc", Address(1, Street(1, "def")))
                 val result = employeeValidator.tryValidate(employee)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
                 result.value shouldBe employee
             }
 
             test("failure") {
                 val employee = Employee(1, "abc", Address(1, Street(1, "too-long-name")))
                 val result = employeeValidator.tryValidate(employee)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.details.size shouldBe 1
                 result.details[0].let {
                     it.root shouldEndWith $$"$Employee"
@@ -250,14 +250,14 @@ class ObjectValidatorTest :
             test("success - country is US") {
                 val employee = Employee(1, "abc", Address(1, Street(1, "def"), country = "US", postalCode = "12345678"))
                 val result = employeeValidator.tryValidate(employee)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
                 result.value shouldBe employee
             }
 
             test("success - country is not US") {
                 val employee = Employee(1, "abc", Address(1, Street(1, "def"), country = "JP", postalCode = "12345"))
                 val result = employeeValidator.tryValidate(employee)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
                 result.value shouldBe employee
             }
 
@@ -265,7 +265,7 @@ class ObjectValidatorTest :
                 val employee =
                     Employee(1, "abc", Address(1, Street(1, "def"), country = "US", postalCode = "123456789"))
                 val result = employeeValidator.tryValidate(employee)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.details.size shouldBe 1
                 result.details[0].let {
                     it.root shouldEndWith $$"$Employee"
@@ -278,7 +278,7 @@ class ObjectValidatorTest :
                 val employee =
                     Employee(1, "abc", Address(1, Street(1, "def"), country = "JP", postalCode = "123456789"))
                 val result = employeeValidator.tryValidate(employee)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.details.size shouldBe 1
                 result.details[0].let {
                     it.root shouldEndWith $$"$Employee"
@@ -319,21 +319,21 @@ class ObjectValidatorTest :
             test("success") {
                 val employee = Person(1, "abc", Address(1, Street(1, "def")))
                 val result = personValidator.tryValidate(employee)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
                 result.value shouldBe employee
             }
 
             test("success - nullable") {
                 val person = Person(1, null, null)
                 val result = personValidator.tryValidate(person)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
                 result.value shouldBe person
             }
 
             test("failure - isNotNull") {
                 val person = Person(1, null, null)
                 val result = personValidator2.tryValidate(person)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.details.size shouldBe 2
                 result.details[0].let {
                     it.root shouldEndWith $$"$Person"
@@ -360,14 +360,14 @@ class ObjectValidatorTest :
             test("success") {
                 val user = User(1, "abc")
                 val result = validator.tryValidate(user)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
                 result.value shouldBe user
             }
 
             test("failure") {
                 val user = User(0, "")
                 val result = validator.tryValidate(user)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.details.size shouldBe 2
                 with(result.details[0]) {
                     root shouldEndWith $$"$User"
@@ -405,14 +405,14 @@ class ObjectValidatorTest :
             test("success") {
                 val employee = Employee(1, "abc", Address(1, Street(1, "def")))
                 val result = employeeValidator.tryValidate(employee)
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
                 result.value shouldBe employee
             }
 
             test("failure") {
                 val employee = Employee(1, "abc", Address(1, Street(1, "too-long-name")))
                 val result = employeeValidator.tryValidate(employee)
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.details.size shouldBe 1
                 result.details[0].let {
                     it.root shouldEndWith $$"$Employee"
@@ -428,13 +428,13 @@ class ObjectValidatorTest :
 
             test("success") {
                 val result = validator.tryValidate(Request(mapOf("key" to "abc")))
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
                 result.value shouldBe "abc"
             }
 
             test("failure") {
                 val result = validator.tryValidate(Request(mapOf("key" to "")))
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.details.size shouldBe 1
                 result.details[0].let {
                     it.root shouldEndWith $$"$Request"
@@ -451,13 +451,13 @@ class ObjectValidatorTest :
 
             test("success") {
                 val result = validator.tryValidate(Request(mapOf("key" to "abc")))
-                assertTrue(result.isSuccess())
+                result.isSuccess().mustBeTrue()
                 result.value shouldBe "abc"
             }
 
             test("failure") {
                 val result = validator.tryValidate(Request(mapOf("key" to "")))
-                assertTrue(result.isFailure())
+                result.isFailure().mustBeTrue()
                 result.details.size shouldBe 1
                 result.details[0].let {
                     it.root shouldEndWith $$"$Request"

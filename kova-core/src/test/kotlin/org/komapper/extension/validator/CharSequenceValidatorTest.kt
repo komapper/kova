@@ -13,14 +13,14 @@ class CharSequenceValidatorTest :
                 test("success") {
                     val buf = StringBuilder("abc")
                     val result = min.tryValidate(buf)
-                    assertTrue(result.isSuccess())
+                    result.isSuccess().mustBeTrue()
                     result.value.toString() shouldBe buf.toString()
                 }
 
                 test("failure") {
                     val buf = StringBuilder("ab")
                     val result = min.tryValidate(buf)
-                    assertTrue(result.isFailure())
+                    result.isFailure().mustBeTrue()
                     result.messages[0].content shouldBe "\"ab\" must be at least 3 characters"
                 }
             }
