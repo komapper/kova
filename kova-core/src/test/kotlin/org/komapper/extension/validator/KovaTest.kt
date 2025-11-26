@@ -47,7 +47,7 @@ class KovaTest :
             }
 
             test("failFast = true") {
-                val result = validator.tryValidate("ab", context = ValidationContext(failFast = true))
+                val result = validator.tryValidate("ab", failFast = true)
                 assertTrue(result.isFailure())
                 result.messages.size shouldBe 1
             }
@@ -63,7 +63,7 @@ class KovaTest :
             }
 
             test("failFast = true") {
-                val result = validator.tryValidate("ab", context = ValidationContext(failFast = true))
+                val result = validator.tryValidate("ab", failFast = true)
                 assertTrue(result.isFailure())
                 result.messages.size shouldBe 1
             }

@@ -7,9 +7,9 @@ class CoreValidator<T>(
 ) : Validator<T, T> {
     constructor(constraint: Constraint<T>) : this(listOf(constraint))
 
-    override fun tryValidate(
-        input: T,
+    override fun execute(
         context: ValidationContext,
+        input: T,
     ): ValidationResult<T> {
         val constraintContext = context.createConstraintContext(input)
 
@@ -25,7 +25,7 @@ class CoreValidator<T>(
             }
 
         val failureDetails =
-            constraintResults.flatMap {
+            constraintResults.filterIsInstance<ConstraintResult.Violated>().flatMap {
                 ValidationResult.FailureDetail.extract(context, it)
             }
 

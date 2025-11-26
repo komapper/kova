@@ -12,7 +12,7 @@ class CollectionValidator<E, C : Collection<E>> internal constructor(
         message: (ConstraintContext<C>, Int, Int) -> Message = Message.resource2("kova.collection.min"),
     ): CollectionValidator<E, C> =
         constraint {
-            Constraint.check({ it.input.size >= size }, { message(it, it.input.size, size) })
+            Constraint.satisfies(it.input.size >= size, message(it, it.input.size, size))
         }
 
     fun onEach(validator: Validator<E, E>): CollectionValidator<E, C> =
@@ -21,7 +21,7 @@ class CollectionValidator<E, C : Collection<E>> internal constructor(
             val failures = mutableListOf<ValidationResult.Failure>()
             for ((i, element) in it.input.withIndex()) {
                 val path = "[$i]<collection element>"
-                val result = validator.tryValidate(element, validationContext.appendPath(path))
+                val result = validator.execute(validationContext.appendPath(path), element)
                 if (result.isFailure()) {
                     failures.add(result)
                     if (validationContext.failFast) {
@@ -30,6 +30,6 @@ class CollectionValidator<E, C : Collection<E>> internal constructor(
                 }
             }
             val failureDetails = failures.flatMap { failure -> failure.details }
-            Constraint.check({ failureDetails.isEmpty() }, { Message.ValidationFailure(failureDetails) })
+            Constraint.satisfies(failureDetails.isEmpty(), Message.ValidationFailure(details = failureDetails))
         }
 }

@@ -24,7 +24,7 @@ class MapEntryValidatorTest :
             test("failure") {
                 val result = validator.tryValidate(mapOf("a" to "a").entries.first())
                 assertTrue(result.isFailure())
-                result.messages.single() shouldBe "Constraint failed: a"
+                result.messages.single().content shouldBe "Constraint failed: a"
             }
         }
     })

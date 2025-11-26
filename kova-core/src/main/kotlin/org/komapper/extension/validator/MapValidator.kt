@@ -12,14 +12,14 @@ class MapValidator<K, V> internal constructor(
         message: (ConstraintContext<Map<K, V>>, Int, Int) -> Message = Message.resource2("kova.map.min"),
     ): MapValidator<K, V> =
         constraint {
-            Constraint.check({ it.input.size >= size }, { message(it, it.input.size, size) })
+            Constraint.satisfies(it.input.size >= size, message(it, it.input.size, size))
         }
 
     fun onEach(validator: Validator<Map.Entry<K, V>, Map.Entry<K, V>>): MapValidator<K, V> =
         constraint {
             validateOnEach(it) { entry, validationContext ->
                 val path = "<map entry>"
-                validator.tryValidate(entry, validationContext.appendPath(path = path))
+                validator.execute(validationContext.appendPath(path = path), entry)
             }
         }
 
@@ -27,7 +27,7 @@ class MapValidator<K, V> internal constructor(
         constraint {
             validateOnEach(it) { entry, validationContext ->
                 val path = "<map key>"
-                validator.tryValidate(entry.key, validationContext.appendPath(path = path))
+                validator.execute(validationContext.appendPath(path = path), entry.key)
             }
         }
 
@@ -35,7 +35,7 @@ class MapValidator<K, V> internal constructor(
         constraint {
             validateOnEach(it) { entry, validationContext ->
                 val path = "[${entry.key}]<map value>"
-                validator.tryValidate(entry.value, validationContext.appendPath(path = path))
+                validator.execute(validationContext.appendPath(path = path), entry.value)
             }
         }
 
@@ -55,6 +55,6 @@ class MapValidator<K, V> internal constructor(
             }
         }
         val failureDetails = failures.flatMap { it.details }
-        return Constraint.check({ failureDetails.isEmpty() }, { Message.ValidationFailure(failureDetails) })
+        return Constraint.satisfies(failureDetails.isEmpty(), Message.ValidationFailure(details = failureDetails))
     }
 }

@@ -20,8 +20,8 @@ class ListValidatorTest :
                 val result = validator.tryValidate(listOf("1"))
                 assertTrue(result.isFailure())
                 result.messages.size shouldBe 2
-                result.messages[0] shouldBe "Collection(size=1) must have at least 2 elements"
-                result.messages[1] shouldBe "Collection(size=1) must have at least 3 elements"
+                result.messages[0].content shouldBe "Collection(size=1) must have at least 2 elements"
+                result.messages[1].content shouldBe "Collection(size=1) must have at least 3 elements"
             }
         }
 
@@ -44,7 +44,7 @@ class ListValidatorTest :
                 val result = validator.tryValidate(listOf("1", "2"))
                 assertTrue(result.isFailure())
                 result.messages.size shouldBe 1
-                result.messages[0] shouldBe "Constraint failed"
+                result.messages[0].content shouldBe "Constraint failed"
             }
         }
 
@@ -63,26 +63,25 @@ class ListValidatorTest :
                 result.details[0].let {
                     it.root shouldBe ""
                     it.path shouldBe "[1]<collection element>"
-                    it.messages.size shouldBe 1
-                    it.messages[0] shouldBe "\"4567\" must be exactly 3 characters"
+                    it.message.key shouldBe "kova.charSequence.length"
+                    it.message.content shouldBe "\"4567\" must be exactly 3 characters"
                 }
                 result.details[1].let {
                     it.root shouldBe ""
                     it.path shouldBe "[2]<collection element>"
-                    it.messages.size shouldBe 1
-                    it.messages[0] shouldBe "\"8910\" must be exactly 3 characters"
+                    it.message.key shouldBe "kova.charSequence.length"
+                    it.message.content shouldBe "\"8910\" must be exactly 3 characters"
                 }
             }
 
             test("failure - failFast is true") {
-                val result = validator.tryValidate(listOf("123", "4567", "8910"), ValidationContext(failFast = true))
+                val result = validator.tryValidate(listOf("123", "4567", "8910"), failFast = true)
                 assertTrue(result.isFailure())
                 result.details.size shouldBe 1
                 result.details[0].let {
                     it.root shouldBe ""
                     it.path shouldBe "[1]<collection element>"
-                    it.messages.size shouldBe 1
-                    it.messages[0] shouldBe "\"4567\" must be exactly 3 characters"
+                    it.message.content shouldBe "\"4567\" must be exactly 3 characters"
                 }
             }
         }
@@ -113,8 +112,7 @@ class ListValidatorTest :
                 result.details[0].let {
                     it.root shouldEndWith $$"$ListHolder"
                     it.path shouldBe "list[1]<collection element>"
-                    it.messages.size shouldBe 1
-                    it.messages[0] shouldBe "\"4567\" must be exactly 3 characters"
+                    it.message.content shouldBe "\"4567\" must be exactly 3 characters"
                 }
             }
         }

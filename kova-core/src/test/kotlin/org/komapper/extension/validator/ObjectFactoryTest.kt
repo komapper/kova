@@ -34,8 +34,7 @@ class ObjectFactoryTest :
                 val detail = result.details.first()
                 detail.root shouldEndWith ".User1"
                 detail.path shouldBe "arg1"
-                detail.messages.size shouldBe 1
-                detail.messages[0] shouldBe "Number -1 must be greater than or equal to 1"
+                detail.message.content shouldBe "Number -1 must be greater than or equal to 1"
             }
 
             test("failure - create") {
@@ -47,8 +46,7 @@ class ObjectFactoryTest :
                 val detail = ex.details.first()
                 detail.root shouldEndWith ".User1"
                 detail.path shouldBe "arg1"
-                detail.messages.size shouldBe 1
-                detail.messages[0] shouldBe "Number -1 must be greater than or equal to 1"
+                detail.message.content shouldBe "Number -1 must be greater than or equal to 1"
             }
         }
 
@@ -73,7 +71,7 @@ class ObjectFactoryTest :
             }
 
             test("failure - failFast is true") {
-                val result = factory.tryCreate(0, "", context = ValidationContext(failFast = true))
+                val result = factory.tryCreate(0, "", failFast = true)
                 assertTrue(result.isFailure())
                 result.details.size shouldBe 1
             }

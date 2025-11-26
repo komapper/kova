@@ -4,12 +4,12 @@ class ConditionalValidator<T> internal constructor(
     private val validator: Validator<T, T>,
     private val condition: (T) -> Boolean,
 ) : Validator<T, T> {
-    override fun tryValidate(
-        input: T,
+    override fun execute(
         context: ValidationContext,
+        input: T,
     ): ValidationResult<T> =
         if (condition(input)) {
-            validator.tryValidate(input, context)
+            validator.execute(context, input)
         } else {
             ValidationResult.Success(input, context)
         }

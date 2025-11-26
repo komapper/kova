@@ -25,8 +25,8 @@ class MapValidatorTest :
                 val result = validator.tryValidate(mapOf("a" to "1"))
                 assertTrue(result.isFailure())
                 result.messages.size shouldBe 2
-                result.messages[0] shouldBe "Map(size=1) must have at least 2 entries"
-                result.messages[1] shouldBe "Map(size=1) must have at least 3 entries"
+                result.messages[0].content shouldBe "Map(size=1) must have at least 2 entries"
+                result.messages[1].content shouldBe "Map(size=1) must have at least 3 entries"
             }
         }
 
@@ -49,7 +49,7 @@ class MapValidatorTest :
             test("failure") {
                 val result = validator.tryValidate(mapOf("a" to "1", "b" to "2"))
                 assertTrue(result.isFailure())
-                result.messages.single() shouldBe "Constraint failed"
+                result.messages.single().content shouldBe "Constraint failed"
             }
         }
 
@@ -74,8 +74,8 @@ class MapValidatorTest :
             test("failure") {
                 val result = validator.tryValidate(mapOf("a" to "a", "b" to "b"))
                 assertTrue(result.isFailure())
-                result.messages[0] shouldBe "Constraint failed: a"
-                result.messages[1] shouldBe "Constraint failed: b"
+                result.messages[0].content shouldBe "Constraint failed: a"
+                result.messages[1].content shouldBe "Constraint failed: b"
             }
         }
 
@@ -95,14 +95,12 @@ class MapValidatorTest :
                 result.details[0].let {
                     it.root shouldBe ""
                     it.path shouldBe "<map key>"
-                    it.messages.size shouldBe 1
-                    it.messages[0] shouldBe "\"bb\" must be exactly 1 characters"
+                    it.message.content shouldBe "\"bb\" must be exactly 1 characters"
                 }
                 result.details[1].let {
                     it.root shouldBe ""
                     it.path shouldBe "<map key>"
-                    it.messages.size shouldBe 1
-                    it.messages[0] shouldBe "\"ccc\" must be exactly 1 characters"
+                    it.message.content shouldBe "\"ccc\" must be exactly 1 characters"
                 }
             }
         }
@@ -123,14 +121,12 @@ class MapValidatorTest :
                 result.details[0].let {
                     it.root shouldBe ""
                     it.path shouldBe "[b]<map value>"
-                    it.messages.size shouldBe 1
-                    it.messages[0] shouldBe "\"22\" must be exactly 1 characters"
+                    it.message.content shouldBe "\"22\" must be exactly 1 characters"
                 }
                 result.details[1].let {
                     it.root shouldBe ""
                     it.path shouldBe "[c]<map value>"
-                    it.messages.size shouldBe 1
-                    it.messages[0] shouldBe "\"333\" must be exactly 1 characters"
+                    it.message.content shouldBe "\"333\" must be exactly 1 characters"
                 }
             }
         }

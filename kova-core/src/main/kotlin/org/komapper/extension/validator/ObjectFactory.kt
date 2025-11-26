@@ -14,7 +14,7 @@ private fun <T : Any> tryConstruct(
             detail =
                 ValidationResult.FailureDetail(
                     context = context,
-                    messages = listOf(cause.toString()),
+                    message = Message.Text(content = cause.toString()),
                     cause = cause,
                 ),
         )
@@ -52,10 +52,11 @@ class ObjectFactory1<T : Any, A1, B1>(
 ) {
     fun tryCreate(
         arg1: A1,
-        context: ValidationContext = ValidationContext(constructor.toString()),
+        failFast: Boolean = false,
     ): ValidationResult<T> {
+        val context = ValidationContext(constructor.toString(), failFast = failFast)
         val result1 =
-            v1.tryValidate(arg1, context.addPath("arg1")).let {
+            v1.execute(context.addPath("arg1"), arg1).let {
                 if (context.shouldReturnEarly(it)) return createFailure(it) else it
             }
         return if (result1.isSuccess()) {
@@ -85,14 +86,15 @@ class ObjectFactory2<T : Any, A1, B1, A2, B2>(
     fun tryCreate(
         arg1: A1,
         arg2: A2,
-        context: ValidationContext = ValidationContext(constructor.toString()),
+        failFast: Boolean = false,
     ): ValidationResult<T> {
+        val context = ValidationContext(constructor.toString(), failFast = failFast)
         val result1 =
-            v1.tryValidate(arg1, context.addPath("arg1")).let {
+            v1.execute(context.addPath("arg1"), arg1).let {
                 if (context.shouldReturnEarly(it)) return createFailure(it) else it
             }
         val result2 =
-            v2.tryValidate(arg2, context.addPath("arg2")).let {
+            v2.execute(context.addPath("arg2"), arg2).let {
                 if (context.shouldReturnEarly(it)) return createFailure(it) else it
             }
         return if (result1.isSuccess() && result2.isSuccess()) {

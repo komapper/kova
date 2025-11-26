@@ -22,7 +22,7 @@ class CharSequenceValidatorTest :
                     val buf = StringBuilder("ab")
                     val result = min.tryValidate(buf)
                     assertTrue(result.isFailure())
-                    result.messages.single() shouldBe "\"ab\" must be at least 3 characters"
+                    result.messages[0].content shouldBe "\"ab\" must be at least 3 characters"
                 }
             }
         }

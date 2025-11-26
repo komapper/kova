@@ -23,7 +23,7 @@ class ValidatorTest :
                         validator.validate(0)
                     }
                 ex.messages.size shouldBe 1
-                ex.messages[0] shouldBe "Number 0 must be greater than or equal to 1"
+                ex.messages[0].content shouldBe "Number 0 must be greater than or equal to 1"
             }
         }
 
@@ -75,7 +75,7 @@ class ValidatorTest :
                 val result = validator.tryValidate(-1)
                 assertTrue(result.isFailure())
                 result.messages.size shouldBe 1
-                result.messages[0] shouldBe "Number -1 must be greater than or equal to 1"
+                result.messages[0].content shouldBe "Number -1 must be greater than or equal to 1"
             }
         }
 
@@ -89,12 +89,12 @@ class ValidatorTest :
             test("failure - first constraint violated") {
                 val result = validator.tryValidate(2)
                 assertTrue(result.isFailure())
-                result.messages.single() shouldBe "Number 2 must be greater than or equal to 3"
+                result.messages.single().content shouldBe "Number 2 must be greater than or equal to 3"
             }
             test("failure - second constraint violated") {
                 val result = validator.tryValidate(10)
                 assertTrue(result.isFailure())
-                result.messages.single() shouldBe "\"10\" must be at most 1 characters"
+                result.messages.single().content shouldBe "\"10\" must be at most 1 characters"
             }
         }
 
@@ -113,19 +113,19 @@ class ValidatorTest :
             test("failure - first constraint violated") {
                 val result = validator.tryValidate(2)
                 assertTrue(result.isFailure())
-                result.messages.single() shouldBe "Number 2 must be greater than or equal to 3"
+                result.messages.single().content shouldBe "Number 2 must be greater than or equal to 3"
             }
             test("failure - second constraint violated") {
                 val result = validator.tryValidate(10)
                 assertTrue(result.isFailure())
-                result.messages.single() shouldBe "\"10\" must be at most 1 characters"
+                result.messages.single().content shouldBe "\"10\" must be at most 1 characters"
             }
         }
 
         context("constraint") {
             val validator =
                 (Kova.string() as Validator<String, String>).constraint {
-                    Constraint.check({ it.input == "OK" }) { Message.Text("Constraint failed") }
+                    Constraint.satisfies(it.input == "OK", Message.Text("Constraint failed"))
                 }
             test("success") {
                 val result = validator.tryValidate("OK")
@@ -134,7 +134,7 @@ class ValidatorTest :
             test("failure") {
                 val result = validator.tryValidate("NG")
                 assertTrue(result.isFailure())
-                result.messages.single() shouldBe "Constraint failed"
+                result.messages.single().content shouldBe "Constraint failed"
             }
         }
     })

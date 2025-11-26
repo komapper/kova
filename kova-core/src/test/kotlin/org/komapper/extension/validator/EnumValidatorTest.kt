@@ -20,7 +20,7 @@ class EnumValidatorTest :
             test("failure") {
                 val result = validator.tryValidate(Color.BLUE)
                 assertTrue(result.isFailure())
-                result.messages.single() shouldBe "Enum BLUE must be one of [RED, GREEN]"
+                result.messages[0].content shouldBe "Enum BLUE must be one of [RED, GREEN]"
             }
         }
     }) {

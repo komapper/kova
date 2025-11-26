@@ -6,9 +6,9 @@ import kotlin.reflect.KProperty1
 class ObjectValidator<T : Any> internal constructor(
     private val block: ObjectValidatorScope<T>.() -> Unit,
 ) : Validator<T, T> {
-    override fun tryValidate(
-        input: T,
+    override fun execute(
         context: ValidationContext,
+        input: T,
     ): ValidationResult<T> {
         val context = context.addRoot(input::class.toString())
         val data = extractData(block)
@@ -61,7 +61,7 @@ class ObjectValidator<T : Any> internal constructor(
         val newContext = context.addPath(key)
         val value = rule.transform(input)
         val validator = rule.choose(input)
-        return when (val result = validator.tryValidate(value, newContext)) {
+        return when (val result = validator.execute(newContext, value)) {
             is ValidationResult.Success -> ValidationResult.Success(input, result.context)
             is ValidationResult.Failure -> ValidationResult.Failure(result.details)
         }
@@ -73,7 +73,7 @@ class ObjectValidator<T : Any> internal constructor(
         constraints: List<Constraint<T>>,
     ): ValidationResult<T> {
         val validator = CoreValidator(constraints)
-        return validator.tryValidate(input, context)
+        return validator.execute(context, input)
     }
 
     data class Rule(

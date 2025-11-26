@@ -3,6 +3,7 @@ package example
 import org.komapper.extension.validator.Kova
 import org.komapper.extension.validator.isFailure
 import org.komapper.extension.validator.isSuccess
+import org.komapper.extension.validator.tryValidate
 
 data class User(
     val name: String,

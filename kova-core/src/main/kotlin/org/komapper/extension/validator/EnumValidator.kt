@@ -12,6 +12,6 @@ class EnumValidator<E : Enum<E>> internal constructor(
         message: (ConstraintContext<E>, Set<E>) -> Message = Message.resource1("kova.enum.contains"),
     ): EnumValidator<E> =
         constraint {
-            Constraint.check({ values.contains(it.input) }, { message(it, values) })
+            Constraint.satisfies(values.contains(it.input), message(it, values))
         }
 }

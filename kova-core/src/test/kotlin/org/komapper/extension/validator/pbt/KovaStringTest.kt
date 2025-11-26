@@ -13,6 +13,7 @@ import io.kotest.property.arbitrary.string
 import io.kotest.property.checkAll
 import org.komapper.extension.validator.Kova
 import org.komapper.extension.validator.isSuccess
+import org.komapper.extension.validator.tryValidate
 
 class KovaStringTest :
     FunSpec({

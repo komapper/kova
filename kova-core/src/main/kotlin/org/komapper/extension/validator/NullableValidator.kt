@@ -4,9 +4,9 @@ class NullableValidator<T : Any, S : Any> internal constructor(
     private val delegate: Validator<T?, S?>,
     private val constraint: Constraint<T?> = Constraint { ConstraintResult.Satisfied },
 ) : Validator<T?, S?> {
-    override fun tryValidate(
-        input: T?,
+    override fun execute(
         context: ValidationContext,
+        input: T?,
     ): ValidationResult<S?> {
         val constraintContext = context.createConstraintContext(input)
         return when (val result = constraint.apply(constraintContext)) {
@@ -14,7 +14,7 @@ class NullableValidator<T : Any, S : Any> internal constructor(
                 if (input == null) {
                     ValidationResult.Success(null, context)
                 } else {
-                    delegate.tryValidate(input, context)
+                    delegate.execute(context, input)
                 }
             }
             is ConstraintResult.Violated -> {
@@ -23,7 +23,7 @@ class NullableValidator<T : Any, S : Any> internal constructor(
                 if (context.failFast || input == null) {
                     failure
                 } else {
-                    failure + delegate.tryValidate(input, context)
+                    failure + delegate.execute(context, input)
                 }
             }
         }
@@ -67,10 +67,10 @@ class NullableValidator<T : Any, S : Any> internal constructor(
 class NotNullValidator<T : Any, S : Any> internal constructor(
     private val delegate: Validator<T?, S?>,
 ) : Validator<T?, S?> {
-    override fun tryValidate(
-        input: T?,
+    override fun execute(
         context: ValidationContext,
-    ): ValidationResult<S?> = delegate.tryValidate(input, context)
+        input: T?,
+    ): ValidationResult<S?> = delegate.execute(context, input)
 
     fun asNonNullable(): Validator<T?, S> = map { it!! }
 
@@ -81,16 +81,12 @@ fun <T : Any, S : Any> Validator<T, S>.asNullable(): NullableValidator<T, S> {
     val self = this
     // convert Validator<T, S> to Validator<T?, S?>
     val wrapped =
-        object : Validator<T?, S?> {
-            override fun tryValidate(
-                input: T?,
-                context: ValidationContext,
-            ): ValidationResult<S?> =
-                if (input == null) {
-                    ValidationResult.Success(null, context)
-                } else {
-                    self.tryValidate(input, context)
-                }
+        Validator<T?, S?> { context, input ->
+            if (input == null) {
+                ValidationResult.Success(null, context)
+            } else {
+                self.execute(context, input)
+            }
         }
     return NullableValidator(wrapped)
 }

@@ -4,14 +4,14 @@ fun interface Constraint<T> {
     fun apply(context: ConstraintContext<T>): ConstraintResult
 
     companion object {
-        fun check(
-            predicate: () -> Boolean,
-            onViolated: () -> Message,
+        fun satisfies(
+            condition: Boolean,
+            message: Message,
         ): ConstraintResult =
-            if (predicate()) {
+            if (condition) {
                 ConstraintResult.Satisfied
             } else {
-                ConstraintResult.Violated(onViolated())
+                ConstraintResult.Violated(message)
             }
     }
 }
@@ -29,6 +29,6 @@ sealed interface ConstraintResult {
     data class Violated(
         val message: Message,
     ) : ConstraintResult {
-        constructor(content: String) : this(Message.Text(content))
+        constructor(content: String) : this(Message.Text(content = content))
     }
 }

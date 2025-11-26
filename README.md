@@ -243,9 +243,9 @@ You can add custom constraints to any validator:
 
 ```kotlin
 val validator = Kova.string().constraint { ctx ->
-    Constraint.check(
-        predicate = { ctx.input.contains("@") && ctx.input.contains(".") },
-        onViolated = { Message.Text("Must be a valid email format") }
+    Constraint.satisfies(
+        ctx.input.contains("@") && ctx.input.contains("."),
+        Message.Text("Must be a valid email format")
     )
 }
 ```

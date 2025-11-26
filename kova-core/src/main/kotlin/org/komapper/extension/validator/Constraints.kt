@@ -3,12 +3,12 @@ package org.komapper.extension.validator
 object Constraints {
     fun <T> isNull(message: (ConstraintContext<T?>) -> Message = Message.resource0("kova.nullable.isNull")): Constraint<T?> =
         Constraint {
-            Constraint.check({ it.input == null }, { message(it) })
+            Constraint.satisfies(it.input == null, message(it))
         }
 
     fun <T> isNotNull(message: (ConstraintContext<T?>) -> Message = Message.resource0("kova.nullable.isNotNull")): Constraint<T?> =
         Constraint { ctx ->
-            Constraint.check({ ctx.input != null }, { message(ctx) })
+            Constraint.satisfies(ctx.input != null, message(ctx))
         }
 
     fun <T : Comparable<T>> min(
@@ -16,7 +16,7 @@ object Constraints {
         message: (ConstraintContext<T>, T) -> Message,
     ): Constraint<T> =
         Constraint { ctx ->
-            Constraint.check({ ctx.input >= value }) { message(ctx, value) }
+            Constraint.satisfies(ctx.input >= value, message(ctx, value))
         }
 
     fun <T : Comparable<T>> max(
@@ -24,6 +24,6 @@ object Constraints {
         message: (ConstraintContext<T>, T) -> Message,
     ): Constraint<T> =
         Constraint { ctx ->
-            Constraint.check({ ctx.input <= value }) { message(ctx, value) }
+            Constraint.satisfies(ctx.input <= value, message(ctx, value))
         }
 }

@@ -1,20 +1,37 @@
 package org.komapper.extension.validator
 
+import org.komapper.extension.validator.CoreValidator.Companion.getPattern
+import java.text.MessageFormat
+
 sealed interface Message {
+    val key: String? get() = null
+    val content: String
+
     data class Text(
-        val content: String,
-    ) : Message
+        override val key: String? = null,
+        override val content: String,
+    ) : Message {
+        constructor(content: String) : this(null, content)
+    }
 
     data class Resource(
-        val key: String,
+        override val key: String,
         val args: List<Any?>,
     ) : Message {
         constructor(key: String, vararg args: Any?) : this(key, args.toList())
+
+        override val content: String by lazy {
+            val pattern = getPattern(key)
+            MessageFormat.format(pattern, *args.toTypedArray())
+        }
     }
 
     data class ValidationFailure(
+        override val key: String? = null,
         val details: List<ValidationResult.FailureDetail>,
-    ) : Message
+    ) : Message {
+        override val content: String get() = details.toString()
+    }
 
     companion object {
         fun <T, A0 : ConstraintContext<T>> resource0(key: String): (A0) -> Message =

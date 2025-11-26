@@ -208,13 +208,15 @@ fun interface Constraint<T> {
 }
 ```
 
-The `Constraint.check()` helper simplifies constraint creation:
+The `Constraint.satisfies()` helper simplifies constraint creation:
 
 ```kotlin
-Constraint.check({ predicate }) { message }
+Constraint.satisfies(condition, message)
 ```
 
-Returns `ConstraintResult.Satisfied` if predicate is true, otherwise `ConstraintResult.Violated(message)`.
+Returns `ConstraintResult.Satisfied` if `condition` is true, otherwise `ConstraintResult.Violated(message)`.
+
+**Note**: The old `Constraint.check()` function is deprecated in favor of `satisfies()` for better clarity.
 
 ### ValidationContext and Fail-Fast
 

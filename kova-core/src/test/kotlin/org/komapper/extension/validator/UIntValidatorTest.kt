@@ -20,15 +20,15 @@ class UIntValidatorTest :
                 val result = validator.tryValidate(5u)
                 assertTrue(result.isFailure())
                 result.messages.size shouldBe 2
-                result.messages[0] shouldBe "Comparable 5 must be less than or equal to 2"
-                result.messages[1] shouldBe "Comparable 5 must be less than or equal to 3"
+                result.messages[0].content shouldBe "Comparable 5 must be less than or equal to 2"
+                result.messages[1].content shouldBe "Comparable 5 must be less than or equal to 3"
             }
         }
 
         context("constraint") {
             val validator =
                 Kova.uInt().constraint {
-                    Constraint.check({ it.input == 10u }) { Message.Text("Constraint failed") }
+                    Constraint.satisfies(it.input == 10u, Message.Text("Constraint failed"))
                 }
 
             test("success") {
@@ -39,7 +39,7 @@ class UIntValidatorTest :
             test("failure") {
                 val result = validator.tryValidate(20u)
                 assertTrue(result.isFailure())
-                result.messages.single() shouldBe "Constraint failed"
+                result.messages.single().content shouldBe "Constraint failed"
             }
         }
     })

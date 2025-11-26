@@ -1,9 +1,7 @@
 package org.komapper.extension.validator
 
-import org.komapper.extension.validator.CoreValidator.Companion.getPattern
 import org.komapper.extension.validator.ValidationResult.Failure
 import org.komapper.extension.validator.ValidationResult.Success
-import java.text.MessageFormat
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
@@ -21,7 +19,7 @@ sealed interface ValidationResult<out T> {
 
     data class FailureDetail(
         val context: ValidationContext,
-        val messages: List<String>,
+        val message: Message,
         val cause: Throwable? = null,
     ) {
         val root get() = context.root
@@ -30,8 +28,19 @@ sealed interface ValidationResult<out T> {
         companion object {
             fun extract(
                 context: ValidationContext,
-                constraintResult: ConstraintResult,
-            ): List<FailureDetail> = extractFailureDetailsFromConstraintResult(context, constraintResult)
+                constraintResult: ConstraintResult.Violated,
+            ): List<FailureDetail> = resolveMessage(context, constraintResult.message)
+
+            fun resolveMessage(
+                context: ValidationContext,
+                message: Message,
+                cause: Throwable? = null,
+            ): List<FailureDetail> =
+                when (message) {
+                    is Message.Text -> listOf(FailureDetail(context, message, cause))
+                    is Message.Resource -> listOf(FailureDetail(context, message, cause))
+                    is Message.ValidationFailure -> message.details.flatMap { resolveMessage(it.context, it.message, it.cause) }
+                }
         }
     }
 }
@@ -64,30 +73,10 @@ fun <T> ValidationResult<T>.isFailure(): Boolean {
     return this is ValidationResult.Failure
 }
 
-val <T> ValidationResult<T>.messages: List<String>
+val ValidationResult<*>.messages: List<Message>
     get() =
-        if (isSuccess()) emptyList() else details.map { it.messages }.flatten()
-
-private fun extractFailureDetailsFromConstraintResult(
-    context: ValidationContext,
-    constraintResult: ConstraintResult,
-): List<ValidationResult.FailureDetail> =
-    when (constraintResult) {
-        is ConstraintResult.Satisfied -> emptyList()
-        is ConstraintResult.Violated ->
-            when (val message = constraintResult.message) {
-                is Message.Text -> {
-                    listOf(ValidationResult.FailureDetail(context, listOf(message.content)))
-                }
-
-                is Message.Resource -> {
-                    val pattern = getPattern(message.key)
-                    val formatted = MessageFormat.format(pattern, *message.args.toTypedArray())
-                    listOf(ValidationResult.FailureDetail(context, listOf(formatted)))
-                }
-
-                is Message.ValidationFailure -> {
-                    message.details
-                }
-            }
-    }
+        if (isSuccess()) {
+            emptyList()
+        } else {
+            details.map { it.message }
+        }

@@ -50,8 +50,7 @@ class ObjectValidatorTest :
                 result.details[0].let {
                     it.root shouldEndWith $$"$User"
                     it.path shouldBe "name"
-                    it.messages.size shouldBe 1
-                    it.messages[0] shouldBe "\"too-long-name\" must be at most 10 characters"
+                    it.message.content shouldBe "\"too-long-name\" must be at most 10 characters"
                 }
             }
 
@@ -64,14 +63,12 @@ class ObjectValidatorTest :
                 result.details[0].let {
                     it.root shouldEndWith $$"$User"
                     it.path shouldBe "name"
-                    it.messages.size shouldBe 1
-                    it.messages[0] shouldBe "\"too-long-name\" must be at most 10 characters"
+                    it.message.content shouldBe "\"too-long-name\" must be at most 10 characters"
                 }
                 result.details[1].let {
                     it.root shouldEndWith $$"$User"
                     it.path shouldBe "id"
-                    it.messages.size shouldBe 1
-                    it.messages[0] shouldBe "Number 0 must be greater than or equal to 1"
+                    it.message.content shouldBe "Number 0 must be greater than or equal to 1"
                 }
             }
         }
@@ -106,8 +103,7 @@ class ObjectValidatorTest :
                 result.details[0].let {
                     it.root shouldEndWith $$"$Period"
                     it.path shouldBe ""
-                    it.messages.size shouldBe 1
-                    it.messages[0] shouldBe "startDate must be less than or equal to endDate"
+                    it.message.content shouldBe "startDate must be less than or equal to endDate"
                 }
             }
         }
@@ -136,8 +132,7 @@ class ObjectValidatorTest :
                 result.details[0].let {
                     it.root shouldEndWith $$"$User"
                     it.path shouldBe "name"
-                    it.messages.size shouldBe 1
-                    it.messages[0] shouldBe "\"too-long-name\" must be at most 10 characters"
+                    it.message.content shouldBe "\"too-long-name\" must be at most 10 characters"
                 }
             }
 
@@ -150,14 +145,12 @@ class ObjectValidatorTest :
                 result.details[0].let {
                     it.root shouldEndWith $$"$User"
                     it.path shouldBe "id"
-                    it.messages.size shouldBe 1
-                    it.messages[0] shouldBe "Number 0 must be greater than or equal to 1"
+                    it.message.content shouldBe "Number 0 must be greater than or equal to 1"
                 }
                 result.details[1].let {
                     it.root shouldEndWith $$"$User"
                     it.path shouldBe "name"
-                    it.messages.size shouldBe 1
-                    it.messages[0] shouldBe "\"too-long-name\" must be at most 10 characters"
+                    it.message.content shouldBe "\"too-long-name\" must be at most 10 characters"
                 }
             }
         }
@@ -221,8 +214,7 @@ class ObjectValidatorTest :
                 result.details[0].let {
                     it.root shouldEndWith $$"$Employee"
                     it.path shouldBe "address.street.name"
-                    it.messages.size shouldBe 1
-                    it.messages[0] shouldBe "\"too-long-name\" must be at most 5 characters"
+                    it.message.content shouldBe "\"too-long-name\" must be at most 5 characters"
                 }
             }
         }
@@ -279,8 +271,7 @@ class ObjectValidatorTest :
                 result.details[0].let {
                     it.root shouldEndWith $$"$Employee"
                     it.path shouldBe "address.postalCode"
-                    it.messages.size shouldBe 1
-                    it.messages[0] shouldBe "\"123456789\" must be exactly 8 characters"
+                    it.message.content shouldBe "\"123456789\" must be exactly 8 characters"
                 }
             }
 
@@ -293,8 +284,7 @@ class ObjectValidatorTest :
                 result.details[0].let {
                     it.root shouldEndWith $$"$Employee"
                     it.path shouldBe "address.postalCode"
-                    it.messages.size shouldBe 1
-                    it.messages[0] shouldBe "\"123456789\" must be exactly 5 characters"
+                    it.message.content shouldBe "\"123456789\" must be exactly 5 characters"
                 }
             }
         }
@@ -349,14 +339,12 @@ class ObjectValidatorTest :
                 result.details[0].let {
                     it.root shouldEndWith $$"$Person"
                     it.path shouldBe "name"
-                    it.messages.size shouldBe 1
-                    it.messages[0] shouldBe "Value must not be null"
+                    it.message.content shouldBe "Value must not be null"
                 }
                 result.details[1].let {
                     it.root shouldEndWith $$"$Person"
                     it.path shouldBe "address"
-                    it.messages.size shouldBe 1
-                    it.messages[0] shouldBe "Value must not be null"
+                    it.message.content shouldBe "Value must not be null"
                 }
             }
         }
@@ -385,14 +373,12 @@ class ObjectValidatorTest :
                 with(result.details[0]) {
                     root shouldEndWith $$"$User"
                     path shouldBe "ID"
-                    messages.size shouldBe 1
-                    messages[0] shouldBe "Number 0 must be greater than or equal to 1"
+                    message.content shouldBe "Number 0 must be greater than or equal to 1"
                 }
                 with(result.details[1]) {
                     root shouldEndWith $$"$User"
                     path shouldBe "NAME"
-                    messages.size shouldBe 1
-                    messages[0] shouldBe "\"\" must be at least 1 characters"
+                    message.content shouldBe "\"\" must be at least 1 characters"
                 }
             }
         }
@@ -432,8 +418,7 @@ class ObjectValidatorTest :
                 result.details[0].let {
                     it.root shouldEndWith $$"$Employee"
                     it.path shouldBe "address.street.name"
-                    it.messages.size shouldBe 1
-                    it.messages[0] shouldBe "\"too-long-name\" must be at most 5 characters"
+                    it.message.content shouldBe "\"too-long-name\" must be at most 5 characters"
                 }
             }
         }
@@ -455,8 +440,7 @@ class ObjectValidatorTest :
                 result.details[0].let {
                     it.root shouldEndWith $$"$Request"
                     it.path shouldBe "key"
-                    it.messages.size shouldBe 1
-                    it.messages[0] shouldBe "\"\" must be at least 1 characters"
+                    it.message.content shouldBe "\"\" must be at least 1 characters"
                 }
             }
         }
@@ -479,8 +463,7 @@ class ObjectValidatorTest :
                 result.details[0].let {
                     it.root shouldEndWith $$"$Request"
                     it.path shouldBe "key"
-                    it.messages.size shouldBe 1
-                    it.messages[0] shouldBe "\"\" must be at least 1 characters"
+                    it.message.content shouldBe "\"\" must be at least 1 characters"
                 }
             }
         }
