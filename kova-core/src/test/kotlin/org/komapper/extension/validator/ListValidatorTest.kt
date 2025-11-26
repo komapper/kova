@@ -3,7 +3,6 @@ package org.komapper.extension.validator
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldEndWith
-import kotlin.test.assertTrue
 
 class ListValidatorTest :
     FunSpec({

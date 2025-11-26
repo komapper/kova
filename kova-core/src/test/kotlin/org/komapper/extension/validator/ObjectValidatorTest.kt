@@ -4,7 +4,6 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldEndWith
 import java.time.LocalDate
-import kotlin.test.assertTrue
 
 class ObjectValidatorTest :
     FunSpec({

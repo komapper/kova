@@ -2,7 +2,6 @@ package org.komapper.extension.validator
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import kotlin.test.assertTrue
 
 class ConditionalValidatorTest :
     FunSpec({

@@ -10,7 +10,6 @@ repositories {
 
 dependencies {
     implementation(libs.kotlin.reflect)
-    testImplementation(kotlin("test"))
     testImplementation(libs.kotest.assertions.core)
     testImplementation(libs.kotest.property)
     testImplementation(libs.kotest.framework.engine)
