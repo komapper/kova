@@ -118,7 +118,16 @@ val notNullAndMinValidator = Kova.nullable<String>().isNotNullAnd(Kova.string().
 val result1 = notNullAndMinValidator.tryValidate(null)       // Failure (null not allowed)
 val result2 = notNullAndMinValidator.tryValidate("hello")    // Success("hello")
 val result3 = notNullAndMinValidator.tryValidate("hi")       // Failure (min(5) violated)
+
+// Convert any validator to nullable using asNullable()
+val validator = Kova.string().min(5).asNullable()
+
+// Additional helper functions
+// whenNotNull: chain validators that handle nullable types
+val validator = Kova.nullable<String>().whenNotNull(Kova.string().min(5))
 ```
+
+**Note**: `isNotNull()` and `isNotNullAnd()` return a `NotNullValidator`, which is a specialized validator that enforces non-null constraints while maintaining type safety.
 
 ## Available Validators
 
@@ -194,6 +203,13 @@ Kova.uByte()
 Kova.uShort()
 
 // Support min/max comparisons
+```
+
+### Generic Validator
+
+```kotlin
+Kova.generic<T>()  // No-op validator that always succeeds
+                   // Useful as a base for custom validators or with nullable()
 ```
 
 ## Error Handling

@@ -80,14 +80,16 @@ val person = factory.create("Alice", 30)  // Validates and constructs
 
 ### Key Components
 
-- **Validator<IN, OUT>**: Core interface with `tryValidate()` method
+- **Validator<IN, OUT>**: Core interface with `execute(context, input)` method; public API uses `tryValidate()` and `validate()` extension functions
 - **ValidationResult**: Sealed interface with `Success<T>` and `Failure` cases
 - **CoreValidator**: Generic constraint evaluator used internally by all type-specific validators
 - **Type-Specific Validators**: CharSequenceValidator, NumberValidator, ComparableValidator, CollectionValidator, MapValidator, EnumValidator
 - **ObjectValidator**: Validates objects by validating individual properties
 - **ObjectFactory**: Constructs objects from validated inputs via reflection
 - **NullableValidator**: Wraps validators to handle nullable types
+- **NotNullValidator**: Specialized validator returned by `isNotNull()` and `isNotNullAnd()` that enforces non-null constraints
 - **ConditionalValidator**: Supports conditional validation logic
+- **EmptyValidator**: No-op validator that always succeeds, used by `Kova.generic()`
 
 ### Validator Composition
 
@@ -112,6 +114,8 @@ val validator = stringValidator.andThen(intValidator)
 // Add constraints to existing validators
 val validator = Kova.string().constraint { ctx -> /* ... */ }
 ```
+
+**Execution Model**: Validators implement the `execute(context, input)` method which handles the validation logic. The public API uses extension functions `tryValidate(input, failFast)` and `validate(input, failFast)` which create a `ValidationContext` and call `execute()` internally.
 
 ### Nullable Handling
 
@@ -142,7 +146,10 @@ val notNullAndMinValidator = Kova.nullable<String>().isNotNullAnd(Kova.string().
 
 **Key behavior**: By default, `Kova.nullable()` treats null as a valid value. Use `isNotNull()` or `isNotNullAnd()` to enforce non-null requirements.
 
-**Implementation note**: The `asNullable()` extension method is also available on any validator as an alternative API for converting a validator to nullable.
+**Implementation note**:
+- The `asNullable()` extension method is also available on any validator as an alternative API for converting a validator to nullable
+- `Kova.nullable()` internally uses `Kova.generic()` which creates an `EmptyValidator` that always succeeds
+- `NotNullValidator` is returned by `isNotNull()` and `isNotNullAnd()` methods, providing type-safe non-null validation
 
 ### ValidationResult Algebra
 
@@ -188,12 +195,17 @@ Heavy use of Kotlin reflection (`KClass`, `KProperty1`, `KParameter`, `KFunction
 
 ### Delegation Pattern
 
-Type-specific validators use class delegation to `CoreValidator`:
+Type-specific validators typically delegate their `execute()` implementation while providing type-specific constraint methods:
 
 ```kotlin
 class CharSequenceValidator<T : CharSequence>(
-    private val delegate: CoreValidator<T, T> = CoreValidator(transform = { it })
-) : Validator<T, T> by delegate
+    private val delegate: CoreValidator<T>
+) : Validator<T, T> {
+    override fun execute(context: ValidationContext, input: T): ValidationResult<T> =
+        delegate.execute(context, input)
+
+    fun min(length: Int): CharSequenceValidator<T> = /* returns new instance with constraint */
+}
 ```
 
 This provides core validation logic while allowing type-specific extension methods. When adding constraints, a new instance with updated constraints is returned.
@@ -253,11 +265,11 @@ When `failFast` is true, validation stops at the first constraint violation.
 - `MapValidator.kt` - Validates maps (size, key/value validators)
 - `MapEntryValidator.kt` - Validates individual map entries
 - `EnumValidator.kt` - Validates enum values
-- `GenericValidator.kt` - Generic validator with transformation support
+- `EmptyValidator.kt` - No-op validator used by `Kova.generic()` that always succeeds
 
 **Special Validators**:
 - `ObjectValidator.kt` - Validates objects by validating individual properties with DSL
-- `NullableValidator.kt` - Wraps validators to handle nullable types
+- `NullableValidator.kt` - Wraps validators to handle nullable types (includes `NotNullValidator` class)
 - `ConditionalValidator.kt` - Supports conditional validation logic
 
 **Object Construction**:
