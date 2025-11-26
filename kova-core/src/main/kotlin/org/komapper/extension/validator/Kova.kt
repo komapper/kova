@@ -43,9 +43,9 @@ interface Kova {
 
     fun <K, V> mapEntry(): MapEntryValidator<K, V> = MapEntryValidator()
 
-    fun <T> generic(): GenericValidator<T, T> = GenericValidator({ it })
+    fun <T> generic(): Validator<T, T> = EmptyValidator()
 
-    fun <T> nullable(): NullableValidator<T> = NullableValidator(generic())
+    fun <T : Any> nullable(): NullableValidator<T, T> = NullableValidator(generic())
 
     fun <E : Enum<E>> enum(): EnumValidator<E> = EnumValidator()
 

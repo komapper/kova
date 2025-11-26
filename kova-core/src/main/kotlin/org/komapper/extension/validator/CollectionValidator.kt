@@ -1,7 +1,7 @@
 package org.komapper.extension.validator
 
 class CollectionValidator<E, C : Collection<E>> internal constructor(
-    private val delegate: CoreValidator<C, C> = CoreValidator(transform = { it }),
+    private val delegate: CoreValidator<C> = CoreValidator(),
 ) : Validator<C, C> by delegate {
     operator fun plus(other: CollectionValidator<E, C>): CollectionValidator<E, C> = CollectionValidator(delegate + other.delegate)
 

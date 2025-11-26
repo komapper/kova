@@ -1,7 +1,7 @@
 package org.komapper.extension.validator
 
 class MapValidator<K, V> internal constructor(
-    private val delegate: CoreValidator<Map<K, V>, Map<K, V>> = CoreValidator(transform = { it }),
+    private val delegate: CoreValidator<Map<K, V>> = CoreValidator(),
 ) : Validator<Map<K, V>, Map<K, V>> by delegate {
     operator fun plus(other: MapValidator<K, V>): MapValidator<K, V> = MapValidator(delegate + other.delegate)
 

@@ -1,7 +1,7 @@
 package org.komapper.extension.validator
 
 class EnumValidator<E : Enum<E>> internal constructor(
-    private val delegate: CoreValidator<E, E> = CoreValidator(transform = { it }),
+    private val delegate: CoreValidator<E> = CoreValidator(),
 ) : Validator<E, E> by delegate {
     operator fun plus(other: EnumValidator<E>): EnumValidator<E> = EnumValidator(delegate + other.delegate)
 

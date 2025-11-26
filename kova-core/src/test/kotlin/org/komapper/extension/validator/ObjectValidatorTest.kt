@@ -463,7 +463,6 @@ class ObjectValidatorTest :
 
         context("obj - nullable") {
             val nullableString = Kova.nullable<String>().whenNotNull(Kova.string().min(1))
-            Kova.obj<Request>().asNullable().whenNotNull(Kova.obj<Request>())
 
             val validator = Kova.obj<Request>().map("key") { it["key"] }.andThen(nullableString)
 

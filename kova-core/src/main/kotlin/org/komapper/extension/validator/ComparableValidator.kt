@@ -1,7 +1,7 @@
 package org.komapper.extension.validator
 
 class ComparableValidator<T : Comparable<T>> internal constructor(
-    private val delegate: CoreValidator<T, T> = CoreValidator(transform = { it }),
+    private val delegate: CoreValidator<T> = CoreValidator(),
 ) : Validator<T, T> by delegate {
     operator fun plus(other: ComparableValidator<T>): ComparableValidator<T> = ComparableValidator(delegate + other.delegate)
 

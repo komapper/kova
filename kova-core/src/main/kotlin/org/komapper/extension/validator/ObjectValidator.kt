@@ -72,7 +72,7 @@ class ObjectValidator<T : Any> internal constructor(
         context: ValidationContext,
         constraints: List<Constraint<T>>,
     ): ValidationResult<T> {
-        val validator = CoreValidator(constraints, { it })
+        val validator = CoreValidator(constraints)
         return validator.tryValidate(input, context)
     }
 

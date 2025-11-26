@@ -1,7 +1,7 @@
 package org.komapper.extension.validator
 
 class CharSequenceValidator<T : CharSequence> internal constructor(
-    private val delegate: CoreValidator<T, T> = CoreValidator(transform = { it }),
+    private val delegate: CoreValidator<T> = CoreValidator(),
 ) : Validator<T, T> by delegate {
     operator fun plus(other: CharSequenceValidator<T>): CharSequenceValidator<T> = CharSequenceValidator(delegate + other.delegate)
 
