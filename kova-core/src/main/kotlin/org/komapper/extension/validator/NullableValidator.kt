@@ -37,7 +37,9 @@ class NullableValidator<T : Any, S : Any> internal constructor(
     ): NullableValidator<T, S> = NullableValidator(delegate, Constraint(key, constraint))
 
     fun isNull(message: (ConstraintContext<T?>) -> Message = Message.resource0()): NullableValidator<T, S> =
-        constraint("kova.nullable.isNull", Constraints.isNull(message))
+        constraint("kova.nullable.isNull", {
+            satisfies(it.input == null, message(it))
+        })
 
     fun isNullOr(
         vararg validators: Validator<T, S>,
@@ -48,9 +50,13 @@ class NullableValidator<T : Any, S : Any> internal constructor(
         return NullableValidator(validator)
     }
 
-    // TODO
-    fun isNotNull(message: (ConstraintContext<T?>) -> Message = Message.resource0()): NotNullValidator<T, S> =
-        NotNullValidator(constraint("kova.nullable.isNotNull", Constraints.isNotNull(message)))
+    fun isNotNull(message: (ConstraintContext<T?>) -> Message = Message.resource0()): NotNullValidator<T, S> {
+        val nullableValidator =
+            constraint("kova.nullable.isNotNull", { ctx ->
+                satisfies(ctx.input != null, message(ctx))
+            })
+        return NotNullValidator(nullableValidator)
+    }
 
     fun isNotNullAnd(
         vararg validators: Validator<T, S>,
