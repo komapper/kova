@@ -7,7 +7,7 @@ class MapValidator<K, V> internal constructor(
 
     fun constraint(
         key: String,
-        check: (ConstraintContext<Map<K, V>>) -> ConstraintResult,
+        check: ConstraintScope.(ConstraintContext<Map<K, V>>) -> ConstraintResult,
     ): MapValidator<K, V> =
         MapValidator(
             delegate + Constraint(key, check),
@@ -18,7 +18,7 @@ class MapValidator<K, V> internal constructor(
         message: (ConstraintContext<Map<K, V>>, Int, Int) -> Message = Message.resource2(),
     ): MapValidator<K, V> =
         constraint("kova.map.min") {
-            Constraint.satisfies(it.input.size >= size, message(it, it.input.size, size))
+            satisfies(it.input.size >= size, message(it, it.input.size, size))
         }
 
     fun onEach(validator: Validator<Map.Entry<K, V>, Map.Entry<K, V>>): MapValidator<K, V> =
@@ -45,7 +45,7 @@ class MapValidator<K, V> internal constructor(
             }
         }
 
-    private fun <T> validateOnEach(
+    private fun <T> ConstraintScope.validateOnEach(
         context: ConstraintContext<Map<K, V>>,
         validate: (Map.Entry<K, V>, ValidationContext) -> ValidationResult<T>,
     ): ConstraintResult {
@@ -61,6 +61,6 @@ class MapValidator<K, V> internal constructor(
             }
         }
         val failureDetails = failures.flatMap { it.details }
-        return Constraint.satisfies(failureDetails.isEmpty(), Message.ValidationFailure(details = failureDetails))
+        return satisfies(failureDetails.isEmpty(), Message.ValidationFailure(details = failureDetails))
     }
 }

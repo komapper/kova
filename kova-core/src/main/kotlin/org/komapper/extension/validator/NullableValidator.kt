@@ -33,7 +33,7 @@ class NullableValidator<T : Any, S : Any> internal constructor(
 
     fun constraint(
         key: String,
-        constraint: (ConstraintContext<T?>) -> ConstraintResult,
+        constraint: ConstraintScope.(ConstraintContext<T?>) -> ConstraintResult,
     ): NullableValidator<T, S> = NullableValidator(delegate, Constraint(key, constraint))
 
     fun isNull(message: (ConstraintContext<T?>) -> Message = Message.resource0()): NullableValidator<T, S> =

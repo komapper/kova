@@ -2,20 +2,11 @@ package org.komapper.extension.validator
 
 data class Constraint<T>(
     val key: String,
-    val check: (ConstraintContext<T>) -> ConstraintResult,
+    val check: ConstraintScope.(ConstraintContext<T>) -> ConstraintResult,
 ) {
-    fun apply(context: ConstraintContext<T>): ConstraintResult = check(context)
-
-    companion object {
-        fun satisfies(
-            condition: Boolean,
-            message: Message,
-        ): ConstraintResult =
-            if (condition) {
-                ConstraintResult.Satisfied
-            } else {
-                ConstraintResult.Violated(message)
-            }
+    fun apply(context: ConstraintContext<T>): ConstraintResult {
+        val scope = ConstraintScope()
+        return scope.check(context)
     }
 }
 
@@ -35,4 +26,16 @@ sealed interface ConstraintResult {
     ) : ConstraintResult {
         constructor(content: String) : this(Message.Text(content = content))
     }
+}
+
+class ConstraintScope {
+    fun satisfies(
+        condition: Boolean,
+        message: Message,
+    ): ConstraintResult =
+        if (condition) {
+            ConstraintResult.Satisfied
+        } else {
+            ConstraintResult.Violated(message)
+        }
 }

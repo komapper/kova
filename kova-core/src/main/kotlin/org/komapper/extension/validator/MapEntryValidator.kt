@@ -7,7 +7,7 @@ class MapEntryValidator<K, V> internal constructor(
 
     fun constraint(
         key: String,
-        check: (ConstraintContext<Map.Entry<K, V>>) -> ConstraintResult,
+        check: ConstraintScope.(ConstraintContext<Map.Entry<K, V>>) -> ConstraintResult,
     ): MapEntryValidator<K, V> =
         MapEntryValidator(
             delegate + Constraint(key, check),

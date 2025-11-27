@@ -7,7 +7,7 @@ class ComparableValidator<T : Comparable<T>> internal constructor(
 
     fun constraint(
         key: String,
-        check: (ConstraintContext<T>) -> ConstraintResult,
+        check: ConstraintScope.(ConstraintContext<T>) -> ConstraintResult,
     ): ComparableValidator<T> =
         ComparableValidator(
             delegate + Constraint(key, check),

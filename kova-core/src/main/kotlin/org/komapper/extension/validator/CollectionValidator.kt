@@ -7,7 +7,7 @@ class CollectionValidator<E, C : Collection<E>> internal constructor(
 
     fun constraint(
         key: String,
-        check: (ConstraintContext<C>) -> ConstraintResult,
+        check: ConstraintScope.(ConstraintContext<C>) -> ConstraintResult,
     ): CollectionValidator<E, C> =
         CollectionValidator(
             delegate + Constraint(key, check),
@@ -18,7 +18,7 @@ class CollectionValidator<E, C : Collection<E>> internal constructor(
         message: (ConstraintContext<C>, Int, Int) -> Message = Message.resource2(),
     ): CollectionValidator<E, C> =
         constraint("kova.collection.min") {
-            Constraint.satisfies(it.input.size >= size, message(it, it.input.size, size))
+            satisfies(it.input.size >= size, message(it, it.input.size, size))
         }
 
     fun onEach(validator: Validator<E, E>): CollectionValidator<E, C> =
@@ -36,6 +36,6 @@ class CollectionValidator<E, C : Collection<E>> internal constructor(
                 }
             }
             val failureDetails = failures.flatMap { failure -> failure.details }
-            Constraint.satisfies(failureDetails.isEmpty(), Message.ValidationFailure(details = failureDetails))
+            satisfies(failureDetails.isEmpty(), Message.ValidationFailure(details = failureDetails))
         }
 }

@@ -8,7 +8,7 @@ class NumberValidator<T> internal constructor(
 
     fun constraint(
         key: String,
-        check: (ConstraintContext<T>) -> ConstraintResult,
+        check: ConstraintScope.(ConstraintContext<T>) -> ConstraintResult,
     ): NumberValidator<T> =
         NumberValidator(
             delegate + Constraint(key, check),

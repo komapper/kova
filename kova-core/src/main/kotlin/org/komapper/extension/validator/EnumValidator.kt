@@ -7,7 +7,7 @@ class EnumValidator<E : Enum<E>> internal constructor(
 
     fun constraint(
         key: String,
-        check: (ConstraintContext<E>) -> ConstraintResult,
+        check: ConstraintScope.(ConstraintContext<E>) -> ConstraintResult,
     ): EnumValidator<E> =
         EnumValidator(
             delegate + Constraint(key, check),
@@ -18,6 +18,6 @@ class EnumValidator<E : Enum<E>> internal constructor(
         message: (ConstraintContext<E>, Set<E>) -> Message = Message.resource1(),
     ): EnumValidator<E> =
         constraint("kova.enum.contains") {
-            Constraint.satisfies(values.contains(it.input), message(it, values))
+            satisfies(values.contains(it.input), message(it, values))
         }
 }

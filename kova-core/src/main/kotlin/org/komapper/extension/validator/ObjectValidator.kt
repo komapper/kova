@@ -113,7 +113,7 @@ class ObjectValidatorScope<T : Any>(
 
     fun constraint(
         key: String,
-        check: (ConstraintContext<T>) -> ConstraintResult,
+        check: ConstraintScope.(ConstraintContext<T>) -> ConstraintResult,
     ) = constraints.add(Constraint(key, check))
 
     operator fun <V> KProperty1<T, V>.invoke(choose: (T) -> Validator<V, V>) {
