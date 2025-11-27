@@ -1,18 +1,32 @@
 package org.komapper.extension.validator
 
-class NumberValidator<T> internal constructor(
-    private val delegate: CoreValidator<T> = CoreValidator(),
-) : Validator<T, T> by delegate
+open class NumberValidator<T> internal constructor(
+    // TODO
+    private val constraint: Constraint<T> = Constraint("kova.number") { ConstraintResult.Satisfied },
+) : Validator<T, T>
     where T : Number, T : Comparable<T> {
-    operator fun plus(other: NumberValidator<T>): NumberValidator<T> = NumberValidator(delegate + other.delegate)
+    override fun execute(
+        context: ValidationContext,
+        input: T,
+    ): ValidationResult<T> = CoreValidator(constraint).execute(context, input)
 
     fun constraint(
         key: String,
         check: ConstraintScope.(ConstraintContext<T>) -> ConstraintResult,
-    ): NumberValidator<T> =
-        NumberValidator(
-            delegate + Constraint(key, check),
-        )
+    ): NumberValidator<T> {
+        val before = this
+        return object : NumberValidator<T>(
+            Constraint(key, check),
+        ) {
+            override fun execute(
+                context: ValidationContext,
+                input: T,
+            ): ValidationResult<T> =
+                chain(before, context, input) { context, input ->
+                    super.execute(context, input)
+                }
+        }
+    }
 
     fun min(
         value: T,

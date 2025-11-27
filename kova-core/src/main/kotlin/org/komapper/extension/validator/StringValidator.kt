@@ -22,7 +22,7 @@ open class StringValidator internal constructor(
                 context: ValidationContext,
                 input: String,
             ): ValidationResult<String> =
-                chain(self, context, input, { it }) { context, input ->
+                chain(self, context, input) { context, input ->
                     super.execute(context, input)
                 }
         }
@@ -143,24 +143,3 @@ open class StringValidator internal constructor(
 }
 
 fun StringValidator.toInt(): Validator<String, Int> = isInt().map { it.toInt() }
-
-fun <T> chain(
-    before: Validator<T, T>,
-    context: ValidationContext,
-    input: T,
-    transform: (T) -> T,
-    next: (ValidationContext, T) -> ValidationResult<T>,
-): ValidationResult<T> =
-    when (val result = before.execute(context, input)) {
-        is ValidationResult.Success -> {
-            next(result.context, transform(result.value))
-        }
-
-        is ValidationResult.Failure -> {
-            if (context.failFast) {
-                result
-            } else {
-                result + next(context, transform(input))
-            }
-        }
-    }

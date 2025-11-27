@@ -1,6 +1,9 @@
 package org.komapper.extension.validator
 
-class NullableValidator<T : Any, S : Any> internal constructor(
+import org.komapper.extension.validator.ValidationResult.Failure
+import org.komapper.extension.validator.ValidationResult.Success
+
+open class NullableValidator<T : Any, S : Any> internal constructor(
     private val delegate: Validator<T?, S?>,
     private val constraint: Constraint<T?> = Constraint("kova.nullable") { ConstraintResult.Satisfied },
 ) : Validator<T?, S?> {
@@ -34,7 +37,27 @@ class NullableValidator<T : Any, S : Any> internal constructor(
     fun constraint(
         key: String,
         constraint: ConstraintScope.(ConstraintContext<T?>) -> ConstraintResult,
-    ): NullableValidator<T, S> = NullableValidator(delegate, Constraint(key, constraint))
+    ): NullableValidator<T, S> {
+        val before = this
+        return object : NullableValidator<T, S>(delegate, Constraint(key, constraint)) {
+            override fun execute(
+                context: ValidationContext,
+                input: T?,
+            ): ValidationResult<S?> =
+                when (val result = before.execute(context, input)) {
+                    is Success -> {
+                        super.execute(result.context, input)
+                    }
+
+                    is Failure ->
+                        if (context.failFast) {
+                            result
+                        } else {
+                            super.execute(context, input)
+                        }
+                }
+        }
+    }
 
     fun isNull(message: (ConstraintContext<T?>) -> Message = Message.resource0()): NullableValidator<T, S> =
         constraint("kova.nullable.isNull", {
