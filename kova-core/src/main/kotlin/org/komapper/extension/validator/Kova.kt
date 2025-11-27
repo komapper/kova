@@ -5,9 +5,7 @@ import java.math.BigInteger
 import kotlin.reflect.KClass
 
 interface Kova {
-    fun <T : CharSequence> charSequence(): CharSequenceValidator<T> = CharSequenceValidator()
-
-    fun string(): CharSequenceValidator<String> = CharSequenceValidator()
+    fun string(): StringValidator = StringValidator()
 
     fun int(): NumberValidator<Int> = NumberValidator()
 

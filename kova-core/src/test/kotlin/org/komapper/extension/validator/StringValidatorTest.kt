@@ -9,7 +9,7 @@ class StringValidatorTest :
 
         context("plus") {
             val validator = Kova.string().max(2) + Kova.string().max(3)
-            validator.shouldBeInstanceOf<CharSequenceValidator<String>>()
+            validator.shouldBeInstanceOf<StringValidator>()
 
             test("success") {
                 val result = validator.tryValidate("1")
