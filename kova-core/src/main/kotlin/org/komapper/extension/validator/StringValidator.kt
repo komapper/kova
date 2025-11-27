@@ -1,9 +1,15 @@
 package org.komapper.extension.validator
 
+
 open class StringValidator internal constructor(
     // TODO
-    private val constraint: Constraint<String> = Constraint("kova.charSequence") { ConstraintResult.Satisfied },
+    private val constraint: Constraint<String> = defaultConstraint,
 ) : Validator<String, String> {
+
+    companion object {
+        val defaultConstraint: Constraint<String> = Constraint("kova.charSequence") { ConstraintResult.Satisfied }
+    }
+
     override fun execute(
         context: ValidationContext,
         input: String,
@@ -12,34 +18,24 @@ open class StringValidator internal constructor(
         return CoreValidator(constraint).execute(context, input)
     }
 
-    fun constraint(
-        key: String,
-        check: ConstraintScope.(ConstraintContext<String>) -> ConstraintResult,
-    ): StringValidator {
-        val self = this
-        return object : StringValidator(Constraint(key, check)) {
-            override fun execute(
-                context: ValidationContext,
-                input: String,
-            ): ValidationResult<String> =
-                chain(self, context, input) { context, input ->
-                    super.execute(context, input)
-                }
+    private class Chain(
+        val before: StringValidator,
+        val transform: (String) -> String = { it },
+        constraint: Constraint<String> = defaultConstraint,
+    ) : StringValidator(constraint) {
+        override fun execute(context: ValidationContext, input: String): ValidationResult<String> {
+            return chain(before, context, input) { context, input ->
+                super.execute(context, transform(input))
+            }
         }
     }
 
-    fun modify(transform: (String) -> String): StringValidator {
-        val self = this
-        return object : StringValidator() {
-            override fun execute(
-                context: ValidationContext,
-                input: String,
-            ): ValidationResult<String> =
-                chain(self, context, input, transform) { context, input ->
-                    super.execute(context, transform(input))
-                }
-        }
-    }
+    fun constraint(
+        key: String,
+        check: ConstraintScope.(ConstraintContext<String>) -> ConstraintResult,
+    ): StringValidator = Chain(before = this, constraint = Constraint(key, check))
+
+    fun modify(transform: (String) -> String): StringValidator = Chain(before = this, transform = transform)
 
     fun min(
         length: Int,

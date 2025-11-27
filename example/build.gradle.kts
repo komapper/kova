@@ -14,3 +14,9 @@ dependencies {
 kotlin {
     jvmToolchain(17)
 }
+
+tasks {
+    test {
+        dependsOn(":kova-core:kotest")
+    }
+}
