@@ -30,7 +30,6 @@ class CoreValidator<T>(
             }
 
         return if (failureDetails.isEmpty()) {
-            // TODO error handling
             ValidationResult.Success(input, context)
         } else {
             ValidationResult.Failure(failureDetails)

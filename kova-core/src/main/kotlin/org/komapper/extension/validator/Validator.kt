@@ -62,10 +62,23 @@ fun <IN, OUT, NEW> Validator<IN, OUT>.map(
 ): Validator<IN, NEW> {
     val self = this
     return Validator { context, input ->
-        val newContext = context.addPath(name)
-        when (val result = self.execute(newContext, input)) {
-            // TODO error handling
-            is Success -> Success(transform(result.value), result.context)
+        val context = context.addPath(name)
+        when (val result = self.execute(context, input)) {
+            is Success -> {
+                try {
+                    Success(transform(result.value), result.context)
+                } catch (cause: Exception) {
+                    val message =
+                        if (cause is MessageException) {
+                            cause.validationMessage
+                        } else {
+                            Message.Text(cause.message.toString())
+                        }
+                    val detail = ValidationResult.FailureDetail(result.context, message, cause)
+                    Failure(detail)
+                }
+            }
+
             is Failure -> result
         }
     }

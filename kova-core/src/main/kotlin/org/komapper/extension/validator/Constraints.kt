@@ -1,12 +1,12 @@
 package org.komapper.extension.validator
 
 object Constraints {
-    fun <T> isNull(message: (ConstraintContext<T?>) -> Message = Message.resource0("kova.nullable.isNull")): Constraint<T?> =
+    fun <T> isNull(message: (ConstraintContext<T?>) -> Message): Constraint<T?> =
         Constraint {
             Constraint.satisfies(it.input == null, message(it))
         }
 
-    fun <T> isNotNull(message: (ConstraintContext<T?>) -> Message = Message.resource0("kova.nullable.isNotNull")): Constraint<T?> =
+    fun <T> isNotNull(message: (ConstraintContext<T?>) -> Message): Constraint<T?> =
         Constraint { ctx ->
             Constraint.satisfies(ctx.input != null, message(ctx))
         }

@@ -437,6 +437,7 @@ class ObjectValidatorTest :
                 result.isFailure().mustBeTrue()
                 result.details.size shouldBe 1
                 result.details[0].let {
+                    println(it)
                     it.root shouldEndWith $$"$Request"
                     it.path shouldBe "key"
                     it.message.content shouldBe "\"\" must be at least 1 characters"

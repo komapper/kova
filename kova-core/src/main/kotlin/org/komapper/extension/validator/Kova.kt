@@ -55,6 +55,8 @@ interface Kova {
 
     fun <T : Any> factory(block: KovaFactoryScope.() -> T): T = block(KovaFactoryScope)
 
+    fun error(message: Message): Nothing = throw MessageException(message)
+
     companion object : Kova
 }
 

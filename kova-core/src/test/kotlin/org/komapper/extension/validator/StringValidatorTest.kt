@@ -246,4 +246,72 @@ class StringValidatorTest :
                 result.messages.single().content shouldBe "\"12\" must be at most 1 characters"
             }
         }
+
+        context("literal") {
+            val tuna = Kova.string().literal("tuna")
+
+            test("success") {
+                val result = tuna.tryValidate("tuna")
+                result.isSuccess().mustBeTrue()
+            }
+            test("failure") {
+                val result = tuna.tryValidate("salmon")
+                result.isFailure().mustBeTrue()
+                result.messages.single().content shouldBe "\"salmon\" must be \"tuna\""
+            }
+        }
+
+        context("literals") {
+            val tuna = Kova.string().literals(listOf("tuna", "sushi"))
+
+            test("success") {
+                val result = tuna.tryValidate("tuna")
+                result.isSuccess().mustBeTrue()
+            }
+            test("failure") {
+                val result = tuna.tryValidate("salmon")
+                result.isFailure().mustBeTrue()
+                result.messages.single().content shouldBe "\"salmon\" must be one of [tuna, sushi]"
+            }
+        }
+
+        context("map - string bools") {
+            val stringBools =
+                Kova.string().map {
+                    when (it) {
+                        "true" -> true
+                        "1" -> true
+                        "false" -> false
+                        "0" -> false
+                        else -> Kova.error(Message.Text("\"$it\" is not a boolean value"))
+                    }
+                }
+
+            test("success - true") {
+                val result = stringBools.tryValidate("true")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe true
+            }
+            test("success - 1") {
+                val result = stringBools.tryValidate("1")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe true
+            }
+            test("success - false") {
+                val result = stringBools.tryValidate("false")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe false
+            }
+            test("success - 0") {
+                val result = stringBools.tryValidate("0")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe false
+            }
+            test("failure") {
+                val result = stringBools.tryValidate("abc")
+                result.isFailure().mustBeTrue()
+                val message = result.details.single().message
+                message.content shouldBe "\"abc\" is not a boolean value"
+            }
+        }
     })

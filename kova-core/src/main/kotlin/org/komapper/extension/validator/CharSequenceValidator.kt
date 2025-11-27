@@ -82,6 +82,22 @@ class CharSequenceValidator<T : CharSequence> internal constructor(
         constraint {
             Constraint.satisfies(it.input.toString().toIntOrNull() != null, message(it))
         }
+
+    fun literal(
+        value: CharSequence,
+        message: (ConstraintContext<T>, CharSequence) -> Message = Message.resource1("kova.charSequence.literal"),
+    ): CharSequenceValidator<T> =
+        constraint {
+            Constraint.satisfies(it.input.contentEquals(value), message(it, value))
+        }
+
+    fun literals(
+        values: List<CharSequence>,
+        message: (ConstraintContext<T>, List<CharSequence>) -> Message = Message.resource1("kova.charSequence.literals"),
+    ): CharSequenceValidator<T> =
+        constraint { ctx ->
+            Constraint.satisfies(values.any { it.contentEquals(ctx.input) }, message(ctx, values))
+        }
 }
 
 fun <T : CharSequence> CharSequenceValidator<T>.toInt(): Validator<T, Int> = isInt().map { it.toString().toInt() }
