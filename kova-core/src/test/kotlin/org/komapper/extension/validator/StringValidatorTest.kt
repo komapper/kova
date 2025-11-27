@@ -414,4 +414,118 @@ class StringValidatorTest :
                 result.messages.single().content shouldBe "\"\" must be at least 3 characters"
             }
         }
+
+        context("toUpperCase") {
+            val toUpperCase = Kova.string().toUpperCase()
+
+            test("success - lowercase to uppercase") {
+                val result = toUpperCase.tryValidate("hello")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "HELLO"
+            }
+
+            test("success - mixed case to uppercase") {
+                val result = toUpperCase.tryValidate("HeLLo")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "HELLO"
+            }
+
+            test("success - already uppercase") {
+                val result = toUpperCase.tryValidate("HELLO")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "HELLO"
+            }
+
+            test("success - empty string") {
+                val result = toUpperCase.tryValidate("")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe ""
+            }
+
+            test("success - with numbers and symbols") {
+                val result = toUpperCase.tryValidate("hello123!@#")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "HELLO123!@#"
+            }
+        }
+
+        context("toUpperCase with constraints") {
+            val toUpperCaseMin3 = Kova.string().toUpperCase().min(3)
+
+            test("success - transformed value meets constraint") {
+                val result = toUpperCaseMin3.tryValidate("hello")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "HELLO"
+            }
+
+            test("failure - transformed value violates constraint") {
+                val result = toUpperCaseMin3.tryValidate("hi")
+                result.isFailure().mustBeTrue()
+                result.messages.single().content shouldBe "\"HI\" must be at least 3 characters"
+            }
+
+            test("success - combining toUpperCase with startsWith") {
+                val toUpperCaseStartsWithH = Kova.string().toUpperCase().startsWith("H")
+                val result = toUpperCaseStartsWithH.tryValidate("hello")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "HELLO"
+            }
+        }
+
+        context("toLowerCase") {
+            val toLowerCase = Kova.string().toLowerCase()
+
+            test("success - uppercase to lowercase") {
+                val result = toLowerCase.tryValidate("HELLO")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "hello"
+            }
+
+            test("success - mixed case to lowercase") {
+                val result = toLowerCase.tryValidate("HeLLo")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "hello"
+            }
+
+            test("success - already lowercase") {
+                val result = toLowerCase.tryValidate("hello")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "hello"
+            }
+
+            test("success - empty string") {
+                val result = toLowerCase.tryValidate("")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe ""
+            }
+
+            test("success - with numbers and symbols") {
+                val result = toLowerCase.tryValidate("HELLO123!@#")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "hello123!@#"
+            }
+        }
+
+        context("toLowerCase with constraints") {
+            val toLowerCaseMin3 = Kova.string().toLowerCase().min(3)
+
+            test("success - transformed value meets constraint") {
+                val result = toLowerCaseMin3.tryValidate("HELLO")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "hello"
+            }
+
+            test("failure - transformed value violates constraint") {
+                val result = toLowerCaseMin3.tryValidate("HI")
+                result.isFailure().mustBeTrue()
+                result.messages.single().content shouldBe "\"hi\" must be at least 3 characters"
+            }
+
+            test("success - combining toLowerCase with startsWith") {
+                val toLowerCaseStartsWithH = Kova.string().toLowerCase().startsWith("h")
+                val result = toLowerCaseStartsWithH.tryValidate("HELLO")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "hello"
+            }
+        }
     })

@@ -140,6 +140,10 @@ open class StringValidator internal constructor(
         }
 
     fun trim() = modify { it.trim() }
+
+    fun toUpperCase() = modify { it.uppercase() }
+
+    fun toLowerCase() = modify { it.lowercase() }
 }
 
 fun StringValidator.toInt(): Validator<String, Int> = isInt().map { it.toInt() }
