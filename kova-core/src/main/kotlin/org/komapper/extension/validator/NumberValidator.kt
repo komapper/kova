@@ -1,8 +1,8 @@
 package org.komapper.extension.validator
 
 class NumberValidator<T> internal constructor(
-    private val prev: NumberValidator<T>? = null,
-    constraint: Constraint<T> = Constraint("kova.number") { ConstraintResult.Satisfied },
+    private val prev: Validator<T, T> = EmptyValidator(),
+    constraint: Constraint<T> = Constraint.satisfied(),
 ) : Validator<T, T>
     where T : Number, T : Comparable<T> {
     private val next: ConstraintValidator<T> = ConstraintValidator(constraint)
@@ -10,12 +10,7 @@ class NumberValidator<T> internal constructor(
     override fun execute(
         context: ValidationContext,
         input: T,
-    ): ValidationResult<T> =
-        if (prev == null) {
-            next.execute(context, input)
-        } else {
-            prev.chain(next = next).execute(context, input)
-        }
+    ): ValidationResult<T> = prev.chain(next).execute(context, input)
 
     fun constraint(
         key: String,

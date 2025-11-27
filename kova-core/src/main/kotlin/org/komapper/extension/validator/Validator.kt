@@ -29,12 +29,20 @@ operator fun <IN, OUT> Validator<IN, OUT>.plus(other: Validator<IN, OUT>): Valid
 infix fun <IN, OUT> Validator<IN, OUT>.and(other: Validator<IN, OUT>): Validator<IN, OUT> {
     val self = this
     return Validator { context, input ->
-        val thisResult = self.execute(context, input)
-        if (context.failFast && thisResult.isFailure()) {
-            thisResult
-        } else {
-            val otherResult = other.execute(context, input)
-            thisResult + otherResult
+        when (val selfResult = self.execute(context, input)) {
+            is Success -> {
+                val otherResult = other.execute(context, input)
+                selfResult + otherResult
+            }
+
+            is Failure -> {
+                if (context.failFast) {
+                    selfResult
+                } else {
+                    val otherResult = other.execute(context, input)
+                    selfResult + otherResult
+                }
+            }
         }
     }
 }
@@ -96,21 +104,18 @@ fun <IN, OUT, NEW> Validator<IN, OUT>.andThen(after: Validator<OUT, NEW>): Valid
     }
 }
 
-fun <T> Validator<T, T>.chain(
-    next: Validator<T, T>,
-    transform: (T) -> T = { it },
-): Validator<T, T> =
+fun <T> Validator<T, T>.chain(next: Validator<T, T>): Validator<T, T> =
     Validator { context, input ->
         when (val result = this.execute(context, input)) {
             is Success -> {
-                next.execute(result.context, transform(result.value))
+                next.execute(result.context, result.value)
             }
 
             is Failure -> {
                 if (context.failFast) {
                     result
                 } else {
-                    result + next.execute(context, transform(input))
+                    result + next.execute(context, input)
                 }
             }
         }

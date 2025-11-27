@@ -1,25 +1,16 @@
 package org.komapper.extension.validator
 
 class StringValidator internal constructor(
-    private val prev: StringValidator? = null,
+    private val prev: Validator<String, String> = EmptyValidator(),
     private val transform: (String) -> String = { it },
-    constraint: Constraint<String> = defaultConstraint,
+    constraint: Constraint<String> = Constraint.satisfied(),
 ) : Validator<String, String> {
     private val next: ConstraintValidator<String> = ConstraintValidator(constraint)
-
-    companion object {
-        val defaultConstraint: Constraint<String> = Constraint("kova.charSequence") { ConstraintResult.Satisfied }
-    }
 
     override fun execute(
         context: ValidationContext,
         input: String,
-    ): ValidationResult<String> =
-        if (prev == null) {
-            next.execute(context, input)
-        } else {
-            prev.chain(next = next, transform = transform).execute(context, input)
-        }
+    ): ValidationResult<String> = prev.map(transform).chain(next).execute(context, input)
 
     fun constraint(
         key: String,

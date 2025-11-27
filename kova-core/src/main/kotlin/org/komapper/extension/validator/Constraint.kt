@@ -8,6 +8,10 @@ data class Constraint<T>(
         val scope = ConstraintScope()
         return scope.check(context)
     }
+
+    companion object {
+        fun <T> satisfied(): Constraint<T> = Constraint("kova.always.satisfied") { ConstraintResult.Satisfied }
+    }
 }
 
 data class ConstraintContext<T>(

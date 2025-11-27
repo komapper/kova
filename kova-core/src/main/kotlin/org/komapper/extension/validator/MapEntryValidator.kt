@@ -1,20 +1,15 @@
 package org.komapper.extension.validator
 
 class MapEntryValidator<K, V> internal constructor(
-    private val prev: MapEntryValidator<K, V>? = null,
-    constraint: Constraint<Map.Entry<K, V>> = Constraint("kova.mapEntry") { ConstraintResult.Satisfied },
+    private val prev: Validator<Map.Entry<K, V>, Map.Entry<K, V>> = EmptyValidator(),
+    constraint: Constraint<Map.Entry<K, V>> = Constraint.satisfied(),
 ) : Validator<Map.Entry<K, V>, Map.Entry<K, V>> {
     private val next: ConstraintValidator<Map.Entry<K, V>> = ConstraintValidator(constraint)
 
     override fun execute(
         context: ValidationContext,
         input: Map.Entry<K, V>,
-    ): ValidationResult<Map.Entry<K, V>> =
-        if (prev == null) {
-            next.execute(context, input)
-        } else {
-            prev.chain(next = next).execute(context, input)
-        }
+    ): ValidationResult<Map.Entry<K, V>> = prev.chain(next).execute(context, input)
 
     fun constraint(
         key: String,

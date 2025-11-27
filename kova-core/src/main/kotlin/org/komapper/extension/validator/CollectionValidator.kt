@@ -1,20 +1,15 @@
 package org.komapper.extension.validator
 
 class CollectionValidator<E, C : Collection<E>> internal constructor(
-    private val prev: CollectionValidator<E, C>? = null,
-    constraint: Constraint<C> = Constraint("kova.collection") { ConstraintResult.Satisfied },
+    private val prev: Validator<C, C> = EmptyValidator(),
+    constraint: Constraint<C> = Constraint.satisfied(),
 ) : Validator<C, C> {
     private val next: ConstraintValidator<C> = ConstraintValidator(constraint)
 
     override fun execute(
         context: ValidationContext,
         input: C,
-    ): ValidationResult<C> =
-        if (prev == null) {
-            next.execute(context, input)
-        } else {
-            prev.chain(next = next).execute(context, input)
-        }
+    ): ValidationResult<C> = prev.chain(next).execute(context, input)
 
     fun constraint(
         key: String,
