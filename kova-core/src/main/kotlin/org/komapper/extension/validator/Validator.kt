@@ -118,23 +118,21 @@ fun <IN, OUT> Validator<IN, OUT>.constraint(constraint: Constraint<OUT>): Valida
     }
 }
 
-fun <T> chain(
-    prev: Validator<T, T>,
-    context: ValidationContext,
-    input: T,
+fun <T> Validator<T, T>.chain(
     transform: (T) -> T = { it },
-    next: (ValidationContext, T) -> ValidationResult<T>,
-): ValidationResult<T> =
-    when (val result = prev.execute(context, input)) {
+    next: Validator<T, T>,
+): Validator<T, T> = Validator { context, input ->
+    when (val result = this.execute(context, input)) {
         is Success -> {
-            next(result.context, transform(result.value))
+            next.execute(result.context, transform(result.value))
         }
 
         is Failure -> {
             if (context.failFast) {
                 result
             } else {
-                result + next(context, transform(input))
+                result + next.execute(context, transform(input))
             }
         }
     }
+}

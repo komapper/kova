@@ -14,14 +14,13 @@ class StringValidator internal constructor(
     override fun execute(
         context: ValidationContext,
         input: String,
-    ): ValidationResult<String> =
-        if (prev == null) {
+    ): ValidationResult<String> {
+        return if (prev == null) {
             next.execute(context, input)
         } else {
-            chain(prev, context, input) { context, input ->
-                next.execute(context, transform(input))
-            }
+            prev.chain(transform = transform, next = next).execute(context, input)
         }
+    }
 
     fun constraint(
         key: String,

@@ -13,9 +13,7 @@ class CollectionValidator<E, C : Collection<E>> internal constructor(
         if (prev == null) {
             next.execute(context, input)
         } else {
-            chain(prev, context, input) { context, input ->
-                next.execute(context, input)
-            }
+            prev.chain(next = next).execute(context, input)
         }
 
     fun constraint(
