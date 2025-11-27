@@ -82,6 +82,16 @@ class CharSequenceValidator<T : CharSequence> internal constructor(
             satisfies(it.input.toString().toIntOrNull() != null, message(it))
         }
 
+    fun uppercase(message: (ConstraintContext<T>) -> Message = Message.resource0()): CharSequenceValidator<T> =
+        constraint("kova.charSequence.uppercase") {
+            satisfies(it.input.toString() == it.input.toString().uppercase(), message(it))
+        }
+
+    fun lowercase(message: (ConstraintContext<T>) -> Message = Message.resource0()): CharSequenceValidator<T> =
+        constraint("kova.charSequence.lowercase") {
+            satisfies(it.input.toString() == it.input.toString().lowercase(), message(it))
+        }
+
     fun literal(
         value: CharSequence,
         message: (ConstraintContext<T>, CharSequence) -> Message = Message.resource1(),

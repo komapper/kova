@@ -209,6 +209,46 @@ class StringValidatorTest :
             }
         }
 
+        context("uppercase") {
+            val uppercase = Kova.string().uppercase()
+
+            test("success") {
+                val result = uppercase.tryValidate("HELLO")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "HELLO"
+            }
+            test("success - empty string") {
+                val result = uppercase.tryValidate("")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe ""
+            }
+            test("failure") {
+                val result = uppercase.tryValidate("Hello")
+                result.isFailure().mustBeTrue()
+                result.messages.single().content shouldBe "\"Hello\" must be uppercase"
+            }
+        }
+
+        context("lowercase") {
+            val lowercase = Kova.string().lowercase()
+
+            test("success") {
+                val result = lowercase.tryValidate("hello")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "hello"
+            }
+            test("success - empty string") {
+                val result = lowercase.tryValidate("")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe ""
+            }
+            test("failure") {
+                val result = lowercase.tryValidate("Hello")
+                result.isFailure().mustBeTrue()
+                result.messages.single().content shouldBe "\"Hello\" must be lowercase"
+            }
+        }
+
         context("toInt") {
             val toInt = Kova.string().toInt()
 
