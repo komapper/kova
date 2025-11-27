@@ -2,9 +2,9 @@ package org.komapper.extension.validator
 
 class StringValidator internal constructor(
     private val prev: StringValidator? = null,
-    private val constraint: Constraint<String> = defaultConstraint,
     private val transform: (String) -> String = { it },
-) : Validator<String, String> {
+    constraint: Constraint<String> = defaultConstraint,
+    ) : Validator<String, String> {
     private val next: ConstraintValidator<String> = ConstraintValidator(constraint)
 
     companion object {

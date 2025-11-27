@@ -1,31 +1,27 @@
 package org.komapper.extension.validator
 
-open class EnumValidator<E : Enum<E>> internal constructor(
-    // TODO
-    private val constraint: Constraint<E> = Constraint("kova.enum") { ConstraintResult.Satisfied },
+class EnumValidator<E : Enum<E>> internal constructor(
+    private val prev: EnumValidator<E>? = null,
+    constraint: Constraint<E> = Constraint("kova.enum") { ConstraintResult.Satisfied },
 ) : Validator<E, E> {
+    private val next: ConstraintValidator<E> = ConstraintValidator(constraint)
+
     override fun execute(
         context: ValidationContext,
         input: E,
-    ): ValidationResult<E> = ConstraintValidator(constraint).execute(context, input)
+    ): ValidationResult<E> =
+        if (prev == null) {
+            next.execute(context, input)
+        } else {
+            chain(prev, context, input) { context, input ->
+                next.execute(context, input)
+            }
+        }
 
     fun constraint(
         key: String,
         check: ConstraintScope.(ConstraintContext<E>) -> ConstraintResult,
-    ): EnumValidator<E> {
-        val before = this
-        return object : EnumValidator<E>(
-            Constraint(key, check),
-        ) {
-            override fun execute(
-                context: ValidationContext,
-                input: E,
-            ): ValidationResult<E> =
-                chain(before, context, input) { context, input ->
-                    super.execute(context, input)
-                }
-        }
-    }
+    ): EnumValidator<E> = EnumValidator(prev = this, constraint = Constraint(key, check))
 
     fun contains(
         values: Set<E>,

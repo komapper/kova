@@ -1,35 +1,27 @@
 package org.komapper.extension.validator
 
-open class ComparableValidator<T : Comparable<T>> internal constructor(
-    // TODO
-    private val constraint: Constraint<T> = Constraint("kova.comparable") { ConstraintResult.Satisfied },
+class ComparableValidator<T : Comparable<T>> internal constructor(
+    private val prev: ComparableValidator<T>? = null,
+    constraint: Constraint<T> = Constraint("kova.comparable") { ConstraintResult.Satisfied },
 ) : Validator<T, T> {
+    private val next: ConstraintValidator<T> = ConstraintValidator(constraint)
+
     override fun execute(
         context: ValidationContext,
         input: T,
-    ): ValidationResult<T> {
-        // TODO
-        return ConstraintValidator(constraint).execute(context, input)
-    }
-
-    private class Chain<T : Comparable<T>>(
-        val before: ComparableValidator<T>,
-        val transform: (T) -> T = { it },
-        constraint: Constraint<T> = Constraint("kova.comparable") { ConstraintResult.Satisfied },
-    ) : ComparableValidator<T>(constraint) {
-        override fun execute(
-            context: ValidationContext,
-            input: T,
-        ): ValidationResult<T> =
-            chain(before, context, input) { context, input ->
-                super.execute(context, transform(input))
+    ): ValidationResult<T> =
+        if (prev == null) {
+            next.execute(context, input)
+        } else {
+            chain(prev, context, input) { context, input ->
+                next.execute(context, input)
             }
-    }
+        }
 
     fun constraint(
         key: String,
         check: ConstraintScope.(ConstraintContext<T>) -> ConstraintResult,
-    ): ComparableValidator<T> = Chain(before = this, constraint = Constraint(key, check))
+    ): ComparableValidator<T> = ComparableValidator(prev = this, constraint = Constraint(key, check))
 
     fun min(
         value: T,
