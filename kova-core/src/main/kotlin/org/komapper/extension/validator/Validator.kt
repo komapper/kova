@@ -119,13 +119,13 @@ fun <IN, OUT> Validator<IN, OUT>.constraint(constraint: Constraint<OUT>): Valida
 }
 
 fun <T> chain(
-    before: Validator<T, T>,
+    prev: Validator<T, T>,
     context: ValidationContext,
     input: T,
     transform: (T) -> T = { it },
     next: (ValidationContext, T) -> ValidationResult<T>,
 ): ValidationResult<T> =
-    when (val result = before.execute(context, input)) {
+    when (val result = prev.execute(context, input)) {
         is Success -> {
             next(result.context, transform(result.value))
         }

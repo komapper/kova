@@ -1,9 +1,12 @@
 package org.komapper.extension.validator
 
-open class StringValidator internal constructor(
-    // TODO
+class StringValidator internal constructor(
+    private val prev: StringValidator? = null,
     private val constraint: Constraint<String> = defaultConstraint,
+    private val transform: (String) -> String = { it },
 ) : Validator<String, String> {
+    private val next: ConstraintValidator<String> = ConstraintValidator(constraint)
+
     companion object {
         val defaultConstraint: Constraint<String> = Constraint("kova.charSequence") { ConstraintResult.Satisfied }
     }
@@ -11,31 +14,21 @@ open class StringValidator internal constructor(
     override fun execute(
         context: ValidationContext,
         input: String,
-    ): ValidationResult<String> {
-        // TODO
-        return ConstraintValidator(constraint).execute(context, input)
-    }
-
-    private class Chain(
-        val before: StringValidator,
-        val transform: (String) -> String = { it },
-        constraint: Constraint<String> = defaultConstraint,
-    ) : StringValidator(constraint) {
-        override fun execute(
-            context: ValidationContext,
-            input: String,
-        ): ValidationResult<String> =
-            chain(before, context, input) { context, input ->
-                super.execute(context, transform(input))
+    ): ValidationResult<String> =
+        if (prev == null) {
+            next.execute(context, input)
+        } else {
+            chain(prev, context, input) { context, input ->
+                next.execute(context, transform(input))
             }
-    }
+        }
 
     fun constraint(
         key: String,
         check: ConstraintScope.(ConstraintContext<String>) -> ConstraintResult,
-    ): StringValidator = Chain(before = this, constraint = Constraint(key, check))
+    ): StringValidator = StringValidator(prev = this, constraint = Constraint(key, check))
 
-    fun modify(transform: (String) -> String): StringValidator = Chain(before = this, transform = transform)
+    fun modify(transform: (String) -> String): StringValidator = StringValidator(prev = this, transform = transform)
 
     fun min(
         length: Int,
