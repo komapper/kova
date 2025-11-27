@@ -1,14 +1,45 @@
 package org.komapper.extension.validator
 
-class StringValidator internal constructor(
-    private val delegate: CoreValidator<String> = CoreValidator(),
-) : Validator<String, String> by delegate {
-    operator fun plus(other: StringValidator): StringValidator = StringValidator(delegate + other.delegate)
+open class StringValidator internal constructor(
+    // TODO
+    private val constraint: Constraint<String> = Constraint("kova.charSequence") { ConstraintResult.Satisfied },
+) : Validator<String, String> {
+    override fun execute(
+        context: ValidationContext,
+        input: String,
+    ): ValidationResult<String> {
+        // TODO
+        return CoreValidator(constraint).execute(context, input)
+    }
 
     fun constraint(
         key: String,
         check: ConstraintScope.(ConstraintContext<String>) -> ConstraintResult,
-    ): StringValidator = StringValidator(delegate + Constraint(key, check))
+    ): StringValidator {
+        val self = this
+        return object : StringValidator(Constraint(key, check)) {
+            override fun execute(
+                context: ValidationContext,
+                input: String,
+            ): ValidationResult<String> =
+                chain(self, context, input, { it }) { context, input ->
+                    super.execute(context, input)
+                }
+        }
+    }
+
+    fun modify(transform: (String) -> String): StringValidator {
+        val self = this
+        return object : StringValidator() {
+            override fun execute(
+                context: ValidationContext,
+                input: String,
+            ): ValidationResult<String> =
+                chain(self, context, input, transform) { context, input ->
+                    super.execute(context, transform(input))
+                }
+        }
+    }
 
     fun min(
         length: Int,
@@ -107,6 +138,29 @@ class StringValidator internal constructor(
         constraint("kova.charSequence.literals") { ctx ->
             satisfies(values.any { it.contentEquals(ctx.input) }, message(ctx, values))
         }
+
+    fun trim() = modify { it.trim() }
 }
 
 fun StringValidator.toInt(): Validator<String, Int> = isInt().map { it.toInt() }
+
+fun <T> chain(
+    before: Validator<T, T>,
+    context: ValidationContext,
+    input: T,
+    transform: (T) -> T,
+    next: (ValidationContext, T) -> ValidationResult<T>,
+): ValidationResult<T> =
+    when (val result = before.execute(context, input)) {
+        is ValidationResult.Success -> {
+            next(result.context, transform(result.value))
+        }
+
+        is ValidationResult.Failure -> {
+            if (context.failFast) {
+                result
+            } else {
+                result + next(context, transform(input))
+            }
+        }
+    }

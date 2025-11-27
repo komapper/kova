@@ -2,14 +2,12 @@ package org.komapper.extension.validator
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.types.shouldBeInstanceOf
 
 class StringValidatorTest :
     FunSpec({
 
         context("plus") {
             val validator = Kova.string().max(2) + Kova.string().max(3)
-            validator.shouldBeInstanceOf<StringValidator>()
 
             test("success") {
                 val result = validator.tryValidate("1")
@@ -352,6 +350,68 @@ class StringValidatorTest :
                 result.isFailure().mustBeTrue()
                 val message = result.details.single().message
                 message.content shouldBe "\"abc\" is not a boolean value"
+            }
+        }
+
+        context("trim") {
+            val trim = Kova.string().trim()
+
+            test("success - trimming leading whitespace") {
+                val result = trim.tryValidate("  hello")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "hello"
+            }
+
+            test("success - trimming trailing whitespace") {
+                val result = trim.tryValidate("hello  ")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "hello"
+            }
+
+            test("success - trimming both sides") {
+                val result = trim.tryValidate("  hello  ")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "hello"
+            }
+
+            test("success - no whitespace to trim") {
+                val result = trim.tryValidate("hello")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "hello"
+            }
+
+            test("success - empty string") {
+                val result = trim.tryValidate("")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe ""
+            }
+
+            test("success - only whitespace") {
+                val result = trim.tryValidate("   ")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe ""
+            }
+        }
+
+        context("trim with constraints") {
+            val trimMin3 = Kova.string().trim().min(3)
+
+            test("success - trimmed value meets constraint") {
+                val result = trimMin3.tryValidate("  hello  ")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "hello"
+            }
+
+            test("failure - trimmed value violates constraint") {
+                val result = trimMin3.tryValidate("  hi  ")
+                result.isFailure().mustBeTrue()
+                result.messages.single().content shouldBe "\"hi\" must be at least 3 characters"
+            }
+
+            test("failure - whitespace only becomes empty after trim") {
+                val result = trimMin3.tryValidate("   ")
+                result.isFailure().mustBeTrue()
+                result.messages.single().content shouldBe "\"\" must be at least 3 characters"
             }
         }
     })
