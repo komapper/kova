@@ -5,18 +5,24 @@ class CollectionValidator<E, C : Collection<E>> internal constructor(
 ) : Validator<C, C> by delegate {
     operator fun plus(other: CollectionValidator<E, C>): CollectionValidator<E, C> = CollectionValidator(delegate + other.delegate)
 
-    fun constraint(constraint: Constraint<C>): CollectionValidator<E, C> = CollectionValidator(delegate + constraint)
+    fun constraint(
+        key: String,
+        check: (ConstraintContext<C>) -> ConstraintResult,
+    ): CollectionValidator<E, C> =
+        CollectionValidator(
+            delegate + Constraint(key, check),
+        )
 
     fun min(
         size: Int,
-        message: (ConstraintContext<C>, Int, Int) -> Message = Message.resource2("kova.collection.min"),
+        message: (ConstraintContext<C>, Int, Int) -> Message = Message.resource2(),
     ): CollectionValidator<E, C> =
-        constraint {
+        constraint("kova.collection.min") {
             Constraint.satisfies(it.input.size >= size, message(it, it.input.size, size))
         }
 
     fun onEach(validator: Validator<E, E>): CollectionValidator<E, C> =
-        constraint {
+        constraint("kova.collection.onEach") {
             val validationContext = it.createValidationContext()
             val failures = mutableListOf<ValidationResult.Failure>()
             for ((i, element) in it.input.withIndex()) {

@@ -6,15 +6,21 @@ class NumberValidator<T> internal constructor(
     where T : Number, T : Comparable<T> {
     operator fun plus(other: NumberValidator<T>): NumberValidator<T> = NumberValidator(delegate + other.delegate)
 
-    fun constraint(constraint: Constraint<T>): NumberValidator<T> = NumberValidator(delegate + constraint)
+    fun constraint(
+        key: String,
+        check: (ConstraintContext<T>) -> ConstraintResult,
+    ): NumberValidator<T> =
+        NumberValidator(
+            delegate + Constraint(key, check),
+        )
 
     fun min(
         value: T,
-        message: (ConstraintContext<T>, T) -> Message = Message.resource1("kova.number.min"),
-    ): NumberValidator<T> = constraint(Constraints.min(value, message))
+        message: (ConstraintContext<T>, T) -> Message = Message.resource1(),
+    ): NumberValidator<T> = constraint("kova.number.min", Constraints.min(value, message))
 
     fun max(
         value: T,
-        message: (ConstraintContext<T>, T) -> Message = Message.resource1("kova.number.max"),
-    ): NumberValidator<T> = constraint(Constraints.max(value, message))
+        message: (ConstraintContext<T>, T) -> Message = Message.resource1(),
+    ): NumberValidator<T> = constraint("kova.number.max", Constraints.max(value, message))
 }

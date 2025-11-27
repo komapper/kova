@@ -31,7 +31,7 @@ class MapValidatorTest :
 
         context("constraint") {
             val validator =
-                MapValidator<String, String>().constraint {
+                MapValidator<String, String>().constraint("test") {
                     if (it.input.size == 1) {
                         ConstraintResult.Satisfied
                     } else {
@@ -55,7 +55,7 @@ class MapValidatorTest :
         context("onEach") {
             val validator =
                 MapValidator<String, String>().onEach(
-                    MapEntryValidator<String, String>().constraint {
+                    MapEntryValidator<String, String>().constraint("test") {
                         if (it.input.key != it.input.value) {
                             ConstraintResult.Satisfied
                         } else {

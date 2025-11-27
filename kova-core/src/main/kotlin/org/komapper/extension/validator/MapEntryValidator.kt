@@ -5,5 +5,11 @@ class MapEntryValidator<K, V> internal constructor(
 ) : Validator<Map.Entry<K, V>, Map.Entry<K, V>> by delegate {
     operator fun plus(other: MapEntryValidator<K, V>): MapEntryValidator<K, V> = MapEntryValidator(delegate + other.delegate)
 
-    fun constraint(constraint: Constraint<Map.Entry<K, V>>): MapEntryValidator<K, V> = MapEntryValidator(delegate + constraint)
+    fun constraint(
+        key: String,
+        check: (ConstraintContext<Map.Entry<K, V>>) -> ConstraintResult,
+    ): MapEntryValidator<K, V> =
+        MapEntryValidator(
+            delegate + Constraint(key, check),
+        )
 }

@@ -26,7 +26,7 @@ class ListValidatorTest :
 
         context("constraint") {
             val validator =
-                Kova.list<String>().constraint {
+                Kova.list<String>().constraint("test") {
                     if (it.input.size == 1) {
                         ConstraintResult.Satisfied
                     } else {
@@ -91,7 +91,7 @@ class ListValidatorTest :
                 Kova.validator {
                     ListHolder::class {
                         ListHolder::list {
-                            Kova.list<String>().onEach(Kova.string().length(3)).constraint {
+                            Kova.list<String>().onEach(Kova.string().length(3)).constraint("test") {
                                 ConstraintResult.Satisfied
                             }
                         }

@@ -96,6 +96,14 @@ fun <IN, OUT, NEW> Validator<IN, OUT>.andThen(after: Validator<OUT, NEW>): Valid
     }
 }
 
+fun <IN, OUT> Validator<IN, OUT>.constraint(
+    key: String,
+    check: (ConstraintContext<OUT>) -> ConstraintResult,
+): Validator<IN, OUT> =
+    constraint(
+        Constraint(key, check),
+    )
+
 fun <IN, OUT> Validator<IN, OUT>.constraint(constraint: Constraint<OUT>): Validator<IN, OUT> {
     val self = this
     return Validator { context, input ->

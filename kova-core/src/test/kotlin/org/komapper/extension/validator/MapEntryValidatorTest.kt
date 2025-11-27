@@ -7,7 +7,7 @@ class MapEntryValidatorTest :
     FunSpec({
         context("constraint") {
             val validator =
-                Kova.mapEntry<String, String>().constraint {
+                Kova.mapEntry<String, String>().constraint("test") {
                     if (it.input.key != it.input.value) {
                         ConstraintResult.Satisfied
                     } else {

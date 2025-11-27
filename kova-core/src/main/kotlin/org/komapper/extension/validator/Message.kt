@@ -34,24 +34,24 @@ sealed interface Message {
     }
 
     companion object {
-        fun <T, A0 : ConstraintContext<T>> resource0(key: String): (A0) -> Message =
+        fun <T, A0 : ConstraintContext<T>> resource0(): (A0) -> Message =
             { ctx ->
-                Resource(key, ctx.input)
+                Resource(ctx.key, ctx.input)
             }
 
-        fun <T, A0 : ConstraintContext<T>, A1> resource1(key: String): (A0, A1) -> Message =
+        fun <T, A0 : ConstraintContext<T>, A1> resource1(): (A0, A1) -> Message =
             { ctx, arg1 ->
-                Resource(key, ctx.input, arg1)
+                Resource(ctx.key, ctx.input, arg1)
             }
 
-        fun <T, A0 : ConstraintContext<T>, A1, A2> resource2(key: String): (A0, A1, A2) -> Message =
+        fun <T, A0 : ConstraintContext<T>, A1, A2> resource2(): (A0, A1, A2) -> Message =
             { ctx, arg1, arg2 ->
-                Resource(key, ctx.input, arg1, arg2)
+                Resource(ctx.key, ctx.input, arg1, arg2)
             }
 
-        fun <T, A0 : ConstraintContext<T>, A1, A2, A3> resource3(key: String): (A0, A1, A2, A3) -> Message =
+        fun <T, A0 : ConstraintContext<T>, A1, A2, A3> resource3(): (A0, A1, A2, A3) -> Message =
             { ctx, arg1, arg2, arg3 ->
-                Resource(key, ctx.input, arg1, arg2, arg3)
+                Resource(ctx.key, ctx.input, arg1, arg2, arg3)
             }
     }
 }

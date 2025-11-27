@@ -13,15 +13,20 @@ class CoreValidator<T>(
     ): ValidationResult<T> {
         val constraintContext = context.createConstraintContext(input)
 
+        val transform: (Constraint<T>) -> ConstraintResult = {
+            val constraintContext = constraintContext.copy(key = it.key)
+            it.apply(constraintContext)
+        }
         val constraintResults =
             if (context.failFast) {
                 constraints
-                    .map { it.apply(constraintContext) }
+                    .asSequence()
+                    .map(transform)
                     .firstOrNull()
                     ?.let { listOf(it) }
                     ?: emptyList()
             } else {
-                constraints.map { it.apply(constraintContext) }
+                constraints.map(transform)
             }
 
         val failureDetails =

@@ -1,7 +1,10 @@
 package org.komapper.extension.validator
 
-fun interface Constraint<T> {
-    fun apply(context: ConstraintContext<T>): ConstraintResult
+data class Constraint<T>(
+    val key: String,
+    val check: (ConstraintContext<T>) -> ConstraintResult,
+) {
+    fun apply(context: ConstraintContext<T>): ConstraintResult = check(context)
 
     companion object {
         fun satisfies(
@@ -21,6 +24,7 @@ data class ConstraintContext<T>(
     val root: String = "",
     val path: String = "",
     val failFast: Boolean = false,
+    val key: String = "",
 )
 
 sealed interface ConstraintResult {

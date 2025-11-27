@@ -5,18 +5,24 @@ class MapValidator<K, V> internal constructor(
 ) : Validator<Map<K, V>, Map<K, V>> by delegate {
     operator fun plus(other: MapValidator<K, V>): MapValidator<K, V> = MapValidator(delegate + other.delegate)
 
-    fun constraint(constraint: Constraint<Map<K, V>>): MapValidator<K, V> = MapValidator(delegate + constraint)
+    fun constraint(
+        key: String,
+        check: (ConstraintContext<Map<K, V>>) -> ConstraintResult,
+    ): MapValidator<K, V> =
+        MapValidator(
+            delegate + Constraint(key, check),
+        )
 
     fun min(
         size: Int,
-        message: (ConstraintContext<Map<K, V>>, Int, Int) -> Message = Message.resource2("kova.map.min"),
+        message: (ConstraintContext<Map<K, V>>, Int, Int) -> Message = Message.resource2(),
     ): MapValidator<K, V> =
-        constraint {
+        constraint("kova.map.min") {
             Constraint.satisfies(it.input.size >= size, message(it, it.input.size, size))
         }
 
     fun onEach(validator: Validator<Map.Entry<K, V>, Map.Entry<K, V>>): MapValidator<K, V> =
-        constraint {
+        constraint("kova.map.onEach") {
             validateOnEach(it) { entry, validationContext ->
                 val path = "<map entry>"
                 validator.execute(validationContext.appendPath(path = path), entry)
@@ -24,7 +30,7 @@ class MapValidator<K, V> internal constructor(
         }
 
     fun onEachKey(validator: Validator<K, K>): MapValidator<K, V> =
-        constraint {
+        constraint("kova.map.onEachKey") {
             validateOnEach(it) { entry, validationContext ->
                 val path = "<map key>"
                 validator.execute(validationContext.appendPath(path = path), entry.key)
@@ -32,7 +38,7 @@ class MapValidator<K, V> internal constructor(
         }
 
     fun onEachValue(validator: Validator<V, V>): MapValidator<K, V> =
-        constraint {
+        constraint("kova.map.onEachValue") {
             validateOnEach(it) { entry, validationContext ->
                 val path = "[${entry.key}]<map value>"
                 validator.execute(validationContext.appendPath(path = path), entry.value)

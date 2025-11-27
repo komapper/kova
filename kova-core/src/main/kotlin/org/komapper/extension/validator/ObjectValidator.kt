@@ -111,7 +111,10 @@ class ObjectValidatorScope<T : Any>(
         ruleMap[key] = Rule(transform, choose)
     }
 
-    fun constraint(constraint: Constraint<T>) = constraints.add(constraint)
+    fun constraint(
+        key: String,
+        check: (ConstraintContext<T>) -> ConstraintResult,
+    ) = constraints.add(Constraint(key, check))
 
     operator fun <V> KProperty1<T, V>.invoke(choose: (T) -> Validator<V, V>) {
         prop(this, choose)

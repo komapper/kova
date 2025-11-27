@@ -5,15 +5,21 @@ class ComparableValidator<T : Comparable<T>> internal constructor(
 ) : Validator<T, T> by delegate {
     operator fun plus(other: ComparableValidator<T>): ComparableValidator<T> = ComparableValidator(delegate + other.delegate)
 
-    fun constraint(constraint: Constraint<T>): ComparableValidator<T> = ComparableValidator(delegate + constraint)
+    fun constraint(
+        key: String,
+        check: (ConstraintContext<T>) -> ConstraintResult,
+    ): ComparableValidator<T> =
+        ComparableValidator(
+            delegate + Constraint(key, check),
+        )
 
     fun min(
         value: T,
-        message: (ConstraintContext<T>, T) -> Message = Message.resource1("kova.comparable.min"),
-    ): ComparableValidator<T> = constraint(Constraints.min(value, message))
+        message: (ConstraintContext<T>, T) -> Message = Message.resource1(),
+    ): ComparableValidator<T> = constraint("kova.comparable.min", Constraints.min(value, message))
 
     fun max(
         value: T,
-        message: (ConstraintContext<T>, T) -> Message = Message.resource1("kova.comparable.max"),
-    ): ComparableValidator<T> = constraint(Constraints.max(value, message))
+        message: (ConstraintContext<T>, T) -> Message = Message.resource1(),
+    ): ComparableValidator<T> = constraint("kova.comparable.max", Constraints.max(value, message))
 }

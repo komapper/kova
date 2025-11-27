@@ -123,7 +123,7 @@ class ValidatorTest :
 
         context("constraint") {
             val validator =
-                (Kova.string() as Validator<String, String>).constraint {
+                (Kova.string() as Validator<String, String>).constraint("test") {
                     Constraint.satisfies(it.input == "OK", Message.Text("Constraint failed"))
                 }
             test("success") {
