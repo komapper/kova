@@ -13,7 +13,7 @@ class ComparableValidator<T : Comparable<T>> internal constructor(
         if (prev == null) {
             next.execute(context, input)
         } else {
-            prev.chain(next = next).execute(context, input)
+            prev.chain(next).execute(context, input)
         }
 
     fun constraint(

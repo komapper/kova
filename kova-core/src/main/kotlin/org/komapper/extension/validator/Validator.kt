@@ -96,6 +96,26 @@ fun <IN, OUT, NEW> Validator<IN, OUT>.andThen(after: Validator<OUT, NEW>): Valid
     }
 }
 
+fun <T> Validator<T, T>.chain(
+    next: Validator<T, T>,
+    transform: (T) -> T = { it },
+): Validator<T, T> =
+    Validator { context, input ->
+        when (val result = this.execute(context, input)) {
+            is Success -> {
+                next.execute(result.context, transform(result.value))
+            }
+
+            is Failure -> {
+                if (context.failFast) {
+                    result
+                } else {
+                    result + next.execute(context, transform(input))
+                }
+            }
+        }
+    }
+
 fun <IN, OUT> Validator<IN, OUT>.constraint(
     key: String,
     check: ConstraintScope.(ConstraintContext<OUT>) -> ConstraintResult,
@@ -114,25 +134,6 @@ fun <IN, OUT> Validator<IN, OUT>.constraint(constraint: Constraint<OUT>): Valida
             }
 
             is Failure -> result
-        }
-    }
-}
-
-fun <T> Validator<T, T>.chain(
-    transform: (T) -> T = { it },
-    next: Validator<T, T>,
-): Validator<T, T> = Validator { context, input ->
-    when (val result = this.execute(context, input)) {
-        is Success -> {
-            next.execute(result.context, transform(result.value))
-        }
-
-        is Failure -> {
-            if (context.failFast) {
-                result
-            } else {
-                result + next.execute(context, transform(input))
-            }
         }
     }
 }

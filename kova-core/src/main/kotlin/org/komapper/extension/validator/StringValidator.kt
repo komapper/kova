@@ -4,7 +4,7 @@ class StringValidator internal constructor(
     private val prev: StringValidator? = null,
     private val transform: (String) -> String = { it },
     constraint: Constraint<String> = defaultConstraint,
-    ) : Validator<String, String> {
+) : Validator<String, String> {
     private val next: ConstraintValidator<String> = ConstraintValidator(constraint)
 
     companion object {
@@ -14,13 +14,12 @@ class StringValidator internal constructor(
     override fun execute(
         context: ValidationContext,
         input: String,
-    ): ValidationResult<String> {
-        return if (prev == null) {
+    ): ValidationResult<String> =
+        if (prev == null) {
             next.execute(context, input)
         } else {
-            prev.chain(transform = transform, next = next).execute(context, input)
+            prev.chain(next = next, transform = transform).execute(context, input)
         }
-    }
 
     fun constraint(
         key: String,

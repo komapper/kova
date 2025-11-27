@@ -1,54 +1,26 @@
 package org.komapper.extension.validator
 
-import org.komapper.extension.validator.ValidationResult.Failure
 import org.komapper.extension.validator.ValidationResult.Success
 
-open class NullableValidator<T : Any, S : Any> internal constructor(
-    private val delegate: Validator<T?, S?>,
-    private val constraint: Constraint<T?> = Constraint("kova.nullable") { ConstraintResult.Satisfied },
+class NullableValidator<T : Any, S : Any> internal constructor(
+    private val inner: Validator<T?, S?>,
+    private val constraints: List<Constraint<T?>> = emptyList(),
 ) : Validator<T?, S?> {
     override fun execute(
         context: ValidationContext,
         input: T?,
     ): ValidationResult<S?> =
-        when (val result = ConstraintValidator(constraint).execute(context, input)) {
-            is Success -> {
-                delegate.execute(result.context, result.value)
-            }
-
-            is Failure -> {
-                if (context.failFast) {
-                    result
-                } else {
-                    result + delegate.execute(context, input)
-                }
-            }
+        if (constraints.isEmpty()) {
+            inner.execute(context, input)
+        } else {
+            val validator = constraints.map { ConstraintValidator(it) as Validator<T?, T?> }.reduce { a, b -> a.and(b) }
+            validator.andThen(inner).execute(context, input)
         }
 
-    fun constraint(
+    private fun constraint(
         key: String,
         constraint: ConstraintScope.(ConstraintContext<T?>) -> ConstraintResult,
-    ): NullableValidator<T, S> {
-        val before = this
-        return object : NullableValidator<T, S>(delegate, Constraint(key, constraint)) {
-            override fun execute(
-                context: ValidationContext,
-                input: T?,
-            ): ValidationResult<S?> =
-                when (val result = before.execute(context, input)) {
-                    is Success -> {
-                        super.execute(result.context, input)
-                    }
-
-                    is Failure ->
-                        if (context.failFast) {
-                            result
-                        } else {
-                            super.execute(context, input)
-                        }
-                }
-        }
-    }
+    ): NullableValidator<T, S> = NullableValidator(inner, constraints + Constraint(key, constraint))
 
     fun isNull(message: (ConstraintContext<T?>) -> Message = Message.resource0()): NullableValidator<T, S> =
         constraint("kova.nullable.isNull", {
@@ -65,11 +37,11 @@ open class NullableValidator<T : Any, S : Any> internal constructor(
     }
 
     fun isNotNull(message: (ConstraintContext<T?>) -> Message = Message.resource0()): NotNullValidator<T, S> {
-        val nullableValidator =
+        val validator =
             constraint("kova.nullable.isNotNull", { ctx ->
                 satisfies(ctx.input != null, message(ctx))
             })
-        return NotNullValidator(nullableValidator)
+        return NotNullValidator(validator)
     }
 
     fun isNotNullAnd(
@@ -91,12 +63,12 @@ open class NullableValidator<T : Any, S : Any> internal constructor(
 }
 
 class NotNullValidator<T : Any, S : Any> internal constructor(
-    private val delegate: Validator<T?, S?>,
+    private val inner: Validator<T?, S?>,
 ) : Validator<T?, S?> {
     override fun execute(
         context: ValidationContext,
         input: T?,
-    ): ValidationResult<S?> = delegate.execute(context, input)
+    ): ValidationResult<S?> = inner.execute(context, input)
 
     fun asNonNullable(): Validator<T?, S> = map { it!! }
 
@@ -109,7 +81,7 @@ fun <T : Any, S : Any> Validator<T, S>.asNullable(): NullableValidator<T, S> {
     val wrapped =
         Validator<T?, S?> { context, input ->
             if (input == null) {
-                ValidationResult.Success(null, context)
+                Success(null, context)
             } else {
                 self.execute(context, input)
             }
