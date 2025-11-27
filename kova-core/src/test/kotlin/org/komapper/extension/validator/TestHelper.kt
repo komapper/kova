@@ -6,5 +6,5 @@ import kotlin.contracts.contract
 @OptIn(ExperimentalContracts::class)
 fun Boolean.mustBeTrue() {
     contract { returns() implies this@mustBeTrue }
-    if (!this) AssertionError("Expected value to be true.")
+    if (!this) throw AssertionError("Expected value to be true.")
 }
