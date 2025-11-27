@@ -13,15 +13,11 @@ open class NullableValidator<T : Any, S : Any> internal constructor(
     ): ValidationResult<S?> =
         when (val result = ConstraintValidator(constraint).execute(context, input)) {
             is Success -> {
-                if (input == null) {
-                    Success(null, context)
-                } else {
-                    delegate.execute(result.context, result.value)
-                }
+                delegate.execute(result.context, result.value)
             }
 
             is Failure -> {
-                if (context.failFast || input == null) {
+                if (context.failFast) {
                     result
                 } else {
                     result + delegate.execute(context, input)
@@ -145,4 +141,5 @@ fun <T : Any, S : Any> Validator<T, S>.isNotNullAnd(
     message: ((ConstraintContext<T?>) -> Message)? = null,
 ): NotNullValidator<T, S> = this.asNullable().isNotNullAnd(*validators, message = message)
 
-fun <T : Any, S : Any, X : Any> Validator<T?, S?>.whenNotNull(next: Validator<S, X>): Validator<T?, X?> = this.andThen(next.asNullable())
+fun <T : Any, S : Any, X : Any> Validator<T?, S?>.whenNotNull(next: Validator<S, X>): Validator<T?, X?> =
+    this.andThen(next.asNullable())
