@@ -1,17 +1,34 @@
 package org.komapper.extension.validator
 
-class ComparableValidator<T : Comparable<T>> internal constructor(
-    private val delegate: CoreValidator<T> = CoreValidator(),
-) : Validator<T, T> by delegate {
-    operator fun plus(other: ComparableValidator<T>): ComparableValidator<T> = ComparableValidator(delegate + other.delegate)
+open class ComparableValidator<T : Comparable<T>> internal constructor(
+    // TODO
+    private val constraint: Constraint<T> = Constraint("kova.comparable") { ConstraintResult.Satisfied },
+) : Validator<T, T> {
+
+    override fun execute(
+        context: ValidationContext,
+        input: T,
+    ): ValidationResult<T> {
+        // TODO
+        return CoreValidator(constraint).execute(context, input)
+    }
+
+    private class Chain<T : Comparable<T>>(
+        val before: ComparableValidator<T>,
+        val transform: (T) -> T = { it },
+        constraint: Constraint<T> = Constraint("kova.comparable") { ConstraintResult.Satisfied },
+    ) : ComparableValidator<T>(constraint) {
+        override fun execute(context: ValidationContext, input: T): ValidationResult<T> {
+            return chain(before, context, input) { context, input ->
+                super.execute(context, transform(input))
+            }
+        }
+    }
 
     fun constraint(
         key: String,
         check: ConstraintScope.(ConstraintContext<T>) -> ConstraintResult,
-    ): ComparableValidator<T> =
-        ComparableValidator(
-            delegate + Constraint(key, check),
-        )
+    ): ComparableValidator<T> = Chain(before = this, constraint = Constraint(key, check))
 
     fun min(
         value: T,

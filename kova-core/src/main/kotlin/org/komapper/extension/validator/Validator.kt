@@ -109,7 +109,7 @@ fun <IN, OUT> Validator<IN, OUT>.constraint(constraint: Constraint<OUT>): Valida
     return Validator { context, input ->
         when (val result = self.execute(context, input)) {
             is Success -> {
-                val validator = CoreValidator(listOf(constraint))
+                val validator = CoreValidator(constraint)
                 validator.execute(context, result.value)
             }
 

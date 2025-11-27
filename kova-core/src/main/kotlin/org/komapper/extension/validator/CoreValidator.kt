@@ -3,48 +3,24 @@ package org.komapper.extension.validator
 import java.util.ResourceBundle
 
 class CoreValidator<T>(
-    val constraints: List<Constraint<T>> = emptyList(),
+    val constraint: Constraint<T>
 ) : Validator<T, T> {
-    constructor(constraint: Constraint<T>) : this(listOf(constraint))
 
     override fun execute(
         context: ValidationContext,
         input: T,
     ): ValidationResult<T> {
-        val constraintContext = context.createConstraintContext(input)
-
-        val transform: (Constraint<T>) -> ConstraintResult = {
-            val constraintContext = constraintContext.copy(key = it.key)
-            it.apply(constraintContext)
-        }
-        val constraintResults =
-            if (context.failFast) {
-                constraints
-                    .asSequence()
-                    .map(transform)
-                    .firstOrNull()
-                    ?.let { listOf(it) }
-                    ?: emptyList()
-            } else {
-                constraints.map(transform)
+        val constraintContext = context.createConstraintContext(input).copy(key = constraint.key)
+        return when (val result =  constraint.apply(constraintContext)) {
+            is ConstraintResult.Satisfied -> return ValidationResult.Success(input, context)
+            is ConstraintResult.Violated -> {
+                val failureDetails = ValidationResult.FailureDetail.extract(context, result)
+                ValidationResult.Failure(failureDetails)
             }
-
-        val failureDetails =
-            constraintResults.filterIsInstance<ConstraintResult.Violated>().flatMap {
-                ValidationResult.FailureDetail.extract(context, it)
-            }
-
-        return if (failureDetails.isEmpty()) {
-            ValidationResult.Success(input, context)
-        } else {
-            ValidationResult.Failure(failureDetails)
         }
     }
 
-    operator fun plus(other: CoreValidator<T>) = CoreValidator(constraints + other.constraints)
-
-    operator fun plus(other: Constraint<T>) = CoreValidator(constraints + other)
-
+    // TODO
     companion object {
         private const val RESOURCE_BUNDLE_BASE_NAME = "kova"
 
