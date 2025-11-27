@@ -1,7 +1,7 @@
 package org.komapper.extension.validator
 
-import org.komapper.extension.validator.CoreValidator.Companion.getPattern
 import java.text.MessageFormat
+import java.util.ResourceBundle
 
 sealed interface Message {
     val key: String? get() = null
@@ -54,4 +54,11 @@ sealed interface Message {
                 Resource(ctx.key, ctx.input, arg1, arg2, arg3)
             }
     }
+}
+
+private const val RESOURCE_BUNDLE_BASE_NAME = "kova"
+
+internal fun getPattern(key: String): String {
+    val bundle = ResourceBundle.getBundle(RESOURCE_BUNDLE_BASE_NAME)
+    return bundle.getString(key)
 }

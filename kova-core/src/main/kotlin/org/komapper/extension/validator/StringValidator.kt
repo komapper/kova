@@ -1,11 +1,9 @@
 package org.komapper.extension.validator
 
-
 open class StringValidator internal constructor(
     // TODO
     private val constraint: Constraint<String> = defaultConstraint,
 ) : Validator<String, String> {
-
     companion object {
         val defaultConstraint: Constraint<String> = Constraint("kova.charSequence") { ConstraintResult.Satisfied }
     }
@@ -15,7 +13,7 @@ open class StringValidator internal constructor(
         input: String,
     ): ValidationResult<String> {
         // TODO
-        return CoreValidator(constraint).execute(context, input)
+        return ConstraintValidator(constraint).execute(context, input)
     }
 
     private class Chain(
@@ -23,11 +21,13 @@ open class StringValidator internal constructor(
         val transform: (String) -> String = { it },
         constraint: Constraint<String> = defaultConstraint,
     ) : StringValidator(constraint) {
-        override fun execute(context: ValidationContext, input: String): ValidationResult<String> {
-            return chain(before, context, input) { context, input ->
+        override fun execute(
+            context: ValidationContext,
+            input: String,
+        ): ValidationResult<String> =
+            chain(before, context, input) { context, input ->
                 super.execute(context, transform(input))
             }
-        }
     }
 
     fun constraint(

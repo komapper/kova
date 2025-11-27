@@ -4,13 +4,12 @@ open class ComparableValidator<T : Comparable<T>> internal constructor(
     // TODO
     private val constraint: Constraint<T> = Constraint("kova.comparable") { ConstraintResult.Satisfied },
 ) : Validator<T, T> {
-
     override fun execute(
         context: ValidationContext,
         input: T,
     ): ValidationResult<T> {
         // TODO
-        return CoreValidator(constraint).execute(context, input)
+        return ConstraintValidator(constraint).execute(context, input)
     }
 
     private class Chain<T : Comparable<T>>(
@@ -18,11 +17,13 @@ open class ComparableValidator<T : Comparable<T>> internal constructor(
         val transform: (T) -> T = { it },
         constraint: Constraint<T> = Constraint("kova.comparable") { ConstraintResult.Satisfied },
     ) : ComparableValidator<T>(constraint) {
-        override fun execute(context: ValidationContext, input: T): ValidationResult<T> {
-            return chain(before, context, input) { context, input ->
+        override fun execute(
+            context: ValidationContext,
+            input: T,
+        ): ValidationResult<T> =
+            chain(before, context, input) { context, input ->
                 super.execute(context, transform(input))
             }
-        }
     }
 
     fun constraint(

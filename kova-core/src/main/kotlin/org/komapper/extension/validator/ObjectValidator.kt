@@ -74,7 +74,7 @@ class ObjectValidator<T : Any> internal constructor(
     ): ValidationResult<T> {
         val validator =
             constraints
-                .map { CoreValidator(it) }
+                .map { ConstraintValidator(it) }
                 .fold(EmptyValidator<T>() as Validator<T, T>) { acc, v -> acc + v }
         return validator.execute(context, input)
     }

@@ -24,24 +24,6 @@ sealed interface ValidationResult<out T> {
     ) {
         val root get() = context.root
         val path get() = context.path
-
-        companion object {
-            fun extract(
-                context: ValidationContext,
-                constraintResult: ConstraintResult.Violated,
-            ): List<FailureDetail> = resolveMessage(context, constraintResult.message)
-
-            fun resolveMessage(
-                context: ValidationContext,
-                message: Message,
-                cause: Throwable? = null,
-            ): List<FailureDetail> =
-                when (message) {
-                    is Message.Text -> listOf(FailureDetail(context, message, cause))
-                    is Message.Resource -> listOf(FailureDetail(context, message, cause))
-                    is Message.ValidationFailure -> message.details.flatMap { resolveMessage(it.context, it.message, it.cause) }
-                }
-        }
     }
 }
 

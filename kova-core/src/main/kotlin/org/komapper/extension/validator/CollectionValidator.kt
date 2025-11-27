@@ -7,7 +7,7 @@ open class CollectionValidator<E, C : Collection<E>> internal constructor(
     override fun execute(
         context: ValidationContext,
         input: C,
-    ): ValidationResult<C> = CoreValidator(constraint).execute(context, input)
+    ): ValidationResult<C> = ConstraintValidator(constraint).execute(context, input)
 
     fun constraint(
         key: String,

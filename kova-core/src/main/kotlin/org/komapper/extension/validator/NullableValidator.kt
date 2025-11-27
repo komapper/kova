@@ -10,29 +10,24 @@ open class NullableValidator<T : Any, S : Any> internal constructor(
     override fun execute(
         context: ValidationContext,
         input: T?,
-    ): ValidationResult<S?> {
-        // TODO
-        val constraintContext = context.createConstraintContext(input).copy(key = constraint.key)
-        return when (val result = constraint.apply(constraintContext)) {
-            is ConstraintResult.Satisfied -> {
+    ): ValidationResult<S?> =
+        when (val result = ConstraintValidator(constraint).execute(context, input)) {
+            is Success -> {
                 if (input == null) {
-                    ValidationResult.Success(null, context)
+                    Success(null, context)
                 } else {
-                    delegate.execute(context, input)
+                    delegate.execute(result.context, result.value)
                 }
             }
 
-            is ConstraintResult.Violated -> {
-                val failureDetails = ValidationResult.FailureDetail.extract(context, result)
-                val failure = ValidationResult.Failure(failureDetails)
+            is Failure -> {
                 if (context.failFast || input == null) {
-                    failure
+                    result
                 } else {
-                    failure + delegate.execute(context, input)
+                    result + delegate.execute(context, input)
                 }
             }
         }
-    }
 
     fun constraint(
         key: String,

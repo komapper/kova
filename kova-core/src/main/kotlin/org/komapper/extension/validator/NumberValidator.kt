@@ -8,7 +8,7 @@ open class NumberValidator<T> internal constructor(
     override fun execute(
         context: ValidationContext,
         input: T,
-    ): ValidationResult<T> = CoreValidator(constraint).execute(context, input)
+    ): ValidationResult<T> = ConstraintValidator(constraint).execute(context, input)
 
     fun constraint(
         key: String,

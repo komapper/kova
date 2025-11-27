@@ -7,7 +7,7 @@ open class EnumValidator<E : Enum<E>> internal constructor(
     override fun execute(
         context: ValidationContext,
         input: E,
-    ): ValidationResult<E> = CoreValidator(constraint).execute(context, input)
+    ): ValidationResult<E> = ConstraintValidator(constraint).execute(context, input)
 
     fun constraint(
         key: String,

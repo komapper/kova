@@ -7,7 +7,7 @@ open class MapValidator<K, V> internal constructor(
     override fun execute(
         context: ValidationContext,
         input: Map<K, V>,
-    ): ValidationResult<Map<K, V>> = CoreValidator(constraint).execute(context, input)
+    ): ValidationResult<Map<K, V>> = ConstraintValidator(constraint).execute(context, input)
 
     fun constraint(
         key: String,
