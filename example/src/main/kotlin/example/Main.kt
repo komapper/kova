@@ -22,7 +22,7 @@ val userFactory =
         .args(
             UserSchema.name,
             UserSchema.age + Kova.int().min(20), // add new rule
-        ).factory(::User)
+        ).bindTo(::User)
 
 fun main() {
     println("# Validation")

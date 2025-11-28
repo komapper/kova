@@ -43,14 +43,14 @@ private fun <T : Any> unwrapValidationResult(result: ValidationResult<T>): T =
 data class Argument1<A1, B1>(
     val arg1: Validator<A1, B1>,
 ) {
-    fun <T : Any> ctor(ctor: (B1) -> T) = ObjectFactory1(ctor, this)
+    fun <T : Any> by(ctor: (B1) -> T) = ObjectFactory1(ctor, this)
 }
 
 data class Argument2<A1, B1, A2, B2>(
     val arg1: Validator<A1, B1>,
     val arg2: Validator<A2, B2>,
 ) {
-    fun <T : Any> factory(ctor: (B1, B2) -> T) = ObjectFactory2(ctor, this)
+    fun <T : Any> bindTo(ctor: (B1, B2) -> T) = ObjectFactory2(ctor, this)
 }
 
 class ObjectFactory1<T : Any, A1, B1>(
