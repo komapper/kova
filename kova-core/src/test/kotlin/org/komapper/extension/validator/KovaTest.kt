@@ -37,4 +37,18 @@ class KovaTest :
                 result.messages.size shouldBe 1
             }
         }
+
+        context("boolean") {
+            val validator = Kova.boolean()
+
+            test("success - true") {
+                val result = validator.tryValidate(true)
+                result.isSuccess().mustBeTrue()
+            }
+
+            test("success - false") {
+                val result = validator.tryValidate(false)
+                result.isSuccess().mustBeTrue()
+            }
+        }
     })

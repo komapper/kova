@@ -281,34 +281,6 @@ class StringValidatorTest :
             }
         }
 
-        context("literal") {
-            val tuna = Kova.string().literal("tuna")
-
-            test("success") {
-                val result = tuna.tryValidate("tuna")
-                result.isSuccess().mustBeTrue()
-            }
-            test("failure") {
-                val result = tuna.tryValidate("salmon")
-                result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"salmon\" must be \"tuna\""
-            }
-        }
-
-        context("literals") {
-            val tuna = Kova.string().literals(listOf("tuna", "sushi"))
-
-            test("success") {
-                val result = tuna.tryValidate("tuna")
-                result.isSuccess().mustBeTrue()
-            }
-            test("failure") {
-                val result = tuna.tryValidate("salmon")
-                result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"salmon\" must be one of [tuna, sushi]"
-            }
-        }
-
         context("map - string bools") {
             val stringBools =
                 Kova.string().map {

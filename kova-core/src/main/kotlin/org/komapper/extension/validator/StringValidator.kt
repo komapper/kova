@@ -103,22 +103,6 @@ class StringValidator internal constructor(
             satisfies(it.input.toString() == it.input.toString().lowercase(), message(it))
         }
 
-    fun literal(
-        value: CharSequence,
-        message: (ConstraintContext<String>, CharSequence) -> Message = Message.resource1(),
-    ): StringValidator =
-        constrain("kova.string.literal") {
-            satisfies(it.input.contentEquals(value), message(it, value))
-        }
-
-    fun literals(
-        values: List<CharSequence>,
-        message: (ConstraintContext<String>, List<CharSequence>) -> Message = Message.resource1(),
-    ): StringValidator =
-        constrain("kova.string.literals") { ctx ->
-            satisfies(values.any { it.contentEquals(ctx.input) }, message(ctx, values))
-        }
-
     fun trim() = modify { it.trim() }
 
     fun toUpperCase() = modify { it.uppercase() }

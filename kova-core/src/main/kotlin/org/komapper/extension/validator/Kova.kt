@@ -5,7 +5,7 @@ import java.math.BigInteger
 import java.time.Clock
 
 interface Kova {
-    fun boolean(): BooleanValidator = BooleanValidator()
+    fun boolean(): Validator<Boolean, Boolean> = generic()
 
     fun string(): StringValidator = StringValidator()
 
@@ -50,6 +50,21 @@ interface Kova {
     fun <T : Any> nullable(): NullableValidator<T, T> = NullableValidator(generic())
 
     fun <E : Enum<E>> enum(): EnumValidator<E> = EnumValidator()
+
+    fun <T : Any> literal(
+        value: T,
+        message: (ConstraintContext<T>, T) -> Message = Message.resource1(),
+    ): Validator<T, T> = LiteralValidator<T>().single(value, message)
+
+    fun <T : Any> literal(
+        values: List<T>,
+        message: (ConstraintContext<T>, List<T>) -> Message = Message.resource1(),
+    ): Validator<T, T> = LiteralValidator<T>().list(values.toList(), message)
+
+    fun <T : Any> literal(
+        vararg values: T,
+        message: (ConstraintContext<T>, List<T>) -> Message = Message.resource1(),
+    ): Validator<T, T> = literal(values.toList(), message)
 
     fun error(message: Message): Nothing = throw MessageException(message)
 
