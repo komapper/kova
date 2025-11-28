@@ -9,7 +9,7 @@ class ObjectFactoryTest :
     FunSpec({
 
         context("1 arg") {
-            val factory = Kova.args(Kova.int().min(1)).by(::User1)
+            val factory = Kova.args(Kova.int().min(1)).createFactory(::User1)
 
             test("success - tryCreate") {
                 val result = factory.tryCreate(1)
@@ -52,7 +52,7 @@ class ObjectFactoryTest :
                     .args(
                         Kova.int().min(1),
                         Kova.string().min(1).max(10),
-                    ).bindTo(::User2)
+                    ).createFactory(::User2)
 
             test("success") {
                 val result = userFactory.tryCreate(1, "abc")
@@ -74,7 +74,7 @@ class ObjectFactoryTest :
         }
 
         context("2 args - generic validator") {
-            val factory = Kova.args(Kova.generic<Int>(), Kova.generic<String>()).bindTo(::User2)
+            val factory = Kova.args(Kova.generic<Int>(), Kova.generic<String>()).createFactory(::User2)
 
             test("success") {
                 val result = factory.tryCreate(1, "abc")
