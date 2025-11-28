@@ -174,6 +174,83 @@ class StringValidatorTest :
             }
         }
 
+        context("email") {
+            val email = Kova.string().email()
+
+            test("success - simple email") {
+                val result = email.tryValidate("user@example.com")
+                result.isSuccess().mustBeTrue()
+            }
+            test("success - with dots") {
+                val result = email.tryValidate("first.last@example.com")
+                result.isSuccess().mustBeTrue()
+            }
+            test("success - with plus") {
+                val result = email.tryValidate("user+tag@example.com")
+                result.isSuccess().mustBeTrue()
+            }
+            test("success - with hyphen in domain") {
+                val result = email.tryValidate("user@my-domain.com")
+                result.isSuccess().mustBeTrue()
+            }
+            test("success - with subdomain") {
+                val result = email.tryValidate("user@mail.example.com")
+                result.isSuccess().mustBeTrue()
+            }
+            test("success - with numbers") {
+                val result = email.tryValidate("user123@example.com")
+                result.isSuccess().mustBeTrue()
+            }
+            test("success - with underscore") {
+                val result = email.tryValidate("user_name@example.com")
+                result.isSuccess().mustBeTrue()
+            }
+            test("success - case insensitive") {
+                val result = email.tryValidate("User@Example.COM")
+                result.isSuccess().mustBeTrue()
+            }
+            test("failure - starts with dot") {
+                val result = email.tryValidate(".user@example.com")
+                result.isFailure().mustBeTrue()
+                result.messages.single().content shouldBe "\".user@example.com\" must be a valid email address"
+            }
+            test("failure - consecutive dots") {
+                val result = email.tryValidate("user..name@example.com")
+                result.isFailure().mustBeTrue()
+                result.messages.single().content shouldBe "\"user..name@example.com\" must be a valid email address"
+            }
+            test("failure - ends with dot before @") {
+                val result = email.tryValidate("user.@example.com")
+                result.isFailure().mustBeTrue()
+                result.messages.single().content shouldBe "\"user.@example.com\" must be a valid email address"
+            }
+            test("failure - no @") {
+                val result = email.tryValidate("userexample.com")
+                result.isFailure().mustBeTrue()
+                result.messages.single().content shouldBe "\"userexample.com\" must be a valid email address"
+            }
+            test("failure - no domain") {
+                val result = email.tryValidate("user@")
+                result.isFailure().mustBeTrue()
+                result.messages.single().content shouldBe "\"user@\" must be a valid email address"
+            }
+            test("failure - no local part") {
+                val result = email.tryValidate("@example.com")
+                result.isFailure().mustBeTrue()
+                result.messages.single().content shouldBe "\"@example.com\" must be a valid email address"
+            }
+            test("failure - no TLD") {
+                val result = email.tryValidate("user@example")
+                result.isFailure().mustBeTrue()
+                result.messages.single().content shouldBe "\"user@example\" must be a valid email address"
+            }
+            test("failure - spaces") {
+                val result = email.tryValidate("user name@example.com")
+                result.isFailure().mustBeTrue()
+                result.messages.single().content shouldBe "\"user name@example.com\" must be a valid email address"
+            }
+        }
+
         context("isInt") {
             val isInt = Kova.string().isInt()
 

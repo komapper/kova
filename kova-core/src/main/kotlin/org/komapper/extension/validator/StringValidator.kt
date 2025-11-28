@@ -86,6 +86,13 @@ class StringValidator internal constructor(
             satisfies(pattern.matches(it.input), message(it, pattern))
         }
 
+    fun email(message: (ConstraintContext<String>) -> Message = Message.resource0()): StringValidator =
+        constrain("kova.string.email") {
+            val emailPattern =
+                Regex("^(?!\\.)(?!.*\\.\\.)([a-z0-9_'+\\-\\.]*)[a-z0-9_+-]@([a-z0-9][a-z0-9\\-]*\\.)+[a-z]{2,}\$", RegexOption.IGNORE_CASE)
+            satisfies(emailPattern.matches(it.input), message(it))
+        }
+
     fun isInt(message: (ConstraintContext<String>) -> Message = Message.resource0()): StringValidator =
         constrain("kova.string.isInt") {
             satisfies(it.input.toIntOrNull() != null, message(it))
