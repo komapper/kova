@@ -18,11 +18,11 @@ object UserSchema : ObjectSchema<User>() {
 }
 
 val userFactory =
-    Kova.factory {
-        val name = UserSchema.name
-        val age = UserSchema.age + Kova.int().min(20) // add new rule
-        ::User { args(name, age) }
-    }
+    Kova
+        .args(
+            UserSchema.name,
+            UserSchema.age + Kova.int().min(20), // add new rule
+        ).factory(::User)
 
 fun main() {
     println("# Validation")

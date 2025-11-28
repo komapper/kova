@@ -46,27 +46,14 @@ interface Kova {
 
     fun <E : Enum<E>> enum(): EnumValidator<E> = EnumValidator()
 
-    fun <T : Any> factory(block: KovaFactoryScope.() -> T): T = block(KovaFactoryScope)
-
     fun error(message: Message): Nothing = throw MessageException(message)
 
+    fun <A1, B1> args(arg1: Validator<A1, B1>) = Argument1(arg1)
+
+    fun <A1, B1, A2, B2> args(
+        arg1: Validator<A1, B1>,
+        arg2: Validator<A2, B2>,
+    ) = Argument2(arg1, arg2)
+
     companion object : Kova
-}
-
-@DslMarker
-annotation class KovaMarker
-
-@KovaMarker
-interface KovaFactoryScope {
-    operator fun <T : Any, R, B1> ((B1) -> T).invoke(block: ObjectConstructor1<T, B1>.() -> R): R {
-        val ctor = ObjectConstructor1(this)
-        return block(ctor)
-    }
-
-    operator fun <T : Any, R, B1, B2> ((B1, B2) -> T).invoke(block: ObjectConstructor2<T, B1, B2>.() -> R): R {
-        val ctor = ObjectConstructor2(this)
-        return block(ctor)
-    }
-
-    companion object : KovaFactoryScope
 }

@@ -9,11 +9,7 @@ class ObjectFactoryTest :
     FunSpec({
 
         context("1 arg") {
-            val factory =
-                Kova.factory {
-                    val id = Kova.int().min(1)
-                    ::User1 { args(id) }
-                }
+            val factory = Kova.args(Kova.int().min(1)).ctor(::User1)
 
             test("success - tryCreate") {
                 val result = factory.tryCreate(1)
@@ -50,37 +46,36 @@ class ObjectFactoryTest :
         }
 
         context("2 args") {
-            val factory =
-                Kova.factory {
-                    val id = Kova.int().min(1)
-                    val name = Kova.string().min(1).max(10)
-                    ::User2 { args(id, name) }
-                }
+
+            val userFactory =
+                Kova
+                    .args(
+                        Kova.int().min(1),
+                        Kova.string().min(1).max(10),
+                    ).factory(::User2)
 
             test("success") {
-                val result = factory.tryCreate(1, "abc")
+                val result = userFactory.tryCreate(1, "abc")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe User2(1, "abc")
             }
 
             test("failure") {
-                val result = factory.tryCreate(0, "")
+                val result = userFactory.tryCreate(0, "")
                 result.isFailure().mustBeTrue()
                 result.details.size shouldBe 2
             }
 
             test("failure - failFast is true") {
-                val result = factory.tryCreate(0, "", failFast = true)
+                val result = userFactory.tryCreate(0, "", failFast = true)
                 result.isFailure().mustBeTrue()
                 result.details.size shouldBe 1
             }
         }
 
         context("2 args - generic validator") {
-            val factory =
-                Kova.factory {
-                    ::User2 { args(Kova.generic(), Kova.generic()) }
-                }
+            val factory = Kova.args(Kova.generic<Int>(), Kova.generic<String>()).factory(::User2)
+
             test("success") {
                 val result = factory.tryCreate(1, "abc")
                 result.isSuccess().mustBeTrue()

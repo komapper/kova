@@ -40,15 +40,22 @@ private fun <T : Any> unwrapValidationResult(result: ValidationResult<T>): T =
         is ValidationResult.Failure -> throw ValidationException(result.details)
     }
 
-class ObjectConstructor1<T : Any, B1>(
-    private val constructor: (B1) -> T,
+data class Argument1<A1, B1>(
+    val arg1: Validator<A1, B1>,
 ) {
-    fun <A1> args(v1: Validator<A1, B1>): ObjectFactory1<T, A1, B1> = ObjectFactory1(constructor, v1)
+    fun <T : Any> ctor(ctor: (B1) -> T) = ObjectFactory1(ctor, this)
+}
+
+data class Argument2<A1, B1, A2, B2>(
+    val arg1: Validator<A1, B1>,
+    val arg2: Validator<A2, B2>,
+) {
+    fun <T : Any> factory(ctor: (B1, B2) -> T) = ObjectFactory2(ctor, this)
 }
 
 class ObjectFactory1<T : Any, A1, B1>(
     private val constructor: (B1) -> T,
-    private val v1: Validator<A1, B1>,
+    private val args: Argument1<A1, B1>,
 ) {
     fun tryCreate(
         arg1: A1,
@@ -56,7 +63,7 @@ class ObjectFactory1<T : Any, A1, B1>(
     ): ValidationResult<T> {
         val context = ValidationContext(constructor.toString(), failFast = failFast)
         val result1 =
-            v1.execute(context.addPath("arg1"), arg1).let {
+            args.arg1.execute(context.addPath("arg1"), arg1).let {
                 if (context.shouldReturnEarly(it)) return createFailure(it) else it
             }
         return if (result1.isSuccess()) {
@@ -69,19 +76,9 @@ class ObjectFactory1<T : Any, A1, B1>(
     fun create(arg1: A1): T = unwrapValidationResult(tryCreate(arg1))
 }
 
-class ObjectConstructor2<T : Any, B1, B2>(
-    private val constructor: (B1, B2) -> T,
-) {
-    fun <A1, A2> args(
-        v1: Validator<A1, B1>,
-        v2: Validator<A2, B2>,
-    ): ObjectFactory2<T, A1, B1, A2, B2> = ObjectFactory2(constructor, v1, v2)
-}
-
 class ObjectFactory2<T : Any, A1, B1, A2, B2>(
     private val constructor: (B1, B2) -> T,
-    private val v1: Validator<A1, B1>,
-    private val v2: Validator<A2, B2>,
+    private val args: Argument2<A1, B1, A2, B2>,
 ) {
     fun tryCreate(
         arg1: A1,
@@ -90,11 +87,11 @@ class ObjectFactory2<T : Any, A1, B1, A2, B2>(
     ): ValidationResult<T> {
         val context = ValidationContext(constructor.toString(), failFast = failFast)
         val result1 =
-            v1.execute(context.addPath("arg1"), arg1).let {
+            args.arg1.execute(context.addPath("arg1"), arg1).let {
                 if (context.shouldReturnEarly(it)) return createFailure(it) else it
             }
         val result2 =
-            v2.execute(context.addPath("arg2"), arg2).let {
+            args.arg2.execute(context.addPath("arg2"), arg2).let {
                 if (context.shouldReturnEarly(it)) return createFailure(it) else it
             }
         return if (result1.isSuccess() && result2.isSuccess()) {
