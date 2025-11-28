@@ -58,23 +58,23 @@ val result = validator.tryValidate("hello")  // Returns ValidationResult
 ### Object Validation Pattern
 
 ```kotlin
-val validator = Kova.validator {
-    User::class {
-        User::name { Kova.string().min(1).max(10) }
-        User::age { Kova.int().min(0) }
-    }
+object UserSchema : ObjectSchema<User>() {
+    val name = User::name { Kova.string().min(1).max(10) }
+    val age = User::age { Kova.int().min(0) }
 }
-val result = validator.tryValidate(user)
+
+val result = UserSchema.tryValidate(user)
 ```
 
 ### Object Factory Pattern
 
 ```kotlin
-val factory = Kova.factory {
-    ::Person {
-        args(Kova.string().min(1), Kova.int().min(0))
-    }
+object PersonSchema : ObjectSchema<Person>() {
+    val name = Person::name { Kova.string().min(1) }
+    val age = Person::age { Kova.int().min(0) }
 }
+
+val factory = Kova.args(PersonSchema.name, PersonSchema.age).bindTo(::Person)
 val person = factory.create("Alice", 30)  // Validates and constructs
 ```
 
@@ -82,10 +82,10 @@ val person = factory.create("Alice", 30)  // Validates and constructs
 
 - **Validator<IN, OUT>**: Core interface with `execute(context, input)` method; public API uses `tryValidate()` and `validate()` extension functions
 - **ValidationResult**: Sealed interface with `Success<T>` and `Failure` cases
-- **CoreValidator**: Generic constraint evaluator used internally by all type-specific validators
-- **Type-Specific Validators**: CharSequenceValidator, NumberValidator, ComparableValidator, CollectionValidator, MapValidator, EnumValidator
-- **ObjectValidator**: Validates objects by validating individual properties
-- **ObjectFactory**: Constructs objects from validated inputs via reflection
+- **ConstraintValidator**: Generic constraint evaluator used internally by all type-specific validators
+- **Type-Specific Validators**: StringValidator, NumberValidator, BooleanValidator, LocalDateValidator, ComparableValidator, CollectionValidator, MapValidator, EnumValidator
+- **ObjectSchema**: Validates objects by defining validation rules for individual properties
+- **ObjectFactory**: Constructs objects from validated inputs via reflection using `bindTo()` method
 - **NullableValidator**: Wraps validators to handle nullable types
 - **NotNullValidator**: Specialized validator returned by `isNotNull()` and `isNotNullAnd()` that enforces non-null constraints
 - **ConditionalValidator**: Supports conditional validation logic
@@ -193,22 +193,26 @@ Heavy use of Kotlin reflection (`KClass`, `KProperty1`, `KParameter`, `KFunction
 - `InvocationTargetException` from init blocks are captured
 - Missing constructor arguments generate descriptive error messages
 
-### Delegation Pattern
+### Chaining Pattern
 
-Type-specific validators typically delegate their `execute()` implementation while providing type-specific constraint methods:
+Type-specific validators use a chaining pattern where they compose with previous validators and constraint validators:
 
 ```kotlin
-class CharSequenceValidator<T : CharSequence>(
-    private val delegate: CoreValidator<T>
-) : Validator<T, T> {
-    override fun execute(context: ValidationContext, input: T): ValidationResult<T> =
-        delegate.execute(context, input)
+class StringValidator internal constructor(
+    private val prev: Validator<String, String> = EmptyValidator(),
+    private val transform: (String) -> String = { it },
+    constraint: Constraint<String> = Constraint.satisfied(),
+) : Validator<String, String> {
+    private val next: ConstraintValidator<String> = ConstraintValidator(constraint)
 
-    fun min(length: Int): CharSequenceValidator<T> = /* returns new instance with constraint */
+    override fun execute(context: ValidationContext, input: String): ValidationResult<String> =
+        prev.map(transform).chain(next).execute(context, input)
+
+    fun min(length: Int): StringValidator = /* returns new instance with constraint */
 }
 ```
 
-This provides core validation logic while allowing type-specific extension methods. When adding constraints, a new instance with updated constraints is returned.
+This provides a composable validation pipeline while allowing type-specific extension methods. When adding constraints, a new instance with updated constraints is returned.
 
 ### Constraint Evaluation
 
@@ -257,9 +261,11 @@ When `failFast` is true, validation stops at the first constraint violation.
 - `ValidationException.kt` - Exception thrown by `validate()` extension function
 
 **Core Validators**:
-- `CoreValidator.kt` - Generic constraint evaluator used by all type-specific validators
-- `CharSequenceValidator.kt` - Validates strings/char sequences (min/max length, patterns, etc.)
+- `ConstraintValidator.kt` - Generic constraint evaluator used by all type-specific validators
+- `StringValidator.kt` - Validates strings (min/max length, patterns, transformations, etc.)
 - `NumberValidator.kt` - Validates numeric types (Int, Long, Double, Float, BigDecimal, etc.)
+- `BooleanValidator.kt` - Validates boolean values (isTrue, isFalse)
+- `LocalDateValidator.kt` - Validates LocalDate values (isFuture, isPast, isFutureOrPresent, isPastOrPresent)
 - `ComparableValidator.kt` - Validates comparable types (min/max comparisons)
 - `CollectionValidator.kt` - Validates collections (size, element validators)
 - `MapValidator.kt` - Validates maps (size, key/value validators)
@@ -268,7 +274,7 @@ When `failFast` is true, validation stops at the first constraint violation.
 - `EmptyValidator.kt` - No-op validator used by `Kova.generic()` that always succeeds
 
 **Special Validators**:
-- `ObjectValidator.kt` - Validates objects by validating individual properties with DSL
+- `ObjectSchema.kt` - Validates objects by defining validation rules for individual properties
 - `NullableValidator.kt` - Wraps validators to handle nullable types (includes `NotNullValidator` class)
 - `ConditionalValidator.kt` - Supports conditional validation logic
 

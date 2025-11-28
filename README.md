@@ -58,18 +58,16 @@ val intValidator = Kova.string().isInt().map { it.toString().toInt() }
 ```kotlin
 data class User(val id: Int, val name: String, val email: String)
 
-// Define a validator for the User class
-val userValidator = Kova.validator {
-    User::class {
-        User::id { Kova.int().min(1) }
-        User::name { Kova.string().min(1).max(50) }
-        User::email { Kova.string().isNotBlank().contains("@") }
-    }
+// Define a schema for the User class
+object UserSchema : ObjectSchema<User>() {
+    val id = User::id { Kova.int().min(1) }
+    val name = User::name { Kova.string().min(1).max(50) }
+    val email = User::email { Kova.string().isNotBlank().contains("@") }
 }
 
 // Validate a user instance
 val user = User(1, "Alice", "alice@example.com")
-val result = userValidator.tryValidate(user)
+val result = UserSchema.tryValidate(user)
 ```
 
 ### Object Construction with Validation
@@ -77,12 +75,14 @@ val result = userValidator.tryValidate(user)
 ```kotlin
 data class Person(val name: String, val age: Int)
 
-// Create a factory that validates inputs and constructs objects
-val personFactory = Kova.factory {
-    val nameValidator = Kova.string().min(1).max(50)
-    val ageValidator = Kova.int().min(0).max(150)
-    ::Person { args(nameValidator, ageValidator) }
+// Define a schema for the Person class
+object PersonSchema : ObjectSchema<Person>() {
+    val name = Person::name { Kova.string().min(1).max(50) }
+    val age = Person::age { Kova.int().min(0).max(150) }
 }
+
+// Create a factory that validates inputs and constructs objects
+val personFactory = Kova.args(PersonSchema.name, PersonSchema.age).bindTo(::Person)
 
 // Construct a person with validated inputs
 val person = personFactory.create("Alice", 30)  // Returns Person or throws ValidationException
@@ -131,7 +131,7 @@ val validator = Kova.nullable<String>().whenNotNull(Kova.string().min(5))
 
 ## Available Validators
 
-### CharSequence/String
+### String
 
 ```kotlin
 Kova.string()
@@ -146,6 +146,14 @@ Kova.string()
     .endsWith("suffix")        // Must end with suffix
     .contains("substring")     // Must contain substring
     .isInt()                   // Must be a valid integer
+    .uppercase()               // Must be uppercase
+    .lowercase()               // Must be lowercase
+    .literal("exact")          // Must match exact value
+    .literals(listOf("a", "b")) // Must match one of the values
+    .trim()                    // Transform: trim whitespace
+    .toUpperCase()             // Transform: convert to uppercase
+    .toLowerCase()             // Transform: convert to lowercase
+    .toInt()                   // Transform: convert to Int (extension)
 ```
 
 ### Numbers
@@ -163,6 +171,26 @@ Kova.bigInteger()  // BigInteger
 // All numeric validators support:
     .min(0)        // Minimum value
     .max(100)      // Maximum value
+```
+
+### Boolean
+
+```kotlin
+Kova.boolean()
+    .isTrue()      // Must be true
+    .isFalse()     // Must be false
+```
+
+### LocalDate
+
+```kotlin
+import java.time.Clock
+
+Kova.localDate(Clock.systemDefaultZone())
+    .isFuture()            // Must be in the future
+    .isFutureOrPresent()   // Must be in the future or present
+    .isPast()              // Must be in the past
+    .isPastOrPresent()     // Must be in the past or present
 ```
 
 ### Collections
