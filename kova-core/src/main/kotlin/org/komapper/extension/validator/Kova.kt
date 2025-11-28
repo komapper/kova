@@ -4,6 +4,8 @@ import java.math.BigDecimal
 import java.math.BigInteger
 
 interface Kova {
+    fun boolean(): BooleanValidator = BooleanValidator()
+
     fun string(): StringValidator = StringValidator()
 
     fun int(): NumberValidator<Int> = NumberValidator()
