@@ -24,9 +24,9 @@ class IntValidatorTest :
             }
         }
 
-        context("constraint") {
+        context("constrain") {
             val validator =
-                Kova.int().constraint("test") {
+                Kova.int().constrain("test") {
                     satisfies(it.input == 10, Message.Text("Constraint failed"))
                 }
 

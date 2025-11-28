@@ -24,14 +24,10 @@ class StringValidatorTest :
             }
         }
 
-        context("constraint") {
+        context("constrain") {
             val validator =
-                Kova.string().constraint("test") {
-                    if (it.input == "OK") {
-                        ConstraintResult.Satisfied
-                    } else {
-                        ConstraintResult.Violated("Constraint failed")
-                    }
+                Kova.string().constrain("test") {
+                    satisfies(it.input == "OK", "Constraint failed")
                 }
 
             test("success") {

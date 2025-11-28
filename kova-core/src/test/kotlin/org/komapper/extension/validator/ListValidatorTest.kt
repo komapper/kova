@@ -24,14 +24,10 @@ class ListValidatorTest :
             }
         }
 
-        context("constraint") {
+        context("constrain") {
             val validator =
-                Kova.list<String>().constraint("test") {
-                    if (it.input.size == 1) {
-                        ConstraintResult.Satisfied
-                    } else {
-                        ConstraintResult.Violated("Constraint failed")
-                    }
+                Kova.list<String>().constrain("test") {
+                    satisfies(it.input.size == 1, "Constraint failed")
                 }
 
             test("success") {
@@ -91,7 +87,7 @@ class ListValidatorTest :
                 Kova.validator {
                     ListHolder::class {
                         ListHolder::list {
-                            Kova.list<String>().onEach(Kova.string().length(3)).constraint("test") {
+                            Kova.list<String>().onEach(Kova.string().length(3)).constrain("test") {
                                 ConstraintResult.Satisfied
                             }
                         }

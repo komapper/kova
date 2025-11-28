@@ -5,14 +5,10 @@ import io.kotest.matchers.shouldBe
 
 class MapEntryValidatorTest :
     FunSpec({
-        context("constraint") {
+        context("constrain") {
             val validator =
-                Kova.mapEntry<String, String>().constraint("test") {
-                    if (it.input.key != it.input.value) {
-                        ConstraintResult.Satisfied
-                    } else {
-                        ConstraintResult.Violated("Constraint failed: ${it.input.key}")
-                    }
+                Kova.mapEntry<String, String>().constrain("test") {
+                    satisfies(it.input.key != it.input.value, "Constraint failed: ${it.input.key}")
                 }
 
             test("success") {

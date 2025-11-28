@@ -42,4 +42,14 @@ class ConstraintScope {
         } else {
             ConstraintResult.Violated(message)
         }
+
+    fun satisfies(
+        condition: Boolean,
+        message: String,
+    ): ConstraintResult =
+        if (condition) {
+            ConstraintResult.Satisfied
+        } else {
+            ConstraintResult.Violated(Message.Text(content = message))
+        }
 }

@@ -23,10 +23,10 @@ class UIntValidatorTest :
             }
         }
 
-        context("constraint") {
+        context("constrain") {
             val validator =
-                Kova.uInt().constraint("test") {
-                    satisfies(it.input == 10u, Message.Text("Constraint failed"))
+                Kova.uInt().constrain("test") {
+                    satisfies(it.input == 10u, "Constraint failed")
                 }
 
             test("success") {

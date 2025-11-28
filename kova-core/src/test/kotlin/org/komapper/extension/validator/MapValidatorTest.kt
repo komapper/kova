@@ -29,14 +29,10 @@ class MapValidatorTest :
             }
         }
 
-        context("constraint") {
+        context("constrain") {
             val validator =
-                MapValidator<String, String>().constraint("test") {
-                    if (it.input.size == 1) {
-                        ConstraintResult.Satisfied
-                    } else {
-                        ConstraintResult.Violated("Constraint failed")
-                    }
+                MapValidator<String, String>().constrain("test") {
+                    satisfies(it.input.size == 1, "Constraint failed")
                 }
 
             test("success") {
@@ -55,12 +51,8 @@ class MapValidatorTest :
         context("onEach") {
             val validator =
                 MapValidator<String, String>().onEach(
-                    MapEntryValidator<String, String>().constraint("test") {
-                        if (it.input.key != it.input.value) {
-                            ConstraintResult.Satisfied
-                        } else {
-                            ConstraintResult.Violated("Constraint failed: ${it.input.key}")
-                        }
+                    MapEntryValidator<String, String>().constrain("test") {
+                        satisfies(it.input.key != it.input.value, "Constraint failed: ${it.input.key}")
                     },
                 )
 

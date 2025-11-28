@@ -3,7 +3,8 @@ package org.komapper.extension.validator
 class CollectionValidator<E, C : Collection<E>> internal constructor(
     private val prev: Validator<C, C> = EmptyValidator(),
     constraint: Constraint<C> = Constraint.satisfied(),
-) : Validator<C, C> {
+) : Validator<C, C>,
+    Constrainable<C, CollectionValidator<E, C>> {
     private val next: ConstraintValidator<C> = ConstraintValidator(constraint)
 
     override fun execute(
@@ -11,7 +12,7 @@ class CollectionValidator<E, C : Collection<E>> internal constructor(
         input: C,
     ): ValidationResult<C> = prev.chain(next).execute(context, input)
 
-    fun constraint(
+    override fun constrain(
         key: String,
         check: ConstraintScope.(ConstraintContext<C>) -> ConstraintResult,
     ): CollectionValidator<E, C> = CollectionValidator(prev = this, constraint = Constraint(key, check))
@@ -20,12 +21,12 @@ class CollectionValidator<E, C : Collection<E>> internal constructor(
         size: Int,
         message: (ConstraintContext<C>, Int, Int) -> Message = Message.resource2(),
     ): CollectionValidator<E, C> =
-        constraint("kova.collection.min") {
+        constrain("kova.collection.min") {
             satisfies(it.input.size >= size, message(it, it.input.size, size))
         }
 
     fun onEach(validator: Validator<E, E>): CollectionValidator<E, C> =
-        constraint("kova.collection.onEach") {
+        constrain("kova.collection.onEach") {
             val validationContext = it.createValidationContext()
             val failures = mutableListOf<ValidationResult.Failure>()
             for ((i, element) in it.input.withIndex()) {

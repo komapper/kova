@@ -3,7 +3,8 @@ package org.komapper.extension.validator
 class ComparableValidator<T : Comparable<T>> internal constructor(
     private val prev: Validator<T, T> = EmptyValidator(),
     constraint: Constraint<T> = Constraint.satisfied(),
-) : Validator<T, T> {
+) : Validator<T, T>,
+    Constrainable<T, ComparableValidator<T>> {
     private val next: ConstraintValidator<T> = ConstraintValidator(constraint)
 
     override fun execute(
@@ -11,7 +12,7 @@ class ComparableValidator<T : Comparable<T>> internal constructor(
         input: T,
     ): ValidationResult<T> = prev.chain(next).execute(context, input)
 
-    fun constraint(
+    override fun constrain(
         key: String,
         check: ConstraintScope.(ConstraintContext<T>) -> ConstraintResult,
     ): ComparableValidator<T> = ComparableValidator(prev = this, constraint = Constraint(key, check))
@@ -19,10 +20,10 @@ class ComparableValidator<T : Comparable<T>> internal constructor(
     fun min(
         value: T,
         message: (ConstraintContext<T>, T) -> Message = Message.resource1(),
-    ): ComparableValidator<T> = constraint("kova.comparable.min", Constraints.min(value, message))
+    ): ComparableValidator<T> = constrain("kova.comparable.min", Constraints.min(value, message))
 
     fun max(
         value: T,
         message: (ConstraintContext<T>, T) -> Message = Message.resource1(),
-    ): ComparableValidator<T> = constraint("kova.comparable.max", Constraints.max(value, message))
+    ): ComparableValidator<T> = constrain("kova.comparable.max", Constraints.max(value, message))
 }

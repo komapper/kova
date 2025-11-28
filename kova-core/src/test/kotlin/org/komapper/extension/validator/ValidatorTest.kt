@@ -121,9 +121,9 @@ class ValidatorTest :
             }
         }
 
-        context("constraint") {
+        context("constrain") {
             val validator =
-                (Kova.string() as Validator<String, String>).constraint("test") {
+                (Kova.string() as Validator<String, String>).constrain("test") {
                     satisfies(it.input == "OK", Message.Text("Constraint failed"))
                 }
             test("success") {

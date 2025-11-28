@@ -5,7 +5,8 @@ import org.komapper.extension.validator.ValidationResult.Success
 class NullableValidator<T : Any, S : Any> internal constructor(
     private val inner: Validator<T?, S?>,
     private val constraints: List<Constraint<T?>> = emptyList(),
-) : Validator<T?, S?> {
+) : Validator<T?, S?>,
+    Constrainable<T?, NullableValidator<T, S>> {
     override fun execute(
         context: ValidationContext,
         input: T?,
@@ -17,13 +18,13 @@ class NullableValidator<T : Any, S : Any> internal constructor(
             validator.andThen(inner).execute(context, input)
         }
 
-    private fun constraint(
+    override fun constrain(
         key: String,
-        constraint: ConstraintScope.(ConstraintContext<T?>) -> ConstraintResult,
-    ): NullableValidator<T, S> = NullableValidator(inner, constraints + Constraint(key, constraint))
+        check: ConstraintScope.(ConstraintContext<T?>) -> ConstraintResult,
+    ): NullableValidator<T, S> = NullableValidator(inner, constraints + Constraint(key, check))
 
     fun isNull(message: (ConstraintContext<T?>) -> Message = Message.resource0()): NullableValidator<T, S> =
-        constraint("kova.nullable.isNull", {
+        constrain("kova.nullable.isNull", {
             satisfies(it.input == null, message(it))
         })
 
@@ -38,7 +39,7 @@ class NullableValidator<T : Any, S : Any> internal constructor(
 
     fun isNotNull(message: (ConstraintContext<T?>) -> Message = Message.resource0()): NotNullValidator<T, S> {
         val validator =
-            constraint("kova.nullable.isNotNull", { ctx ->
+            constrain("kova.nullable.isNotNull", { ctx ->
                 satisfies(ctx.input != null, message(ctx))
             })
         return NotNullValidator(validator)

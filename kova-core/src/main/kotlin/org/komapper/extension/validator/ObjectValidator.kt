@@ -114,7 +114,7 @@ class ObjectValidatorScope<T : Any>(
         ruleMap[key] = Rule(transform, choose)
     }
 
-    fun constraint(
+    fun constrain(
         key: String,
         check: ConstraintScope.(ConstraintContext<T>) -> ConstraintResult,
     ) = constraints.add(Constraint(key, check))

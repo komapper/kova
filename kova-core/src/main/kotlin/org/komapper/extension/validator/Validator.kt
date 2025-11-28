@@ -121,15 +121,15 @@ fun <T> Validator<T, T>.chain(next: Validator<T, T>): Validator<T, T> =
         }
     }
 
-fun <IN, OUT> Validator<IN, OUT>.constraint(
+fun <IN, OUT> Validator<IN, OUT>.constrain(
     key: String,
     check: ConstraintScope.(ConstraintContext<OUT>) -> ConstraintResult,
 ): Validator<IN, OUT> =
-    constraint(
+    constrain(
         Constraint(key, check),
     )
 
-fun <IN, OUT> Validator<IN, OUT>.constraint(constraint: Constraint<OUT>): Validator<IN, OUT> {
+fun <IN, OUT> Validator<IN, OUT>.constrain(constraint: Constraint<OUT>): Validator<IN, OUT> {
     val self = this
     return Validator { context, input ->
         when (val result = self.execute(context, input)) {

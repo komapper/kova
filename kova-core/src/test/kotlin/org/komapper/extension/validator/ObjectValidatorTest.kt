@@ -72,11 +72,11 @@ class ObjectValidatorTest :
             }
         }
 
-        context("constraint") {
+        context("constrain") {
             val validator =
                 Kova.validator {
                     Period::class {
-                        constraint("test") {
+                        constrain("test") {
                             if (it.input.startDate <= it.input.endDate) {
                                 ConstraintResult.Satisfied
                             } else {

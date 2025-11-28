@@ -3,7 +3,8 @@ package org.komapper.extension.validator
 class MapValidator<K, V> internal constructor(
     private val prev: Validator<Map<K, V>, Map<K, V>> = EmptyValidator(),
     constraint: Constraint<Map<K, V>> = Constraint.satisfied(),
-) : Validator<Map<K, V>, Map<K, V>> {
+) : Validator<Map<K, V>, Map<K, V>>,
+    Constrainable<Map<K, V>, MapValidator<K, V>> {
     private val next: ConstraintValidator<Map<K, V>> = ConstraintValidator(constraint)
 
     override fun execute(
@@ -11,7 +12,7 @@ class MapValidator<K, V> internal constructor(
         input: Map<K, V>,
     ): ValidationResult<Map<K, V>> = prev.chain(next).execute(context, input)
 
-    fun constraint(
+    override fun constrain(
         key: String,
         check: ConstraintScope.(ConstraintContext<Map<K, V>>) -> ConstraintResult,
     ): MapValidator<K, V> = MapValidator(prev = this, constraint = Constraint(key, check))
@@ -20,12 +21,12 @@ class MapValidator<K, V> internal constructor(
         size: Int,
         message: (ConstraintContext<Map<K, V>>, Int, Int) -> Message = Message.resource2(),
     ): MapValidator<K, V> =
-        constraint("kova.map.min") {
+        constrain("kova.map.min") {
             satisfies(it.input.size >= size, message(it, it.input.size, size))
         }
 
     fun onEach(validator: Validator<Map.Entry<K, V>, Map.Entry<K, V>>): MapValidator<K, V> =
-        constraint("kova.map.onEach") {
+        constrain("kova.map.onEach") {
             validateOnEach(it) { entry, validationContext ->
                 val path = "<map entry>"
                 validator.execute(validationContext.appendPath(path = path), entry)
@@ -33,7 +34,7 @@ class MapValidator<K, V> internal constructor(
         }
 
     fun onEachKey(validator: Validator<K, K>): MapValidator<K, V> =
-        constraint("kova.map.onEachKey") {
+        constrain("kova.map.onEachKey") {
             validateOnEach(it) { entry, validationContext ->
                 val path = "<map key>"
                 validator.execute(validationContext.appendPath(path = path), entry.key)
@@ -41,7 +42,7 @@ class MapValidator<K, V> internal constructor(
         }
 
     fun onEachValue(validator: Validator<V, V>): MapValidator<K, V> =
-        constraint("kova.map.onEachValue") {
+        constrain("kova.map.onEachValue") {
             validateOnEach(it) { entry, validationContext ->
                 val path = "[${entry.key}]<map value>"
                 validator.execute(validationContext.appendPath(path = path), entry.value)
