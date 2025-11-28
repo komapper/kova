@@ -338,7 +338,7 @@ class ObjectSchemaTest :
 
             val personSchema2 =
                 object : ObjectSchema<Person>() {
-                    val name = Person::name { Kova.nullable<String>().isNotNull() }
+                    val name = Person::name { Kova.nullable<String>().notNull() }
                     val address = Person::address { addressSchema.asNullable() }
                 }
 
@@ -441,10 +441,10 @@ class ObjectSchemaTest :
                     private val idValidator =
                         Kova
                             .nullable<String>()
-                            .isNotNullAnd(Kova.string().isInt())
+                            .notNullAnd(Kova.string().isInt())
                             .asNonNullableThen(Kova.string().toInt())
                     private val nameValidator =
-                        Kova.nullable<String>().isNotNullAnd(Kova.string().min(3))
+                        Kova.nullable<String>().notNullAnd(Kova.string().min(3))
 
                     val id = map("id") { it["id"] }.andThen(idValidator)
                     val name = map("name") { it["name"] }.andThen(nameValidator)

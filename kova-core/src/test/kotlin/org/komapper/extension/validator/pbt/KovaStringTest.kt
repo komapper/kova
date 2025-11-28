@@ -84,7 +84,18 @@ class KovaStringTest :
             }
         }
 
-        test("blank - should pass for blank strings") {
+        test("notBlank - should pass for non-blank strings") {
+            checkAll(Arb.string(1..100).filter { it.isNotBlank() }) { input ->
+                Kova
+                    .string()
+                    .notBlank()
+                    .tryValidate(input)
+                    .isSuccess()
+                    .shouldBeTrue()
+            }
+        }
+
+        test("notBlank - should fail for blank strings") {
             val blankStrings =
                 Arb.choice(
                     Arb.constant(""),
@@ -97,49 +108,7 @@ class KovaStringTest :
             checkAll(blankStrings) { input ->
                 Kova
                     .string()
-                    .isBlank()
-                    .tryValidate(input)
-                    .isSuccess()
-                    .shouldBeTrue()
-            }
-        }
-
-        test("blank - should fail for non-blank strings") {
-            checkAll(Arb.string(1..100).filter { it.isNotBlank() }) { input ->
-                Kova
-                    .string()
-                    .isBlank()
-                    .tryValidate(input)
-                    .isSuccess()
-                    .shouldBeFalse()
-            }
-        }
-
-        test("isNotBlank - should pass for non-blank strings") {
-            checkAll(Arb.string(1..100).filter { it.isNotBlank() }) { input ->
-                Kova
-                    .string()
-                    .isNotBlank()
-                    .tryValidate(input)
-                    .isSuccess()
-                    .shouldBeTrue()
-            }
-        }
-
-        test("isNotBlank - should fail for blank strings") {
-            val blankStrings =
-                Arb.choice(
-                    Arb.constant(""),
-                    Arb.int(1..10).map { " ".repeat(it) },
-                    Arb.int(1..10).map { "\t".repeat(it) },
-                    Arb.int(1..10).map { "\n".repeat(it) },
-                    Arb.int(1..10).map { " \t\n".repeat(it) },
-                )
-
-            checkAll(blankStrings) { input ->
-                Kova
-                    .string()
-                    .isNotBlank()
+                    .notBlank()
                     .tryValidate(input)
                     .isSuccess()
                     .shouldBeFalse()

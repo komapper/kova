@@ -37,23 +37,13 @@ class StringValidator internal constructor(
             satisfies(it.input.length <= length, message(it, length))
         }
 
-    fun isBlank(message: (ConstraintContext<String>) -> Message = Message.resource0()): StringValidator =
-        constrain("kova.string.isBlank") {
-            satisfies(it.input.isBlank(), message(it))
-        }
-
-    fun isNotBlank(message: (ConstraintContext<String>) -> Message = Message.resource0()): StringValidator =
-        constrain("kova.string.isNotBlank") {
+    fun notBlank(message: (ConstraintContext<String>) -> Message = Message.resource0()): StringValidator =
+        constrain("kova.string.notBlank") {
             satisfies(it.input.isNotBlank(), message(it))
         }
 
-    fun isEmpty(message: (ConstraintContext<String>) -> Message = Message.resource0()): StringValidator =
-        constrain("kova.string.isEmpty") {
-            satisfies(it.input.isEmpty(), message(it))
-        }
-
-    fun isNotEmpty(message: (ConstraintContext<String>) -> Message = Message.resource0()): StringValidator =
-        constrain("kova.string.isNotEmpty") {
+    fun notEmpty(message: (ConstraintContext<String>) -> Message = Message.resource0()): StringValidator =
+        constrain("kova.string.notEmpty") {
             satisfies(it.input.isNotEmpty(), message(it))
         }
 
@@ -90,17 +80,17 @@ class StringValidator internal constructor(
 
     fun isInt(message: (ConstraintContext<String>) -> Message = Message.resource0()): StringValidator =
         constrain("kova.string.isInt") {
-            satisfies(it.input.toString().toIntOrNull() != null, message(it))
+            satisfies(it.input.toIntOrNull() != null, message(it))
         }
 
     fun uppercase(message: (ConstraintContext<String>) -> Message = Message.resource0()): StringValidator =
         constrain("kova.string.uppercase") {
-            satisfies(it.input.toString() == it.input.toString().uppercase(), message(it))
+            satisfies(it.input == it.input.uppercase(), message(it))
         }
 
     fun lowercase(message: (ConstraintContext<String>) -> Message = Message.resource0()): StringValidator =
         constrain("kova.string.lowercase") {
-            satisfies(it.input.toString() == it.input.toString().lowercase(), message(it))
+            satisfies(it.input == it.input.lowercase(), message(it))
         }
 
     fun trim() = modify { it.trim() }

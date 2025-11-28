@@ -13,7 +13,7 @@ data class User(
 )
 
 object UserSchema : ObjectSchema<User>() {
-    val name = User::name { Kova.string().min(1).isNotBlank() }
+    val name = User::name { Kova.string().min(1).notBlank() }
     val age = User::age { Kova.int().min(0).max(120) }
 }
 

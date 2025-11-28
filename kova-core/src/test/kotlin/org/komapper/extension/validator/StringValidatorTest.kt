@@ -87,60 +87,30 @@ class StringValidatorTest :
             }
         }
 
-        context("isBlank") {
-            val isBlank = Kova.string().isBlank()
+        context("notBlank") {
+            val notBlank = Kova.string().notBlank()
 
             test("success") {
-                val result = isBlank.tryValidate("   ")
-                result.isSuccess().mustBeTrue()
-            }
-
-            test("failure") {
-                val result = isBlank.tryValidate("ab")
-                result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"ab\" must be blank"
-            }
-        }
-
-        context("isNotBlank") {
-            val isNotBlank = Kova.string().isNotBlank()
-
-            test("success") {
-                val result = isNotBlank.tryValidate("ab")
+                val result = notBlank.tryValidate("ab")
                 result.isSuccess().mustBeTrue()
             }
             test("failure") {
-                val result = isNotBlank.tryValidate("")
+                val result = notBlank.tryValidate("")
                 result.isFailure().mustBeTrue()
                 result.messages.single().content shouldBe "\"\" must not be blank"
             }
         }
 
-        context("isEmpty") {
-            val isEmpty = Kova.string().isEmpty()
+        context("notEmpty") {
+            val notEmpty = Kova.string().notEmpty()
 
             test("success") {
-                val result = isEmpty.tryValidate("")
+                val result = notEmpty.tryValidate("ab")
                 result.isSuccess().mustBeTrue()
             }
 
             test("failure") {
-                val result = isEmpty.tryValidate("ab")
-                result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"ab\" must be empty"
-            }
-        }
-
-        context("isNotEmpty") {
-            val isNotEmpty = Kova.string().isNotEmpty()
-
-            test("success") {
-                val result = isNotEmpty.tryValidate("ab")
-                result.isSuccess().mustBeTrue()
-            }
-
-            test("failure") {
-                val result = isNotEmpty.tryValidate("")
+                val result = notEmpty.tryValidate("")
                 result.isFailure().mustBeTrue()
                 result.messages.single().content shouldBe "\"\" must not be empty"
             }
@@ -262,7 +232,7 @@ class StringValidatorTest :
             val max1 =
                 Kova
                     .nullable<String>()
-                    .isNotNull()
+                    .notNull()
                     .whenNotNull(Kova.string().max(1))
 
             test("success") {
