@@ -511,4 +511,31 @@ class ObjectSchemaTest :
                 }
             }
         }
+
+        context("recursive") {
+            data class Node(
+                val children: List<Node> = emptyList(),
+            )
+
+            val nodeSchema =
+                object : ObjectSchema<Node>() {
+                    val children = Node::children { Kova.list<Node>().max(3).onEach(this) }
+                }
+
+            test("success") {
+                val node = Node(listOf(Node(), Node(), Node()))
+                val result = nodeSchema.tryValidate(node)
+                result.isSuccess().mustBeTrue()
+            }
+
+            test("failure - children size > 3") {
+                val node = Node(listOf(Node(), Node(), Node(listOf(Node(), Node(), Node(), Node()))))
+                val result = nodeSchema.tryValidate(node)
+                result.isFailure().mustBeTrue()
+                result.details.size shouldBe 1
+                result.details[0].path shouldBe "children[2]<collection element>.children"
+                result.messages.size shouldBe 1
+                result.messages[0].content shouldBe "Collection(size=4) must have at most 3 elements"
+            }
+        }
     })

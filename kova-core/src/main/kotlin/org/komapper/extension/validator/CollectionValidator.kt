@@ -25,6 +25,14 @@ class CollectionValidator<E, C : Collection<E>> internal constructor(
             satisfies(it.input.size >= size, message(it, it.input.size, size))
         }
 
+    fun max(
+        size: Int,
+        message: (ConstraintContext<C>, Int, Int) -> Message = Message.resource2(),
+    ): CollectionValidator<E, C> =
+        constrain("kova.collection.max") {
+            satisfies(it.input.size <= size, message(it, it.input.size, size))
+        }
+
     fun onEach(validator: Validator<E, E>): CollectionValidator<E, C> =
         constrain("kova.collection.onEach") {
             val validationContext = it.createValidationContext()
