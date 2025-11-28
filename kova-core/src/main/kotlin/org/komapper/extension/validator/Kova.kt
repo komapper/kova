@@ -2,6 +2,7 @@ package org.komapper.extension.validator
 
 import java.math.BigDecimal
 import java.math.BigInteger
+import java.time.Clock
 
 interface Kova {
     fun boolean(): BooleanValidator = BooleanValidator()
@@ -31,6 +32,8 @@ interface Kova {
     fun uByte(): ComparableValidator<UByte> = ComparableValidator()
 
     fun uShort(): ComparableValidator<UShort> = ComparableValidator()
+
+    fun localDate(clock: Clock): LocalDateValidator = LocalDateValidator(clock = clock)
 
     fun <E> collection(): CollectionValidator<E, Collection<E>> = CollectionValidator()
 
