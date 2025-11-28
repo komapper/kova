@@ -158,6 +158,22 @@ class StringValidatorTest :
             }
         }
 
+        context("matches") {
+            val emailPattern = Regex("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}\$")
+            val matches = Kova.string().matches(emailPattern)
+
+            test("success") {
+                val result = matches.tryValidate("user@example.com")
+                result.isSuccess().mustBeTrue()
+            }
+            test("failure") {
+                val result = matches.tryValidate("invalid-email")
+                result.isFailure().mustBeTrue()
+                result.messages.single().content shouldBe
+                    "\"invalid-email\" must match pattern ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}\$"
+            }
+        }
+
         context("isInt") {
             val isInt = Kova.string().isInt()
 

@@ -78,6 +78,14 @@ class StringValidator internal constructor(
         satisfies(it.input.contains(infix), message(it, infix))
     }
 
+    fun matches(
+        pattern: Regex,
+        message: (ConstraintContext<String>, Regex) -> Message = Message.resource1(),
+    ): StringValidator =
+        constrain("kova.string.matches") {
+            satisfies(pattern.matches(it.input), message(it, pattern))
+        }
+
     fun isInt(message: (ConstraintContext<String>) -> Message = Message.resource0()): StringValidator =
         constrain("kova.string.isInt") {
             satisfies(it.input.toIntOrNull() != null, message(it))
