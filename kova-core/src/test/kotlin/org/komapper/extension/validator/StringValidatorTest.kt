@@ -189,6 +189,261 @@ class StringValidatorTest :
             }
         }
 
+        context("isLong") {
+            val isLong = Kova.string().isLong()
+
+            test("success") {
+                val result = isLong.tryValidate("9223372036854775807")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "9223372036854775807"
+            }
+            test("failure") {
+                val result = isLong.tryValidate("123.45")
+                result.isFailure().mustBeTrue()
+                result.messages.single().content shouldBe "\"123.45\" must be a long"
+            }
+        }
+
+        context("isShort") {
+            val isShort = Kova.string().isShort()
+
+            test("success") {
+                val result = isShort.tryValidate("32767")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "32767"
+            }
+            test("failure") {
+                val result = isShort.tryValidate("99999")
+                result.isFailure().mustBeTrue()
+                result.messages.single().content shouldBe "\"99999\" must be a short"
+            }
+        }
+
+        context("isByte") {
+            val isByte = Kova.string().isByte()
+
+            test("success") {
+                val result = isByte.tryValidate("127")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "127"
+            }
+            test("failure") {
+                val result = isByte.tryValidate("256")
+                result.isFailure().mustBeTrue()
+                result.messages.single().content shouldBe "\"256\" must be a byte"
+            }
+        }
+
+        context("isDouble") {
+            val isDouble = Kova.string().isDouble()
+
+            test("success") {
+                val result = isDouble.tryValidate("123.45")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "123.45"
+            }
+            test("failure") {
+                val result = isDouble.tryValidate("abc")
+                result.isFailure().mustBeTrue()
+                result.messages.single().content shouldBe "\"abc\" must be a double"
+            }
+        }
+
+        context("isFloat") {
+            val isFloat = Kova.string().isFloat()
+
+            test("success") {
+                val result = isFloat.tryValidate("123.45")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "123.45"
+            }
+            test("failure") {
+                val result = isFloat.tryValidate("abc")
+                result.isFailure().mustBeTrue()
+                result.messages.single().content shouldBe "\"abc\" must be a float"
+            }
+        }
+
+        context("isBigDecimal") {
+            val isBigDecimal = Kova.string().isBigDecimal()
+
+            test("success") {
+                val result = isBigDecimal.tryValidate("123.456789012345678901234567890")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "123.456789012345678901234567890"
+            }
+            test("failure") {
+                val result = isBigDecimal.tryValidate("abc")
+                result.isFailure().mustBeTrue()
+                result.messages.single().content shouldBe "\"abc\" must be a big decimal"
+            }
+        }
+
+        context("isBigInteger") {
+            val isBigInteger = Kova.string().isBigInteger()
+
+            test("success") {
+                val result = isBigInteger.tryValidate("12345678901234567890")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "12345678901234567890"
+            }
+            test("failure") {
+                val result = isBigInteger.tryValidate("123.45")
+                result.isFailure().mustBeTrue()
+                result.messages.single().content shouldBe "\"123.45\" must be a big integer"
+            }
+        }
+
+        context("isBoolean") {
+            val isBoolean = Kova.string().isBoolean()
+
+            test("success - true") {
+                val result = isBoolean.tryValidate("true")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "true"
+            }
+            test("success - false") {
+                val result = isBoolean.tryValidate("false")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "false"
+            }
+            test("success - case insensitive") {
+                val result = isBoolean.tryValidate("TRUE")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "TRUE"
+            }
+            test("failure") {
+                val result = isBoolean.tryValidate("yes")
+                result.isFailure().mustBeTrue()
+                result.messages.single().content shouldBe "\"yes\" must be a boolean"
+            }
+        }
+
+        context("toBoolean") {
+            val toBoolean = Kova.string().toBoolean()
+
+            test("success - true") {
+                val result = toBoolean.tryValidate("true")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe true
+            }
+            test("success - false") {
+                val result = toBoolean.tryValidate("false")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe false
+            }
+            test("failure") {
+                val result = toBoolean.tryValidate("yes")
+                result.isFailure().mustBeTrue()
+                result.messages.single().content shouldBe "\"yes\" must be a boolean"
+            }
+        }
+
+        context("toLong") {
+            val toLong = Kova.string().toLong()
+
+            test("success") {
+                val result = toLong.tryValidate("9223372036854775807")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe 9223372036854775807L
+            }
+            test("failure") {
+                val result = toLong.tryValidate("abc")
+                result.isFailure().mustBeTrue()
+                result.messages.single().content shouldBe "\"abc\" must be a long"
+            }
+        }
+
+        context("toShort") {
+            val toShort = Kova.string().toShort()
+
+            test("success") {
+                val result = toShort.tryValidate("32767")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe 32767.toShort()
+            }
+            test("failure") {
+                val result = toShort.tryValidate("99999")
+                result.isFailure().mustBeTrue()
+                result.messages.single().content shouldBe "\"99999\" must be a short"
+            }
+        }
+
+        context("toByte") {
+            val toByte = Kova.string().toByte()
+
+            test("success") {
+                val result = toByte.tryValidate("127")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe 127.toByte()
+            }
+            test("failure") {
+                val result = toByte.tryValidate("256")
+                result.isFailure().mustBeTrue()
+                result.messages.single().content shouldBe "\"256\" must be a byte"
+            }
+        }
+
+        context("toDouble") {
+            val toDouble = Kova.string().toDouble()
+
+            test("success") {
+                val result = toDouble.tryValidate("123.45")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe 123.45
+            }
+            test("failure") {
+                val result = toDouble.tryValidate("abc")
+                result.isFailure().mustBeTrue()
+                result.messages.single().content shouldBe "\"abc\" must be a double"
+            }
+        }
+
+        context("toFloat") {
+            val toFloat = Kova.string().toFloat()
+
+            test("success") {
+                val result = toFloat.tryValidate("123.45")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe 123.45f
+            }
+            test("failure") {
+                val result = toFloat.tryValidate("abc")
+                result.isFailure().mustBeTrue()
+                result.messages.single().content shouldBe "\"abc\" must be a float"
+            }
+        }
+
+        context("toBigDecimal") {
+            val toBigDecimal = Kova.string().toBigDecimal()
+
+            test("success") {
+                val result = toBigDecimal.tryValidate("123.456789012345678901234567890")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "123.456789012345678901234567890".toBigDecimal()
+            }
+            test("failure") {
+                val result = toBigDecimal.tryValidate("abc")
+                result.isFailure().mustBeTrue()
+                result.messages.single().content shouldBe "\"abc\" must be a big decimal"
+            }
+        }
+
+        context("toBigInteger") {
+            val toBigInteger = Kova.string().toBigInteger()
+
+            test("success") {
+                val result = toBigInteger.tryValidate("12345678901234567890")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "12345678901234567890".toBigInteger()
+            }
+            test("failure") {
+                val result = toBigInteger.tryValidate("123.45")
+                result.isFailure().mustBeTrue()
+                result.messages.single().content shouldBe "\"123.45\" must be a big integer"
+            }
+        }
+
         context("uppercase") {
             val uppercase = Kova.string().uppercase()
 

@@ -91,6 +91,46 @@ class StringValidator internal constructor(
             satisfies(it.input.toIntOrNull() != null, message(it))
         }
 
+    fun isLong(message: (ConstraintContext<String>) -> Message = Message.resource0()): StringValidator =
+        constrain("kova.string.isLong") {
+            satisfies(it.input.toLongOrNull() != null, message(it))
+        }
+
+    fun isShort(message: (ConstraintContext<String>) -> Message = Message.resource0()): StringValidator =
+        constrain("kova.string.isShort") {
+            satisfies(it.input.toShortOrNull() != null, message(it))
+        }
+
+    fun isByte(message: (ConstraintContext<String>) -> Message = Message.resource0()): StringValidator =
+        constrain("kova.string.isByte") {
+            satisfies(it.input.toByteOrNull() != null, message(it))
+        }
+
+    fun isDouble(message: (ConstraintContext<String>) -> Message = Message.resource0()): StringValidator =
+        constrain("kova.string.isDouble") {
+            satisfies(it.input.toDoubleOrNull() != null, message(it))
+        }
+
+    fun isFloat(message: (ConstraintContext<String>) -> Message = Message.resource0()): StringValidator =
+        constrain("kova.string.isFloat") {
+            satisfies(it.input.toFloatOrNull() != null, message(it))
+        }
+
+    fun isBigDecimal(message: (ConstraintContext<String>) -> Message = Message.resource0()): StringValidator =
+        constrain("kova.string.isBigDecimal") {
+            satisfies(it.input.toBigDecimalOrNull() != null, message(it))
+        }
+
+    fun isBigInteger(message: (ConstraintContext<String>) -> Message = Message.resource0()): StringValidator =
+        constrain("kova.string.isBigInteger") {
+            satisfies(it.input.toBigIntegerOrNull() != null, message(it))
+        }
+
+    fun isBoolean(message: (ConstraintContext<String>) -> Message = Message.resource0()): StringValidator =
+        constrain("kova.string.isBoolean") {
+            satisfies(it.input.toBooleanStrictOrNull() != null, message(it))
+        }
+
     fun uppercase(message: (ConstraintContext<String>) -> Message = Message.resource0()): StringValidator =
         constrain("kova.string.uppercase") {
             satisfies(it.input == it.input.uppercase(), message(it))
@@ -109,3 +149,19 @@ class StringValidator internal constructor(
 }
 
 fun StringValidator.toInt(): Validator<String, Int> = isInt().map { it.toInt() }
+
+fun StringValidator.toLong(): Validator<String, Long> = isLong().map { it.toLong() }
+
+fun StringValidator.toShort(): Validator<String, Short> = isShort().map { it.toShort() }
+
+fun StringValidator.toByte(): Validator<String, Byte> = isByte().map { it.toByte() }
+
+fun StringValidator.toDouble(): Validator<String, Double> = isDouble().map { it.toDouble() }
+
+fun StringValidator.toFloat(): Validator<String, Float> = isFloat().map { it.toFloat() }
+
+fun StringValidator.toBigDecimal(): Validator<String, java.math.BigDecimal> = isBigDecimal().map { it.toBigDecimal() }
+
+fun StringValidator.toBigInteger(): Validator<String, java.math.BigInteger> = isBigInteger().map { it.toBigInteger() }
+
+fun StringValidator.toBoolean(): Validator<String, Boolean> = isBoolean().map { it.toBoolean() }
