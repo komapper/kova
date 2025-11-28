@@ -8,12 +8,12 @@ import java.time.ZoneOffset
 class LocalDateValidatorTest :
     FunSpec({
 
-        context("isFuture") {
+        context("future") {
             val date = LocalDate.of(2025, 1, 1)
             val zone = ZoneOffset.UTC
             val instant = date.atStartOfDay(zone).toInstant()
             val clock = Clock.fixed(instant, zone)
-            val validator = Kova.localDate(clock).isFuture()
+            val validator = Kova.localDate(clock).future()
 
             test("success") {
                 val result = validator.tryValidate(date.plusDays(1))
@@ -31,12 +31,12 @@ class LocalDateValidatorTest :
             }
         }
 
-        context("isFutureOrPresent") {
+        context("futureOrPresent") {
             val date = LocalDate.of(2025, 1, 1)
             val zone = ZoneOffset.UTC
             val instant = date.atStartOfDay(zone).toInstant()
             val clock = Clock.fixed(instant, zone)
-            val validator = Kova.localDate(clock).isFutureOrPresent()
+            val validator = Kova.localDate(clock).futureOrPresent()
 
             test("success - future") {
                 val result = validator.tryValidate(date.plusDays(1))
@@ -54,12 +54,12 @@ class LocalDateValidatorTest :
             }
         }
 
-        context("isPast") {
+        context("past") {
             val date = LocalDate.of(2025, 1, 1)
             val zone = ZoneOffset.UTC
             val instant = date.atStartOfDay(zone).toInstant()
             val clock = Clock.fixed(instant, zone)
-            val validator = Kova.localDate(clock).isPast()
+            val validator = Kova.localDate(clock).past()
 
             test("success") {
                 val result = validator.tryValidate(date.minusDays(1))
@@ -77,12 +77,12 @@ class LocalDateValidatorTest :
             }
         }
 
-        context("isPastOrPresent") {
+        context("pastOrPresent") {
             val date = LocalDate.of(2025, 1, 1)
             val zone = ZoneOffset.UTC
             val instant = date.atStartOfDay(zone).toInstant()
             val clock = Clock.fixed(instant, zone)
-            val validator = Kova.localDate(clock).isPastOrPresent()
+            val validator = Kova.localDate(clock).pastOrPresent()
 
             test("success - past") {
                 val result = validator.tryValidate(date.minusDays(1))

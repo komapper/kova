@@ -21,23 +21,23 @@ class LocalDateValidator internal constructor(
         check: ConstraintScope.(ConstraintContext<LocalDate>) -> ConstraintResult,
     ): LocalDateValidator = LocalDateValidator(prev = this, constraint = Constraint(key, check), clock = clock)
 
-    fun isFuture(message: (ConstraintContext<LocalDate>) -> Message = Message.resource0()): LocalDateValidator =
-        constrain("kova.localDate.isFuture") {
+    fun future(message: (ConstraintContext<LocalDate>) -> Message = Message.resource0()): LocalDateValidator =
+        constrain("kova.localDate.future") {
             satisfies(it.input > LocalDate.now(clock), message(it))
         }
 
-    fun isFutureOrPresent(message: (ConstraintContext<LocalDate>) -> Message = Message.resource0()): LocalDateValidator =
-        constrain("kova.localDate.isFutureOrPresent") {
+    fun futureOrPresent(message: (ConstraintContext<LocalDate>) -> Message = Message.resource0()): LocalDateValidator =
+        constrain("kova.localDate.futureOrPresent") {
             satisfies(it.input >= LocalDate.now(clock), message(it))
         }
 
-    fun isPast(message: (ConstraintContext<LocalDate>) -> Message = Message.resource0()): LocalDateValidator =
-        constrain("kova.localDate.isPast") {
+    fun past(message: (ConstraintContext<LocalDate>) -> Message = Message.resource0()): LocalDateValidator =
+        constrain("kova.localDate.past") {
             satisfies(it.input < LocalDate.now(clock), message(it))
         }
 
-    fun isPastOrPresent(message: (ConstraintContext<LocalDate>) -> Message = Message.resource0()): LocalDateValidator =
-        constrain("kova.localDate.isPastOrPresent") {
+    fun pastOrPresent(message: (ConstraintContext<LocalDate>) -> Message = Message.resource0()): LocalDateValidator =
+        constrain("kova.localDate.pastOrPresent") {
             satisfies(it.input <= LocalDate.now(clock), message(it))
         }
 }

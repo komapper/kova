@@ -25,7 +25,7 @@ class StringValidator internal constructor(
         length: Int,
         message: (ConstraintContext<String>, Int) -> Message = Message.resource1(),
     ): StringValidator =
-        constrain("kova.charSequence.min") {
+        constrain("kova.string.min") {
             satisfies(it.input.length >= length, message(it, length))
         }
 
@@ -33,27 +33,27 @@ class StringValidator internal constructor(
         length: Int,
         message: (ConstraintContext<String>, Int) -> Message = Message.resource1(),
     ): StringValidator =
-        constrain("kova.charSequence.max") {
+        constrain("kova.string.max") {
             satisfies(it.input.length <= length, message(it, length))
         }
 
     fun isBlank(message: (ConstraintContext<String>) -> Message = Message.resource0()): StringValidator =
-        constrain("kova.charSequence.isBlank") {
+        constrain("kova.string.isBlank") {
             satisfies(it.input.isBlank(), message(it))
         }
 
     fun isNotBlank(message: (ConstraintContext<String>) -> Message = Message.resource0()): StringValidator =
-        constrain("kova.charSequence.isNotBlank") {
+        constrain("kova.string.isNotBlank") {
             satisfies(it.input.isNotBlank(), message(it))
         }
 
     fun isEmpty(message: (ConstraintContext<String>) -> Message = Message.resource0()): StringValidator =
-        constrain("kova.charSequence.isEmpty") {
+        constrain("kova.string.isEmpty") {
             satisfies(it.input.isEmpty(), message(it))
         }
 
     fun isNotEmpty(message: (ConstraintContext<String>) -> Message = Message.resource0()): StringValidator =
-        constrain("kova.charSequence.isNotEmpty") {
+        constrain("kova.string.isNotEmpty") {
             satisfies(it.input.isNotEmpty(), message(it))
         }
 
@@ -61,7 +61,7 @@ class StringValidator internal constructor(
         length: Int,
         message: (ConstraintContext<String>, Int) -> Message = Message.resource1(),
     ): StringValidator =
-        constrain("kova.charSequence.length") {
+        constrain("kova.string.length") {
             satisfies(it.input.length == length, message(it, length))
         }
 
@@ -69,7 +69,7 @@ class StringValidator internal constructor(
         prefix: CharSequence,
         message: (ConstraintContext<String>, CharSequence) -> Message = Message.resource1(),
     ): StringValidator =
-        constrain("kova.charSequence.startsWith") {
+        constrain("kova.string.startsWith") {
             satisfies(it.input.startsWith(prefix), message(it, prefix))
         }
 
@@ -77,29 +77,29 @@ class StringValidator internal constructor(
         suffix: CharSequence,
         message: (ConstraintContext<String>, CharSequence) -> Message = Message.resource1(),
     ): StringValidator =
-        constrain("kova.charSequence.endsWith") {
+        constrain("kova.string.endsWith") {
             satisfies(it.input.endsWith(suffix), message(it, suffix))
         }
 
     fun contains(
         infix: CharSequence,
         message: (ConstraintContext<String>, CharSequence) -> Message = Message.resource1(),
-    ) = constrain("kova.charSequence.contains") {
+    ) = constrain("kova.string.contains") {
         satisfies(it.input.contains(infix), message(it, infix))
     }
 
     fun isInt(message: (ConstraintContext<String>) -> Message = Message.resource0()): StringValidator =
-        constrain("kova.charSequence.isInt") {
+        constrain("kova.string.isInt") {
             satisfies(it.input.toString().toIntOrNull() != null, message(it))
         }
 
     fun uppercase(message: (ConstraintContext<String>) -> Message = Message.resource0()): StringValidator =
-        constrain("kova.charSequence.uppercase") {
+        constrain("kova.string.uppercase") {
             satisfies(it.input.toString() == it.input.toString().uppercase(), message(it))
         }
 
     fun lowercase(message: (ConstraintContext<String>) -> Message = Message.resource0()): StringValidator =
-        constrain("kova.charSequence.lowercase") {
+        constrain("kova.string.lowercase") {
             satisfies(it.input.toString() == it.input.toString().lowercase(), message(it))
         }
 
@@ -107,7 +107,7 @@ class StringValidator internal constructor(
         value: CharSequence,
         message: (ConstraintContext<String>, CharSequence) -> Message = Message.resource1(),
     ): StringValidator =
-        constrain("kova.charSequence.literal") {
+        constrain("kova.string.literal") {
             satisfies(it.input.contentEquals(value), message(it, value))
         }
 
@@ -115,7 +115,7 @@ class StringValidator internal constructor(
         values: List<CharSequence>,
         message: (ConstraintContext<String>, List<CharSequence>) -> Message = Message.resource1(),
     ): StringValidator =
-        constrain("kova.charSequence.literals") { ctx ->
+        constrain("kova.string.literals") { ctx ->
             satisfies(values.any { it.contentEquals(ctx.input) }, message(ctx, values))
         }
 

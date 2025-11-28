@@ -6,8 +6,8 @@ import io.kotest.matchers.shouldBe
 class BooleanValidatorTest :
     FunSpec({
 
-        context("isTrue") {
-            val validator = Kova.boolean().isTrue()
+        context("literal - true") {
+            val validator = Kova.boolean().literal(true)
 
             test("success") {
                 val result = validator.tryValidate(true)
@@ -23,8 +23,8 @@ class BooleanValidatorTest :
             }
         }
 
-        context("isFalse") {
-            val validator = Kova.boolean().isFalse()
+        context("literal - false") {
+            val validator = Kova.boolean().literal(false)
 
             test("success") {
                 val result = validator.tryValidate(false)

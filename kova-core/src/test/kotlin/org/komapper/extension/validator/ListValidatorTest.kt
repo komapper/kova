@@ -58,13 +58,13 @@ class ListValidatorTest :
                 result.details[0].let {
                     it.root shouldBe ""
                     it.path shouldBe "[1]<collection element>"
-                    it.message.key shouldBe "kova.charSequence.length"
+                    it.message.key shouldBe "kova.string.length"
                     it.message.content shouldBe "\"4567\" must be exactly 3 characters"
                 }
                 result.details[1].let {
                     it.root shouldBe ""
                     it.path shouldBe "[2]<collection element>"
-                    it.message.key shouldBe "kova.charSequence.length"
+                    it.message.key shouldBe "kova.string.length"
                     it.message.content shouldBe "\"8910\" must be exactly 3 characters"
                 }
             }

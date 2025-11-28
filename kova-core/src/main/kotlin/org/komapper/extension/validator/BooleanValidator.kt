@@ -17,13 +17,11 @@ class BooleanValidator internal constructor(
         check: ConstraintScope.(ConstraintContext<Boolean>) -> ConstraintResult,
     ): BooleanValidator = BooleanValidator(prev = this, constraint = Constraint(key, check))
 
-    fun isTrue(message: (ConstraintContext<Boolean>) -> Message = Message.resource0()): BooleanValidator =
-        constrain("kova.boolean.isTrue") {
-            satisfies(it.input, message(it))
+    fun literal(
+        value: Boolean,
+        message: (ConstraintContext<Boolean>, Boolean) -> Message = Message.resource1()): BooleanValidator =
+        constrain("kova.boolean.literal") {
+            satisfies(it.input == value, message(it, value))
         }
 
-    fun isFalse(message: (ConstraintContext<Boolean>) -> Message = Message.resource0()): BooleanValidator =
-        constrain("kova.boolean.isFalse") {
-            satisfies(!it.input, message(it))
-        }
 }
