@@ -74,7 +74,7 @@ object PersonSchema : ObjectSchema<Person>() {
     val age = Person::age { Kova.int().min(0) }
 }
 
-val factory = Kova.args(PersonSchema.name, PersonSchema.age).bindTo(::Person)
+val factory = Kova.args(PersonSchema.name, PersonSchema.age).createFactory(::Person)
 val person = factory.create("Alice", 30)  // Validates and constructs
 ```
 
@@ -83,11 +83,11 @@ val person = factory.create("Alice", 30)  // Validates and constructs
 - **Validator<IN, OUT>**: Core interface with `execute(context, input)` method; public API uses `tryValidate()` and `validate()` extension functions
 - **ValidationResult**: Sealed interface with `Success<T>` and `Failure` cases
 - **ConstraintValidator**: Generic constraint evaluator used internally by all type-specific validators
-- **Type-Specific Validators**: StringValidator, NumberValidator, BooleanValidator, LocalDateValidator, ComparableValidator, CollectionValidator, MapValidator, EnumValidator
+- **Type-Specific Validators**: StringValidator, NumberValidator, LocalDateValidator, ComparableValidator, CollectionValidator, MapValidator, MapEntryValidator, LiteralValidator
 - **ObjectSchema**: Validates objects by defining validation rules for individual properties
-- **ObjectFactory**: Constructs objects from validated inputs via reflection using `bindTo()` method
+- **ObjectFactory**: Constructs objects from validated inputs via reflection using `createFactory()` method
 - **NullableValidator**: Wraps validators to handle nullable types
-- **NotNullValidator**: Specialized validator returned by `isNotNull()` and `isNotNullAnd()` that enforces non-null constraints
+- **NotNullValidator**: Specialized validator returned by `notNull()` and `notNullAnd()` that enforces non-null constraints
 - **ConditionalValidator**: Supports conditional validation logic
 - **EmptyValidator**: No-op validator that always succeeds, used by `Kova.generic()`
 
@@ -97,7 +97,7 @@ Validators are immutable and can be composed using operators:
 
 ```kotlin
 // Using + operator (same as and)
-val validator = Kova.string().min(1).max(10) + Kova.string().isNotBlank()
+val validator = Kova.string().min(1).max(10) + Kova.string().notBlank()
 
 // Using and infix function
 val validator = Kova.string().min(1) and Kova.string().max(10)
@@ -131,25 +131,29 @@ val nullableValidator = Kova.nullable(Kova.string().min(1))
 val emptyNullableValidator = Kova.nullable<String>()
 
 // Require non-null value
-val notNullValidator = Kova.nullable<String>().isNotNull()
+val notNullValidator = Kova.nullable<String>().notNull()
 // Null values fail validation, non-null values pass
+
+// Accept null explicitly
+val isNullValidator = Kova.nullable<String>().isNull()
+// Only null values pass, non-null values fail
 
 // Accept null OR validate non-null values
 val nullOrMinValidator = Kova.nullable<String>().isNullOr(Kova.string().min(5))
 // Null values pass, non-null values must satisfy min(5)
 
 // Require non-null AND validate the value
-val notNullAndMinValidator = Kova.nullable<String>().isNotNullAnd(Kova.string().min(5))
-// Equivalent to: isNotNull() + wrapped validator
+val notNullAndMinValidator = Kova.nullable<String>().notNullAnd(Kova.string().min(5))
+// Equivalent to: notNull() + wrapped validator
 // Null values fail, non-null values must satisfy min(5)
 ```
 
-**Key behavior**: By default, `Kova.nullable()` treats null as a valid value. Use `isNotNull()` or `isNotNullAnd()` to enforce non-null requirements.
+**Key behavior**: By default, `Kova.nullable()` treats null as a valid value. Use `notNull()` or `notNullAnd()` to enforce non-null requirements.
 
 **Implementation note**:
 - The `asNullable()` extension method is also available on any validator as an alternative API for converting a validator to nullable
 - `Kova.nullable()` internally uses `Kova.generic()` which creates an `EmptyValidator` that always succeeds
-- `NotNullValidator` is returned by `isNotNull()` and `isNotNullAnd()` methods, providing type-safe non-null validation
+- `NotNullValidator` is returned by `notNull()` and `notNullAnd()` methods, providing type-safe non-null validation
 
 ### ValidationResult Algebra
 
@@ -262,15 +266,14 @@ When `failFast` is true, validation stops at the first constraint violation.
 
 **Core Validators**:
 - `ConstraintValidator.kt` - Generic constraint evaluator used by all type-specific validators
-- `StringValidator.kt` - Validates strings (min/max length, patterns, transformations, etc.)
+- `StringValidator.kt` - Validates strings (min/max length, patterns, email, transformations, numeric conversions, enum validation, etc.)
 - `NumberValidator.kt` - Validates numeric types (Int, Long, Double, Float, BigDecimal, etc.)
-- `BooleanValidator.kt` - Validates boolean values (isTrue, isFalse)
-- `LocalDateValidator.kt` - Validates LocalDate values (isFuture, isPast, isFutureOrPresent, isPastOrPresent)
+- `LocalDateValidator.kt` - Validates LocalDate values (future, past, futureOrPresent, pastOrPresent)
 - `ComparableValidator.kt` - Validates comparable types (min/max comparisons)
 - `CollectionValidator.kt` - Validates collections (size, element validators)
 - `MapValidator.kt` - Validates maps (size, key/value validators)
 - `MapEntryValidator.kt` - Validates individual map entries
-- `EnumValidator.kt` - Validates enum values
+- `LiteralValidator.kt` - Validates literal values (single value or list of allowed values)
 - `EmptyValidator.kt` - No-op validator used by `Kova.generic()` that always succeeds
 
 **Special Validators**:

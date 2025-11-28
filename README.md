@@ -24,7 +24,7 @@ A type-safe Kotlin validation library that provides composable validators throug
 import org.komapper.extension.validator.Kova
 
 // Create a validator
-val nameValidator = Kova.string().min(1).max(50).isNotBlank()
+val nameValidator = Kova.string().min(1).max(50).notBlank()
 
 // Validate a value
 val result = nameValidator.tryValidate("John")
@@ -44,13 +44,13 @@ val name = nameValidator.validate("John")
 
 ```kotlin
 // Combine validators with + operator (or 'and')
-val emailValidator = Kova.string().isNotBlank() + Kova.string().contains("@")
+val emailValidator = Kova.string().notBlank() + Kova.string().contains("@")
 
 // Use 'or' for alternative validations
-val validator = Kova.string().isBlank() or Kova.string().min(5)
+val validator = Kova.string().uppercase() or Kova.string().min(5)
 
 // Transform output with map
-val intValidator = Kova.string().isInt().map { it.toString().toInt() }
+val intValidator = Kova.string().toInt()  // Validates and converts to Int
 ```
 
 ### Object Validation
@@ -62,7 +62,7 @@ data class User(val id: Int, val name: String, val email: String)
 object UserSchema : ObjectSchema<User>() {
     val id = User::id { Kova.int().min(1) }
     val name = User::name { Kova.string().min(1).max(50) }
-    val email = User::email { Kova.string().isNotBlank().contains("@") }
+    val email = User::email { Kova.string().notBlank().contains("@") }
 }
 
 // Validate a user instance
@@ -82,7 +82,7 @@ object PersonSchema : ObjectSchema<Person>() {
 }
 
 // Create a factory that validates inputs and constructs objects
-val personFactory = Kova.args(PersonSchema.name, PersonSchema.age).bindTo(::Person)
+val personFactory = Kova.args(PersonSchema.name, PersonSchema.age).createFactory(::Person)
 
 // Construct a person with validated inputs
 val person = personFactory.create("Alice", 30)  // Returns Person or throws ValidationException
@@ -104,8 +104,12 @@ val result2 = nullableNameValidator.tryValidate("hi")        // Success("hi")
 val result3 = nullableNameValidator.tryValidate("")          // Failure (min(1) violated)
 
 // Reject null values explicitly
-val notNullValidator = Kova.nullable<String>().isNotNull()
+val notNullValidator = Kova.nullable<String>().notNull()
 val result = notNullValidator.tryValidate(null)              // Failure
+
+// Accept only null values
+val isNullValidator = Kova.nullable<String>().isNull()
+val result = isNullValidator.tryValidate(null)               // Success(null)
 
 // Accept null OR validate non-null values
 val nullOrMinValidator = Kova.nullable<String>().isNullOr(Kova.string().min(5))
@@ -114,20 +118,16 @@ val result2 = nullOrMinValidator.tryValidate("hello")        // Success("hello")
 val result3 = nullOrMinValidator.tryValidate("hi")           // Failure (min(5) violated)
 
 // Require non-null AND validate the value
-val notNullAndMinValidator = Kova.nullable<String>().isNotNullAnd(Kova.string().min(5))
+val notNullAndMinValidator = Kova.nullable<String>().notNullAnd(Kova.string().min(5))
 val result1 = notNullAndMinValidator.tryValidate(null)       // Failure (null not allowed)
 val result2 = notNullAndMinValidator.tryValidate("hello")    // Success("hello")
 val result3 = notNullAndMinValidator.tryValidate("hi")       // Failure (min(5) violated)
 
 // Convert any validator to nullable using asNullable()
 val validator = Kova.string().min(5).asNullable()
-
-// Additional helper functions
-// whenNotNull: chain validators that handle nullable types
-val validator = Kova.nullable<String>().whenNotNull(Kova.string().min(5))
 ```
 
-**Note**: `isNotNull()` and `isNotNullAnd()` return a `NotNullValidator`, which is a specialized validator that enforces non-null constraints while maintaining type safety.
+**Note**: `notNull()` and `notNullAnd()` return a `NotNullValidator`, which is a specialized validator that enforces non-null constraints while maintaining type safety.
 
 ## Available Validators
 
@@ -138,22 +138,38 @@ Kova.string()
     .min(1)                    // Minimum length
     .max(100)                  // Maximum length
     .length(10)                // Exact length
-    .isBlank()                 // Must be blank
-    .isNotBlank()              // Must not be blank
-    .isEmpty()                 // Must be empty
-    .isNotEmpty()              // Must not be empty
+    .notBlank()                // Must not be blank
+    .notEmpty()                // Must not be empty
     .startsWith("prefix")      // Must start with prefix
     .endsWith("suffix")        // Must end with suffix
     .contains("substring")     // Must contain substring
-    .isInt()                   // Must be a valid integer
+    .matches(Regex("\\d+"))    // Must match regex pattern
+    .email()                   // Must be a valid email address
+    .isInt()                   // Must be a valid integer string
+    .isLong()                  // Must be a valid long string
+    .isShort()                 // Must be a valid short string
+    .isByte()                  // Must be a valid byte string
+    .isDouble()                // Must be a valid double string
+    .isFloat()                 // Must be a valid float string
+    .isBigDecimal()            // Must be a valid BigDecimal string
+    .isBigInteger()            // Must be a valid BigInteger string
+    .isBoolean()               // Must be a valid boolean string
+    .isEnum<Status>()          // Must be a valid enum value (inline)
     .uppercase()               // Must be uppercase
     .lowercase()               // Must be lowercase
-    .literal("exact")          // Must match exact value
-    .literals(listOf("a", "b")) // Must match one of the values
     .trim()                    // Transform: trim whitespace
     .toUpperCase()             // Transform: convert to uppercase
     .toLowerCase()             // Transform: convert to lowercase
-    .toInt()                   // Transform: convert to Int (extension)
+    .toInt()                   // Transform: validate and convert to Int
+    .toLong()                  // Transform: validate and convert to Long
+    .toShort()                 // Transform: validate and convert to Short
+    .toByte()                  // Transform: validate and convert to Byte
+    .toDouble()                // Transform: validate and convert to Double
+    .toFloat()                 // Transform: validate and convert to Float
+    .toBigDecimal()            // Transform: validate and convert to BigDecimal
+    .toBigInteger()            // Transform: validate and convert to BigInteger
+    .toBoolean()               // Transform: validate and convert to Boolean
+    .toEnum<Status>()          // Transform: validate and convert to Enum
 ```
 
 ### Numbers
@@ -176,9 +192,7 @@ Kova.bigInteger()  // BigInteger
 ### Boolean
 
 ```kotlin
-Kova.boolean()
-    .isTrue()      // Must be true
-    .isFalse()     // Must be false
+Kova.boolean()     // Returns generic validator for boolean values
 ```
 
 ### LocalDate
@@ -187,10 +201,10 @@ Kova.boolean()
 import java.time.Clock
 
 Kova.localDate(Clock.systemDefaultZone())
-    .isFuture()            // Must be in the future
-    .isFutureOrPresent()   // Must be in the future or present
-    .isPast()              // Must be in the past
-    .isPastOrPresent()     // Must be in the past or present
+    .future()              // Must be in the future
+    .futureOrPresent()     // Must be in the future or present
+    .past()                // Must be in the past
+    .pastOrPresent()       // Must be in the past or present
 ```
 
 ### Collections
@@ -215,11 +229,19 @@ Kova.map<String, Int>()
 
 ### Enums
 
+Enum validation is now string-based via `StringValidator`:
+
 ```kotlin
 enum class Status { ACTIVE, INACTIVE }
 
-Kova.enum<Status>()
-    .contains(Status.ACTIVE, Status.INACTIVE)
+// Validate that a string is a valid enum value
+Kova.string().isEnum<Status>()
+
+// Validate and convert to enum
+Kova.string().toEnum<Status>()
+
+// Alternative: Use literal validator for enum values directly
+Kova.literal(Status.ACTIVE, Status.INACTIVE)
 ```
 
 ### Comparable Types
