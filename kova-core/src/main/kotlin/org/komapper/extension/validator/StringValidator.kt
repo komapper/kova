@@ -1,5 +1,7 @@
 package org.komapper.extension.validator
 
+import kotlin.reflect.KClass
+
 class StringValidator internal constructor(
     private val prev: Validator<String, String> = EmptyValidator(),
     private val transform: (String) -> String = { it },
@@ -138,6 +140,17 @@ class StringValidator internal constructor(
             satisfies(it.input.toBooleanStrictOrNull() != null, message(it))
         }
 
+    fun <E : Enum<E>> isEnum(
+        klass: KClass<E>,
+        message: (ConstraintContext<String>, List<String>) -> Message = Message.resource1(),
+    ): StringValidator {
+        val enumValues = klass.java.enumConstants
+        val validNames = enumValues.map { it.name }
+        return this.constrain("kova.string.isEnum") { ctx ->
+            satisfies(validNames.contains(ctx.input), message(ctx, validNames))
+        }
+    }
+
     fun uppercase(message: (ConstraintContext<String>) -> Message = Message.resource0()): StringValidator =
         constrain("kova.string.uppercase") {
             satisfies(it.input == it.input.uppercase(), message(it))
@@ -172,3 +185,13 @@ fun StringValidator.toBigDecimal(): Validator<String, java.math.BigDecimal> = is
 fun StringValidator.toBigInteger(): Validator<String, java.math.BigInteger> = isBigInteger().map { it.toBigInteger() }
 
 fun StringValidator.toBoolean(): Validator<String, Boolean> = isBoolean().map { it.toBoolean() }
+
+inline fun <reified E : Enum<E>> StringValidator.isEnum(): StringValidator {
+    val enumValues = enumValues<E>()
+    val validNames = enumValues.map { it.name }
+    return this.constrain("kova.string.isEnum") { ctx ->
+        satisfies(validNames.contains(ctx.input), Message.Resource(ctx.key, ctx.input, validNames))
+    }
+}
+
+inline fun <reified E : Enum<E>> StringValidator.toEnum(): Validator<String, E> = isEnum<E>().map { enumValueOf<E>(it) }

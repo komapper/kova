@@ -49,8 +49,6 @@ interface Kova {
 
     fun <T : Any> nullable(): NullableValidator<T, T> = NullableValidator(generic())
 
-    fun <E : Enum<E>> enum(): EnumValidator<E> = EnumValidator()
-
     fun <T : Any> literal(
         value: T,
         message: (ConstraintContext<T>, T) -> Message = Message.resource1(),

@@ -384,10 +384,10 @@ class StringValidatorTest :
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe "false"
             }
-            test("success - case insensitive") {
+            test("false - case sensitive") {
                 val result = isBoolean.tryValidate("TRUE")
-                result.isSuccess().mustBeTrue()
-                result.value shouldBe "TRUE"
+                result.isFailure().mustBeTrue()
+                result.messages.single().content shouldBe "\"TRUE\" must be a boolean"
             }
             test("failure") {
                 val result = isBoolean.tryValidate("yes")
@@ -814,4 +814,100 @@ class StringValidatorTest :
                 result.value shouldBe "hello"
             }
         }
-    })
+
+        context("isEnum with Type") {
+            val isEnum = Kova.string().isEnum<Status>()
+
+            test("success - ACTIVE") {
+                val result = isEnum.tryValidate("ACTIVE")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "ACTIVE"
+            }
+            test("success - INACTIVE") {
+                val result = isEnum.tryValidate("INACTIVE")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "INACTIVE"
+            }
+            test("success - PENDING") {
+                val result = isEnum.tryValidate("PENDING")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "PENDING"
+            }
+            test("failure - invalid value") {
+                val result = isEnum.tryValidate("INVALID")
+                result.isFailure().mustBeTrue()
+                result.messages.single().content shouldBe "\"INVALID\" must be one of [ACTIVE, INACTIVE, PENDING]"
+            }
+            test("failure - lowercase") {
+                val result = isEnum.tryValidate("active")
+                result.isFailure().mustBeTrue()
+                result.messages.single().content shouldBe "\"active\" must be one of [ACTIVE, INACTIVE, PENDING]"
+            }
+        }
+
+        context("isEnum with KClass") {
+            val isEnum = Kova.string().isEnum(Status::class)
+
+            test("success - ACTIVE") {
+                val result = isEnum.tryValidate("ACTIVE")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "ACTIVE"
+            }
+            test("success - INACTIVE") {
+                val result = isEnum.tryValidate("INACTIVE")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "INACTIVE"
+            }
+            test("success - PENDING") {
+                val result = isEnum.tryValidate("PENDING")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "PENDING"
+            }
+            test("failure - invalid value") {
+                val result = isEnum.tryValidate("INVALID")
+                result.isFailure().mustBeTrue()
+                result.messages.single().content shouldBe "\"INVALID\" must be one of [ACTIVE, INACTIVE, PENDING]"
+            }
+            test("failure - lowercase") {
+                val result = isEnum.tryValidate("active")
+                result.isFailure().mustBeTrue()
+                result.messages.single().content shouldBe "\"active\" must be one of [ACTIVE, INACTIVE, PENDING]"
+            }
+        }
+
+        context("toEnum") {
+            val toEnum = Kova.string().toEnum<Status>()
+
+            test("success - ACTIVE") {
+                val result = toEnum.tryValidate("ACTIVE")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe Status.ACTIVE
+            }
+            test("success - INACTIVE") {
+                val result = toEnum.tryValidate("INACTIVE")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe Status.INACTIVE
+            }
+            test("success - PENDING") {
+                val result = toEnum.tryValidate("PENDING")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe Status.PENDING
+            }
+            test("failure - invalid value") {
+                val result = toEnum.tryValidate("INVALID")
+                result.isFailure().mustBeTrue()
+                result.messages.single().content shouldBe "\"INVALID\" must be one of [ACTIVE, INACTIVE, PENDING]"
+            }
+            test("failure - lowercase") {
+                val result = toEnum.tryValidate("active")
+                result.isFailure().mustBeTrue()
+                result.messages.single().content shouldBe "\"active\" must be one of [ACTIVE, INACTIVE, PENDING]"
+            }
+        }
+    }) {
+    enum class Status {
+        ACTIVE,
+        INACTIVE,
+        PENDING,
+    }
+}
