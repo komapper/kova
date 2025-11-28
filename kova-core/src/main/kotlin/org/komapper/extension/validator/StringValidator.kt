@@ -5,7 +5,8 @@ class StringValidator internal constructor(
     private val transform: (String) -> String = { it },
     constraint: Constraint<String> = Constraint.satisfied(),
 ) : Validator<String, String>,
-    Constrainable<String, StringValidator> {
+    Constrainable<String, StringValidator>,
+    Modifiable<String, StringValidator> {
     private val next: ConstraintValidator<String> = ConstraintValidator(constraint)
 
     override fun execute(
@@ -18,7 +19,7 @@ class StringValidator internal constructor(
         check: ConstraintScope.(ConstraintContext<String>) -> ConstraintResult,
     ): StringValidator = StringValidator(prev = this, constraint = Constraint(key, check))
 
-    fun modify(transform: (String) -> String): StringValidator = StringValidator(prev = this, transform = transform)
+    override fun modify(transform: (String) -> String): StringValidator = StringValidator(prev = this, transform = transform)
 
     fun min(
         length: Int,
