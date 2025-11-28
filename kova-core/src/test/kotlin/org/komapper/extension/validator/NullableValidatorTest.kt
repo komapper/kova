@@ -257,24 +257,27 @@ class NullableValidatorTest :
         }
 
         context("isNotNullAnd - map and andThen") {
-            val isNotNullAndLength3 = Kova.string().isNotNullAnd(Kova.string().length(3))
-            val validator = Kova.obj<Request>().map { it["a"] }.andThen(isNotNullAndLength3)
+            val schema =
+                object : ObjectSchema<Request>() {
+                    private val isNotNullAndLength3 = Kova.string().isNotNullAnd(Kova.string().length(3))
+                    val a = map { it["a"] }.andThen(isNotNullAndLength3)
+                }
 
             test("failure - null") {
                 val request = Request(emptyMap())
-                val result = validator.tryValidate(request)
+                val result = schema.a.tryValidate(request)
                 result.isFailure().mustBeTrue()
             }
 
             test("success - non-null") {
                 val request = Request(mapOf("a" to "abc"))
-                val result = validator.tryValidate(request)
+                val result = schema.a.tryValidate(request)
                 result.isSuccess().mustBeTrue()
             }
 
             test("failure") {
                 val request = Request(mapOf("a" to "abcd"))
-                val result = validator.tryValidate(request)
+                val result = schema.a.tryValidate(request)
                 result.isFailure().mustBeTrue()
             }
         }

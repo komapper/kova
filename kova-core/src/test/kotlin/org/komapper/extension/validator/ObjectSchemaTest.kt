@@ -5,45 +5,67 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldEndWith
 import java.time.LocalDate
 
-class ObjectValidatorTest :
+class ObjectSchemaTest :
     FunSpec({
 
+        data class User(
+            val id: Int,
+            val name: String,
+        )
+
+        data class Street(
+            val id: Int,
+            val name: String,
+        )
+
+        data class Address(
+            val id: Int,
+            val street: Street,
+            val country: String = "US",
+            val postalCode: String = "",
+        )
+
+        data class Employee(
+            val id: Int,
+            val name: String,
+            val address: Address,
+        )
+
+        data class Person(
+            val id: Int,
+            val name: String?,
+            val address: Address?,
+        )
+
+        data class Request(
+            private val map: Map<String, String>,
+        ) {
+            operator fun get(key: String): String? = map[key]
+        }
+
         context("plus") {
+
             val a =
-                Kova.validator {
-                    User::class {
-                        User::name { Kova.string().min(1).max(10) }
-                    }
+                object : ObjectSchema<User>() {
+                    val name = User::name { Kova.string().min(1).max(10) }
                 }
             val b =
-                Kova.validator {
-                    User::class {
-                        User::id { Kova.int().min(1) }
-                    }
+                object : ObjectSchema<User>() {
+                    val id = User::id { Kova.int().min(1) }
                 }
-            val validator = a + b
+
+            val userSchema = a + b
 
             test("success") {
                 val user = User(1, "abc")
-                val result = validator.tryValidate(user)
-                result.isSuccess().mustBeTrue()
-                result.value shouldBe user
-            }
-
-            test("success - replace existing rule") {
-                val user = User(-1, "abc")
-                val result =
-                    validator
-                        .merge {
-                            User::id { Kova.int().min(-1) }
-                        }.tryValidate(user)
+                val result = userSchema.tryValidate(user)
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe user
             }
 
             test("failure - 1 rule violated") {
                 val user = User(2, "too-long-name")
-                val result = validator.tryValidate(user)
+                val result = userSchema.tryValidate(user)
                 result.isFailure().mustBeTrue()
                 result.details.size shouldBe 1
                 result.details[0].let {
@@ -55,7 +77,7 @@ class ObjectValidatorTest :
 
             test("failure - 2 rules violated") {
                 val user = User(0, "too-long-name")
-                val result = validator.tryValidate(user)
+                val result = userSchema.tryValidate(user)
                 result.isFailure().mustBeTrue()
 
                 result.details.size shouldBe 2
@@ -72,31 +94,48 @@ class ObjectValidatorTest :
             }
         }
 
+        context("replace") {
+
+            val userSchema =
+                object : ObjectSchema<User>() {
+                    val id = User::id { Kova.int().min(1) }
+                    val name = User::name { Kova.string().min(1).max(10) }
+                }
+
+            test("success") {
+                val user = User(-1, "abc")
+                val newSchema = userSchema.replace(User::id, Kova.int().min(-1))
+                val result = newSchema.tryValidate(user)
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe user
+            }
+        }
+
         context("constrain") {
-            val validator =
-                Kova.validator {
-                    Period::class {
+            data class Period(
+                val startDate: LocalDate,
+                val endDate: LocalDate,
+            )
+
+            val periodSchema =
+                object : ObjectSchema<Period>() {
+                    init {
                         constrain("test") {
-                            if (it.input.startDate <= it.input.endDate) {
-                                ConstraintResult.Satisfied
-                            } else {
-                                val message = Message.Text("startDate must be less than or equal to endDate")
-                                ConstraintResult.Violated(message)
-                            }
+                            satisfies(it.input.startDate <= it.input.endDate, "startDate must be less than or equal to endDate")
                         }
                     }
                 }
 
             test("success") {
                 val period = Period(LocalDate.of(2020, 1, 1), LocalDate.of(2021, 1, 1))
-                val result = validator.tryValidate(period)
+                val result = periodSchema.tryValidate(period)
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe period
             }
 
             test("failure") {
                 val period = Period(LocalDate.of(2020, 1, 1), LocalDate.of(2019, 1, 1))
-                val result = validator.tryValidate(period)
+                val result = periodSchema.tryValidate(period)
                 result.isFailure().mustBeTrue()
                 result.details.size shouldBe 1
                 result.details[0].let {
@@ -107,62 +146,12 @@ class ObjectValidatorTest :
             }
         }
 
-        context("prop - simple") {
+        context("nullable") {
             val validator =
-                Kova.validator {
-                    User::class {
-                        User::id { Kova.int().min(1) }
-                        User::name { Kova.string().min(1).max(10) }
-                    }
-                }
-
-            test("success") {
-                val user = User(1, "abc")
-                val result = validator.tryValidate(user)
-                result.isSuccess().mustBeTrue()
-                result.value shouldBe user
-            }
-
-            test("failure - 1 constraint violated") {
-                val user = User(2, "too-long-name")
-                val result = validator.tryValidate(user)
-                result.isFailure().mustBeTrue()
-                result.details.size shouldBe 1
-                result.details[0].let {
-                    it.root shouldEndWith $$"$User"
-                    it.path shouldBe "name"
-                    it.message.content shouldBe "\"too-long-name\" must be at most 10 characters"
-                }
-            }
-
-            test("failure - 2 constraints violated") {
-                val user = User(0, "too-long-name")
-                val result = validator.tryValidate(user)
-                result.isFailure().mustBeTrue()
-
-                result.details.size shouldBe 2
-                result.details[0].let {
-                    it.root shouldEndWith $$"$User"
-                    it.path shouldBe "id"
-                    it.message.content shouldBe "Number 0 must be greater than or equal to 1"
-                }
-                result.details[1].let {
-                    it.root shouldEndWith $$"$User"
-                    it.path shouldBe "name"
-                    it.message.content shouldBe "\"too-long-name\" must be at most 10 characters"
-                }
-            }
-        }
-
-        context("validator - nullable") {
-            val validator =
-                Kova
-                    .validator {
-                        User::class {
-                            User::id { Kova.int().min(1) }
-                            User::name { Kova.string().min(1).max(10) }
-                        }
-                    }.asNullable()
+                object : ObjectSchema<User>() {
+                    val id = User::id { Kova.int().min(1) }
+                    val name = User::name { Kova.string().min(1).max(10) }
+                }.asNullable()
 
             test("success - non null") {
                 val user = User(1, "abc")
@@ -178,36 +167,80 @@ class ObjectValidatorTest :
             }
         }
 
+        context("prop - simple") {
+
+            val userSchema =
+                object : ObjectSchema<User>() {
+                    val id = User::id { Kova.int().min(1) }
+                    val name = User::name { Kova.string().min(1).max(10) }
+                }
+
+            test("success") {
+                val user = User(1, "abc")
+                val result = userSchema.tryValidate(user)
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe user
+            }
+
+            test("failure - 1 constraint violated") {
+                val user = User(2, "too-long-name")
+                val result = userSchema.tryValidate(user)
+                result.isFailure().mustBeTrue()
+                result.details.size shouldBe 1
+                result.details[0].let {
+                    it.root shouldEndWith $$"$User"
+                    it.path shouldBe "name"
+                    it.message.content shouldBe "\"too-long-name\" must be at most 10 characters"
+                }
+            }
+
+            test("failure - 2 constraints violated") {
+                val user = User(0, "too-long-name")
+                val result = userSchema.tryValidate(user)
+                result.isFailure().mustBeTrue()
+
+                result.details.size shouldBe 2
+                result.details[0].let {
+                    it.root shouldEndWith $$"$User"
+                    it.path shouldBe "id"
+                    it.message.content shouldBe "Number 0 must be greater than or equal to 1"
+                }
+                result.details[1].let {
+                    it.root shouldEndWith $$"$User"
+                    it.path shouldBe "name"
+                    it.message.content shouldBe "\"too-long-name\" must be at most 10 characters"
+                }
+            }
+        }
+
         context("prop - nest") {
-            val streetValidator =
-                Kova.validator {
-                    Street::class {
-                        Street::name { Kova.string().min(3).max(5) }
-                    }
+
+            val streetSchema =
+                object : ObjectSchema<Street>() {
+                    val id = Street::id { Kova.int().min(1) }
+                    val name = Street::name { Kova.string().min(3).max(5) }
                 }
-            val addressValidator =
-                Kova.validator {
-                    Address::class {
-                        Address::street { streetValidator }
-                    }
+
+            val addressSchema =
+                object : ObjectSchema<Address>() {
+                    val street = Address::street { streetSchema }
                 }
-            val employeeValidator =
-                Kova.validator {
-                    Employee::class {
-                        Employee::address { addressValidator }
-                    }
+
+            val employeeSchema =
+                object : ObjectSchema<Employee>() {
+                    val address = Employee::address { addressSchema }
                 }
 
             test("success") {
                 val employee = Employee(1, "abc", Address(1, Street(1, "def")))
-                val result = employeeValidator.tryValidate(employee)
+                val result = employeeSchema.tryValidate(employee)
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe employee
             }
 
             test("failure") {
                 val employee = Employee(1, "abc", Address(1, Street(1, "too-long-name")))
-                val result = employeeValidator.tryValidate(employee)
+                val result = employeeSchema.tryValidate(employee)
                 result.isFailure().mustBeTrue()
                 result.details.size shouldBe 1
                 result.details[0].let {
@@ -219,44 +252,41 @@ class ObjectValidatorTest :
         }
 
         context("prop - nest - dynamic") {
-            val streetValidator =
-                Kova.validator {
-                    Street::class {
-                        Street::name { Kova.string().min(3).max(5) }
-                    }
+
+            val streetSchema =
+                object : ObjectSchema<Street>() {
+                    val id = Street::id { Kova.int().min(1) }
+                    val name = Street::name { Kova.string().min(3).max(5) }
                 }
 
-            val addressValidator =
-                Kova.validator {
-                    Address::class {
-                        Address::street { streetValidator }
-                        Address::postalCode { address ->
+            val addressSchema =
+                object : ObjectSchema<Address>() {
+                    val street = Address::street { streetSchema }
+                    val postalCode =
+                        Address::postalCode choose { address ->
                             val base = Kova.string()
                             when (address.country) {
                                 "US" -> base.length(8)
                                 else -> base.length(5)
                             }
                         }
-                    }
                 }
 
-            val employeeValidator =
-                Kova.validator {
-                    Employee::class {
-                        Employee::address { addressValidator }
-                    }
+            val employeeSchema =
+                object : ObjectSchema<Employee>() {
+                    val address = Employee::address { addressSchema }
                 }
 
             test("success - country is US") {
                 val employee = Employee(1, "abc", Address(1, Street(1, "def"), country = "US", postalCode = "12345678"))
-                val result = employeeValidator.tryValidate(employee)
+                val result = employeeSchema.tryValidate(employee)
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe employee
             }
 
             test("success - country is not US") {
                 val employee = Employee(1, "abc", Address(1, Street(1, "def"), country = "JP", postalCode = "12345"))
-                val result = employeeValidator.tryValidate(employee)
+                val result = employeeSchema.tryValidate(employee)
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe employee
             }
@@ -264,7 +294,7 @@ class ObjectValidatorTest :
             test("failure - country is US") {
                 val employee =
                     Employee(1, "abc", Address(1, Street(1, "def"), country = "US", postalCode = "123456789"))
-                val result = employeeValidator.tryValidate(employee)
+                val result = employeeSchema.tryValidate(employee)
                 result.isFailure().mustBeTrue()
                 result.details.size shouldBe 1
                 result.details[0].let {
@@ -277,7 +307,7 @@ class ObjectValidatorTest :
             test("failure - country is not US") {
                 val employee =
                     Employee(1, "abc", Address(1, Street(1, "def"), country = "JP", postalCode = "123456789"))
-                val result = employeeValidator.tryValidate(employee)
+                val result = employeeSchema.tryValidate(employee)
                 result.isFailure().mustBeTrue()
                 result.details.size shouldBe 1
                 result.details[0].let {
@@ -289,84 +319,73 @@ class ObjectValidatorTest :
         }
 
         context("prop - nullable") {
-            val streetValidator =
-                Kova.validator {
-                    Street::class {
-                        Street::name { Kova.string().min(3).max(5) }
-                    }
+            val streetSchema =
+                object : ObjectSchema<Street>() {
+                    val id = Street::id { Kova.int().min(1) }
+                    val name = Street::name { Kova.string().min(3).max(5) }
                 }
-            val addressValidator =
-                Kova.validator {
-                    Address::class {
-                        Address::street { streetValidator }
-                    }
+
+            val addressSchema =
+                object : ObjectSchema<Address>() {
+                    val street = Address::street { streetSchema }
                 }
-            val personValidator =
-                Kova.validator {
-                    Person::class {
-                        Person::name { Kova.nullable() }
-                        Person::address { addressValidator.asNullable() }
-                    }
+
+            val personSchema =
+                object : ObjectSchema<Person>() {
+                    val name = Person::name { Kova.nullable() }
+                    val address = Person::address { addressSchema.asNullable() }
                 }
-            val personValidator2 =
-                Kova.validator {
-                    Person::class {
-                        Person::name { Kova.nullable<String>().isNotNull() }
-                        Person::address { addressValidator.asNullable().isNotNull() }
-                    }
+
+            val personSchema2 =
+                object : ObjectSchema<Person>() {
+                    val name = Person::name { Kova.nullable<String>().isNotNull() }
+                    val address = Person::address { addressSchema.asNullable() }
                 }
 
             test("success") {
-                val employee = Person(1, "abc", Address(1, Street(1, "def")))
-                val result = personValidator.tryValidate(employee)
+                val person = Person(1, "abc", Address(1, Street(1, "def")))
+                val result = personSchema.tryValidate(person)
                 result.isSuccess().mustBeTrue()
-                result.value shouldBe employee
+                result.value shouldBe person
             }
 
             test("success - nullable") {
                 val person = Person(1, null, null)
-                val result = personValidator.tryValidate(person)
+                val result = personSchema.tryValidate(person)
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe person
             }
 
             test("failure - isNotNull") {
                 val person = Person(1, null, null)
-                val result = personValidator2.tryValidate(person)
+                val result = personSchema2.tryValidate(person)
                 result.isFailure().mustBeTrue()
-                result.details.size shouldBe 2
+                result.details.size shouldBe 1
                 result.details[0].let {
                     it.root shouldEndWith $$"$Person"
                     it.path shouldBe "name"
-                    it.message.content shouldBe "Value must not be null"
-                }
-                result.details[1].let {
-                    it.root shouldEndWith $$"$Person"
-                    it.path shouldBe "address"
                     it.message.content shouldBe "Value must not be null"
                 }
             }
         }
 
         context("named prop - simple") {
-            val validator =
-                Kova.validator {
-                    User::class {
-                        named("ID", { it.id }) { Kova.int().min(1) }
-                        named("NAME", { it.name }) { Kova.string().min(1).max(10) }
-                    }
+            val userSchema =
+                object : ObjectSchema<User>() {
+                    val id = named("ID", { it.id }) { Kova.int().min(1) }
+                    val name = named("NAME", { it.name }) { Kova.string().min(1).max(10) }
                 }
 
             test("success") {
                 val user = User(1, "abc")
-                val result = validator.tryValidate(user)
+                val result = userSchema.tryValidate(user)
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe user
             }
 
             test("failure") {
                 val user = User(0, "")
-                val result = validator.tryValidate(user)
+                val result = userSchema.tryValidate(user)
                 result.isFailure().mustBeTrue()
                 result.details.size shouldBe 2
                 with(result.details[0]) {
@@ -383,35 +402,29 @@ class ObjectValidatorTest :
         }
 
         context("named prop - nest") {
-            val streetValidator =
-                Kova.validator {
-                    Street::class {
-                        named("name", { it.name }) { Kova.string().min(3).max(5) }
-                    }
+            val streetSchema =
+                object : ObjectSchema<Street>() {
+                    val name = named("name", { it.name }) { Kova.string().min(3).max(5) }
                 }
-            val addressValidator =
-                Kova.validator {
-                    Address::class {
-                        named("street", { it.street }) { streetValidator }
-                    }
+            val addressSchema =
+                object : ObjectSchema<Address>() {
+                    val street = named("street", { it.street }) { streetSchema }
                 }
-            val employeeValidator =
-                Kova.validator {
-                    Employee::class {
-                        named("address", { it.address }) { addressValidator }
-                    }
+            val employeeSchema =
+                object : ObjectSchema<Employee>() {
+                    val address = named("address", { it.address }) { addressSchema }
                 }
 
             test("success") {
                 val employee = Employee(1, "abc", Address(1, Street(1, "def")))
-                val result = employeeValidator.tryValidate(employee)
+                val result = employeeSchema.tryValidate(employee)
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe employee
             }
 
             test("failure") {
                 val employee = Employee(1, "abc", Address(1, Street(1, "too-long-name")))
-                val result = employeeValidator.tryValidate(employee)
+                val result = employeeSchema.tryValidate(employee)
                 result.isFailure().mustBeTrue()
                 result.details.size shouldBe 1
                 result.details[0].let {
@@ -423,41 +436,72 @@ class ObjectValidatorTest :
         }
 
         context("obj - map with name") {
-            val nullable = Kova.string().min(1).asNullable()
-            val validator = Kova.obj<Request>().map("key") { it["key"] }.andThen(nullable)
+            val requestSchema =
+                object : ObjectSchema<Request>() {
+                    private val idValidator =
+                        Kova
+                            .nullable<String>()
+                            .isNotNullAnd(Kova.string().isInt())
+                            .asNonNullableThen(Kova.string().toInt())
+                    private val nameValidator =
+                        Kova.nullable<String>().isNotNullAnd(Kova.string().min(3))
+
+                    val id = map("id") { it["id"] }.andThen(idValidator)
+                    val name = map("name") { it["name"] }.andThen(nameValidator)
+                }
 
             test("success") {
-                val result = validator.tryValidate(Request(mapOf("key" to "abc")))
-                result.isSuccess().mustBeTrue()
-                result.value shouldBe "abc"
+                val request = Request(mapOf("id" to "1", "name" to "abc"))
+
+                val idResult = requestSchema.id.tryValidate(request)
+                idResult.isSuccess().mustBeTrue()
+                idResult.value shouldBe 1
+
+                val nameResult = requestSchema.name.tryValidate(request)
+                nameResult.isSuccess().mustBeTrue()
+                nameResult.value shouldBe "abc"
             }
 
             test("failure") {
-                val result = validator.tryValidate(Request(mapOf("key" to "")))
-                result.isFailure().mustBeTrue()
-                result.details.size shouldBe 1
-                result.details[0].let {
+                val request = Request(mapOf("id" to "a", "name" to ""))
+
+                val idResult = requestSchema.id.tryValidate(request)
+                idResult.isFailure().mustBeTrue()
+                idResult.details.size shouldBe 1
+                idResult.details[0].let {
                     println(it)
                     it.root shouldEndWith $$"$Request"
-                    it.path shouldBe "key"
-                    it.message.content shouldBe "\"\" must be at least 1 characters"
+                    it.path shouldBe "id"
+                    it.message.content shouldBe "\"a\" must be an int"
+                }
+
+                val nameResult = requestSchema.name.tryValidate(request)
+                nameResult.isFailure().mustBeTrue()
+                nameResult.details.size shouldBe 1
+                nameResult.details[0].let {
+                    println(it)
+                    it.root shouldEndWith $$"$Request"
+                    it.path shouldBe "name"
+                    it.message.content shouldBe "\"\" must be at least 3 characters"
                 }
             }
         }
 
         context("obj - nullable") {
-            val nullableString = Kova.nullable<String>().whenNotNull(Kova.string().min(1))
-
-            val validator = Kova.obj<Request>().map("key") { it["key"] }.andThen(nullableString)
+            val requestSchema =
+                object : ObjectSchema<Request>() {
+                    private val nullableString = Kova.nullable<String>().whenNotNull(Kova.string().min(1))
+                    val key = map("key") { it["key"] }.andThen(nullableString)
+                }
 
             test("success") {
-                val result = validator.tryValidate(Request(mapOf("key" to "abc")))
+                val result = requestSchema.key.tryValidate(Request(mapOf("key" to "abc")))
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe "abc"
             }
 
             test("failure") {
-                val result = validator.tryValidate(Request(mapOf("key" to "")))
+                val result = requestSchema.key.tryValidate(Request(mapOf("key" to "")))
                 result.isFailure().mustBeTrue()
                 result.details.size shouldBe 1
                 result.details[0].let {
@@ -467,53 +511,4 @@ class ObjectValidatorTest :
                 }
             }
         }
-    }) {
-    data class User(
-        val id: Int,
-        val name: String,
-    )
-
-    data class Street(
-        val id: Int,
-        val name: String,
-    )
-
-    data class Address(
-        val id: Int,
-        val street: Street,
-        val country: String = "US",
-        val postalCode: String = "",
-    )
-
-    data class Employee(
-        val id: Int,
-        val name: String,
-        val address: Address,
-    )
-
-    data class Period(
-        val startDate: LocalDate,
-        val endDate: LocalDate,
-    )
-
-    data class Department(
-        val id: Int,
-        val name: String,
-    ) {
-        init {
-            require(id > 0) { "id must be greater than zero." }
-        }
-    }
-
-    data class Person(
-        val id: Int,
-        val name: String?,
-        val address: Address?,
-    )
-
-    data class Request(
-        private val map: Map<String, String>,
-    ) {
-        operator fun get(key: String): String? = map[key]
-    }
-}
+    })

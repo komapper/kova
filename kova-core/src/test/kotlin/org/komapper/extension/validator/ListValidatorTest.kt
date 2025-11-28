@@ -83,25 +83,24 @@ class ListValidatorTest :
 
         // TODO
         context("obj and rule") {
-            val validator =
-                Kova.validator {
-                    ListHolder::class {
+            val schema =
+                object : ObjectSchema<ListHolder>() {
+                    val list =
                         ListHolder::list {
-                            Kova.list<String>().onEach(Kova.string().length(3)).constrain("test") {
+                            Kova.list<String>().onEach(Kova.string().length(3)).constrain("", {
                                 ConstraintResult.Satisfied
-                            }
+                            })
                         }
-                    }
                 }
 
             test("success") {
-                val result = validator.tryValidate(ListHolder(listOf("123", "456")))
+                val result = schema.tryValidate(ListHolder(listOf("123", "456")))
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe ListHolder(listOf("123", "456"))
             }
 
             test("failure") {
-                val result = validator.tryValidate(ListHolder(listOf("123", "4567")))
+                val result = schema.tryValidate(ListHolder(listOf("123", "4567")))
                 result.isFailure().mustBeTrue()
                 result.details.size shouldBe 1
                 result.details[0].let {

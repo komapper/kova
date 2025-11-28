@@ -1,19 +1,20 @@
 package org.komapper.extension.validator
 
-import org.komapper.extension.validator.ObjectValidator.Rule
 import kotlin.reflect.KProperty1
 
-class ObjectValidator<T : Any> internal constructor(
-    private val block: ObjectValidatorScope<T>.() -> Unit,
+open class ObjectSchema<T : Any> private constructor(
+    private val ruleMap: MutableMap<String, Rule>,
+    private val constraints: MutableList<Constraint<T>>,
 ) : Validator<T, T> {
+    constructor() : this(mutableMapOf(), mutableListOf())
+
     override fun execute(
         context: ValidationContext,
         input: T,
     ): ValidationResult<T> {
         val context = context.addRoot(input::class.toString())
-        val data = extractData(block)
-        val ruleResult = applyRules(input, context, data.ruleMap)
-        val constraintResult = applyConstraints(input, context, data.constraints)
+        val ruleResult = applyRules(input, context, ruleMap)
+        val constraintResult = applyConstraints(input, context, constraints)
         if (context.failFast && ruleResult.isFailure()) {
             return ruleResult
         }
@@ -22,18 +23,6 @@ class ObjectValidator<T : Any> internal constructor(
         }
         return ruleResult + constraintResult
     }
-
-    operator fun plus(other: ObjectValidator<T>): ObjectValidator<T> =
-        ObjectValidator {
-            block()
-            other.block(this)
-        }
-
-    fun merge(other: ObjectValidatorScope<T>.() -> Unit): ObjectValidator<T> =
-        ObjectValidator {
-            block()
-            other(this)
-        }
 
     private fun applyRules(
         input: T,
@@ -83,13 +72,7 @@ class ObjectValidator<T : Any> internal constructor(
         val transform: (Any?) -> Any?,
         val choose: (Any?) -> Validator<Any?, Any?>,
     )
-}
 
-@KovaMarker
-class ObjectValidatorScope<T : Any>(
-    private val ruleMap: MutableMap<String, Rule>,
-    private val constraints: MutableList<Constraint<T>>,
-) : KovaValidatorScope by KovaValidatorScope {
     fun <V> prop(
         key: KProperty1<T, V>,
         choose: (T) -> Validator<V, V>,
@@ -119,20 +102,42 @@ class ObjectValidatorScope<T : Any>(
         check: ConstraintScope.(ConstraintContext<T>) -> ConstraintResult,
     ) = constraints.add(Constraint(key, check))
 
-    operator fun <V> KProperty1<T, V>.invoke(choose: (T) -> Validator<V, V>) {
-        prop(this, choose)
+    fun <V> replace(
+        key: KProperty1<T, V>,
+        validator: Validator<V, V>,
+    ): ObjectSchema<T> {
+        val rule =
+            Rule(
+                transform = { receiver: T -> key.get(receiver) } as (Any?) -> Any?,
+                choose = { _: T -> validator } as (Any?) -> Validator<Any?, Any?>,
+            )
+        val newRuleMap = ruleMap.toMutableMap()
+        newRuleMap.replace(key.name, rule)
+        return ObjectSchema(newRuleMap, constraints)
+    }
+
+    operator fun <V> KProperty1<T, V>.invoke(block: () -> Validator<V, V>): PropertyValidator<T, V> {
+        val property = this
+        val validator = block()
+        prop(property) { _ -> validator }
+        return object : PropertyValidator<T, V> {
+            override val property: KProperty1<T, V> = property
+            override val validator: Validator<V, V> = validator
+
+            override fun execute(
+                context: ValidationContext,
+                input: V,
+            ): ValidationResult<V> = validator.execute(context, input)
+        }
+    }
+
+    infix fun <V, VALIDATOR : Validator<V, V>> KProperty1<T, V>.choose(block: (T) -> VALIDATOR): (T) -> VALIDATOR {
+        prop(this, block)
+        return block
     }
 }
 
-private data class ObjectValidatorScopeData<T : Any>(
-    val ruleMap: Map<String, Rule>,
-    val constraints: List<Constraint<T>>,
-)
-
-private fun <T : Any> extractData(block: ObjectValidatorScope<T>.() -> Unit): ObjectValidatorScopeData<T> {
-    val ruleMap = mutableMapOf<String, Rule>()
-    val constraints = mutableListOf<Constraint<T>>()
-    val scope = ObjectValidatorScope(ruleMap, constraints)
-    scope.apply(block)
-    return ObjectValidatorScopeData(ruleMap, constraints)
+interface PropertyValidator<T, V> : Validator<V, V> {
+    val property: KProperty1<T, V>
+    val validator: Validator<V, V>
 }

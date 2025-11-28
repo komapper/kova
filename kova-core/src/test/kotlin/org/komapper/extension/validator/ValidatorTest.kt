@@ -120,20 +120,4 @@ class ValidatorTest :
                 result.messages.single().content shouldBe "\"10\" must be at most 1 characters"
             }
         }
-
-        context("constrain") {
-            val validator =
-                (Kova.string() as Validator<String, String>).constrain("test") {
-                    satisfies(it.input == "OK", Message.Text("Constraint failed"))
-                }
-            test("success") {
-                val result = validator.tryValidate("OK")
-                result.isSuccess().mustBeTrue()
-            }
-            test("failure") {
-                val result = validator.tryValidate("NG")
-                result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "Constraint failed"
-            }
-        }
     })

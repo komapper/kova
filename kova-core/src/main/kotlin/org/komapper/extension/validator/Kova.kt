@@ -2,7 +2,6 @@ package org.komapper.extension.validator
 
 import java.math.BigDecimal
 import java.math.BigInteger
-import kotlin.reflect.KClass
 
 interface Kova {
     fun string(): StringValidator = StringValidator()
@@ -47,10 +46,6 @@ interface Kova {
 
     fun <E : Enum<E>> enum(): EnumValidator<E> = EnumValidator()
 
-    fun <T : Any> obj() = ObjectValidator<T> {}
-
-    fun <T : Any> validator(block: KovaValidatorScope.() -> ObjectValidator<T>): ObjectValidator<T> = block(KovaValidatorScope)
-
     fun <T : Any> factory(block: KovaFactoryScope.() -> T): T = block(KovaFactoryScope)
 
     fun error(message: Message): Nothing = throw MessageException(message)
@@ -60,13 +55,6 @@ interface Kova {
 
 @DslMarker
 annotation class KovaMarker
-
-@KovaMarker
-interface KovaValidatorScope {
-    operator fun <T : Any> KClass<T>.invoke(block: ObjectValidatorScope<T>.() -> Unit = {}): ObjectValidator<T> = ObjectValidator(block)
-
-    companion object : KovaValidatorScope
-}
 
 @KovaMarker
 interface KovaFactoryScope {
