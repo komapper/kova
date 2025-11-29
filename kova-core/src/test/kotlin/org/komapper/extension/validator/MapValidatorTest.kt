@@ -29,6 +29,60 @@ class MapValidatorTest :
             }
         }
 
+        context("max") {
+            val validator = Kova.map<String, String>().max(2)
+
+            test("success") {
+                val result = validator.tryValidate(mapOf("a" to "1", "b" to "2"))
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe mapOf("a" to "1", "b" to "2")
+            }
+
+            test("failure") {
+                val result = validator.tryValidate(mapOf("a" to "1", "b" to "2", "c" to "3"))
+                result.isFailure().mustBeTrue()
+                result.messages.single().content shouldBe "Map(size=3) must have at most 2 entries"
+            }
+        }
+
+        context("notEmpty") {
+            val validator = Kova.map<String, String>().notEmpty()
+
+            test("success") {
+                val result = validator.tryValidate(mapOf("a" to "1"))
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe mapOf("a" to "1")
+            }
+
+            test("failure") {
+                val result = validator.tryValidate(emptyMap())
+                result.isFailure().mustBeTrue()
+                result.messages.single().content shouldBe "Map {} must not be empty"
+            }
+        }
+
+        context("length") {
+            val validator = Kova.map<String, String>().length(2)
+
+            test("success") {
+                val result = validator.tryValidate(mapOf("a" to "1", "b" to "2"))
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe mapOf("a" to "1", "b" to "2")
+            }
+
+            test("failure - too few") {
+                val result = validator.tryValidate(mapOf("a" to "1"))
+                result.isFailure().mustBeTrue()
+                result.messages.single().content shouldBe "Map {a=1} must have exactly 2 entries"
+            }
+
+            test("failure - too many") {
+                val result = validator.tryValidate(mapOf("a" to "1", "b" to "2", "c" to "3"))
+                result.isFailure().mustBeTrue()
+                result.messages.single().content shouldBe "Map {a=1, b=2, c=3} must have exactly 2 entries"
+            }
+        }
+
         context("constrain") {
             val validator =
                 MapValidator<String, String>().constrain("test") {

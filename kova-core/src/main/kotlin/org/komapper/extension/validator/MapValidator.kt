@@ -25,6 +25,27 @@ class MapValidator<K, V> internal constructor(
             satisfies(it.input.size >= size, message(it, it.input.size, size))
         }
 
+    fun max(
+        size: Int,
+        message: (ConstraintContext<Map<K, V>>, Int, Int) -> Message = Message.resource2(),
+    ): MapValidator<K, V> =
+        constrain("kova.map.max") {
+            satisfies(it.input.size <= size, message(it, it.input.size, size))
+        }
+
+    fun notEmpty(message: (ConstraintContext<Map<K, V>>) -> Message = Message.resource0()): MapValidator<K, V> =
+        constrain("kova.map.notEmpty") {
+            satisfies(it.input.isNotEmpty(), message(it))
+        }
+
+    fun length(
+        size: Int,
+        message: (ConstraintContext<Map<K, V>>, Int) -> Message = Message.resource1(),
+    ): MapValidator<K, V> =
+        constrain("kova.map.length") {
+            satisfies(it.input.size == size, message(it, size))
+        }
+
     fun onEach(validator: Validator<Map.Entry<K, V>, Map.Entry<K, V>>): MapValidator<K, V> =
         constrain("kova.map.onEach") {
             validateOnEach(it) { entry, validationContext ->
