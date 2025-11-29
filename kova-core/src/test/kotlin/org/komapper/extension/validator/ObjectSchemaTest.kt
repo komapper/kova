@@ -121,7 +121,10 @@ class ObjectSchemaTest :
                 object : ObjectSchema<Period>() {
                     init {
                         constrain("test") {
-                            satisfies(it.input.startDate <= it.input.endDate, "startDate must be less than or equal to endDate")
+                            satisfies(
+                                it.input.startDate <= it.input.endDate,
+                                "startDate must be less than or equal to endDate",
+                            )
                         }
                     }
                 }
@@ -369,72 +372,6 @@ class ObjectSchemaTest :
             }
         }
 
-        context("named prop - simple") {
-            val userSchema =
-                object : ObjectSchema<User>() {
-                    val id = named("ID", { it.id }) { Kova.int().min(1) }
-                    val name = named("NAME", { it.name }) { Kova.string().min(1).max(10) }
-                }
-
-            test("success") {
-                val user = User(1, "abc")
-                val result = userSchema.tryValidate(user)
-                result.isSuccess().mustBeTrue()
-                result.value shouldBe user
-            }
-
-            test("failure") {
-                val user = User(0, "")
-                val result = userSchema.tryValidate(user)
-                result.isFailure().mustBeTrue()
-                result.details.size shouldBe 2
-                with(result.details[0]) {
-                    root shouldEndWith $$"$User"
-                    path shouldBe "ID"
-                    message.content shouldBe "Number 0 must be greater than or equal to 1"
-                }
-                with(result.details[1]) {
-                    root shouldEndWith $$"$User"
-                    path shouldBe "NAME"
-                    message.content shouldBe "\"\" must be at least 1 characters"
-                }
-            }
-        }
-
-        context("named prop - nest") {
-            val streetSchema =
-                object : ObjectSchema<Street>() {
-                    val name = named("name", { it.name }) { Kova.string().min(3).max(5) }
-                }
-            val addressSchema =
-                object : ObjectSchema<Address>() {
-                    val street = named("street", { it.street }) { streetSchema }
-                }
-            val employeeSchema =
-                object : ObjectSchema<Employee>() {
-                    val address = named("address", { it.address }) { addressSchema }
-                }
-
-            test("success") {
-                val employee = Employee(1, "abc", Address(1, Street(1, "def")))
-                val result = employeeSchema.tryValidate(employee)
-                result.isSuccess().mustBeTrue()
-                result.value shouldBe employee
-            }
-
-            test("failure") {
-                val employee = Employee(1, "abc", Address(1, Street(1, "too-long-name")))
-                val result = employeeSchema.tryValidate(employee)
-                result.isFailure().mustBeTrue()
-                result.details.size shouldBe 1
-                result.details[0].let {
-                    it.root shouldEndWith $$"$Employee"
-                    it.path shouldBe "address.street.name"
-                    it.message.content shouldBe "\"too-long-name\" must be at most 5 characters"
-                }
-            }
-        }
-
         context("obj - map with name") {
             val requestSchema =
                 object : ObjectSchema<Request>() {
@@ -446,7 +383,7 @@ class ObjectSchemaTest :
                     private val nameValidator =
                         Kova.nullable<String>().notNullAnd(Kova.string().min(3))
 
-                    val id = map("id") { it["id"] }.andThen(idValidator)
+                    val id = map("id", { it["id"] }).andThen(idValidator)
                     val name = map("name") { it["name"] }.andThen(nameValidator)
                 }
 

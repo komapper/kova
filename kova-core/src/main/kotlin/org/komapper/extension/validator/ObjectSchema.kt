@@ -68,39 +68,22 @@ open class ObjectSchema<T : Any> private constructor(
         return validator.execute(context, input)
     }
 
-    data class Rule(
-        val transform: (Any?) -> Any?,
-        val choose: (Any?) -> Validator<Any?, Any?>,
-    )
-
-    fun <V> prop(
+    private fun <V> addRule(
         key: KProperty1<T, V>,
         choose: (T) -> Validator<V, V>,
     ) {
         val transform = { receiver: T -> key.get(receiver) }
-        return addRule(key.name, transform, choose)
-    }
-
-    fun <V> named(
-        name: String,
-        transform: (T) -> V,
-        choose: (T) -> Validator<V, V>,
-    ) = addRule(name, transform, choose)
-
-    private fun <V> addRule(
-        key: String,
-        transform: (T) -> V,
-        choose: (T) -> Validator<V, V>,
-    ) {
         transform as (Any?) -> Any?
         choose as (Any?) -> Validator<Any?, Any?>
-        ruleMap[key] = Rule(transform, choose)
+        ruleMap[key.name] = Rule(transform, choose)
     }
 
     fun constrain(
         key: String,
         check: ConstraintScope.(ConstraintContext<T>) -> ConstraintResult,
-    ) = constraints.add(Constraint(key, check))
+    ) {
+        constraints.add(Constraint(key, check))
+    }
 
     fun <V> replace(
         key: KProperty1<T, V>,
@@ -119,7 +102,7 @@ open class ObjectSchema<T : Any> private constructor(
     operator fun <V> KProperty1<T, V>.invoke(block: () -> Validator<V, V>): PropertyValidator<T, V> {
         val property = this
         val validator = block()
-        prop(property) { _ -> validator }
+        addRule(property) { _ -> validator }
         return object : PropertyValidator<T, V> {
             override val property: KProperty1<T, V> = property
             override val validator: Validator<V, V> = validator
@@ -132,10 +115,15 @@ open class ObjectSchema<T : Any> private constructor(
     }
 
     infix fun <V, VALIDATOR : Validator<V, V>> KProperty1<T, V>.choose(block: (T) -> VALIDATOR): (T) -> VALIDATOR {
-        prop(this, block)
+        addRule(this, block)
         return block
     }
 }
+
+data class Rule(
+    val transform: (Any?) -> Any?,
+    val choose: (Any?) -> Validator<Any?, Any?>,
+)
 
 interface PropertyValidator<T, V> : Validator<V, V> {
     val property: KProperty1<T, V>
