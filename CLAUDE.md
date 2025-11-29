@@ -110,16 +110,17 @@ import org.komapper.extension.validator.ObjectSchema
 
 data class Person(val name: String, val age: Int)
 
-object PersonSchema : ObjectSchema<Person>({
-    Person::name { Kova.string().min(1) }
-    Person::age { Kova.int().min(0) }
-}) {}
+// When using ObjectFactory, define properties as object properties (not in constructor lambda)
+object PersonSchema : ObjectSchema<Person>() {
+    val name = Person::name { Kova.string().min(1) }
+    val age = Person::age { Kova.int().min(0) }
+}
 
 val factory = Kova.args(PersonSchema.name, PersonSchema.age).createFactory(::Person)
 val person = factory.create("Alice", 30)  // Validates and constructs
 ```
 
-**Note**: `Kova.args()` supports 1 to 10 arguments for object construction via the `Arguments1` through `Arguments10` classes.
+**Note**: `Kova.args()` supports 1 to 10 arguments for object construction via the `Arguments1` through `Arguments10` classes. Properties must be defined as object properties (not within the constructor lambda) so they can be referenced by `Kova.args()`.
 
 ### Key Components
 

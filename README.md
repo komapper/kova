@@ -106,11 +106,11 @@ val result = PeriodSchema.tryValidate(Period(
 ```kotlin
 data class Person(val name: String, val age: Int)
 
-// Define a schema for the Person class
-object PersonSchema : ObjectSchema<Person>({
-    Person::name { Kova.string().min(1).max(50) }
-    Person::age { Kova.int().min(0).max(150) }
-}) {}
+// Define a schema with properties that can be referenced by the factory
+object PersonSchema : ObjectSchema<Person>() {
+    val name = Person::name { Kova.string().min(1).max(50) }
+    val age = Person::age { Kova.int().min(0).max(150) }
+}
 
 // Create a factory that validates inputs and constructs objects
 val personFactory = Kova.args(PersonSchema.name, PersonSchema.age).createFactory(::Person)
@@ -122,7 +122,7 @@ val person = personFactory.create("Alice", 30)  // Returns Person or throws Vali
 val result = personFactory.tryCreate("Alice", 30)  // Returns ValidationResult<Person>
 ```
 
-**Note**: The `Kova.args()` method supports 1 to 10 arguments through `Arguments1` to `Arguments10` classes.
+**Note**: When using `ObjectFactory`, properties must be defined as object properties (not within the constructor lambda) so they can be referenced by `Kova.args()`. The `Kova.args()` method supports 1 to 10 arguments through `Arguments1` to `Arguments10` classes.
 
 ### Nullable Validation
 
