@@ -3,7 +3,7 @@ package org.komapper.extension.validator
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-class IntValidatorTest :
+class NumberValidatorTest :
     FunSpec({
 
         context("plus") {

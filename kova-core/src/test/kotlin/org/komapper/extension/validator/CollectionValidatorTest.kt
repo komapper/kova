@@ -4,7 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldEndWith
 
-class ListValidatorTest :
+class CollectionValidatorTest :
     FunSpec({
         context("notEmpty") {
             val validator = Kova.list<String>().notEmpty()

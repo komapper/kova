@@ -5,7 +5,7 @@ import io.kotest.matchers.shouldBe
 
 class ConditionalValidatorTest :
     FunSpec({
-        context("onlyIf") {
+        context("onlyWhen") {
             val validator = Kova.int().min(3).onlyWhen { it % 2 == 0 }
 
             test("success") {
@@ -22,7 +22,7 @@ class ConditionalValidatorTest :
             }
         }
 
-        context("onlyIf and plus") {
+        context("onlyWhen and plus") {
             val validator = Kova.int().min(3).onlyWhen { it % 2 == 0 } + Kova.int().min(1)
 
             test("success - plus") {
