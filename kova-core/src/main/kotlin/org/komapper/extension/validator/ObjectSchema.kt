@@ -1,5 +1,7 @@
 package org.komapper.extension.validator
 
+import kotlin.properties.ReadOnlyProperty
+import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
 
 open class ObjectSchema<T : Any> private constructor(
@@ -13,7 +15,7 @@ open class ObjectSchema<T : Any> private constructor(
         input: T,
     ): ValidationResult<T> {
         val constraints: MutableList<Constraint<T>> = mutableListOf()
-        block(ObjectSchemaScope(ruleMap, constraints))
+        block(ObjectSchemaScope(this, ruleMap, constraints))
         val context = context.addRoot(input::class.toString())
         val ruleResult = applyRules(input, context, ruleMap)
         val constraintResult = applyConstraints(input, context, constraints)
@@ -104,6 +106,11 @@ open class ObjectSchema<T : Any> private constructor(
         ruleMap.addRule(this, block)
         return block
     }
+
+    fun <V> named(block: Validator<T, T>.(KProperty<*>) -> Validator<T, V>): ReadOnlyProperty<ObjectSchema<T>, Validator<T, V>> =
+        ReadOnlyProperty<ObjectSchema<T>, Validator<T, V>> { thisRef, property ->
+            thisRef.path(property.name).block(property)
+        }
 }
 
 private fun <T, V> MutableMap<String, Rule>.addRule(
@@ -116,7 +123,10 @@ private fun <T, V> MutableMap<String, Rule>.addRule(
     this[key.name] = Rule(transform, choose)
 }
 
-private fun <T, V> PropertyValidator(property: KProperty1<T, V>, validator: Validator<V, V>): PropertyValidator<T, V> =
+private fun <T, V> PropertyValidator(
+    property: KProperty1<T, V>,
+    validator: Validator<V, V>,
+): PropertyValidator<T, V> =
     object : PropertyValidator<T, V> {
         override val property: KProperty1<T, V> = property
         override val validator: Validator<V, V> = validator
@@ -137,7 +147,8 @@ interface PropertyValidator<T, V> : Validator<V, V> {
     val validator: Validator<V, V>
 }
 
-class ObjectSchemaScope<T> internal constructor(
+class ObjectSchemaScope<T : Any> internal constructor(
+    val caller: ObjectSchema<T>,
     private val ruleMap: MutableMap<String, Rule>,
     private val constraints: MutableList<Constraint<T>>,
 ) {

@@ -46,13 +46,13 @@ class ObjectSchemaTest :
         context("plus") {
 
             val a =
-                object : ObjectSchema<User>() {
-                    val name = User::name { Kova.string().min(1).max(10) }
-                }
+                object : ObjectSchema<User>({
+                    User::name { Kova.string().min(1).max(10) }
+                }) {}
             val b =
-                object : ObjectSchema<User>() {
-                    val id = User::id { Kova.int().min(1) }
-                }
+                object : ObjectSchema<User>({
+                    User::id { Kova.int().min(1) }
+                }) {}
 
             val userSchema = a + b
 
@@ -97,10 +97,10 @@ class ObjectSchemaTest :
         context("replace") {
 
             val userSchema =
-                object : ObjectSchema<User>() {
-                    val id = User::id { Kova.int().min(1) }
-                    val name = User::name { Kova.string().min(1).max(10) }
-                }
+                object : ObjectSchema<User>({
+                    User::id { Kova.int().min(1) }
+                    User::name { Kova.string().min(1).max(10) }
+                }) {}
 
             test("success") {
                 val user = User(-1, "abc")
@@ -275,9 +275,9 @@ class ObjectSchemaTest :
                 }
 
             val employeeSchema =
-                object : ObjectSchema<Employee>( {
+                object : ObjectSchema<Employee>({
                     Employee::address { addressSchema }
-                }){}
+                }) {}
 
             test("success - country is US") {
                 val employee = Employee(1, "abc", Address(1, Street(1, "def"), country = "US", postalCode = "12345678"))
@@ -322,27 +322,27 @@ class ObjectSchemaTest :
 
         context("prop - nullable") {
             val streetSchema =
-                object : ObjectSchema<Street>( {
+                object : ObjectSchema<Street>({
                     Street::id { Kova.int().min(1) }
                     Street::name { Kova.string().min(3).max(5) }
-                }){}
+                }) {}
 
             val addressSchema =
-                object : ObjectSchema<Address>( {
+                object : ObjectSchema<Address>({
                     Address::street { streetSchema }
-                }){}
+                }) {}
 
             val personSchema =
-                object : ObjectSchema<Person>( {
+                object : ObjectSchema<Person>({
                     Person::name { Kova.nullable() }
                     Person::address { addressSchema.asNullable() }
-                }){}
+                }) {}
 
             val personSchema2 =
-                object : ObjectSchema<Person>( {
+                object : ObjectSchema<Person>({
                     Person::name { Kova.nullable<String>().notNull() }
                     Person::address { addressSchema.asNullable() }
-                }){}
+                }) {}
 
             test("success") {
                 val person = Person(1, "abc", Address(1, Street(1, "def")))
@@ -371,7 +371,7 @@ class ObjectSchemaTest :
             }
         }
 
-        context("obj - map with name") {
+        context("obj - path") {
             val requestSchema =
                 object : ObjectSchema<Request>() {
                     private val idValidator =
@@ -382,8 +382,60 @@ class ObjectSchemaTest :
                     private val nameValidator =
                         Kova.nullable<String>().notNullAnd(Kova.string().min(3))
 
-                    val id = map("id", { it["id"] }).andThen(idValidator)
-                    val name = map("name") { it["name"] }.andThen(nameValidator)
+                    val id = path("id").map { it["id"] }.andThen(idValidator)
+                    val name = path("name").map { it["name"] }.andThen(nameValidator)
+                }
+
+            test("success") {
+                val request = Request(mapOf("id" to "1", "name" to "abc"))
+
+                val idResult = requestSchema.id.tryValidate(request)
+                idResult.isSuccess().mustBeTrue()
+                idResult.value shouldBe 1
+
+                val nameResult = requestSchema.name.tryValidate(request)
+                nameResult.isSuccess().mustBeTrue()
+                nameResult.value shouldBe "abc"
+            }
+
+            test("failure") {
+                val request = Request(mapOf("id" to "a", "name" to ""))
+
+                val idResult = requestSchema.id.tryValidate(request)
+                idResult.isFailure().mustBeTrue()
+                idResult.details.size shouldBe 1
+                idResult.details[0].let {
+                    println(it)
+                    it.root shouldEndWith $$"$Request"
+                    it.path shouldBe "id"
+                    it.message.content shouldBe "\"a\" must be an int"
+                }
+
+                val nameResult = requestSchema.name.tryValidate(request)
+                nameResult.isFailure().mustBeTrue()
+                nameResult.details.size shouldBe 1
+                nameResult.details[0].let {
+                    println(it)
+                    it.root shouldEndWith $$"$Request"
+                    it.path shouldBe "name"
+                    it.message.content shouldBe "\"\" must be at least 3 characters"
+                }
+            }
+        }
+
+        context("obj - named") {
+            val requestSchema =
+                object : ObjectSchema<Request>() {
+                    private val idValidator =
+                        Kova
+                            .nullable<String>()
+                            .notNullAnd(Kova.string().isInt())
+                            .asNonNullableThen(Kova.string().toInt())
+                    private val nameValidator =
+                        Kova.nullable<String>().notNullAnd(Kova.string().min(3))
+
+                    val id by named { p -> map { it[p.name] }.andThen(idValidator) }
+                    val name by named { p -> map { it[p.name] }.andThen(nameValidator) }
                 }
 
             test("success") {
@@ -427,7 +479,7 @@ class ObjectSchemaTest :
             val requestSchema =
                 object : ObjectSchema<Request>() {
                     private val nullableString = Kova.nullable<String>().whenNotNull(Kova.string().min(1))
-                    val key = map("key") { it["key"] }.andThen(nullableString)
+                    val key = path("key").map { it["key"] }.andThen(nullableString)
                 }
 
             test("success") {
@@ -454,8 +506,9 @@ class ObjectSchemaTest :
             )
 
             val nodeSchema =
-                object : ObjectSchema<Node>() {
-                    val children = Node::children { Kova.list<Node>().max(3).onEach(this) }
+                object : ObjectSchema<Node>({
+                    Node::children { Kova.list<Node>().max(3).onEach(caller) }
+                }) {
                 }
 
             test("success") {

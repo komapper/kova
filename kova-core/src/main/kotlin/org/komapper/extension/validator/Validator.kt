@@ -62,15 +62,9 @@ infix fun <IN, OUT> Validator<IN, OUT>.or(other: Validator<IN, OUT>): Validator<
     }
 }
 
-fun <IN, OUT, NEW> Validator<IN, OUT>.map(transform: (OUT) -> NEW): Validator<IN, NEW> = map("", transform)
-
-fun <IN, OUT, NEW> Validator<IN, OUT>.map(
-    name: String,
-    transform: (OUT) -> NEW,
-): Validator<IN, NEW> {
+fun <IN, OUT, NEW> Validator<IN, OUT>.map(transform: (OUT) -> NEW): Validator<IN, NEW> {
     val self = this
     return Validator { context, input ->
-        val context = context.addPath(name)
         when (val result = self.execute(context, input)) {
             is Success -> {
                 try {
@@ -87,6 +81,17 @@ fun <IN, OUT, NEW> Validator<IN, OUT>.map(
                 }
             }
 
+            is Failure -> result
+        }
+    }
+}
+
+fun <IN, OUT> Validator<IN, OUT>.path(name: String): Validator<IN, OUT> {
+    val self = this
+    return Validator { context, input ->
+        val context = context.addPath(name)
+        when (val result = self.execute(context, input)) {
+            is Success -> Success(result.value, result.context)
             is Failure -> result
         }
     }
