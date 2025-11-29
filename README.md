@@ -59,15 +59,46 @@ val intValidator = Kova.string().toInt()  // Validates and converts to Int
 data class User(val id: Int, val name: String, val email: String)
 
 // Define a schema for the User class
-object UserSchema : ObjectSchema<User>() {
-    val id = User::id { Kova.int().min(1) }
-    val name = User::name { Kova.string().min(1).max(50) }
-    val email = User::email { Kova.string().notBlank().contains("@") }
-}
+object UserSchema : ObjectSchema<User>({
+    User::id { Kova.int().min(1) }
+    User::name { Kova.string().min(1).max(50) }
+    User::email { Kova.string().notBlank().contains("@") }
+}) {}
 
 // Validate a user instance
 val user = User(1, "Alice", "alice@example.com")
 val result = UserSchema.tryValidate(user)
+```
+
+**Note**: Properties are now defined within the constructor lambda scope, and the object body is typically empty (`{}`).
+
+### Object-Level Constraints
+
+You can add constraints that validate relationships between properties using the `constrain` method:
+
+```kotlin
+import java.time.LocalDate
+import java.time.Clock
+
+data class Period(val startDate: LocalDate, val endDate: LocalDate)
+
+object PeriodSchema : ObjectSchema<Period>({
+    Period::startDate { Kova.localDate(Clock.systemDefaultZone()) }
+    Period::endDate { Kova.localDate(Clock.systemDefaultZone()) }
+
+    constrain("dateRange") {
+        satisfies(
+            it.input.startDate <= it.input.endDate,
+            "startDate must be less than or equal to endDate"
+        )
+    }
+}) {}
+
+val result = PeriodSchema.tryValidate(Period(
+    LocalDate.of(2024, 1, 1),
+    LocalDate.of(2023, 1, 1)
+))
+// Validation fails with message: "startDate must be less than or equal to endDate"
 ```
 
 ### Object Construction with Validation
@@ -76,10 +107,10 @@ val result = UserSchema.tryValidate(user)
 data class Person(val name: String, val age: Int)
 
 // Define a schema for the Person class
-object PersonSchema : ObjectSchema<Person>() {
-    val name = Person::name { Kova.string().min(1).max(50) }
-    val age = Person::age { Kova.int().min(0).max(150) }
-}
+object PersonSchema : ObjectSchema<Person>({
+    Person::name { Kova.string().min(1).max(50) }
+    Person::age { Kova.int().min(0).max(150) }
+}) {}
 
 // Create a factory that validates inputs and constructs objects
 val personFactory = Kova.args(PersonSchema.name, PersonSchema.age).createFactory(::Person)
@@ -90,6 +121,8 @@ val person = personFactory.create("Alice", 30)  // Returns Person or throws Vali
 // Or use tryCreate for non-throwing validation
 val result = personFactory.tryCreate("Alice", 30)  // Returns ValidationResult<Person>
 ```
+
+**Note**: The `Kova.args()` method supports 1 to 10 arguments through `Arguments1` to `Arguments10` classes.
 
 ### Nullable Validation
 

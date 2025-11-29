@@ -51,6 +51,8 @@ Kova's architecture is built around **composable validators** that implement the
 ### Simple Validation Pattern
 
 ```kotlin
+import org.komapper.extension.validator.Kova
+
 val validator = Kova.string().min(1).max(10)
 val result = validator.tryValidate("hello")  // Returns ValidationResult
 ```
@@ -58,25 +60,66 @@ val result = validator.tryValidate("hello")  // Returns ValidationResult
 ### Object Validation Pattern
 
 ```kotlin
-object UserSchema : ObjectSchema<User>() {
-    val name = User::name { Kova.string().min(1).max(10) }
-    val age = User::age { Kova.int().min(0) }
-}
+import org.komapper.extension.validator.Kova
+import org.komapper.extension.validator.ObjectSchema
+
+data class User(val name: String, val age: Int)
+
+object UserSchema : ObjectSchema<User>({
+    User::name { Kova.string().min(1).max(10) }
+    User::age { Kova.int().min(0) }
+}) {}
 
 val result = UserSchema.tryValidate(user)
 ```
 
+**Important**: Properties are now defined within the constructor lambda scope. The lambda is executed during each validation to build the rule map and constraints. The schema object body is typically empty (`{}`).
+
+### Object-Level Constraints
+
+You can add constraints that validate the entire object using the `constrain` method within the constructor lambda:
+
+```kotlin
+import org.komapper.extension.validator.Kova
+import org.komapper.extension.validator.ObjectSchema
+import java.time.LocalDate
+import java.time.Clock
+
+data class Period(val startDate: LocalDate, val endDate: LocalDate)
+
+object PeriodSchema : ObjectSchema<Period>({
+    Period::startDate { Kova.localDate(Clock.systemDefaultZone()) }
+    Period::endDate { Kova.localDate(Clock.systemDefaultZone()) }
+
+    constrain("dateRange") {
+        satisfies(
+            it.input.startDate <= it.input.endDate,
+            "startDate must be less than or equal to endDate"
+        )
+    }
+}) {}
+```
+
+The `constrain` method takes a constraint key and a lambda that receives a `ConstraintContext<T>` and returns a `ConstraintResult`. Use `satisfies()` helper to simplify constraint creation.
+
 ### Object Factory Pattern
 
 ```kotlin
-object PersonSchema : ObjectSchema<Person>() {
-    val name = Person::name { Kova.string().min(1) }
-    val age = Person::age { Kova.int().min(0) }
-}
+import org.komapper.extension.validator.Kova
+import org.komapper.extension.validator.ObjectSchema
+
+data class Person(val name: String, val age: Int)
+
+object PersonSchema : ObjectSchema<Person>({
+    Person::name { Kova.string().min(1) }
+    Person::age { Kova.int().min(0) }
+}) {}
 
 val factory = Kova.args(PersonSchema.name, PersonSchema.age).createFactory(::Person)
 val person = factory.create("Alice", 30)  // Validates and constructs
 ```
+
+**Note**: `Kova.args()` supports 1 to 10 arguments for object construction via the `Arguments1` through `Arguments10` classes.
 
 ### Key Components
 
@@ -84,8 +127,10 @@ val person = factory.create("Alice", 30)  // Validates and constructs
 - **ValidationResult**: Sealed interface with `Success<T>` and `Failure` cases
 - **ConstraintValidator**: Generic constraint evaluator used internally by all type-specific validators
 - **Type-Specific Validators**: StringValidator, NumberValidator, LocalDateValidator, ComparableValidator, CollectionValidator, MapValidator, MapEntryValidator, LiteralValidator
-- **ObjectSchema**: Validates objects by defining validation rules for individual properties
-- **ObjectFactory**: Constructs objects from validated inputs via reflection using `createFactory()` method
+- **ObjectSchema**: Validates objects by defining validation rules for individual properties within a constructor lambda scope
+- **ObjectSchemaScope**: Scope class providing access to `constrain()` and property validation methods within ObjectSchema constructor lambda
+- **PropertyValidator**: Interface representing a validated property with access to the original `KProperty1` and its validator
+- **ObjectFactory**: Constructs objects from validated inputs via reflection using `createFactory()` method (supports 1-10 arguments)
 - **NullableValidator**: Wraps validators to handle nullable types
 - **NotNullValidator**: Specialized validator returned by `notNull()` and `notNullAnd()` that enforces non-null constraints
 - **ConditionalValidator**: Supports conditional validation logic
@@ -96,6 +141,8 @@ val person = factory.create("Alice", 30)  // Validates and constructs
 Validators are immutable and can be composed using operators:
 
 ```kotlin
+import org.komapper.extension.validator.Kova
+
 // Using + operator (same as and)
 val validator = Kova.string().min(1).max(10) + Kova.string().notBlank()
 
@@ -277,7 +324,7 @@ When `failFast` is true, validation stops at the first constraint violation.
 - `EmptyValidator.kt` - No-op validator used by `Kova.generic()` that always succeeds
 
 **Special Validators**:
-- `ObjectSchema.kt` - Validates objects by defining validation rules for individual properties
+- `ObjectSchema.kt` - Validates objects by defining validation rules for individual properties within a constructor lambda scope (includes `ObjectSchemaScope` and `PropertyValidator`)
 - `NullableValidator.kt` - Wraps validators to handle nullable types (includes `NotNullValidator` class)
 - `ConditionalValidator.kt` - Supports conditional validation logic
 
