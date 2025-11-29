@@ -23,6 +23,30 @@ class ListValidatorTest :
             }
         }
 
+        context("length") {
+            val validator = Kova.list<String>().length(2)
+
+            test("success") {
+                val result = validator.tryValidate(listOf("1", "2"))
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe listOf("1", "2")
+            }
+
+            test("failure - too few elements") {
+                val result = validator.tryValidate(listOf("1"))
+                result.isFailure().mustBeTrue()
+                result.messages.size shouldBe 1
+                result.messages[0].content shouldBe "Collection [1] must have exactly 2 elements"
+            }
+
+            test("failure - too many elements") {
+                val result = validator.tryValidate(listOf("1", "2", "3"))
+                result.isFailure().mustBeTrue()
+                result.messages.size shouldBe 1
+                result.messages[0].content shouldBe "Collection [1, 2, 3] must have exactly 2 elements"
+            }
+        }
+
         context("plus") {
             val validator = Kova.list<String>().min(2).min(3)
 

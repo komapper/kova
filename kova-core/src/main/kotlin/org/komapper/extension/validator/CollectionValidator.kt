@@ -38,6 +38,14 @@ class CollectionValidator<E, C : Collection<E>> internal constructor(
             satisfies(it.input.isNotEmpty(), message(it))
         }
 
+    fun length(
+        size: Int,
+        message: (ConstraintContext<C>, Int) -> Message = Message.resource1(),
+    ): CollectionValidator<E, C> =
+        constrain("kova.collection.length") {
+            satisfies(it.input.size == size, message(it, size))
+        }
+
     fun onEach(validator: Validator<E, E>): CollectionValidator<E, C> =
         constrain("kova.collection.onEach") {
             val validationContext = it.createValidationContext()
