@@ -537,5 +537,15 @@ class ObjectSchemaTest :
                 result.messages.size shouldBe 1
                 result.messages[0].content shouldBe "Collection(size=4) must have at most 3 elements"
             }
+
+            test("failure - grand children size > 3") {
+                val node = Node(listOf(Node(), Node(), Node(listOf(Node(listOf(Node(), Node(), Node(), Node()))))))
+                val result = nodeSchema.tryValidate(node)
+                result.isFailure().mustBeTrue()
+                result.details.size shouldBe 1
+                result.details[0].path shouldBe "children[2]<collection element>.children[0]<collection element>.children"
+                result.messages.size shouldBe 1
+                result.messages[0].content shouldBe "Collection(size=4) must have at most 3 elements"
+            }
         }
     })
