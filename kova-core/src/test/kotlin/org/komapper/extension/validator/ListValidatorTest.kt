@@ -6,6 +6,23 @@ import io.kotest.matchers.string.shouldEndWith
 
 class ListValidatorTest :
     FunSpec({
+        context("notEmpty") {
+            val validator = Kova.list<String>().notEmpty()
+
+            test("success") {
+                val result = validator.tryValidate(listOf("1"))
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe listOf("1")
+            }
+
+            test("failure") {
+                val result = validator.tryValidate(emptyList())
+                result.isFailure().mustBeTrue()
+                result.messages.size shouldBe 1
+                result.messages[0].content shouldBe "Collection [] must not be empty"
+            }
+        }
+
         context("plus") {
             val validator = Kova.list<String>().min(2).min(3)
 
