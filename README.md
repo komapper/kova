@@ -78,7 +78,6 @@ You can add constraints that validate relationships between properties using the
 
 ```kotlin
 import java.time.LocalDate
-import java.time.Clock
 
 data class Period(val startDate: LocalDate, val endDate: LocalDate)
 
@@ -145,13 +144,13 @@ val isNullValidator = Kova.nullable<String>().isNull()
 val result = isNullValidator.tryValidate(null)               // Success(null)
 
 // Accept null OR validate non-null values
-val nullOrMinValidator = Kova.nullable<String>().isNullOr(Kova.string().min(5))
+val nullOrMinValidator = Kova.nullable<String>().isNullOrElse(Kova.string().min(5))
 val result1 = nullOrMinValidator.tryValidate(null)           // Success(null)
 val result2 = nullOrMinValidator.tryValidate("hello")        // Success("hello")
 val result3 = nullOrMinValidator.tryValidate("hi")           // Failure (min(5) violated)
 
 // Require non-null AND validate the value
-val notNullAndMinValidator = Kova.nullable<String>().notNullAnd(Kova.string().min(5))
+val notNullAndMinValidator = Kova.string().notNull().andThen(Kova.string().min(5))
 val result1 = notNullAndMinValidator.tryValidate(null)       // Failure (null not allowed)
 val result2 = notNullAndMinValidator.tryValidate("hello")    // Success("hello")
 val result3 = notNullAndMinValidator.tryValidate("hi")       // Failure (min(5) violated)
@@ -160,7 +159,7 @@ val result3 = notNullAndMinValidator.tryValidate("hi")       // Failure (min(5) 
 val validator = Kova.string().min(5).asNullable()
 ```
 
-**Note**: `notNull()` and `notNullAnd()` return a `NotNullValidator`, which is a specialized validator that enforces non-null constraints while maintaining type safety.
+**Note**: `notNull()` returns a regular `Validator<T?, S>` that enforces non-null constraints while maintaining type safety.
 
 ## Available Validators
 
@@ -231,9 +230,7 @@ Kova.boolean()     // Returns generic validator for boolean values
 ### LocalDate
 
 ```kotlin
-import java.time.Clock
-
-Kova.localDate()
+Kova.localDate()           // Optional clock parameter (defaults to Clock.systemDefaultZone())
     .future()              // Must be in the future
     .futureOrPresent()     // Must be in the future or present
     .past()                // Must be in the past

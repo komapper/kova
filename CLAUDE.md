@@ -83,7 +83,6 @@ You can add constraints that validate the entire object using the `constrain` me
 import org.komapper.extension.validator.Kova
 import org.komapper.extension.validator.ObjectSchema
 import java.time.LocalDate
-import java.time.Clock
 
 data class Period(val startDate: LocalDate, val endDate: LocalDate)
 
@@ -133,7 +132,6 @@ val person = factory.create("Alice", 30)  // Validates and constructs
 - **PropertyValidator**: Interface representing a validated property with access to the original `KProperty1` and its validator
 - **ObjectFactory**: Constructs objects from validated inputs via reflection using `createFactory()` method (supports 1-10 arguments)
 - **NullableValidator**: Wraps validators to handle nullable types
-- **NotNullValidator**: Specialized validator returned by `notNull()` and `notNullAnd()` that enforces non-null constraints
 - **ConditionalValidator**: Supports conditional validation logic
 - **EmptyValidator**: No-op validator that always succeeds, used by `Kova.generic()`
 
@@ -187,21 +185,20 @@ val isNullValidator = Kova.nullable<String>().isNull()
 // Only null values pass, non-null values fail
 
 // Accept null OR validate non-null values
-val nullOrMinValidator = Kova.nullable<String>().isNullOr(Kova.string().min(5))
+val nullOrMinValidator = Kova.nullable<String>().isNullOrElse(Kova.string().min(5))
 // Null values pass, non-null values must satisfy min(5)
 
 // Require non-null AND validate the value
-val notNullAndMinValidator = Kova.nullable<String>().notNullAnd(Kova.string().min(5))
-// Equivalent to: notNull() + wrapped validator
+val notNullAndMinValidator = Kova.string().notNull().andThen(Kova.string().min(5))
 // Null values fail, non-null values must satisfy min(5)
 ```
 
-**Key behavior**: By default, `Kova.nullable()` treats null as a valid value. Use `notNull()` or `notNullAnd()` to enforce non-null requirements.
+**Key behavior**: By default, `Kova.nullable()` treats null as a valid value. Use `notNull()` to enforce non-null requirements.
 
 **Implementation note**:
 - The `asNullable()` extension method is also available on any validator as an alternative API for converting a validator to nullable
 - `Kova.nullable()` internally uses `Kova.generic()` which creates an `EmptyValidator` that always succeeds
-- `NotNullValidator` is returned by `notNull()` and `notNullAnd()` methods, providing type-safe non-null validation
+- `notNull()` returns a regular `Validator<T?, S>` that enforces non-null constraints via `toNonNullable()` internally
 
 ### ValidationResult Algebra
 
@@ -326,7 +323,7 @@ When `failFast` is true, validation stops at the first constraint violation.
 
 **Special Validators**:
 - `ObjectSchema.kt` - Validates objects by defining validation rules for individual properties within a constructor lambda scope (includes `ObjectSchemaScope` and `PropertyValidator`)
-- `NullableValidator.kt` - Wraps validators to handle nullable types (includes `NotNullValidator` class)
+- `NullableValidator.kt` - Wraps validators to handle nullable types
 - `ConditionalValidator.kt` - Supports conditional validation logic
 
 **Object Construction**:
