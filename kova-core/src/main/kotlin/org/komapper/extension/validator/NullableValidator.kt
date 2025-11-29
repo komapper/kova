@@ -14,6 +14,8 @@ interface NullableValidator<T : Any, S : Any> :
 
     fun notNull(message: (ConstraintContext<T?>) -> Message = Message.resource0()): NullableValidator<T, S>
 
+    fun <U : Any> whenNotNull(other: Validator<S, U>): Validator<T?, U?> = andThen(other.asNullable())
+
     fun toNonNullable(message: ((ConstraintContext<T?>) -> Message)? = null): Validator<T?, S>
 }
 
@@ -97,5 +99,3 @@ fun <T : Any, S : Any> Validator<T, S>.notNull(message: ((ConstraintContext<T?>)
     val nullable = this.asNullable()
     return if (message == null) nullable.toNonNullable() else nullable.toNonNullable(message)
 }
-
-fun <T : Any, S : Any, X : Any> Validator<T?, S?>.whenNotNull(next: Validator<S, X>): Validator<T?, X?> = this.andThen(next.asNullable())

@@ -11,7 +11,6 @@ import io.kotest.property.checkAll
 import org.komapper.extension.validator.Kova
 import org.komapper.extension.validator.isSuccess
 import org.komapper.extension.validator.tryValidate
-import org.komapper.extension.validator.whenNotNull
 
 class KovaNullableTest :
     FunSpec({

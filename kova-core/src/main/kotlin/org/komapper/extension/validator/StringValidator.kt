@@ -79,6 +79,24 @@ interface StringValidator :
     fun toUpperCase(): StringValidator
 
     fun toLowerCase(): StringValidator
+
+    fun toInt(): Validator<String, Int>
+
+    fun toLong(): Validator<String, Long>
+
+    fun toShort(): Validator<String, Short>
+
+    fun toByte(): Validator<String, Byte>
+
+    fun toDouble(): Validator<String, Double>
+
+    fun toFloat(): Validator<String, Float>
+
+    fun toBigDecimal(): Validator<String, java.math.BigDecimal>
+
+    fun toBigInteger(): Validator<String, java.math.BigInteger>
+
+    fun toBoolean(): Validator<String, Boolean>
 }
 
 fun StringValidator(
@@ -86,6 +104,16 @@ fun StringValidator(
     transform: (String) -> String = { it },
     constraint: Constraint<String> = Constraint.satisfied(),
 ): StringValidator = StringValidatorImpl(prev, transform, constraint)
+
+inline fun <reified E : Enum<E>> StringValidator.isEnum(): StringValidator {
+    val enumValues = enumValues<E>()
+    val validNames = enumValues.map { it.name }
+    return this.constrain("kova.string.isEnum") { ctx ->
+        satisfies(validNames.contains(ctx.input), Message.Resource(ctx.key, ctx.input, validNames))
+    }
+}
+
+inline fun <reified E : Enum<E>> StringValidator.toEnum(): Validator<String, E> = isEnum<E>().map { enumValueOf<E>(it) }
 
 private class StringValidatorImpl(
     private val prev: Validator<String, String>,
@@ -253,32 +281,22 @@ private class StringValidatorImpl(
     override fun toUpperCase() = modify { it.uppercase() }
 
     override fun toLowerCase() = modify { it.lowercase() }
+
+    override fun toInt(): Validator<String, Int> = isInt().map { it.toInt() }
+
+    override fun toLong(): Validator<String, Long> = isLong().map { it.toLong() }
+
+    override fun toShort(): Validator<String, Short> = isShort().map { it.toShort() }
+
+    override fun toByte(): Validator<String, Byte> = isByte().map { it.toByte() }
+
+    override fun toDouble(): Validator<String, Double> = isDouble().map { it.toDouble() }
+
+    override fun toFloat(): Validator<String, Float> = isFloat().map { it.toFloat() }
+
+    override fun toBigDecimal(): Validator<String, java.math.BigDecimal> = isBigDecimal().map { it.toBigDecimal() }
+
+    override fun toBigInteger(): Validator<String, java.math.BigInteger> = isBigInteger().map { it.toBigInteger() }
+
+    override fun toBoolean(): Validator<String, Boolean> = isBoolean().map { it.toBoolean() }
 }
-
-fun StringValidator.toInt(): Validator<String, Int> = isInt().map { it.toInt() }
-
-fun StringValidator.toLong(): Validator<String, Long> = isLong().map { it.toLong() }
-
-fun StringValidator.toShort(): Validator<String, Short> = isShort().map { it.toShort() }
-
-fun StringValidator.toByte(): Validator<String, Byte> = isByte().map { it.toByte() }
-
-fun StringValidator.toDouble(): Validator<String, Double> = isDouble().map { it.toDouble() }
-
-fun StringValidator.toFloat(): Validator<String, Float> = isFloat().map { it.toFloat() }
-
-fun StringValidator.toBigDecimal(): Validator<String, java.math.BigDecimal> = isBigDecimal().map { it.toBigDecimal() }
-
-fun StringValidator.toBigInteger(): Validator<String, java.math.BigInteger> = isBigInteger().map { it.toBigInteger() }
-
-fun StringValidator.toBoolean(): Validator<String, Boolean> = isBoolean().map { it.toBoolean() }
-
-inline fun <reified E : Enum<E>> StringValidator.isEnum(): StringValidator {
-    val enumValues = enumValues<E>()
-    val validNames = enumValues.map { it.name }
-    return this.constrain("kova.string.isEnum") { ctx ->
-        satisfies(validNames.contains(ctx.input), Message.Resource(ctx.key, ctx.input, validNames))
-    }
-}
-
-inline fun <reified E : Enum<E>> StringValidator.toEnum(): Validator<String, E> = isEnum<E>().map { enumValueOf<E>(it) }
