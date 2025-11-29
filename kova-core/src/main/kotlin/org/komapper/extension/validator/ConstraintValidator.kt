@@ -2,9 +2,13 @@ package org.komapper.extension.validator
 
 import org.komapper.extension.validator.ValidationResult.FailureDetail
 
-class ConstraintValidator<T>(
+interface ConstraintValidator<T> : Validator<T, T>
+
+fun <T> ConstraintValidator(constraint: Constraint<T>): ConstraintValidator<T> = ConstraintValidatorImpl(constraint)
+
+private class ConstraintValidatorImpl<T>(
     val constraint: Constraint<T>,
-) : Validator<T, T> {
+) : ConstraintValidator<T> {
     override fun execute(
         context: ValidationContext,
         input: T,
@@ -13,14 +17,14 @@ class ConstraintValidator<T>(
         return when (val result = constraint.apply(constraintContext)) {
             is ConstraintResult.Satisfied -> return ValidationResult.Success(input, context)
             is ConstraintResult.Violated -> {
-                val failureDetails = convertToFailureDetails(context, result.message)
+                val failureDetails = collectFailureDetails(context, result.message)
                 ValidationResult.Failure(failureDetails)
             }
         }
     }
 
     companion object {
-        fun convertToFailureDetails(
+        fun collectFailureDetails(
             context: ValidationContext,
             message: Message,
             cause: Throwable? = null,
@@ -28,7 +32,7 @@ class ConstraintValidator<T>(
             when (message) {
                 is Message.Text -> listOf(FailureDetail(context, message, cause))
                 is Message.Resource -> listOf(FailureDetail(context, message, cause))
-                is Message.ValidationFailure -> message.details.flatMap { convertToFailureDetails(it.context, it.message, it.cause) }
+                is Message.ValidationFailure -> message.details.flatMap { collectFailureDetails(it.context, it.message, it.cause) }
             }
     }
 }

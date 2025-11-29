@@ -1,10 +1,29 @@
 package org.komapper.extension.validator
 
-class NumberValidator<T> internal constructor(
-    private val prev: Validator<T, T> = EmptyValidator(),
-    constraint: Constraint<T> = Constraint.satisfied(),
-) : Validator<T, T>,
+interface NumberValidator<T> :
+    Validator<T, T>,
     Constrainable<T, NumberValidator<T>>
+    where T : Number, T : Comparable<T> {
+    fun min(
+        value: T,
+        message: (ConstraintContext<T>, T) -> Message = Message.resource1(),
+    ): NumberValidator<T>
+
+    fun max(
+        value: T,
+        message: (ConstraintContext<T>, T) -> Message = Message.resource1(),
+    ): NumberValidator<T>
+}
+
+fun <T> NumberValidator(
+    prev: Validator<T, T> = EmptyValidator(),
+    constraint: Constraint<T> = Constraint.satisfied(),
+): NumberValidator<T> where T : Number, T : Comparable<T> = NumberValidatorImpl(prev, constraint)
+
+private class NumberValidatorImpl<T>(
+    private val prev: Validator<T, T>,
+    constraint: Constraint<T>,
+) : NumberValidator<T>
     where T : Number, T : Comparable<T> {
     private val next: ConstraintValidator<T> = ConstraintValidator(constraint)
 
@@ -16,15 +35,15 @@ class NumberValidator<T> internal constructor(
     override fun constrain(
         key: String,
         check: ConstraintScope.(ConstraintContext<T>) -> ConstraintResult,
-    ): NumberValidator<T> = NumberValidator(prev = this, constraint = Constraint(key, check))
+    ): NumberValidator<T> = NumberValidatorImpl(prev = this, constraint = Constraint(key, check))
 
-    fun min(
+    override fun min(
         value: T,
-        message: (ConstraintContext<T>, T) -> Message = Message.resource1(),
+        message: (ConstraintContext<T>, T) -> Message,
     ): NumberValidator<T> = constrain("kova.number.min", Constraints.min(value, message))
 
-    fun max(
+    override fun max(
         value: T,
-        message: (ConstraintContext<T>, T) -> Message = Message.resource1(),
+        message: (ConstraintContext<T>, T) -> Message,
     ): NumberValidator<T> = constrain("kova.number.max", Constraints.max(value, message))
 }

@@ -1,10 +1,41 @@
 package org.komapper.extension.validator
 
-class MapValidator<K, V> internal constructor(
-    private val prev: Validator<Map<K, V>, Map<K, V>> = EmptyValidator(),
-    constraint: Constraint<Map<K, V>> = Constraint.satisfied(),
-) : Validator<Map<K, V>, Map<K, V>>,
+interface MapValidator<K, V> :
+    Validator<Map<K, V>, Map<K, V>>,
     Constrainable<Map<K, V>, MapValidator<K, V>> {
+    fun min(
+        size: Int,
+        message: (ConstraintContext<Map<K, V>>, Int, Int) -> Message = Message.resource2(),
+    ): MapValidator<K, V>
+
+    fun max(
+        size: Int,
+        message: (ConstraintContext<Map<K, V>>, Int, Int) -> Message = Message.resource2(),
+    ): MapValidator<K, V>
+
+    fun notEmpty(message: (ConstraintContext<Map<K, V>>) -> Message = Message.resource0()): MapValidator<K, V>
+
+    fun length(
+        size: Int,
+        message: (ConstraintContext<Map<K, V>>, Int) -> Message = Message.resource1(),
+    ): MapValidator<K, V>
+
+    fun onEach(validator: Validator<Map.Entry<K, V>, Map.Entry<K, V>>): MapValidator<K, V>
+
+    fun onEachKey(validator: Validator<K, K>): MapValidator<K, V>
+
+    fun onEachValue(validator: Validator<V, V>): MapValidator<K, V>
+}
+
+fun <K, V> MapValidator(
+    prev: Validator<Map<K, V>, Map<K, V>> = EmptyValidator(),
+    constraint: Constraint<Map<K, V>> = Constraint.satisfied(),
+): MapValidator<K, V> = MapValidatorImpl(prev, constraint)
+
+private class MapValidatorImpl<K, V>(
+    private val prev: Validator<Map<K, V>, Map<K, V>>,
+    constraint: Constraint<Map<K, V>>,
+) : MapValidator<K, V> {
     private val next: ConstraintValidator<Map<K, V>> = ConstraintValidator(constraint)
 
     override fun execute(
@@ -15,38 +46,38 @@ class MapValidator<K, V> internal constructor(
     override fun constrain(
         key: String,
         check: ConstraintScope.(ConstraintContext<Map<K, V>>) -> ConstraintResult,
-    ): MapValidator<K, V> = MapValidator(prev = this, constraint = Constraint(key, check))
+    ): MapValidator<K, V> = MapValidatorImpl(prev = this, constraint = Constraint(key, check))
 
-    fun min(
+    override fun min(
         size: Int,
-        message: (ConstraintContext<Map<K, V>>, Int, Int) -> Message = Message.resource2(),
+        message: (ConstraintContext<Map<K, V>>, Int, Int) -> Message,
     ): MapValidator<K, V> =
         constrain("kova.map.min") {
             satisfies(it.input.size >= size, message(it, it.input.size, size))
         }
 
-    fun max(
+    override fun max(
         size: Int,
-        message: (ConstraintContext<Map<K, V>>, Int, Int) -> Message = Message.resource2(),
+        message: (ConstraintContext<Map<K, V>>, Int, Int) -> Message,
     ): MapValidator<K, V> =
         constrain("kova.map.max") {
             satisfies(it.input.size <= size, message(it, it.input.size, size))
         }
 
-    fun notEmpty(message: (ConstraintContext<Map<K, V>>) -> Message = Message.resource0()): MapValidator<K, V> =
+    override fun notEmpty(message: (ConstraintContext<Map<K, V>>) -> Message): MapValidator<K, V> =
         constrain("kova.map.notEmpty") {
             satisfies(it.input.isNotEmpty(), message(it))
         }
 
-    fun length(
+    override fun length(
         size: Int,
-        message: (ConstraintContext<Map<K, V>>, Int) -> Message = Message.resource1(),
+        message: (ConstraintContext<Map<K, V>>, Int) -> Message,
     ): MapValidator<K, V> =
         constrain("kova.map.length") {
             satisfies(it.input.size == size, message(it, size))
         }
 
-    fun onEach(validator: Validator<Map.Entry<K, V>, Map.Entry<K, V>>): MapValidator<K, V> =
+    override fun onEach(validator: Validator<Map.Entry<K, V>, Map.Entry<K, V>>): MapValidator<K, V> =
         constrain("kova.map.onEach") {
             validateOnEach(it) { entry, validationContext ->
                 val path = "<map entry>"
@@ -54,7 +85,7 @@ class MapValidator<K, V> internal constructor(
             }
         }
 
-    fun onEachKey(validator: Validator<K, K>): MapValidator<K, V> =
+    override fun onEachKey(validator: Validator<K, K>): MapValidator<K, V> =
         constrain("kova.map.onEachKey") {
             validateOnEach(it) { entry, validationContext ->
                 val path = "<map key>"
@@ -62,7 +93,7 @@ class MapValidator<K, V> internal constructor(
             }
         }
 
-    fun onEachValue(validator: Validator<V, V>): MapValidator<K, V> =
+    override fun onEachValue(validator: Validator<V, V>): MapValidator<K, V> =
         constrain("kova.map.onEachValue") {
             validateOnEach(it) { entry, validationContext ->
                 val path = "[${entry.key}]<map value>"

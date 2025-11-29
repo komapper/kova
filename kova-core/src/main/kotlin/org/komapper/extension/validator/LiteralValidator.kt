@@ -1,10 +1,28 @@
 package org.komapper.extension.validator
 
-class LiteralValidator<T : Any> internal constructor(
-    private val prev: Validator<T, T> = EmptyValidator(),
-    constraint: Constraint<T> = Constraint.satisfied(),
-) : Validator<T, T>,
+interface LiteralValidator<T : Any> :
+    Validator<T, T>,
     Constrainable<T, LiteralValidator<T>> {
+    fun single(
+        value: T,
+        message: (ConstraintContext<T>, T) -> Message = Message.resource1(),
+    ): LiteralValidator<T>
+
+    fun list(
+        values: List<T>,
+        message: (ConstraintContext<T>, List<T>) -> Message = Message.resource1(),
+    ): LiteralValidator<T>
+}
+
+fun <T : Any> LiteralValidator(
+    prev: Validator<T, T> = EmptyValidator(),
+    constraint: Constraint<T> = Constraint.satisfied(),
+): LiteralValidator<T> = LiteralValidatorImpl(prev, constraint)
+
+private class LiteralValidatorImpl<T : Any>(
+    private val prev: Validator<T, T>,
+    constraint: Constraint<T>,
+) : LiteralValidator<T> {
     private val next: ConstraintValidator<T> = ConstraintValidator(constraint)
 
     override fun execute(
@@ -15,19 +33,19 @@ class LiteralValidator<T : Any> internal constructor(
     override fun constrain(
         key: String,
         check: ConstraintScope.(ConstraintContext<T>) -> ConstraintResult,
-    ): LiteralValidator<T> = LiteralValidator(prev = this, constraint = Constraint(key, check))
+    ): LiteralValidator<T> = LiteralValidatorImpl(prev = this, constraint = Constraint(key, check))
 
-    fun single(
+    override fun single(
         value: T,
-        message: (ConstraintContext<T>, T) -> Message = Message.resource1(),
+        message: (ConstraintContext<T>, T) -> Message,
     ): LiteralValidator<T> =
         constrain("kova.literal.single") {
             satisfies(it.input == value, message(it, value))
         }
 
-    fun list(
+    override fun list(
         values: List<T>,
-        message: (ConstraintContext<T>, List<T>) -> Message = Message.resource1(),
+        message: (ConstraintContext<T>, List<T>) -> Message,
     ): LiteralValidator<T> =
         constrain("kova.literal.list") {
             satisfies(it.input in values, message(it, values))

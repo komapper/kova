@@ -2,11 +2,30 @@ package org.komapper.extension.validator
 
 import org.komapper.extension.validator.ValidationResult.Success
 
-class NullableValidator<T : Any, S : Any> internal constructor(
-    private val inner: Validator<T?, S?>,
-    private val constraints: List<Constraint<T?>> = emptyList(),
-) : Validator<T?, S?>,
+interface NullableValidator<T : Any, S : Any> :
+    Validator<T?, S?>,
     Constrainable<T?, NullableValidator<T, S>> {
+    fun isNull(message: (ConstraintContext<T?>) -> Message = Message.resource0()): NullableValidator<T, S>
+
+    fun isNullOrElse(
+        other: Validator<T, S>,
+        message: ((ConstraintContext<T?>) -> Message)? = null,
+    ): NullableValidator<T, S>
+
+    fun notNull(message: (ConstraintContext<T?>) -> Message = Message.resource0()): NullableValidator<T, S>
+
+    fun toNonNullable(message: ((ConstraintContext<T?>) -> Message)? = null): Validator<T?, S>
+}
+
+fun <T : Any, S : Any> NullableValidator(
+    inner: Validator<T?, S?>,
+    constraints: List<Constraint<T?>> = emptyList(),
+): NullableValidator<T, S> = NullableValidatorImpl(inner, constraints)
+
+private class NullableValidatorImpl<T : Any, S : Any>(
+    private val inner: Validator<T?, S?>,
+    private val constraints: List<Constraint<T?>>,
+) : NullableValidator<T, S> {
     override fun execute(
         context: ValidationContext,
         input: T?,
@@ -21,27 +40,27 @@ class NullableValidator<T : Any, S : Any> internal constructor(
     override fun constrain(
         key: String,
         check: ConstraintScope.(ConstraintContext<T?>) -> ConstraintResult,
-    ): NullableValidator<T, S> = NullableValidator(inner, constraints + Constraint(key, check))
+    ): NullableValidator<T, S> = NullableValidatorImpl(inner, constraints + Constraint(key, check))
 
-    fun isNull(message: (ConstraintContext<T?>) -> Message = Message.resource0()): NullableValidator<T, S> =
+    override fun isNull(message: (ConstraintContext<T?>) -> Message): NullableValidator<T, S> =
         constrain("kova.nullable.isNull", {
             satisfies(it.input == null, message(it))
         })
 
-    fun isNullOrElse(
+    override fun isNullOrElse(
         other: Validator<T, S>,
-        message: ((ConstraintContext<T?>) -> Message)? = null,
+        message: ((ConstraintContext<T?>) -> Message)?,
     ): NullableValidator<T, S> {
         val isNull: Validator<T?, S?> = if (message == null) isNull() else isNull(message)
         return NullableValidator(isNull.or(other.asNullable()))
     }
 
-    fun notNull(message: (ConstraintContext<T?>) -> Message = Message.resource0()): NullableValidator<T, S> =
+    override fun notNull(message: (ConstraintContext<T?>) -> Message): NullableValidator<T, S> =
         constrain("kova.nullable.notNull", { ctx ->
             satisfies(ctx.input != null, message(ctx))
         })
 
-    fun toNonNullable(message: ((ConstraintContext<T?>) -> Message)? = null): Validator<T?, S> {
+    override fun toNonNullable(message: ((ConstraintContext<T?>) -> Message)?): Validator<T?, S> {
         val notNull = if (message == null) notNull() else notNull(message)
         return notNull.map { it!! }
     }
