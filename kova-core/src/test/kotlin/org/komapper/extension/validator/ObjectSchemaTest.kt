@@ -118,16 +118,14 @@ class ObjectSchemaTest :
             )
 
             val periodSchema =
-                object : ObjectSchema<Period>() {
-                    init {
-                        constrain("test") {
-                            satisfies(
-                                it.input.startDate <= it.input.endDate,
-                                "startDate must be less than or equal to endDate",
-                            )
-                        }
+                object : ObjectSchema<Period>({
+                    constrain("test") {
+                        satisfies(
+                            it.input.startDate <= it.input.endDate,
+                            "startDate must be less than or equal to endDate",
+                        )
                     }
-                }
+                }) {}
 
             test("success") {
                 val period = Period(LocalDate.of(2020, 1, 1), LocalDate.of(2021, 1, 1))

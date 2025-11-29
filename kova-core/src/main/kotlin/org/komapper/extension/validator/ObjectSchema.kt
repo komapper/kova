@@ -4,14 +4,16 @@ import kotlin.reflect.KProperty1
 
 open class ObjectSchema<T : Any> private constructor(
     private val ruleMap: MutableMap<String, Rule>,
-    private val constraints: MutableList<Constraint<T>>,
+    private val block: ObjectSchemaScope<T>.() -> Unit = {},
 ) : Validator<T, T> {
-    constructor() : this(mutableMapOf(), mutableListOf())
+    constructor(block: ObjectSchemaScope<T>.() -> Unit = {}) : this(mutableMapOf(), block)
 
     override fun execute(
         context: ValidationContext,
         input: T,
     ): ValidationResult<T> {
+        val constraints: MutableList<Constraint<T>> = mutableListOf()
+        block(ObjectSchemaScope(constraints))
         val context = context.addRoot(input::class.toString())
         val ruleResult = applyRules(input, context, ruleMap)
         val constraintResult = applyConstraints(input, context, constraints)
@@ -78,13 +80,6 @@ open class ObjectSchema<T : Any> private constructor(
         ruleMap[key.name] = Rule(transform, choose)
     }
 
-    fun constrain(
-        key: String,
-        check: ConstraintScope.(ConstraintContext<T>) -> ConstraintResult,
-    ) {
-        constraints.add(Constraint(key, check))
-    }
-
     fun <V> replace(
         key: KProperty1<T, V>,
         validator: Validator<V, V>,
@@ -96,7 +91,7 @@ open class ObjectSchema<T : Any> private constructor(
             )
         val newRuleMap = ruleMap.toMutableMap()
         newRuleMap.replace(key.name, rule)
-        return ObjectSchema(newRuleMap, constraints)
+        return ObjectSchema(newRuleMap)
     }
 
     operator fun <V> KProperty1<T, V>.invoke(block: () -> Validator<V, V>): PropertyValidator<T, V> {
@@ -120,7 +115,7 @@ open class ObjectSchema<T : Any> private constructor(
     }
 }
 
-data class Rule(
+private data class Rule(
     val transform: (Any?) -> Any?,
     val choose: (Any?) -> Validator<Any?, Any?>,
 )
@@ -128,4 +123,15 @@ data class Rule(
 interface PropertyValidator<T, V> : Validator<V, V> {
     val property: KProperty1<T, V>
     val validator: Validator<V, V>
+}
+
+class ObjectSchemaScope<T> internal constructor(
+    private val constraints: MutableList<Constraint<T>>,
+) {
+    fun constrain(
+        key: String,
+        check: ConstraintScope.(ConstraintContext<T>) -> ConstraintResult,
+    ) {
+        constraints.add(Constraint(key, check))
+    }
 }
