@@ -377,10 +377,10 @@ class ObjectSchemaTest :
                     private val idValidator =
                         Kova
                             .nullable<String>()
-                            .notNullAnd(Kova.string().isInt())
-                            .asNonNullableThen(Kova.string().toInt())
+                            .toNonNullable()
+                            .andThen(Kova.string().toInt())
                     private val nameValidator =
-                        Kova.nullable<String>().notNullAnd(Kova.string().min(3))
+                        Kova.nullable<String>().toNonNullable().andThen(Kova.string().min(3))
 
                     val id = path("id").map { it["id"] }.andThen(idValidator)
                     val name = path("name").map { it["name"] }.andThen(nameValidator)
@@ -429,10 +429,10 @@ class ObjectSchemaTest :
                     private val idValidator =
                         Kova
                             .nullable<String>()
-                            .notNullAnd(Kova.string().isInt())
-                            .asNonNullableThen(Kova.string().toInt())
+                            .toNonNullable()
+                            .andThen(Kova.string().toInt())
                     private val nameValidator =
-                        Kova.nullable<String>().notNullAnd(Kova.string().min(3))
+                        Kova.nullable<String>().toNonNullable().andThen(Kova.string().min(3))
 
                     val id by named { p -> map { it[p.name] }.andThen(idValidator) }
                     val name by named { p -> map { it[p.name] }.andThen(nameValidator) }

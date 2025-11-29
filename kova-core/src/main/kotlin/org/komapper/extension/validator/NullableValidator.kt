@@ -28,52 +28,23 @@ class NullableValidator<T : Any, S : Any> internal constructor(
             satisfies(it.input == null, message(it))
         })
 
-    fun isNullOr(
-        vararg validators: Validator<T, S>,
+    fun isNullOrElse(
+        other: Validator<T, S>,
         message: ((ConstraintContext<T?>) -> Message)? = null,
     ): NullableValidator<T, S> {
         val isNull: Validator<T?, S?> = if (message == null) isNull() else isNull(message)
-        val validator = validators.fold(isNull) { acc, validator -> acc.or(validator.asNullable()) }
-        return NullableValidator(validator)
+        return NullableValidator(isNull.or(other.asNullable()))
     }
 
-    fun notNull(message: (ConstraintContext<T?>) -> Message = Message.resource0()): NotNullValidator<T, S> {
-        val validator =
-            constrain("kova.nullable.notNull", { ctx ->
-                satisfies(ctx.input != null, message(ctx))
-            })
-        return NotNullValidator(validator)
+    fun notNull(message: (ConstraintContext<T?>) -> Message = Message.resource0()): NullableValidator<T, S> =
+        constrain("kova.nullable.notNull", { ctx ->
+            satisfies(ctx.input != null, message(ctx))
+        })
+
+    fun toNonNullable(message: ((ConstraintContext<T?>) -> Message)? = null): Validator<T?, S> {
+        val notNull = if (message == null) notNull() else notNull(message)
+        return notNull.map { it!! }
     }
-
-    fun notNullAnd(
-        vararg validators: Validator<T, S>,
-        message: ((ConstraintContext<T?>) -> Message)? = null,
-    ): NotNullValidator<T, S> {
-        val isNotNull: Validator<T?, S?> = if (message == null) notNull() else notNull(message)
-        val validator = validators.fold(isNotNull) { acc, validator -> acc.and(validator.asNullable()) }
-        return NotNullValidator(validator)
-    }
-
-    fun asNonNullable(): Validator<T?, S> =
-        // add the isNotNull constraint to avoid NulPointerException
-        notNull().asNonNullable()
-
-    fun <N> asNonNullableThen(next: Validator<S, N>): Validator<T?, N> =
-        // add the isNotNull constraint to avoid NulPointerException
-        notNull().asNonNullable().andThen(next)
-}
-
-class NotNullValidator<T : Any, S : Any> internal constructor(
-    private val inner: Validator<T?, S?>,
-) : Validator<T?, S?> {
-    override fun execute(
-        context: ValidationContext,
-        input: T?,
-    ): ValidationResult<S?> = inner.execute(context, input)
-
-    fun asNonNullable(): Validator<T?, S> = map { it!! }
-
-    fun <N> asNonNullableThen(next: Validator<S, N>): Validator<T?, N> = asNonNullable().andThen(next)
 }
 
 fun <T : Any, S : Any> Validator<T, S>.asNullable(): NullableValidator<T, S> {
@@ -96,22 +67,16 @@ fun <T : Any, S : Any> Validator<T, S>.isNull(message: ((ConstraintContext<T?>) 
     return if (message == null) nullable.isNull() else nullable.isNull(message)
 }
 
-// shortcut function for asNullable().isNullOr()
-fun <T : Any, S : Any> Validator<T, S>.isNullOr(
-    vararg validators: Validator<T, S>,
+// shortcut function for asNullable().isNullOrElse()
+fun <T : Any, S : Any> Validator<T, S>.isNullOrElse(
+    other: Validator<T, S>,
     message: ((ConstraintContext<T?>) -> Message)? = null,
-): NullableValidator<T, S> = this.asNullable().isNullOr(*validators, message = message)
+): NullableValidator<T, S> = this.asNullable().isNullOrElse(other, message = message)
 
-// shortcut function for asNullable().notNull()
-fun <T : Any, S : Any> Validator<T, S>.notNull(message: ((ConstraintContext<T?>) -> Message)? = null): NotNullValidator<T, S> {
+// shortcut function for asNullable().toNonNullable()
+fun <T : Any, S : Any> Validator<T, S>.notNull(message: ((ConstraintContext<T?>) -> Message)? = null): Validator<T?, S> {
     val nullable = this.asNullable()
-    return if (message == null) nullable.notNull() else nullable.notNull(message)
+    return if (message == null) nullable.toNonNullable() else nullable.toNonNullable(message)
 }
-
-// shortcut function for asNullable().motNullAnd()
-fun <T : Any, S : Any> Validator<T, S>.notNullAnd(
-    vararg validators: Validator<T, S>,
-    message: ((ConstraintContext<T?>) -> Message)? = null,
-): NotNullValidator<T, S> = this.asNullable().notNullAnd(*validators, message = message)
 
 fun <T : Any, S : Any, X : Any> Validator<T?, S?>.whenNotNull(next: Validator<S, X>): Validator<T?, X?> = this.andThen(next.asNullable())
