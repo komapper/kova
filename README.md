@@ -63,14 +63,14 @@ object UserSchema : ObjectSchema<User>({
     User::id { Kova.int().min(1) }
     User::name { Kova.string().min(1).max(50) }
     User::email { Kova.string().notBlank().contains("@") }
-}) {}
+})
 
 // Validate a user instance
 val user = User(1, "Alice", "alice@example.com")
 val result = UserSchema.tryValidate(user)
 ```
 
-**Note**: Properties are now defined within the constructor lambda scope, and the object body is typically empty (`{}`).
+**Note**: Properties are now defined within the constructor lambda scope. Named object declarations do not require an empty body `{}`; it is only needed for anonymous objects.
 
 ### Object-Level Constraints
 
@@ -92,7 +92,7 @@ object PeriodSchema : ObjectSchema<Period>({
             "startDate must be less than or equal to endDate"
         )
     }
-}) {}
+})
 
 val result = PeriodSchema.tryValidate(Period(
     LocalDate.of(2024, 1, 1),

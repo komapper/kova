@@ -68,12 +68,12 @@ data class User(val name: String, val age: Int)
 object UserSchema : ObjectSchema<User>({
     User::name { Kova.string().min(1).max(10) }
     User::age { Kova.int().min(0) }
-}) {}
+})
 
 val result = UserSchema.tryValidate(user)
 ```
 
-**Important**: Properties are now defined within the constructor lambda scope. The lambda is executed during each validation to build the rule map and constraints. The schema object body is typically empty (`{}`).
+**Important**: Properties are now defined within the constructor lambda scope. The lambda is executed during each validation to build the rule map and constraints. Named object declarations do not require an empty body `{}`; it is only needed for anonymous objects.
 
 ### Object-Level Constraints
 
@@ -97,7 +97,7 @@ object PeriodSchema : ObjectSchema<Period>({
             "startDate must be less than or equal to endDate"
         )
     }
-}) {}
+})
 ```
 
 The `constrain` method takes a constraint key and a lambda that receives a `ConstraintContext<T>` and returns a `ConstraintResult`. Use `satisfies()` helper to simplify constraint creation.
