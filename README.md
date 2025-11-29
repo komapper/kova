@@ -83,8 +83,8 @@ import java.time.Clock
 data class Period(val startDate: LocalDate, val endDate: LocalDate)
 
 object PeriodSchema : ObjectSchema<Period>({
-    Period::startDate { Kova.localDate(Clock.systemDefaultZone()) }
-    Period::endDate { Kova.localDate(Clock.systemDefaultZone()) }
+    Period::startDate { Kova.localDate() }
+    Period::endDate { Kova.localDate() }
 
     constrain("dateRange") {
         satisfies(
@@ -233,7 +233,7 @@ Kova.boolean()     // Returns generic validator for boolean values
 ```kotlin
 import java.time.Clock
 
-Kova.localDate(Clock.systemDefaultZone())
+Kova.localDate()
     .future()              // Must be in the future
     .futureOrPresent()     // Must be in the future or present
     .past()                // Must be in the past

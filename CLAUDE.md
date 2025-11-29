@@ -88,8 +88,8 @@ import java.time.Clock
 data class Period(val startDate: LocalDate, val endDate: LocalDate)
 
 object PeriodSchema : ObjectSchema<Period>({
-    Period::startDate { Kova.localDate(Clock.systemDefaultZone()) }
-    Period::endDate { Kova.localDate(Clock.systemDefaultZone()) }
+    Period::startDate { Kova.localDate() }
+    Period::endDate { Kova.localDate() }
 
     constrain("dateRange") {
         satisfies(

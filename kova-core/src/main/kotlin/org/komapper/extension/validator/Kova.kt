@@ -33,7 +33,7 @@ interface Kova {
 
     fun uShort(): ComparableValidator<UShort> = ComparableValidator()
 
-    fun localDate(clock: Clock): LocalDateValidator = LocalDateValidator(clock = clock)
+    fun localDate(clock: Clock = Clock.systemDefaultZone()): LocalDateValidator = LocalDateValidator(clock = clock)
 
     fun <E> collection(): CollectionValidator<E, Collection<E>> = CollectionValidator()
 
