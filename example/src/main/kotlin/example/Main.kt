@@ -2,7 +2,6 @@ package example
 
 import org.komapper.extension.validator.Kova
 import org.komapper.extension.validator.ObjectSchema
-import org.komapper.extension.validator.ValidationResult
 import org.komapper.extension.validator.isFailure
 import org.komapper.extension.validator.isSuccess
 import org.komapper.extension.validator.plus
@@ -16,23 +15,25 @@ data class User(
 object UserSchema : ObjectSchema<User>() {
     val name = User::name { Kova.string().min(1).notBlank() }
     val age = User::age { Kova.int().min(0).max(120) }
+}
 
+object UserFactory {
     private val args =
         Kova.args(
-            name,
-            age + Kova.int().min(20), // add a new constraint
+            UserSchema.name,
+            UserSchema.age + Kova.int().min(20), // add a new constraint
         )
     private val factory = args.createFactory(::User)
 
     fun tryCreate(
         name: String,
         age: Int,
-    ): ValidationResult<User> = factory.tryCreate(name, age)
+    ) = factory.tryCreate(name, age)
 
     fun create(
         name: String,
         age: Int,
-    ): User = factory.create(name, age)
+    ) = factory.create(name, age)
 }
 
 fun main() {
@@ -47,7 +48,7 @@ fun main() {
     }
 
     println("\n# Creation 1 - try to create a user with invalid age")
-    val creationResult1 = UserSchema.tryCreate("abc", 19)
+    val creationResult1 = UserFactory.tryCreate("abc", 19)
     if (creationResult1.isSuccess()) {
         // Number 19 must be greater than or equal to 20
         println(creationResult1.value)
@@ -56,7 +57,7 @@ fun main() {
     }
 
     println("\n# Creation 2 - try to create a valid user")
-    val creationResult2 = UserSchema.tryCreate("abc", 20)
+    val creationResult2 = UserFactory.tryCreate("abc", 20)
     if (creationResult2.isSuccess()) {
         // User(name=abc, age=20)
         println(creationResult2.value)
@@ -65,7 +66,7 @@ fun main() {
     }
 
     println("\n# Creation 3 - create a valid user")
-    val validUser = UserSchema.create("def", 30)
-    // User(name=abc, age=20)
+    val validUser = UserFactory.create("def", 30)
+    // User(name=def, age=30)
     println(validUser)
 }
