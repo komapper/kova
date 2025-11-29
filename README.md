@@ -316,7 +316,7 @@ if (result.isFailure()) {
 
 ```kotlin
 val validator = Kova.string().min(3).length(4)
-val result = validator.tryValidate("ab", context = ValidationContext(failFast = true))
+val result = validator.tryValidate("ab", failFast = true)
 
 if (result.isFailure()) {
     // Only the first error is reported
