@@ -8,7 +8,7 @@ import io.kotest.matchers.string.shouldEndWith
 class ObjectFactoryTest :
     FunSpec({
 
-        context("whenNullAs - factory") {
+        context("orDefault - factory") {
             data class User(
                 val name: String?,
                 val age: Int?,
@@ -24,8 +24,8 @@ class ObjectFactoryTest :
                 object {
                     private val args =
                         Kova.args(
-                            userSchema.name.whenNullAs(""),
-                            userSchema.age.whenNullAs(0),
+                            userSchema.name.orDefault(""),
+                            userSchema.age.orDefault(0),
                         )
                     private val factory = args.createFactory(::User)
 

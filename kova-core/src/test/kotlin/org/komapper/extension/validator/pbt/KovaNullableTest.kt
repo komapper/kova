@@ -11,7 +11,7 @@ import io.kotest.property.checkAll
 import org.komapper.extension.validator.Kova
 import org.komapper.extension.validator.isSuccess
 import org.komapper.extension.validator.tryValidate
-import org.komapper.extension.validator.whenNotNullThen
+import org.komapper.extension.validator.notNullThen
 
 class KovaNullableTest :
     FunSpec({
@@ -21,7 +21,7 @@ class KovaNullableTest :
                 val result =
                     Kova
                         .nullable<String>()
-                        .whenNotNullThen(Kova.string().min(length))
+                        .notNullThen(Kova.string().min(length))
                         .tryValidate(input)
                         .isSuccess()
                 if (input == null || input.length >= length) {

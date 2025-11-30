@@ -163,8 +163,7 @@ class KovaTest :
             }
 
             val notNull = Kova.notNull<String>()
-            val stringMin3 = Kova.string().min(3)
-            val notNullAndMin3 = notNull.whenNotNullThen(stringMin3).toNonNullable()
+            val notNullAndMin3 = Kova.notNullThen(Kova.string().min(3)).toNonNullable()
             val requestKey = Kova.generic<Request>().name("Request[key]").map { it["key"] }
             val requestKeyIsNotNull = requestKey.then(notNull)
             val requestKeyIsNotNullAndMin3 = requestKey.then(notNullAndMin3)

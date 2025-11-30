@@ -168,7 +168,7 @@ class NullableValidatorTest :
 
         context("whenNotNullThen") {
             val min3 = Kova.int().min(3)
-            val whenNotNullMin3 = Kova.nullable<Int>().whenNotNullThen(min3)
+            val whenNotNullMin3 = Kova.nullable<Int>().notNullThen(min3)
 
             test("success - non-null") {
                 val result = whenNotNullMin3.tryValidate(4)
@@ -190,7 +190,7 @@ class NullableValidatorTest :
 
         context("whenNotNullThen - each List element") {
             val min3 = Kova.int().min(3)
-            val whenNotNullMin3 = Kova.nullable<Int>().whenNotNullThen(min3)
+            val whenNotNullMin3 = Kova.nullable<Int>().notNullThen(min3)
             val onEachWhenNotNullMin3 = Kova.list<Int?>().onEach(whenNotNullMin3)
 
             test("success - non-null") {
@@ -211,8 +211,8 @@ class NullableValidatorTest :
             }
         }
 
-        context("whenNullAs") {
-            val validator = Kova.nullable<Int>().whenNullAs(0)
+        context("orDefault") {
+            val validator = Kova.nullable<Int>().orDefault(0)
 
             test("success - null") {
                 val result = validator.tryValidate(null)
