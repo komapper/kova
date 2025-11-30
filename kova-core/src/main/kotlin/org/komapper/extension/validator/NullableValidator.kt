@@ -54,7 +54,7 @@ private class NullableValidatorImpl<T : Any, S : Any>(
         message: ((ConstraintContext<T?>) -> Message)?,
     ): NullableValidator<T, S> {
         val isNull: Validator<T?, S?> = if (message == null) isNull() else isNull(message)
-        return NullableValidator(isNull.or(other.asNullable()))
+        return NullableValidatorImpl(isNull.or(other.asNullable()), emptyList())
     }
 
     override fun notNull(message: (ConstraintContext<T?>) -> Message): NullableValidator<T, S> =
@@ -73,11 +73,7 @@ fun <T : Any, S : Any> Validator<T, S>.asNullable(): NullableValidator<T, S> {
     // convert Validator<T, S> to Validator<T?, S?>
     val wrapped =
         Validator<T?, S?> { context, input ->
-            if (input == null) {
-                Success(null, context)
-            } else {
-                self.execute(context, input)
-            }
+            if (input == null) Success(null, context) else self.execute(context, input)
         }
     return NullableValidator(wrapped)
 }
