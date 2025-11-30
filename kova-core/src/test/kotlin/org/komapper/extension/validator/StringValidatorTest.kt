@@ -581,7 +581,7 @@ class StringValidatorTest :
                 Kova
                     .nullable<String>()
                     .toNonNullable()
-                    .andThen(Kova.string().max(1))
+                    .then(Kova.string().max(1))
 
             test("success") {
                 val result = max1.tryValidate("1")

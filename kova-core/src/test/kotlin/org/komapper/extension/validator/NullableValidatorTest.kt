@@ -77,10 +77,10 @@ class NullableValidatorTest :
             }
         }
 
-        context("isNullOrElse") {
+        context("isNullOr") {
             val min3 = Kova.int().min(3)
             val max3 = Kova.int().max(3)
-            val isNullOrMin3Max3 = Kova.int().isNullOrElse(min3 and max3)
+            val isNullOrMin3Max3 = Kova.int().isNullOr(min3 and max3)
 
             test("success - null") {
                 val result = isNullOrMin3Max3.tryValidate(null)
@@ -101,15 +101,15 @@ class NullableValidatorTest :
             }
         }
 
-        context("isNullOrElse - andThen") {
+        context("isNullOr - then") {
             val min3 = Kova.int().min(3)
             val min5 = Kova.int().min(5)
             val max4 = Kova.int().max(4)
             val isNullOrMin3OrMin5AndThenMax4 =
                 Kova
                     .int()
-                    .isNullOrElse(min3 or min5)
-                    .andThen(max4.asNullable())
+                    .isNullOr(min3 or min5)
+                    .then(max4.asNullable())
 
             test("success - isNull constraint satisfied") {
                 val result = isNullOrMin3OrMin5AndThenMax4.tryValidate(null)
@@ -138,10 +138,10 @@ class NullableValidatorTest :
             }
         }
 
-        context("asNonNullable - andThen") {
+        context("asNonNullable - then") {
             val max5 = Kova.int().max(5)
             val min3 = Kova.int().min(3)
-            val notNullAndMin3AndMax3 = Kova.int().asNonNullable().andThen(min3 and max5)
+            val notNullAndMin3AndMax3 = Kova.int().asNonNullable().then(min3 and max5)
 
             test("success") {
                 val result = notNullAndMin3AndMax3.tryValidate(4)
@@ -170,11 +170,11 @@ class NullableValidatorTest :
             }
         }
 
-        context("asNonNullable - andThen with object schema") {
+        context("asNonNullable - then with object schema") {
             val schema =
                 object : ObjectSchema<Request>() {
-                    private val notNullAndLength3 = Kova.string().asNonNullable().andThen(Kova.string().length(3))
-                    val a by named { p -> map { it[p.name] }.andThen(notNullAndLength3) }
+                    private val notNullAndLength3 = Kova.string().asNonNullable().then(Kova.string().length(3))
+                    val a by named { p -> map { it[p.name] }.then(notNullAndLength3) }
                 }
 
             test("failure - null") {
@@ -198,7 +198,7 @@ class NullableValidatorTest :
 
         context("whenNotNull") {
             val min3 = Kova.int().min(3)
-            val whenNotNullMin3 = Kova.nullable<Int>().whenNotNull(min3)
+            val whenNotNullMin3 = Kova.nullable<Int>().whenNotNullThen(min3)
 
             test("success - non-null") {
                 val result = whenNotNullMin3.tryValidate(4)
@@ -220,7 +220,7 @@ class NullableValidatorTest :
 
         context("whenNotNull - each List element") {
             val min3 = Kova.int().min(3)
-            val whenNotNullMin3 = Kova.nullable<Int>().whenNotNull(min3)
+            val whenNotNullMin3 = Kova.nullable<Int>().whenNotNullThen(min3)
             val onEachWhenNotNullMin3 = Kova.list<Int?>().onEach(whenNotNullMin3)
 
             test("success - non-null") {

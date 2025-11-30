@@ -151,3 +151,9 @@ interface Kova {
 
     companion object : Kova
 }
+
+fun <T : Any> Kova.isNullOr(value: T): NullableValidator<T, T> = with(this) { nullable<T>().isNullOr(literal(value)) }
+
+fun <T : Any> NullableValidator<T, T>.isNullOr(value: T): NullableValidator<T, T> = this.isNullOr(Kova.literal(value))
+
+fun <T : Any> Kova.whenNullAs(value: T): Validator<T?, T> = with(this) { nullable<T>().whenNullAs(value) }

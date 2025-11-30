@@ -97,9 +97,9 @@ fun <IN, OUT> Validator<IN, OUT>.path(name: String): Validator<IN, OUT> {
     }
 }
 
-fun <IN, OUT, NEW> Validator<OUT, NEW>.compose(before: Validator<IN, OUT>): Validator<IN, NEW> = before.andThen(this)
+fun <IN, OUT, NEW> Validator<OUT, NEW>.compose(before: Validator<IN, OUT>): Validator<IN, NEW> = before.then(this)
 
-fun <IN, OUT, NEW> Validator<IN, OUT>.andThen(after: Validator<OUT, NEW>): Validator<IN, NEW> {
+fun <IN, OUT, NEW> Validator<IN, OUT>.then(after: Validator<OUT, NEW>): Validator<IN, NEW> {
     val before = this
     return Validator { context, input ->
         when (val result = before.execute(context, input)) {

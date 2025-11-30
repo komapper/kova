@@ -86,7 +86,7 @@ open class ObjectSchema<T : Any> private constructor(
         return ObjectSchema(newRuleMap)
     }
 
-    operator fun <V> KProperty1<T, V>.invoke(block: () -> Validator<V, V>): Validator<V, V> {
+    operator fun <V, VALIDATOR : Validator<V, V>> KProperty1<T, V>.invoke(block: () -> VALIDATOR): VALIDATOR {
         val validator = block()
         ruleMap.addRule(this) { _ -> validator }
         return validator

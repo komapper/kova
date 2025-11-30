@@ -386,12 +386,12 @@ class ObjectSchemaTest :
                         Kova
                             .nullable<String>()
                             .toNonNullable()
-                            .andThen(Kova.string().toInt())
+                            .then(Kova.string().toInt())
                     private val nameValidator =
-                        Kova.nullable<String>().toNonNullable().andThen(Kova.string().min(3))
+                        Kova.nullable<String>().toNonNullable().then(Kova.string().min(3))
 
-                    val id = path("id").map { it["id"] }.andThen(idValidator)
-                    val name = path("name").map { it["name"] }.andThen(nameValidator)
+                    val id = path("id").map { it["id"] }.then(idValidator)
+                    val name = path("name").map { it["name"] }.then(nameValidator)
                 }
 
             test("success") {
@@ -438,12 +438,12 @@ class ObjectSchemaTest :
                         Kova
                             .nullable<String>()
                             .toNonNullable()
-                            .andThen(Kova.string().toInt())
+                            .then(Kova.string().toInt())
                     private val nameValidator =
-                        Kova.nullable<String>().toNonNullable().andThen(Kova.string().min(3))
+                        Kova.nullable<String>().toNonNullable().then(Kova.string().min(3))
 
-                    val id by named { p -> map { it[p.name] }.andThen(idValidator) }
-                    val name by named { p -> map { it[p.name] }.andThen(nameValidator) }
+                    val id by named { p -> map { it[p.name] }.then(idValidator) }
+                    val name by named { p -> map { it[p.name] }.then(nameValidator) }
                 }
 
             test("success") {
@@ -486,8 +486,8 @@ class ObjectSchemaTest :
         context("obj - nullable") {
             val requestSchema =
                 object : ObjectSchema<Request>() {
-                    private val nullableString = Kova.nullable<String>().whenNotNull(Kova.string().min(1))
-                    val key = path("key").map { it["key"] }.andThen(nullableString)
+                    private val nullableString = Kova.nullable<String>().whenNotNullThen(Kova.string().min(1))
+                    val key = path("key").map { it["key"] }.then(nullableString)
                 }
 
             test("success") {
