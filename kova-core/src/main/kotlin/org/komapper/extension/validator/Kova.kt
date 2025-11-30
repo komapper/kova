@@ -93,88 +93,22 @@ interface Kova {
 
     fun error(message: Message): Nothing = throw MessageException(message)
 
-    fun <A1, B1> args(arg1: Validator<A1, B1>) = Arguments1(arg1)
+    fun <IN, OUT> arg(
+        validator: Validator<IN, OUT>,
+        value: IN,
+    ): Arg<OUT> = Arg.Value(validator, value)
 
-    fun <A1, B1, A2, B2> args(
-        arg1: Validator<A1, B1>,
-        arg2: Validator<A2, B2>,
+    fun <IN, OUT> arg(
+        validator: Validator<IN, OUT>,
+        factory: ObjectFactory<IN>,
+    ): Arg<OUT> = Arg.Factory(validator, factory)
+
+    fun <T> arguments(arg1: Arg<T>) = Arguments1(arg1)
+
+    fun <T1, T2> arguments(
+        arg1: Arg<T1>,
+        arg2: Arg<T2>,
     ) = Arguments2(arg1, arg2)
-
-    fun <A1, B1, A2, B2, A3, B3> args(
-        arg1: Validator<A1, B1>,
-        arg2: Validator<A2, B2>,
-        arg3: Validator<A3, B3>,
-    ) = Arguments3(arg1, arg2, arg3)
-
-    fun <A1, B1, A2, B2, A3, B3, A4, B4> args(
-        arg1: Validator<A1, B1>,
-        arg2: Validator<A2, B2>,
-        arg3: Validator<A3, B3>,
-        arg4: Validator<A4, B4>,
-    ) = Arguments4(arg1, arg2, arg3, arg4)
-
-    fun <A1, B1, A2, B2, A3, B3, A4, B4, A5, B5> args(
-        arg1: Validator<A1, B1>,
-        arg2: Validator<A2, B2>,
-        arg3: Validator<A3, B3>,
-        arg4: Validator<A4, B4>,
-        arg5: Validator<A5, B5>,
-    ) = Arguments5(arg1, arg2, arg3, arg4, arg5)
-
-    fun <A1, B1, A2, B2, A3, B3, A4, B4, A5, B5, A6, B6> args(
-        arg1: Validator<A1, B1>,
-        arg2: Validator<A2, B2>,
-        arg3: Validator<A3, B3>,
-        arg4: Validator<A4, B4>,
-        arg5: Validator<A5, B5>,
-        arg6: Validator<A6, B6>,
-    ) = Arguments6(arg1, arg2, arg3, arg4, arg5, arg6)
-
-    fun <A1, B1, A2, B2, A3, B3, A4, B4, A5, B5, A6, B6, A7, B7> args(
-        arg1: Validator<A1, B1>,
-        arg2: Validator<A2, B2>,
-        arg3: Validator<A3, B3>,
-        arg4: Validator<A4, B4>,
-        arg5: Validator<A5, B5>,
-        arg6: Validator<A6, B6>,
-        arg7: Validator<A7, B7>,
-    ) = Arguments7(arg1, arg2, arg3, arg4, arg5, arg6, arg7)
-
-    fun <A1, B1, A2, B2, A3, B3, A4, B4, A5, B5, A6, B6, A7, B7, A8, B8> args(
-        arg1: Validator<A1, B1>,
-        arg2: Validator<A2, B2>,
-        arg3: Validator<A3, B3>,
-        arg4: Validator<A4, B4>,
-        arg5: Validator<A5, B5>,
-        arg6: Validator<A6, B6>,
-        arg7: Validator<A7, B7>,
-        arg8: Validator<A8, B8>,
-    ) = Arguments8(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8)
-
-    fun <A1, B1, A2, B2, A3, B3, A4, B4, A5, B5, A6, B6, A7, B7, A8, B8, A9, B9> args(
-        arg1: Validator<A1, B1>,
-        arg2: Validator<A2, B2>,
-        arg3: Validator<A3, B3>,
-        arg4: Validator<A4, B4>,
-        arg5: Validator<A5, B5>,
-        arg6: Validator<A6, B6>,
-        arg7: Validator<A7, B7>,
-        arg8: Validator<A8, B8>,
-        arg9: Validator<A9, B9>,
-    ) = Arguments9(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)
-
-    fun <A1, B1, A2, B2, A3, B3, A4, B4, A5, B5, A6, B6, A7, B7, A8, B8, A9, B9, A10, B10> args(
-        arg1: Validator<A1, B1>,
-        arg2: Validator<A2, B2>,
-        arg3: Validator<A3, B3>,
-        arg4: Validator<A4, B4>,
-        arg5: Validator<A5, B5>,
-        arg6: Validator<A6, B6>,
-        arg7: Validator<A7, B7>,
-        arg8: Validator<A8, B8>,
-        arg9: Validator<A9, B9>,
-        arg10: Validator<A10, B10>,
-    ) = Arguments10(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10)
 
     companion object : Kova
 }

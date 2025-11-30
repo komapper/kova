@@ -113,38 +113,36 @@ class KovaTest :
                 object : ObjectSchema<User>() {
                     val name = User::name { Kova.nullable<String>().isNullOr("") }
                     val age = User::age { Kova.int().isNullOr(0) }
-                }
 
-            val userFactory =
-                object {
-                    private val args =
-                        Kova.args(
-                            userSchema.name,
-                            userSchema.age,
-                        )
-                    private val factory = args.createFactory(::User)
-
-                    fun tryCreate(
+                    fun build(
                         name: String?,
                         age: Int?,
-                    ) = factory.tryCreate(name, age)
+                    ): ObjectFactory<User> {
+                        val arg1 = Kova.arg(this.name, name)
+                        val arg2 = Kova.arg(this.age, age)
+                        val arguments = Kova.arguments(arg1, arg2)
+                        return arguments.createFactory(this, ::User)
+                    }
                 }
 
             test("success - null") {
-                val result = userFactory.tryCreate(null, null)
+                val userFactory = userSchema.build(null, null)
+                val result = userFactory.tryCreate()
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe User(null, null)
             }
 
             test("success - non-null") {
-                val result = userFactory.tryCreate("", 0)
+                val userFactory = userSchema.build("", 0)
+                val result = userFactory.tryCreate()
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe User("", 0)
             }
 
             // TODO
             test("failure") {
-                val result = userFactory.tryCreate("abc", 10)
+                val userFactory = userSchema.build("abc", 10)
+                val result = userFactory.tryCreate()
                 result.isFailure().mustBeTrue(result.messages.toString())
                 result.messages.size shouldBe 4
                 result.messages[0].content shouldBe "Value abc must be null"

@@ -3,7 +3,7 @@ package org.komapper.extension.validator
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldEndWith
+import io.kotest.matchers.string.shouldContain
 
 class ObjectFactoryTest :
     FunSpec({
@@ -16,68 +16,84 @@ class ObjectFactoryTest :
 
             val userSchema =
                 object : ObjectSchema<User>() {
-                    val name = User::name { Kova.generic() }
-                    val age = User::age { Kova.int().asNullable() }
-                }
+                    private val name = User::name { Kova.generic() }
+                    private val age = User::age { Kova.int().asNullable() }
 
-            val userFactory =
-                object {
-                    private val args =
-                        Kova.args(
-                            userSchema.name.orDefault(""),
-                            userSchema.age.orDefault(0),
-                        )
-                    private val factory = args.createFactory(::User)
-
-                    fun create(
+                    fun build(
                         name: String?,
                         age: Int?,
-                    ) = factory.create(name, age)
+                    ): ObjectFactory<User> {
+                        val arg1 = Kova.arg(this.name.orDefault(""), name)
+                        val arg2 = Kova.arg(this.age.orDefault(0), age)
+                        val arguments = Kova.arguments(arg1, arg2)
+                        return arguments.createFactory(this, ::User)
+                    }
                 }
 
             test("success - null") {
-                val user = userFactory.create(null, null)
-                user shouldBe User("", 0)
+                val userFactory = userSchema.build(null, null)
+                val result = userFactory.tryCreate()
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe User("", 0)
             }
 
             test("success - non-null") {
-                val user = userFactory.create("abc", 10)
-                user shouldBe User("abc", 10)
+                val userFactory = userSchema.build("abc", 10)
+                val result = userFactory.tryCreate()
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe User("abc", 10)
             }
         }
 
         context("1 arg") {
-            val factory = Kova.args(Kova.int().min(1)).createFactory(::User1)
+            data class User(
+                val id: Int,
+            )
+
+            val userSchema =
+                object : ObjectSchema<User>() {
+                    private val id = User::id { Kova.int().min(1) }
+
+                    fun build(id: Int): ObjectFactory<User> {
+                        val arg1 = Kova.arg(this.id, id)
+                        val arguments = Kova.arguments(arg1)
+                        return arguments.createFactory(this, ::User)
+                    }
+                }
 
             test("success - tryCreate") {
-                val result = factory.tryCreate(1)
+                val factory = userSchema.build(1)
+                val result = factory.tryCreate()
                 result.isSuccess().mustBeTrue()
-                result.value shouldBe User1(1)
+                result.value shouldBe User(1)
             }
 
             test("success - create") {
-                val user = factory.create(1)
-                user shouldBe User1(1)
+                val factory = userSchema.build(1)
+                val user = factory.create()
+                user shouldBe User(1)
             }
 
             test("failure - tryCreate") {
-                val result = factory.tryCreate(-1)
+                val factory = userSchema.build(-1)
+                val result = factory.tryCreate()
                 result.isFailure().mustBeTrue()
                 result.details.size shouldBe 1
                 val detail = result.details.first()
-                detail.root shouldEndWith ".User1"
+                detail.root shouldContain $$"$User"
                 detail.path shouldBe "arg1"
                 detail.message.content shouldBe "Number -1 must be greater than or equal to 1"
             }
 
             test("failure - create") {
+                val factory = userSchema.build(-1)
                 val ex =
                     shouldThrow<ValidationException> {
-                        factory.create(-1)
+                        factory.create()
                     }
                 ex.details.size shouldBe 1
                 val detail = ex.details.first()
-                detail.root shouldEndWith ".User1"
+                detail.root shouldContain $$"$User"
                 detail.path shouldBe "arg1"
                 detail.message.content shouldBe "Number -1 must be greater than or equal to 1"
             }
@@ -85,341 +101,131 @@ class ObjectFactoryTest :
 
         context("2 args") {
 
-            val userFactory =
-                Kova
-                    .args(
-                        Kova.int().min(1),
-                        Kova.string().min(1).max(10),
-                    ).createFactory(::User2)
+            data class User(
+                val id: Int,
+                val name: String,
+            )
+
+            val userSchema =
+                object : ObjectSchema<User>() {
+                    private val id = User::id { Kova.int().min(1) }
+                    private val name = User::name { Kova.string().min(1).max(10) }
+
+                    fun build(
+                        id: Int,
+                        name: String,
+                    ): ObjectFactory<User> {
+                        val arg1 = Kova.arg(this.id, id)
+                        val arg2 = Kova.arg(this.name, name)
+                        val arguments = Kova.arguments(arg1, arg2)
+                        return arguments.createFactory(this, ::User)
+                    }
+                }
 
             test("success") {
-                val result = userFactory.tryCreate(1, "abc")
+                val userFactory = userSchema.build(1, "abc")
+                val result = userFactory.tryCreate()
                 result.isSuccess().mustBeTrue()
-                result.value shouldBe User2(1, "abc")
+                result.value shouldBe User(1, "abc")
             }
 
             test("failure") {
-                val result = userFactory.tryCreate(0, "")
+                val userFactory = userSchema.build(0, "")
+                val result = userFactory.tryCreate()
                 result.isFailure().mustBeTrue()
                 result.details.size shouldBe 2
             }
 
             test("failure - failFast is true") {
-                val result = userFactory.tryCreate(0, "", failFast = true)
+                val userFactory = userSchema.build(0, "")
+                val result = userFactory.tryCreate(failFast = true)
                 result.isFailure().mustBeTrue()
                 result.details.size shouldBe 1
             }
         }
 
         context("2 args - generic validator") {
-            val factory = Kova.args(Kova.generic<Int>(), Kova.generic<String>()).createFactory(::User2)
+            data class User(
+                val id: Int,
+                val name: String,
+            )
+
+            val userFactoryBuilder =
+                object {
+                    fun build(
+                        id: Int,
+                        name: String,
+                    ): ObjectFactory<User> {
+                        val arg1 = Kova.arg(Kova.generic(), id)
+                        val arg2 = Kova.arg(Kova.generic(), name)
+                        val arguments = Kova.arguments(arg1, arg2)
+                        return arguments.createFactory(Kova.generic(), ::User)
+                    }
+                }
 
             test("success") {
-                val result = factory.tryCreate(1, "abc")
+                val factory = userFactoryBuilder.build(1, "abc")
+                val result = factory.tryCreate()
                 result.isSuccess().mustBeTrue()
-                result.value shouldBe User2(1, "abc")
+                result.value shouldBe User(1, "abc")
             }
         }
 
-        context("3 args") {
-            val factory =
-                Kova
-                    .args(
-                        Kova.int().min(1),
-                        Kova.string().min(1).max(10),
-                        Kova.int().min(0).max(120),
-                    ).createFactory(::User3)
+        context("2 args - nested factory") {
+            data class Age(
+                val value: Int,
+            )
+
+            data class Name(
+                val value: String,
+            )
+
+            data class Person(
+                val name: Name,
+                val age: Age,
+            )
+
+            val ageSchema =
+                object : ObjectSchema<Age>() {
+                    private val value = Age::value { Kova.int().min(0) }
+
+                    fun build(age: Int): ObjectFactory<Age> {
+                        val args = Kova.arguments(Kova.arg(this.value, age))
+                        return args.createFactory(this, ::Age)
+                    }
+                }
+
+            val nameSchema =
+                object : ObjectSchema<Name>() {
+                    private val value = Name::value { Kova.string().notBlank() }
+
+                    fun build(name: String): ObjectFactory<Name> {
+                        val args = Kova.arguments(Arg.Value(this.value, name))
+                        return args.createFactory(this, ::Name)
+                    }
+                }
+
+            val personSchema =
+                object : ObjectSchema<Person>() {
+                    private val name = Person::name { nameSchema }
+                    private val age = Person::age { ageSchema }
+
+                    fun build(
+                        name: String,
+                        age: Int,
+                    ): ObjectFactory<Person> {
+                        val arg1 = Kova.arg(this.name, this.name.build(name))
+                        val arg2 = Kova.arg(this.age, this.age.build(age))
+                        val arguments = Kova.arguments(arg1, arg2)
+                        return arguments.createFactory(this, ::Person)
+                    }
+                }
 
             test("success") {
-                val result = factory.tryCreate(1, "abc", 25)
+                val factory = personSchema.build("abc", 10)
+                val result = factory.tryCreate()
                 result.isSuccess().mustBeTrue()
-                result.value shouldBe User3(1, "abc", 25)
-            }
-
-            test("failure") {
-                val result = factory.tryCreate(0, "", -1)
-                result.isFailure().mustBeTrue()
-                result.details.size shouldBe 3
+                result.value shouldBe Person(Name("abc"), Age(10))
             }
         }
-
-        context("4 args") {
-            val factory =
-                Kova
-                    .args(
-                        Kova.int().min(1),
-                        Kova.string().min(1).max(10),
-                        Kova.int().min(0).max(120),
-                        Kova.string().email(),
-                    ).createFactory(::User4)
-
-            test("success") {
-                val result = factory.tryCreate(1, "abc", 25, "test@example.com")
-                result.isSuccess().mustBeTrue()
-                result.value shouldBe User4(1, "abc", 25, "test@example.com")
-            }
-
-            test("failure") {
-                val result = factory.tryCreate(0, "", -1, "invalid-email")
-                result.isFailure().mustBeTrue()
-                result.details.size shouldBe 4
-            }
-        }
-
-        context("5 args") {
-            val factory =
-                Kova
-                    .args(
-                        Kova.int().min(1),
-                        Kova.string().min(1).max(10),
-                        Kova.int().min(0).max(120),
-                        Kova.string().email(),
-                        Kova.string().min(10).max(15),
-                    ).createFactory(::User5)
-
-            test("success") {
-                val result = factory.tryCreate(1, "abc", 25, "test@example.com", "1234567890")
-                result.isSuccess().mustBeTrue()
-                result.value shouldBe User5(1, "abc", 25, "test@example.com", "1234567890")
-            }
-
-            test("failure") {
-                val result = factory.tryCreate(0, "", -1, "invalid-email", "123")
-                result.isFailure().mustBeTrue()
-                result.details.size shouldBe 5
-            }
-        }
-
-        context("6 args") {
-            val factory =
-                Kova
-                    .args(
-                        Kova.int().min(1),
-                        Kova.string().min(1).max(10),
-                        Kova.int().min(0).max(120),
-                        Kova.string().email(),
-                        Kova.string().min(10).max(15),
-                        Kova.string().min(1),
-                    ).createFactory(::User6)
-
-            test("success") {
-                val result = factory.tryCreate(1, "abc", 25, "test@example.com", "1234567890", "123 Main St")
-                result.isSuccess().mustBeTrue()
-                result.value shouldBe User6(1, "abc", 25, "test@example.com", "1234567890", "123 Main St")
-            }
-
-            test("failure") {
-                val result = factory.tryCreate(0, "", -1, "invalid-email", "123", "")
-                result.isFailure().mustBeTrue()
-                result.details.size shouldBe 6
-            }
-        }
-
-        context("7 args") {
-            val factory =
-                Kova
-                    .args(
-                        Kova.int().min(1),
-                        Kova.string().min(1).max(10),
-                        Kova.int().min(0).max(120),
-                        Kova.string().email(),
-                        Kova.string().min(10).max(15),
-                        Kova.string().min(1),
-                        Kova.string().min(1),
-                    ).createFactory(::User7)
-
-            test("success") {
-                val result = factory.tryCreate(1, "abc", 25, "test@example.com", "1234567890", "123 Main St", "Springfield")
-                result.isSuccess().mustBeTrue()
-                result.value shouldBe User7(1, "abc", 25, "test@example.com", "1234567890", "123 Main St", "Springfield")
-            }
-
-            test("failure") {
-                val result = factory.tryCreate(0, "", -1, "invalid-email", "123", "", "")
-                result.isFailure().mustBeTrue()
-                result.details.size shouldBe 7
-            }
-        }
-
-        context("8 args") {
-            val factory =
-                Kova
-                    .args(
-                        Kova.int().min(1),
-                        Kova.string().min(1).max(10),
-                        Kova.int().min(0).max(120),
-                        Kova.string().email(),
-                        Kova.string().min(10).max(15),
-                        Kova.string().min(1),
-                        Kova.string().min(1),
-                        Kova.string().min(2).max(2),
-                    ).createFactory(::User8)
-
-            test("success") {
-                val result = factory.tryCreate(1, "abc", 25, "test@example.com", "1234567890", "123 Main St", "Springfield", "IL")
-                result.isSuccess().mustBeTrue()
-                result.value shouldBe User8(1, "abc", 25, "test@example.com", "1234567890", "123 Main St", "Springfield", "IL")
-            }
-
-            test("failure") {
-                val result = factory.tryCreate(0, "", -1, "invalid-email", "123", "", "", "INVALID")
-                result.isFailure().mustBeTrue()
-                result.details.size shouldBe 8
-            }
-        }
-
-        context("9 args") {
-            val factory =
-                Kova
-                    .args(
-                        Kova.int().min(1),
-                        Kova.string().min(1).max(10),
-                        Kova.int().min(0).max(120),
-                        Kova.string().email(),
-                        Kova.string().min(10).max(15),
-                        Kova.string().min(1),
-                        Kova.string().min(1),
-                        Kova.string().min(2).max(2),
-                        Kova.string().min(5).max(10),
-                    ).createFactory(::User9)
-
-            test("success") {
-                val result = factory.tryCreate(1, "abc", 25, "test@example.com", "1234567890", "123 Main St", "Springfield", "IL", "62701")
-                result.isSuccess().mustBeTrue()
-                result.value shouldBe User9(1, "abc", 25, "test@example.com", "1234567890", "123 Main St", "Springfield", "IL", "62701")
-            }
-
-            test("failure") {
-                val result = factory.tryCreate(0, "", -1, "invalid-email", "123", "", "", "INVALID", "1")
-                result.isFailure().mustBeTrue()
-                result.details.size shouldBe 9
-            }
-        }
-
-        context("10 args") {
-            val factory =
-                Kova
-                    .args(
-                        Kova.int().min(1),
-                        Kova.string().min(1).max(10),
-                        Kova.int().min(0).max(120),
-                        Kova.string().email(),
-                        Kova.string().min(10).max(15),
-                        Kova.string().min(1),
-                        Kova.string().min(1),
-                        Kova.string().min(2).max(2),
-                        Kova.string().min(5).max(10),
-                        Kova.string().min(1),
-                    ).createFactory(::User10)
-
-            test("success") {
-                val result =
-                    factory.tryCreate(
-                        1,
-                        "abc",
-                        25,
-                        "test@example.com",
-                        "1234567890",
-                        "123 Main St",
-                        "Springfield",
-                        "IL",
-                        "62701",
-                        "USA",
-                    )
-                result.isSuccess().mustBeTrue()
-                result.value shouldBe
-                    User10(1, "abc", 25, "test@example.com", "1234567890", "123 Main St", "Springfield", "IL", "62701", "USA")
-            }
-
-            test("failure") {
-                val result = factory.tryCreate(0, "", -1, "invalid-email", "123", "", "", "INVALID", "1", "")
-                result.isFailure().mustBeTrue()
-                result.details.size shouldBe 10
-            }
-        }
-    }) {
-    data class User1(
-        val id: Int,
-    )
-
-    data class User2(
-        val id: Int,
-        val name: String,
-    )
-
-    data class User3(
-        val id: Int,
-        val name: String,
-        val age: Int,
-    )
-
-    data class User4(
-        val id: Int,
-        val name: String,
-        val age: Int,
-        val email: String,
-    )
-
-    data class User5(
-        val id: Int,
-        val name: String,
-        val age: Int,
-        val email: String,
-        val phone: String,
-    )
-
-    data class User6(
-        val id: Int,
-        val name: String,
-        val age: Int,
-        val email: String,
-        val phone: String,
-        val address: String,
-    )
-
-    data class User7(
-        val id: Int,
-        val name: String,
-        val age: Int,
-        val email: String,
-        val phone: String,
-        val address: String,
-        val city: String,
-    )
-
-    data class User8(
-        val id: Int,
-        val name: String,
-        val age: Int,
-        val email: String,
-        val phone: String,
-        val address: String,
-        val city: String,
-        val state: String,
-    )
-
-    data class User9(
-        val id: Int,
-        val name: String,
-        val age: Int,
-        val email: String,
-        val phone: String,
-        val address: String,
-        val city: String,
-        val state: String,
-        val zip: String,
-    )
-
-    data class User10(
-        val id: Int,
-        val name: String,
-        val age: Int,
-        val email: String,
-        val phone: String,
-        val address: String,
-        val city: String,
-        val state: String,
-        val zip: String,
-        val country: String,
-    )
-}
+    })
