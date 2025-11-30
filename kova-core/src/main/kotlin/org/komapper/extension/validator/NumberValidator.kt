@@ -13,6 +13,14 @@ interface NumberValidator<T> :
         value: T,
         message: (ConstraintContext<T>, T) -> Message = Message.resource1(),
     ): NumberValidator<T>
+
+    fun positive(message: (ConstraintContext<T>) -> Message = Message.resource0()): NumberValidator<T>
+
+    fun negative(message: (ConstraintContext<T>) -> Message = Message.resource0()): NumberValidator<T>
+
+    fun notPositive(message: (ConstraintContext<T>) -> Message = Message.resource0()): NumberValidator<T>
+
+    fun notNegative(message: (ConstraintContext<T>) -> Message = Message.resource0()): NumberValidator<T>
 }
 
 fun <T> NumberValidator(
@@ -46,4 +54,24 @@ private class NumberValidatorImpl<T>(
         value: T,
         message: (ConstraintContext<T>, T) -> Message,
     ): NumberValidator<T> = constrain("kova.number.max", Constraints.max(value, message))
+
+    override fun positive(message: (ConstraintContext<T>) -> Message): NumberValidator<T> =
+        constrain("kova.number.positive") {
+            satisfies(it.input.toDouble() > 0.0, message(it))
+        }
+
+    override fun negative(message: (ConstraintContext<T>) -> Message): NumberValidator<T> =
+        constrain("kova.number.negative") {
+            satisfies(it.input.toDouble() < 0.0, message(it))
+        }
+
+    override fun notPositive(message: (ConstraintContext<T>) -> Message): NumberValidator<T> =
+        constrain("kova.number.notPositive") {
+            satisfies(it.input.toDouble() <= 0.0, message(it))
+        }
+
+    override fun notNegative(message: (ConstraintContext<T>) -> Message): NumberValidator<T> =
+        constrain("kova.number.notNegative") {
+            satisfies(it.input.toDouble() >= 0.0, message(it))
+        }
 }
