@@ -103,23 +103,70 @@ The `constrain` method takes a constraint key and a lambda that receives a `Cons
 
 ### Object Factory Pattern
 
+The ObjectFactory pattern allows you to validate inputs and construct objects in a single operation. This is useful for creating validated domain objects from raw inputs.
+
 ```kotlin
 import org.komapper.extension.validator.Kova
+import org.komapper.extension.validator.ObjectFactory
 import org.komapper.extension.validator.ObjectSchema
 
 data class Person(val name: String, val age: Int)
 
-// When using ObjectFactory, define properties as object properties (not in constructor lambda)
+// Define properties as object properties (not in constructor lambda) when using ObjectFactory
 object PersonSchema : ObjectSchema<Person>() {
-    val name = Person::name { Kova.string().min(1) }
-    val age = Person::age { Kova.int().min(0) }
+    private val name = Person::name { Kova.string().min(1).max(50) }
+    private val age = Person::age { Kova.int().min(0).max(150) }
+
+    // Create a factory method that builds an ObjectFactory
+    fun build(name: String, age: Int): ObjectFactory<Person> {
+        val arg1 = Kova.arg(this.name, name)
+        val arg2 = Kova.arg(this.age, age)
+        return Kova.arguments(arg1, arg2).createFactory(PersonSchema, ::Person)
+    }
 }
 
-val factory = Kova.args(PersonSchema.name, PersonSchema.age).createFactory(::Person)
-val person = factory.create("Alice", 30)  // Validates and constructs
+// Use the factory to validate and construct
+val factory = PersonSchema.build("Alice", 30)
+val result = factory.tryCreate()  // Returns ValidationResult<Person>
+// or
+val person = factory.create()     // Returns Person or throws ValidationException
 ```
 
-**Note**: `Kova.args()` supports 1 to 10 arguments for object construction via the `Arguments1` through `Arguments10` classes. Properties must be defined as object properties (not within the constructor lambda) so they can be referenced by `Kova.args()`.
+**Key Components**:
+- **`Kova.arg(validator, value)`**: Creates an `Arg` that wraps a validator and input value
+- **`Kova.arg(validator, factory)`**: Creates an `Arg` that wraps a validator and nested ObjectFactory (for nested objects)
+- **`Kova.arguments(...)`**: Creates an `Arguments1` through `Arguments10` object (supports 1-10 arguments)
+- **`.createFactory(schema, constructor)`**: Creates an `ObjectFactory` that validates inputs and constructs objects
+- **`ObjectFactory.tryCreate(failFast = false)`**: Validates and constructs, returning `ValidationResult<T>`
+- **`ObjectFactory.create(failFast = false)`**: Validates and constructs, returning `T` or throwing `ValidationException`
+
+**Nested Object Validation**:
+```kotlin
+data class Age(val value: Int)
+data class Person(val name: String, val age: Age)
+
+object AgeSchema : ObjectSchema<Age>() {
+    private val value = Age::value { Kova.int().min(0).max(120) }
+
+    fun build(age: String): ObjectFactory<Age> {
+        val arg1 = Kova.arg(Kova.string().toInt().then(this.value), age)
+        return Kova.arguments(arg1).createFactory(AgeSchema, ::Age)
+    }
+}
+
+object PersonSchema : ObjectSchema<Person>() {
+    private val name = Person::name { Kova.string().min(1) }
+    private val age = Person::age { AgeSchema }
+
+    fun build(name: String, age: String): ObjectFactory<Person> {
+        val arg1 = Kova.arg(this.name, name)
+        val arg2 = Kova.arg(this.age, AgeSchema.build(age))  // Nested factory
+        return Kova.arguments(arg1, arg2).createFactory(PersonSchema, ::Person)
+    }
+}
+```
+
+**Note**: Properties must be defined as object properties (not within the constructor lambda) so they can be referenced when creating `Arg` instances. The `createFactory()` method accepts the schema itself as the first parameter for validating the constructed object.
 
 ### Key Components
 
@@ -129,8 +176,9 @@ val person = factory.create("Alice", 30)  // Validates and constructs
 - **Type-Specific Validators**: StringValidator, NumberValidator, LocalDateValidator, ComparableValidator, CollectionValidator (with min/max/length/notEmpty/onEach), MapValidator (with min/max/length/notEmpty/onEach/onEachKey/onEachValue), MapEntryValidator, LiteralValidator
 - **ObjectSchema**: Validates objects by defining validation rules for individual properties within a constructor lambda scope
 - **ObjectSchemaScope**: Scope class providing access to `constrain()` and property validation methods within ObjectSchema constructor lambda
-- **PropertyValidator**: Interface representing a validated property with access to the original `KProperty1` and its validator
-- **ObjectFactory**: Constructs objects from validated inputs via reflection using `createFactory()` method (supports 1-10 arguments)
+- **ObjectFactory**: Constructs objects from validated inputs (supports 1-10 arguments via Arguments1-Arguments10)
+- **Arg**: Sealed interface wrapping either a validator with value (`Arg.Value`) or a validator with nested factory (`Arg.Factory`)
+- **Arguments1-Arguments10**: Data classes that hold 1-10 `Arg` instances and provide `createFactory()` method
 - **NullableValidator**: Wraps validators to handle nullable types
 - **ConditionalValidator**: Supports conditional validation logic
 - **EmptyValidator**: No-op validator that always succeeds, used by `Kova.generic()`

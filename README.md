@@ -104,26 +104,73 @@ val result = PeriodSchema.tryValidate(Period(
 
 ### Object Construction with Validation
 
+The ObjectFactory pattern allows you to validate inputs and construct objects in a single operation. This is useful for creating validated domain objects from raw inputs.
+
 ```kotlin
+import org.komapper.extension.validator.Kova
+import org.komapper.extension.validator.ObjectFactory
+import org.komapper.extension.validator.ObjectSchema
+
 data class Person(val name: String, val age: Int)
 
-// Define a schema with properties that can be referenced by the factory
+// Define properties as object properties (not in constructor lambda) when using ObjectFactory
 object PersonSchema : ObjectSchema<Person>() {
-    val name = Person::name { Kova.string().min(1).max(50) }
-    val age = Person::age { Kova.int().min(0).max(150) }
+    private val name = Person::name { Kova.string().min(1).max(50) }
+    private val age = Person::age { Kova.int().min(0).max(150) }
+
+    // Create a factory method that builds an ObjectFactory
+    fun build(name: String, age: Int): ObjectFactory<Person> {
+        val arg1 = Kova.arg(this.name, name)
+        val arg2 = Kova.arg(this.age, age)
+        return Kova.arguments(arg1, arg2).createFactory(PersonSchema, ::Person)
+    }
 }
 
-// Create a factory that validates inputs and constructs objects
-val personFactory = Kova.args(PersonSchema.name, PersonSchema.age).createFactory(::Person)
-
-// Construct a person with validated inputs
-val person = personFactory.create("Alice", 30)  // Returns Person or throws ValidationException
-
-// Or use tryCreate for non-throwing validation
-val result = personFactory.tryCreate("Alice", 30)  // Returns ValidationResult<Person>
+// Use the factory to validate and construct
+val factory = PersonSchema.build("Alice", 30)
+val result = factory.tryCreate()  // Returns ValidationResult<Person>
+// or
+val person = factory.create()     // Returns Person or throws ValidationException
 ```
 
-**Note**: When using `ObjectFactory`, properties must be defined as object properties (not within the constructor lambda) so they can be referenced by `Kova.args()`. The `Kova.args()` method supports 1 to 10 arguments through `Arguments1` to `Arguments10` classes.
+**Nested Object Validation**:
+```kotlin
+data class Age(val value: Int)
+data class Person(val name: String, val age: Age)
+
+object AgeSchema : ObjectSchema<Age>() {
+    private val value = Age::value { Kova.int().min(0).max(120) }
+
+    fun build(age: String): ObjectFactory<Age> {
+        val arg1 = Kova.arg(Kova.string().toInt().then(this.value), age)
+        return Kova.arguments(arg1).createFactory(AgeSchema, ::Age)
+    }
+}
+
+object PersonSchema : ObjectSchema<Person>() {
+    private val name = Person::name { Kova.string().min(1) }
+    private val age = Person::age { AgeSchema }
+
+    fun build(name: String, age: String): ObjectFactory<Person> {
+        val arg1 = Kova.arg(this.name, name)
+        val arg2 = Kova.arg(this.age, AgeSchema.build(age))  // Nested factory
+        return Kova.arguments(arg1, arg2).createFactory(PersonSchema, ::Person)
+    }
+}
+
+val factory = PersonSchema.build("Bob", "25")
+val person = factory.create()  // Validates and constructs nested objects
+```
+
+**Key Components**:
+- **`Kova.arg(validator, value)`**: Creates an `Arg` that wraps a validator and input value
+- **`Kova.arg(validator, factory)`**: Creates an `Arg` that wraps a validator and nested ObjectFactory (for nested objects)
+- **`Kova.arguments(...)`**: Creates an `Arguments1` through `Arguments10` object (supports 1-10 arguments)
+- **`.createFactory(schema, constructor)`**: Creates an `ObjectFactory` that validates inputs and constructs objects
+- **`ObjectFactory.tryCreate(failFast = false)`**: Validates and constructs, returning `ValidationResult<T>`
+- **`ObjectFactory.create(failFast = false)`**: Validates and constructs, returning `T` or throwing `ValidationException`
+
+**Note**: Properties must be defined as object properties (not within the constructor lambda) so they can be referenced when creating `Arg` instances.
 
 ### Nullable Validation
 
