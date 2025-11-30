@@ -72,16 +72,6 @@ open class ObjectSchema<T : Any> private constructor(
         return validator.execute(context, input)
     }
 
-    private fun <V> addRule(
-        key: KProperty1<T, V>,
-        choose: (T) -> Validator<V, V>,
-    ) {
-        val transform = { receiver: T -> key.get(receiver) }
-        transform as (Any?) -> Any?
-        choose as (Any?) -> Validator<Any?, Any?>
-        ruleMap[key.name] = Rule(transform, choose)
-    }
-
     fun <V> replace(
         key: KProperty1<T, V>,
         validator: Validator<V, V>,
@@ -96,10 +86,10 @@ open class ObjectSchema<T : Any> private constructor(
         return ObjectSchema(newRuleMap)
     }
 
-    operator fun <V> KProperty1<T, V>.invoke(block: () -> Validator<V, V>): PropertyValidator<T, V> {
+    operator fun <V> KProperty1<T, V>.invoke(block: () -> Validator<V, V>): Validator<V, V> {
         val validator = block()
         ruleMap.addRule(this) { _ -> validator }
-        return PropertyValidator(this, validator)
+        return validator
     }
 
     infix fun <V, VALIDATOR : Validator<V, V>> KProperty1<T, V>.choose(block: (T) -> VALIDATOR): (T) -> VALIDATOR {
@@ -123,29 +113,10 @@ private fun <T, V> MutableMap<String, Rule>.addRule(
     this[key.name] = Rule(transform, choose)
 }
 
-private fun <T, V> PropertyValidator(
-    property: KProperty1<T, V>,
-    validator: Validator<V, V>,
-): PropertyValidator<T, V> =
-    object : PropertyValidator<T, V> {
-        override val property: KProperty1<T, V> = property
-        override val validator: Validator<V, V> = validator
-
-        override fun execute(
-            context: ValidationContext,
-            input: V,
-        ): ValidationResult<V> = validator.execute(context, input)
-    }
-
 internal data class Rule(
     val transform: (Any?) -> Any?,
     val choose: (Any?) -> Validator<Any?, Any?>,
 )
-
-interface PropertyValidator<T, V> : Validator<V, V> {
-    val property: KProperty1<T, V>
-    val validator: Validator<V, V>
-}
 
 class ObjectSchemaScope<T : Any> internal constructor(
     val caller: ObjectSchema<T>,
@@ -159,10 +130,10 @@ class ObjectSchemaScope<T : Any> internal constructor(
         constraints.add(Constraint(id, check))
     }
 
-    operator fun <V> KProperty1<T, V>.invoke(block: () -> Validator<V, V>): PropertyValidator<T, V> {
+    operator fun <V> KProperty1<T, V>.invoke(block: () -> Validator<V, V>): Validator<V, V> {
         val validator = block()
         ruleMap.addRule(this) { _ -> validator }
-        return PropertyValidator(this, validator)
+        return validator
     }
 
     infix fun <V, VALIDATOR : Validator<V, V>> KProperty1<T, V>.choose(block: (T) -> VALIDATOR): (T) -> VALIDATOR {
