@@ -1,7 +1,5 @@
 package org.komapper.extension.validator
 
-import kotlin.properties.ReadOnlyProperty
-import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
 
 open class ObjectSchema<T : Any> private constructor(
@@ -96,11 +94,6 @@ open class ObjectSchema<T : Any> private constructor(
         ruleMap.addRule(this, block)
         return block
     }
-
-    fun <V> named(block: Validator<T, T>.(KProperty<*>) -> Validator<T, V>): ReadOnlyProperty<ObjectSchema<T>, Validator<T, V>> =
-        ReadOnlyProperty<ObjectSchema<T>, Validator<T, V>> { thisRef, property ->
-            thisRef.path(property.name).block(property)
-        }
 }
 
 private fun <T, V> MutableMap<String, Rule>.addRule(

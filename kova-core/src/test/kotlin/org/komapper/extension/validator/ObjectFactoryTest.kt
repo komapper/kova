@@ -8,6 +8,44 @@ import io.kotest.matchers.string.shouldEndWith
 class ObjectFactoryTest :
     FunSpec({
 
+        context("whenNullAs - factory") {
+            data class User(
+                val name: String?,
+                val age: Int?,
+            )
+
+            val userSchema =
+                object : ObjectSchema<User>() {
+                    val name = User::name { Kova.generic() }
+                    val age = User::age { Kova.int().asNullable() }
+                }
+
+            val userFactory =
+                object {
+                    private val args =
+                        Kova.args(
+                            userSchema.name.whenNullAs(""),
+                            userSchema.age.whenNullAs(0),
+                        )
+                    private val factory = args.createFactory(::User)
+
+                    fun create(
+                        name: String?,
+                        age: Int?,
+                    ) = factory.create(name, age)
+                }
+
+            test("success - null") {
+                val user = userFactory.create(null, null)
+                user shouldBe User("", 0)
+            }
+
+            test("success - non-null") {
+                val user = userFactory.create("abc", 10)
+                user shouldBe User("abc", 10)
+            }
+        }
+
         context("1 arg") {
             val factory = Kova.args(Kova.int().min(1)).createFactory(::User1)
 

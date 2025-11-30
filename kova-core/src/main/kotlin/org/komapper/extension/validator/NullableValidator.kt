@@ -13,9 +13,14 @@ interface NullableValidator<T : Any, S : Any> :
     ): NullableValidator<T, S>
 
     fun notNull(message: (ConstraintContext<T?>) -> Message = Message.resource0()): NullableValidator<T, S>
+}
 
-    // TODO remove?
-    fun toNonNullable(message: ((ConstraintContext<T?>) -> Message)? = null): Validator<T?, S>
+// TODO remove?
+// shortcut function for asNullable().notNull().map { it!! }
+fun <T : Any, S : Any> Validator<T, S>.asNonNullable(message: ((ConstraintContext<T?>) -> Message)? = null): Validator<T?, S> {
+    val nullable = this.asNullable()
+    val notNull = if (message == null) nullable.notNull() else nullable.notNull(message)
+    return notNull.map { it!! }
 }
 
 fun <T : Any, S : Any> Validator<T, S>.asNullable(): NullableValidator<T, S> {
@@ -27,6 +32,11 @@ fun <T : Any, S : Any> Validator<T, S>.asNullable(): NullableValidator<T, S> {
         }
     return NullableValidator(wrapped)
 }
+
+fun <T : Any> NullableValidator<T, T>.isNullOr(
+    value: T,
+    message: ((ConstraintContext<T?>) -> Message)? = null,
+): NullableValidator<T, T> = if (message == null) isNullOr(Kova.literal(value)) else isNullOr(Kova.literal(value), message)
 
 // shortcut function for asNullable().isNull()
 fun <T : Any, S : Any> Validator<T, S>.isNull(message: ((ConstraintContext<T?>) -> Message)? = null): NullableValidator<T, S> {
@@ -52,16 +62,15 @@ fun <T : Any, S : Any> Validator<T, S>.notNull(message: ((ConstraintContext<T?>)
     return if (message == null) nullable.notNull() else nullable.notNull(message)
 }
 
-// shortcut function for asNullable().notNull().map { it!! }
-fun <T : Any, S : Any> Validator<T, S>.asNonNullable(message: ((ConstraintContext<T?>) -> Message)? = null): Validator<T?, S> {
-    val nullable = this.asNullable()
-    val notNull = if (message == null) nullable.notNull() else nullable.notNull(message)
-    return notNull.map { it!! }
-}
-
 fun <T : Any, S : Any, U : Any> Validator<T?, S?>.whenNotNullThen(other: Validator<S, U>): Validator<T?, U?> = then(other.asNullable())
 
 fun <T : Any, S : Any> Validator<T?, S?>.whenNullAs(value: S): Validator<T?, S> = map { it ?: value }
+
+fun <T : Any, S : Any> Validator<T?, S?>.toNonNullable(message: ((ConstraintContext<T?>) -> Message)? = null): Validator<T?, S> {
+    val nullable = NullableValidator(this, emptyList())
+    val notNull = if (message == null) nullable.notNull() else nullable.notNull(message)
+    return notNull.map { it!! }
+}
 
 fun <T : Any, S : Any> NullableValidator(
     inner: Validator<T?, S?>,
@@ -105,9 +114,4 @@ private class NullableValidatorImpl<T : Any, S : Any>(
         constrain("kova.nullable.notNull", { ctx ->
             satisfies(ctx.input != null, message(ctx))
         })
-
-    override fun toNonNullable(message: ((ConstraintContext<T?>) -> Message)?): Validator<T?, S> {
-        val notNull = if (message == null) notNull() else notNull(message)
-        return notNull.map { it!! }
-    }
 }

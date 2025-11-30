@@ -16,7 +16,7 @@ import org.komapper.extension.validator.whenNotNullThen
 class KovaNullableTest :
     FunSpec({
 
-        test("whenNotNull") {
+        test("whenNotNullThen") {
             checkAll(Arb.Companion.string().orNull(), Arb.Companion.int(-10..100)) { input, length ->
                 val result =
                     Kova

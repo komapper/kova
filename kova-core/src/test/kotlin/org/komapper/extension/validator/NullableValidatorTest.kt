@@ -6,10 +6,6 @@ import io.kotest.matchers.shouldBe
 class NullableValidatorTest :
     FunSpec({
 
-        data class Request(
-            private val map: Map<String, String>,
-        ) : Map<String, String> by map
-
         context("nullable") {
             val nullable = Kova.nullable<Int>()
 
@@ -170,33 +166,7 @@ class NullableValidatorTest :
             }
         }
 
-        context("asNonNullable - then with object schema") {
-            val schema =
-                object : ObjectSchema<Request>() {
-                    private val notNullAndLength3 = Kova.string().asNonNullable().then(Kova.string().length(3))
-                    val a by named { p -> map { it[p.name] }.then(notNullAndLength3) }
-                }
-
-            test("failure - null") {
-                val request = Request(emptyMap())
-                val result = schema.a.tryValidate(request)
-                result.isFailure().mustBeTrue()
-            }
-
-            test("success - non-null") {
-                val request = Request(mapOf("a" to "abc"))
-                val result = schema.a.tryValidate(request)
-                result.isSuccess().mustBeTrue()
-            }
-
-            test("failure") {
-                val request = Request(mapOf("a" to "abcd"))
-                val result = schema.a.tryValidate(request)
-                result.isFailure().mustBeTrue()
-            }
-        }
-
-        context("whenNotNull") {
+        context("whenNotNullThen") {
             val min3 = Kova.int().min(3)
             val whenNotNullMin3 = Kova.nullable<Int>().whenNotNullThen(min3)
 
@@ -218,7 +188,7 @@ class NullableValidatorTest :
             }
         }
 
-        context("whenNotNull - each List element") {
+        context("whenNotNullThen - each List element") {
             val min3 = Kova.int().min(3)
             val whenNotNullMin3 = Kova.nullable<Int>().whenNotNullThen(min3)
             val onEachWhenNotNullMin3 = Kova.list<Int?>().onEach(whenNotNullMin3)
@@ -238,6 +208,28 @@ class NullableValidatorTest :
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].content shouldBe "Number 2 must be greater than or equal to 3"
+            }
+        }
+
+        context("whenNullAs") {
+            val validator = Kova.nullable<Int>().whenNullAs(0)
+
+            test("success - null") {
+                val result = validator.tryValidate(null)
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe 0
+            }
+
+            test("success - 0") {
+                val result = validator.tryValidate(0)
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe 0
+            }
+
+            test("success - 1") {
+                val result = validator.tryValidate(1)
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe 1
             }
         }
 

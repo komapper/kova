@@ -152,8 +152,20 @@ interface Kova {
     companion object : Kova
 }
 
-fun <T : Any> Kova.isNullOr(value: T): NullableValidator<T, T> = with(this) { nullable<T>().isNullOr(literal(value)) }
+fun <T : Any> Kova.notNull(message: ((ConstraintContext<T?>) -> Message)? = null): NullableValidator<T, T> =
+    with(this) {
+        if (message == null) nullable<T>().notNull() else nullable<T>().notNull(message)
+    }
 
-fun <T : Any> NullableValidator<T, T>.isNullOr(value: T): NullableValidator<T, T> = this.isNullOr(Kova.literal(value))
+fun <T : Any> Kova.isNull(message: ((ConstraintContext<T?>) -> Message)? = null): NullableValidator<T, T> =
+    with(this) {
+        if (message == null) nullable<T>().isNull() else nullable<T>().isNull(message)
+    }
 
-fun <T : Any> Kova.whenNullAs(value: T): Validator<T?, T> = with(this) { nullable<T>().whenNullAs(value) }
+fun <T : Any> Kova.isNullOr(
+    value: T,
+    message: ((ConstraintContext<T?>) -> Message)? = null,
+): NullableValidator<T, T> =
+    with(this) {
+        if (message == null) nullable<T>().isNullOr(literal(value)) else nullable<T>().isNullOr(literal(value), message)
+    }

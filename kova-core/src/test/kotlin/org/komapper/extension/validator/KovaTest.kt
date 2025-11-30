@@ -52,63 +52,33 @@ class KovaTest :
             }
         }
 
-        context("whenNullAs") {
-            val validator = Kova.whenNullAs(0)
+        context("notNull") {
+            val validator = Kova.notNull<Int>()
 
-            test("success - null") {
-                val result = validator.tryValidate(null)
-                result.isSuccess().mustBeTrue()
-                result.value shouldBe 0
-            }
-
-            test("success - 0") {
+            test("success - non-null") {
                 val result = validator.tryValidate(0)
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe 0
             }
 
-            test("success - 1") {
-                val result = validator.tryValidate(1)
-                result.isSuccess().mustBeTrue()
-                result.value shouldBe 1
+            test("failure - null") {
+                val result = validator.tryValidate(null)
+                result.isFailure().mustBeTrue()
             }
         }
 
-        context("whenNullAs - factory") {
-            data class User(
-                val name: String?,
-                val age: Int?,
-            )
-
-            val userSchema =
-                object : ObjectSchema<User>() {
-                    val name = User::name { Kova.generic() }
-                    val age = User::age { Kova.int().asNullable() }
-                }
-
-            val userFactory =
-                object {
-                    private val args =
-                        Kova.args(
-                            userSchema.name.whenNullAs(""),
-                            userSchema.age.whenNullAs(0),
-                        )
-                    private val factory = args.createFactory(::User)
-
-                    fun create(
-                        name: String?,
-                        age: Int?,
-                    ) = factory.create(name, age)
-                }
+        context("isNull") {
+            val validator = Kova.isNull<Int>()
 
             test("success - null") {
-                val user = userFactory.create(null, null)
-                user shouldBe User("", 0)
+                val result = validator.tryValidate(null)
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe null
             }
 
-            test("success - non-null") {
-                val user = userFactory.create("abc", 10)
-                user shouldBe User("abc", 10)
+            test("failure - non-null") {
+                val result = validator.tryValidate(0)
+                result.isFailure().mustBeTrue()
             }
         }
 
@@ -181,6 +151,54 @@ class KovaTest :
                 result.messages[1].content shouldBe "Value abc must be "
                 result.messages[2].content shouldBe "Value 10 must be null"
                 result.messages[3].content shouldBe "Value 10 must be 0"
+            }
+        }
+
+        context("generic") {
+
+            data class Request(
+                private val map: Map<String, String>,
+            ) {
+                operator fun get(key: String): String? = map[key]
+            }
+
+            val notNull = Kova.notNull<String>()
+            val stringMin3 = Kova.string().min(3)
+            val notNullAndMin3 = notNull.whenNotNullThen(stringMin3).toNonNullable()
+            val requestKey = Kova.generic<Request>().name("Request[key]").map { it["key"] }
+            val requestKeyIsNotNull = requestKey.then(notNull)
+            val requestKeyIsNotNullAndMin3 = requestKey.then(notNullAndMin3)
+
+            test("success - requestKeyIsNotNull") {
+                val result = requestKeyIsNotNull.tryValidate(Request(mapOf("key" to "abc")))
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "abc"
+            }
+
+            test("failure - requestKeyIsNotNull") {
+                val result = requestKeyIsNotNull.tryValidate(Request(mapOf()))
+                result.isFailure().mustBeTrue()
+                result.details.size shouldBe 1
+                result.details[0].let {
+                    it.path shouldBe "Request[key]"
+                    it.message.content shouldBe "Value must not be null"
+                }
+            }
+
+            test("success - requestKeyIsNotNullAndMin3") {
+                val result = requestKeyIsNotNullAndMin3.tryValidate(Request(mapOf("key" to "abc")))
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "abc"
+            }
+
+            test("failure - requestKeyIsNotNullAndMin3") {
+                val result = requestKeyIsNotNullAndMin3.tryValidate(Request(mapOf("key" to "ab")))
+                result.isFailure().mustBeTrue()
+                result.details.size shouldBe 1
+                result.details[0].let {
+                    it.path shouldBe "Request[key]"
+                    it.message.content shouldBe "\"ab\" must be at least 3 characters"
+                }
             }
         }
     })

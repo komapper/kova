@@ -86,7 +86,7 @@ fun <IN, OUT, NEW> Validator<IN, OUT>.map(transform: (OUT) -> NEW): Validator<IN
     }
 }
 
-fun <IN, OUT> Validator<IN, OUT>.path(name: String): Validator<IN, OUT> {
+fun <IN, OUT> Validator<IN, OUT>.name(name: String): Validator<IN, OUT> {
     val self = this
     return Validator { context, input ->
         val context = context.addPath(name)
