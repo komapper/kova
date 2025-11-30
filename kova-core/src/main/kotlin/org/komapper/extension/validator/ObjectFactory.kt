@@ -145,17 +145,6 @@ data class Arguments10<A1, B1, A2, B2, A3, B3, A4, B4, A5, B5, A6, B6, A7, B7, A
     fun <T : Any> createFactory(ctor: (B1, B2, B3, B4, B5, B6, B7, B8, B9, B10) -> T) = ObjectFactory10(ctor, this)
 }
 
-private fun <A, B> execute(
-    validator: Validator<A, B>,
-    context: ValidationContext,
-    path: String,
-    arg: A,
-): Pair<Boolean, ValidationResult<B>> {
-    return validator.execute(context.addPath(path), arg).let {
-        if (context.shouldReturnEarly(it)) return true to createFailure(it) else false to it
-    }
-}
-
 class ObjectFactory1<T : Any, A1, B1>(
     private val constructor: (B1) -> T,
     private val args: Arguments1<A1, B1>,
