@@ -21,7 +21,7 @@ private class MapEntryValidatorImpl<K, V> internal constructor(
     ): ValidationResult<Map.Entry<K, V>> = prev.chain(next).execute(context, input)
 
     override fun constrain(
-        key: String,
+        id: String,
         check: ConstraintScope.(ConstraintContext<Map.Entry<K, V>>) -> ConstraintResult,
-    ): MapEntryValidator<K, V> = MapEntryValidatorImpl(prev = this, constraint = Constraint(key, check))
+    ): MapEntryValidator<K, V> = MapEntryValidatorImpl(prev = this, constraint = Constraint(id, check))
 }

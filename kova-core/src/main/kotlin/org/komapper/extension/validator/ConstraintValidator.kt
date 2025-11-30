@@ -13,7 +13,7 @@ private class ConstraintValidatorImpl<T>(
         context: ValidationContext,
         input: T,
     ): ValidationResult<T> {
-        val constraintContext = context.createConstraintContext(input).copy(key = constraint.key)
+        val constraintContext = context.createConstraintContext(input).copy(constraintId = constraint.id)
         return when (val result = constraint.apply(constraintContext)) {
             is ConstraintResult.Satisfied -> return ValidationResult.Success(input, context)
             is ConstraintResult.Violated -> {

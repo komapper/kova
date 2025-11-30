@@ -40,9 +40,9 @@ private class CollectionValidatorImpl<E, C : Collection<E>>(
     ): ValidationResult<C> = prev.chain(next).execute(context, input)
 
     override fun constrain(
-        key: String,
+        id: String,
         check: ConstraintScope.(ConstraintContext<C>) -> ConstraintResult,
-    ): CollectionValidator<E, C> = CollectionValidatorImpl(prev = this, constraint = Constraint(key, check))
+    ): CollectionValidator<E, C> = CollectionValidatorImpl(prev = this, constraint = Constraint(id, check))
 
     override fun min(
         size: Int,

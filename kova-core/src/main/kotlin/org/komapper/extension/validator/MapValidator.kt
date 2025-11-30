@@ -44,9 +44,9 @@ private class MapValidatorImpl<K, V>(
     ): ValidationResult<Map<K, V>> = prev.chain(next).execute(context, input)
 
     override fun constrain(
-        key: String,
+        id: String,
         check: ConstraintScope.(ConstraintContext<Map<K, V>>) -> ConstraintResult,
-    ): MapValidator<K, V> = MapValidatorImpl(prev = this, constraint = Constraint(key, check))
+    ): MapValidator<K, V> = MapValidatorImpl(prev = this, constraint = Constraint(id, check))
 
     override fun min(
         size: Int,

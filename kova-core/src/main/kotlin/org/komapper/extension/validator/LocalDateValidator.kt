@@ -34,9 +34,9 @@ private class LocalDateValidatorImpl(
     ): ValidationResult<LocalDate> = prev.chain(next).execute(context, input)
 
     override fun constrain(
-        key: String,
+        id: String,
         check: ConstraintScope.(ConstraintContext<LocalDate>) -> ConstraintResult,
-    ): LocalDateValidator = LocalDateValidatorImpl(prev = this, constraint = Constraint(key, check), clock = clock)
+    ): LocalDateValidator = LocalDateValidatorImpl(prev = this, constraint = Constraint(id, check), clock = clock)
 
     override fun future(message: (ConstraintContext<LocalDate>) -> Message): LocalDateValidator =
         constrain("kova.localDate.future") {

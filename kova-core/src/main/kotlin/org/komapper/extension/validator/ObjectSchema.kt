@@ -151,12 +151,12 @@ class ObjectSchemaScope<T : Any> internal constructor(
     val caller: ObjectSchema<T>,
     private val ruleMap: MutableMap<String, Rule>,
     private val constraints: MutableList<Constraint<T>>,
-) {
-    fun constrain(
-        key: String,
+) : Constrainable<T, Unit> {
+    override fun constrain(
+        id: String,
         check: ConstraintScope.(ConstraintContext<T>) -> ConstraintResult,
     ) {
-        constraints.add(Constraint(key, check))
+        constraints.add(Constraint(id, check))
     }
 
     operator fun <V> KProperty1<T, V>.invoke(block: () -> Validator<V, V>): PropertyValidator<T, V> {

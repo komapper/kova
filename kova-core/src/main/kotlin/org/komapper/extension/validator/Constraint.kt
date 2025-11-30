@@ -1,7 +1,7 @@
 package org.komapper.extension.validator
 
 data class Constraint<T>(
-    val key: String,
+    val id: String,
     val check: ConstraintScope.(ConstraintContext<T>) -> ConstraintResult,
 ) {
     fun apply(context: ConstraintContext<T>): ConstraintResult {
@@ -10,7 +10,7 @@ data class Constraint<T>(
     }
 
     companion object {
-        fun <T> satisfied(): Constraint<T> = Constraint("kova.always.satisfied") { ConstraintResult.Satisfied }
+        fun <T> satisfied(): Constraint<T> = Constraint("kova.satisfied") { ConstraintResult.Satisfied }
     }
 }
 
@@ -19,7 +19,7 @@ data class ConstraintContext<T>(
     val root: String = "",
     val path: String = "",
     val failFast: Boolean = false,
-    val key: String = "",
+    val constraintId: String = "",
 )
 
 sealed interface ConstraintResult {
@@ -27,9 +27,7 @@ sealed interface ConstraintResult {
 
     data class Violated(
         val message: Message,
-    ) : ConstraintResult {
-        constructor(content: String) : this(Message.Text(content = content))
-    }
+    ) : ConstraintResult
 }
 
 class ConstraintScope {

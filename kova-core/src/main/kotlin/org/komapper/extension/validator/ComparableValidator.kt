@@ -31,9 +31,9 @@ private class ComparableValidatorImpl<T : Comparable<T>> internal constructor(
     ): ValidationResult<T> = prev.chain(next).execute(context, input)
 
     override fun constrain(
-        key: String,
+        id: String,
         check: ConstraintScope.(ConstraintContext<T>) -> ConstraintResult,
-    ): ComparableValidator<T> = ComparableValidatorImpl(prev = this, constraint = Constraint(key, check))
+    ): ComparableValidator<T> = ComparableValidatorImpl(prev = this, constraint = Constraint(id, check))
 
     override fun min(
         value: T,

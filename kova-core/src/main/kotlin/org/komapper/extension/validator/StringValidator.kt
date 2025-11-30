@@ -109,7 +109,7 @@ inline fun <reified E : Enum<E>> StringValidator.isEnum(): StringValidator {
     val enumValues = enumValues<E>()
     val validNames = enumValues.map { it.name }
     return this.constrain("kova.string.isEnum") { ctx ->
-        satisfies(validNames.contains(ctx.input), Message.Resource(ctx.key, ctx.input, validNames))
+        satisfies(validNames.contains(ctx.input), Message.Resource(ctx.constraintId, ctx.input, validNames))
     }
 }
 
@@ -128,9 +128,9 @@ private class StringValidatorImpl(
     ): ValidationResult<String> = prev.map(transform).chain(next).execute(context, input)
 
     override fun constrain(
-        key: String,
+        id: String,
         check: ConstraintScope.(ConstraintContext<String>) -> ConstraintResult,
-    ): StringValidator = StringValidatorImpl(prev = this, transform = { it }, constraint = Constraint(key, check))
+    ): StringValidator = StringValidatorImpl(prev = this, transform = { it }, constraint = Constraint(id, check))
 
     override fun modify(transform: (String) -> String): StringValidator =
         StringValidatorImpl(prev = this, transform = transform, Constraint.satisfied())

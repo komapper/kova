@@ -31,9 +31,9 @@ private class LiteralValidatorImpl<T : Any>(
     ): ValidationResult<T> = prev.chain(next).execute(context, input)
 
     override fun constrain(
-        key: String,
+        id: String,
         check: ConstraintScope.(ConstraintContext<T>) -> ConstraintResult,
-    ): LiteralValidator<T> = LiteralValidatorImpl(prev = this, constraint = Constraint(key, check))
+    ): LiteralValidator<T> = LiteralValidatorImpl(prev = this, constraint = Constraint(id, check))
 
     override fun single(
         value: T,

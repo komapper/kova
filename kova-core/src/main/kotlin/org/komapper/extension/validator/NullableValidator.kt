@@ -40,9 +40,9 @@ private class NullableValidatorImpl<T : Any, S : Any>(
         }
 
     override fun constrain(
-        key: String,
+        id: String,
         check: ConstraintScope.(ConstraintContext<T?>) -> ConstraintResult,
-    ): NullableValidator<T, S> = NullableValidatorImpl(inner, constraints + Constraint(key, check))
+    ): NullableValidator<T, S> = NullableValidatorImpl(inner, constraints + Constraint(id, check))
 
     override fun isNull(message: (ConstraintContext<T?>) -> Message): NullableValidator<T, S> =
         constrain("kova.nullable.isNull", {

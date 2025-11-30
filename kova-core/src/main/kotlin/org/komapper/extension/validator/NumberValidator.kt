@@ -33,9 +33,9 @@ private class NumberValidatorImpl<T>(
     ): ValidationResult<T> = prev.chain(next).execute(context, input)
 
     override fun constrain(
-        key: String,
+        id: String,
         check: ConstraintScope.(ConstraintContext<T>) -> ConstraintResult,
-    ): NumberValidator<T> = NumberValidatorImpl(prev = this, constraint = Constraint(key, check))
+    ): NumberValidator<T> = NumberValidatorImpl(prev = this, constraint = Constraint(id, check))
 
     override fun min(
         value: T,
