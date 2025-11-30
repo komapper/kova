@@ -82,7 +82,7 @@ class KovaTest :
 
             val userSchema =
                 object : ObjectSchema<User>() {
-                    val name = User::name { Kova.nullable() }
+                    val name = User::name { Kova.generic() }
                     val age = User::age { Kova.int().asNullable() }
                 }
 
