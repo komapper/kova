@@ -82,7 +82,10 @@ interface Kova {
             if (message == null) nullable<T>().notNull() else nullable<T>().notNull(message)
         }
 
-    fun <T : Any, S: Any> notNullThen(next: Validator<T, S>, message: ((ConstraintContext<T?>) -> Message)? = null): Validator<T?, S?> =
+    fun <T : Any, S : Any> notNullThen(
+        next: Validator<T, S>,
+        message: ((ConstraintContext<T?>) -> Message)? = null,
+    ): Validator<T?, S?> =
         with(this) {
             val notNull = if (message == null) nullable<T>().notNull() else nullable<T>().notNull(message)
             notNull.notNullThen(next)

@@ -33,7 +33,9 @@ val result = nameValidator.tryValidate("John")
 if (result.isSuccess()) {
     println("Valid: ${result.value}")
 } else {
-    println("Errors: ${result.messages}")
+    result.messages.forEach { message ->
+        println("Error: ${message.content}")
+    }
 }
 
 // Or use validate() which throws ValidationException on failure
@@ -128,36 +130,57 @@ val result = personFactory.tryCreate("Alice", 30)  // Returns ValidationResult<P
 Kova provides first-class support for nullable types:
 
 ```kotlin
-// Create a nullable validator
+// Create a nullable validator using asNullable()
 // By default, null values are considered valid
-val nullableNameValidator = Kova.nullable(Kova.string().min(1))
+val nullableNameValidator = Kova.string().min(1).asNullable()
 val result1 = nullableNameValidator.tryValidate(null)        // Success(null)
 val result2 = nullableNameValidator.tryValidate("hi")        // Success("hi")
 val result3 = nullableNameValidator.tryValidate("")          // Failure (min(1) violated)
 
-// Reject null values explicitly
-val notNullValidator = Kova.nullable<String>().notNull()
+// Reject null values explicitly - use Kova.notNull() directly
+val notNullValidator = Kova.notNull<String>()
 val result = notNullValidator.tryValidate(null)              // Failure
 
-// Accept only null values
-val isNullValidator = Kova.nullable<String>().isNull()
+// Accept only null values - use Kova.isNull() directly
+val isNullValidator = Kova.isNull<String>()
 val result = isNullValidator.tryValidate(null)               // Success(null)
 
 // Accept null OR validate non-null values
-val nullOrMinValidator = Kova.nullable<String>().isNullOrElse(Kova.string().min(5))
+val nullOrMinValidator = Kova.nullable<String>().isNullOr(Kova.string().min(5))
 val result1 = nullOrMinValidator.tryValidate(null)           // Success(null)
 val result2 = nullOrMinValidator.tryValidate("hello")        // Success("hello")
 val result3 = nullOrMinValidator.tryValidate("hi")           // Failure (min(5) violated)
 
-// Require non-null AND validate the value
-val notNullAndMinValidator = Kova.string().notNull().andThen(Kova.string().min(5))
+// Accept null OR a specific literal value
+val nullOrDefaultValidator = Kova.isNullOr("default")
+val result1 = nullOrDefaultValidator.tryValidate(null)       // Success(null)
+val result2 = nullOrDefaultValidator.tryValidate("default")  // Success("default")
+val result3 = nullOrDefaultValidator.tryValidate("other")    // Failure
+
+// Require non-null AND validate the value - use Kova.notNullThen() directly
+val notNullAndMinValidator = Kova.notNullThen(Kova.string().min(5)).toNonNullable()
 val result1 = notNullAndMinValidator.tryValidate(null)       // Failure (null not allowed)
 val result2 = notNullAndMinValidator.tryValidate("hello")    // Success("hello")
 val result3 = notNullAndMinValidator.tryValidate("hi")       // Failure (min(5) violated)
 
+// Chain nullable validators with notNullThen (renamed from whenNotNullThen)
+val chainedValidator = Kova.nullable<String>().notNullThen(Kova.string().min(5))
+
+// Set default value for null inputs (renamed from whenNullAs)
+val withDefault = Kova.nullable<String>().orDefault("default")
+val result = withDefault.tryValidate(null)                   // Success("default")
+
 // Convert any validator to nullable using asNullable()
 val validator = Kova.string().min(5).asNullable()
 ```
+
+**API Summary**:
+- `Kova.notNull<T>()` - Convenience method for rejecting null values
+- `Kova.isNull<T>()` - Convenience method for accepting only null values
+- `Kova.isNullOr(value)` - Accept null or a specific literal value
+- `Kova.notNullThen(validator)` - Chain validation after null check
+- `.notNullThen(validator)` - Extension on nullable validators (renamed from `whenNotNullThen`)
+- `.orDefault(value)` - Replace null with default (renamed from `whenNullAs`)
 
 **Note**: `notNull()` returns a regular `Validator<T?, S>` that enforces non-null constraints while maintaining type safety.
 
@@ -217,8 +240,12 @@ Kova.bigDecimal()  // BigDecimal
 Kova.bigInteger()  // BigInteger
 
 // All numeric validators support:
-    .min(0)        // Minimum value
-    .max(100)      // Maximum value
+    .min(0)         // Minimum value (>= 0)
+    .max(100)       // Maximum value (<= 100)
+    .positive()     // Must be positive (> 0)
+    .negative()     // Must be negative (< 0)
+    .notPositive()  // Must not be positive (<= 0)
+    .notNegative()  // Must not be negative (>= 0)
 ```
 
 ### Boolean
@@ -241,36 +268,105 @@ Kova.localDate()           // Optional clock parameter (defaults to Clock.system
 
 ```kotlin
 Kova.list<String>()
-    .min(1)     // Minimum size
-    .max(10)    // Maximum size
-    // Can also validate elements with map/andThen
+    .min(1)                                  // Minimum size
+    .max(10)                                 // Maximum size
+    .length(5)                               // Exact size
+    .notEmpty()                              // Must not be empty
+    .onEach(Kova.string().min(1))           // Validate each element
 
 Kova.set<Int>()
+    .min(1)
+    .max(10)
+    .length(5)
+    .notEmpty()
+    .onEach(Kova.int().min(0))
+
 Kova.collection<String>()
+    .min(1)
+    .max(10)
+    .length(5)
+    .notEmpty()
+    .onEach(Kova.string().notBlank())
+```
+
+#### Recursive Validation with onEach
+
+The `onEach` method can be used recursively to validate nested collections:
+
+```kotlin
+data class Node(
+    val children: List<Node> = emptyList(),
+)
+
+val nodeSchema =
+    object : ObjectSchema<Node>({
+        Node::children { Kova.list<Node>().max(2).onEach(caller) } // Recursive call
+    }) {
+    }
+
+
+val node = Node(
+    listOf(Node(), Node(
+        listOf(Node(), Node(), Node()))
+    )
+)
+
+val result = nodeSchema.tryValidate(node)
 ```
 
 ### Maps
 
 ```kotlin
 Kova.map<String, Int>()
-    .min(1)     // Minimum size
-    // Can validate keys and values with map/andThen
+    .min(1)                                  // Minimum size
+    .max(10)                                 // Maximum size
+    .length(5)                               // Exact size
+    .notEmpty()                              // Must not be empty
+    .onEach(Kova.mapEntry<String, Int>())   // Validate each entry
+    .onEachKey(Kova.string().min(1))        // Validate each key
+    .onEachValue(Kova.int().min(0))         // Validate each value
+```
+
+### Literal Values
+
+Validate that a value matches a specific literal value or one of a set of allowed values:
+
+```kotlin
+// Single literal value
+val activeValidator = Kova.literal("active")
+val result1 = activeValidator.tryValidate("active")   // Success("active")
+val result2 = activeValidator.tryValidate("inactive") // Failure
+
+// Multiple allowed values (vararg)
+val statusValidator = Kova.literal("active", "inactive", "pending")
+val result = statusValidator.tryValidate("active")    // Success("active")
+
+// Multiple allowed values (list)
+val allowedValues = listOf(1, 2, 3, 5, 8, 13)
+val fibValidator = Kova.literal(allowedValues)
+val result = fibValidator.tryValidate(5)              // Success(5)
+
+// Works with any type
+enum class Status { ACTIVE, INACTIVE, PENDING }
+val enumValidator = Kova.literal(Status.ACTIVE, Status.INACTIVE)
+val result = enumValidator.tryValidate(Status.ACTIVE) // Success(ACTIVE)
 ```
 
 ### Enums
 
-Enum validation is now string-based via `StringValidator`:
+Enum validation can be done in two ways:
 
 ```kotlin
 enum class Status { ACTIVE, INACTIVE }
 
+// Option 1: String-based validation via StringValidator
 // Validate that a string is a valid enum value
 Kova.string().isEnum<Status>()
 
 // Validate and convert to enum
 Kova.string().toEnum<Status>()
 
-// Alternative: Use literal validator for enum values directly
+// Option 2: Direct enum value validation via literal validator
 Kova.literal(Status.ACTIVE, Status.INACTIVE)
 ```
 
@@ -302,7 +398,9 @@ val result = validator.tryValidate("ab")
 
 if (result.isFailure()) {
     // Get all error messages
-    result.messages.forEach { println(it) }
+    result.messages.forEach { message ->
+        println(message.content)
+    }
     // Output:
     // "ab" must be at least 3 characters
     // "ab" must be exactly 4 characters
@@ -329,26 +427,77 @@ val result = userValidator.tryValidate(User(-1, "", "invalid"))
 result.details.forEach { detail ->
     println("Root: ${detail.root}")      // e.g., "User"
     println("Path: ${detail.path}")      // e.g., "name"
-    println("Messages: ${detail.messages}")
+    detail.messages.forEach { message ->
+        println("Message: ${message.content}")
+    }
 }
 ```
 
 ## Custom Constraints
 
-You can add custom constraints to any validator:
+You can add custom constraints to any validator using the `constrain` method:
 
 ```kotlin
-val validator = Kova.string().constraint { ctx ->
-    Constraint.satisfies(
+val validator = Kova.string().constrain("custom.email") { ctx ->
+    satisfies(
         ctx.input.contains("@") && ctx.input.contains("."),
         Message.Text("Must be a valid email format")
     )
 }
 ```
 
+The first parameter is the constraint ID, and the second is a lambda that receives a `ConstraintContext<T>` and returns a `ConstraintResult`. Use the `satisfies()` helper within the lambda to simplify constraint creation.
+
+### Creating Custom Extension Methods
+
+You can create reusable validation logic by defining extension methods on validators:
+
+```kotlin
+// Define a custom extension method for StringValidator
+fun StringValidator.isPhoneNumber(
+    message: (ConstraintContext<String>) -> Message = Message.resource0()
+): StringValidator = constrain("custom.phoneNumber") { ctx ->
+        val phonePattern = Regex("""^\+?[1-9]\d{1,14}$""")
+        satisfies(
+            phonePattern.matches(ctx.input),
+            message(ctx)
+        )
+    }
+
+// Use the custom extension method
+val phoneValidator = Kova.string().isPhoneNumber()
+val result = phoneValidator.tryValidate("+1234567890")  // Success
+
+// Define extension with custom logic
+fun StringValidator.isStrongPassword(
+    message: (ConstraintContext<String>) -> Message = { ctx ->
+        Message.Text("Password must be at least 8 characters with uppercase, lowercase, and digits")
+    }
+): StringValidator = constrain("custom.strongPassword") { ctx ->
+        val input = ctx.input
+        satisfies(
+            input.length >= 8 &&
+            input.any { it.isUpperCase() } &&
+            input.any { it.isLowerCase() } &&
+            input.any { it.isDigit() },
+            message(ctx)
+        )
+    }
+
+val passwordValidator = Kova.string().isStrongPassword()
+
+// Extension methods can be chained with built-in validators
+val userPasswordValidator = Kova.string()
+    .min(8)
+    .max(100)
+    .isStrongPassword()
+```
+
 ## Internationalization
 
-Error messages are internationalized using resource bundles. The default messages are in `kova.properties`:
+Error messages are internationalized using resource bundles. All error messages are represented by `Message` objects with a `content` property containing the actual message string.
+
+The default messages are in `kova.properties`:
 
 ```properties
 kova.charSequence.min="{0}" must be at least {1} characters
@@ -364,6 +513,17 @@ val validator = Kova.string().min(
     length = 5,
     message = { ctx, len -> Message.Text("String '${ctx.input}' is too short (min: $len)") }
 )
+```
+
+To access error messages:
+
+```kotlin
+val result = validator.tryValidate("ab")
+if (result.isFailure()) {
+    result.messages.forEach { message ->
+        println(message.content)  // Prints the actual error message string
+    }
+}
 ```
 
 ## Building and Testing

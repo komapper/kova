@@ -126,7 +126,7 @@ val person = factory.create("Alice", 30)  // Validates and constructs
 - **Validator<IN, OUT>**: Core interface with `execute(context, input)` method; public API uses `tryValidate()` and `validate()` extension functions
 - **ValidationResult**: Sealed interface with `Success<T>` and `Failure` cases
 - **ConstraintValidator**: Generic constraint evaluator used internally by all type-specific validators
-- **Type-Specific Validators**: StringValidator, NumberValidator, LocalDateValidator, ComparableValidator, CollectionValidator, MapValidator, MapEntryValidator, LiteralValidator
+- **Type-Specific Validators**: StringValidator, NumberValidator, LocalDateValidator, ComparableValidator, CollectionValidator (with min/max/length/notEmpty/onEach), MapValidator (with min/max/length/notEmpty/onEach/onEachKey/onEachValue), MapEntryValidator, LiteralValidator
 - **ObjectSchema**: Validates objects by defining validation rules for individual properties within a constructor lambda scope
 - **ObjectSchemaScope**: Scope class providing access to `constrain()` and property validation methods within ObjectSchema constructor lambda
 - **PropertyValidator**: Interface representing a validated property with access to the original `KProperty1` and its validator
@@ -157,8 +157,8 @@ val intValidator = Kova.string().isInt().map { it.toString().toInt() }
 // Chain validators with andThen/compose
 val validator = stringValidator.andThen(intValidator)
 
-// Add constraints to existing validators
-val validator = Kova.string().constraint { ctx -> /* ... */ }
+// Add custom constraints to existing validators
+val validator = Kova.string().constrain("custom.id") { ctx -> /* ... */ }
 ```
 
 **Execution Model**: Validators implement the `execute(context, input)` method which handles the validation logic. The public API uses extension functions `tryValidate(input, failFast)` and `validate(input, failFast)` which create a `ValidationContext` and call `execute()` internally.
@@ -168,32 +168,52 @@ val validator = Kova.string().constraint { ctx -> /* ... */ }
 Kova provides first-class support for nullable types through the `Kova.nullable()` factory method and specialized nullable validators.
 
 ```kotlin
-// Create a nullable validator by wrapping a non-null validator
-val nullableValidator = Kova.nullable(Kova.string().min(1))
+// Create a nullable validator by wrapping a non-null validator using asNullable()
+val nullableValidator = Kova.string().min(1).asNullable()
 // Accepts null and passes validation (null is always valid in nullable validators)
 // Non-null values are validated with the wrapped validator
 
-// Create a nullable validator without wrapping (for custom validation)
+// Create an empty nullable validator (for custom validation)
 val emptyNullableValidator = Kova.nullable<String>()
 
-// Require non-null value
-val notNullValidator = Kova.nullable<String>().notNull()
+// Require non-null value - use Kova.notNull() directly
+val notNullValidator = Kova.notNull<String>()
 // Null values fail validation, non-null values pass
 
-// Accept null explicitly
-val isNullValidator = Kova.nullable<String>().isNull()
+// Accept null explicitly - use Kova.isNull() directly
+val isNullValidator = Kova.isNull<String>()
 // Only null values pass, non-null values fail
 
 // Accept null OR validate non-null values
-val nullOrMinValidator = Kova.nullable<String>().isNullOrElse(Kova.string().min(5))
+val nullOrMinValidator = Kova.nullable<String>().isNullOr(Kova.string().min(5))
 // Null values pass, non-null values must satisfy min(5)
 
-// Require non-null AND validate the value
-val notNullAndMinValidator = Kova.string().notNull().andThen(Kova.string().min(5))
+// Alternative: Use isNullOr for literal values
+val nullOrValueValidator = Kova.isNullOr("default")
+// Accepts null or the exact value "default"
+
+// Require non-null AND validate the value - use Kova.notNullThen() directly
+val notNullAndMinValidator = Kova.notNullThen(Kova.string().min(5)).toNonNullable()
 // Null values fail, non-null values must satisfy min(5)
+
+// Chain nullable validators with notNullThen
+val chainedValidator = Kova.nullable<String>().notNullThen(Kova.string().min(5))
+// Null values fail, non-null values must satisfy min(5)
+
+// Set default value for null inputs
+val withDefault = Kova.nullable<String>().orDefault("default")
+// Null inputs are replaced with "default"
 ```
 
-**Key behavior**: By default, `Kova.nullable()` treats null as a valid value. Use `notNull()` to enforce non-null requirements.
+**Key behavior**: By default, `Kova.nullable()` treats null as a valid value. Use `Kova.notNull()` or `.notNull()` to enforce non-null requirements.
+
+**API Summary**:
+- `Kova.notNull<T>()` - Convenience method, same as `Kova.nullable<T>().notNull()`
+- `Kova.isNull<T>()` - Convenience method, same as `Kova.nullable<T>().isNull()`
+- `Kova.isNullOr(value)` - Convenience method, accepts null or a specific literal value
+- `Kova.notNullThen(validator)` - Convenience method for chaining with non-null validation
+- `.notNullThen(validator)` - Extension on nullable validators for chaining
+- `.orDefault(value)` - Replace null values with a default
 
 **Implementation note**:
 - The `asNullable()` extension method is also available on any validator as an alternative API for converting a validator to nullable
@@ -215,16 +235,26 @@ Validation failures include `root` and `path` properties in `ValidationContext` 
 
 ### Internationalization
 
-Constraints return `Message` objects for error messages:
-- **Message.Resource(key, args)**: I18n keys resolved from `kova-core/src/main/resources/kova.properties`
-- **Message.Text(content)**: Direct string messages
-- **Message.ValidationFailure(details)**: Nested validation failures
+Constraints return `Message` objects for error messages. All `Message` types have a `content` property that contains the actual string message:
+- **Message.Resource(constraintId, args)**: I18n messages resolved from `kova-core/src/main/resources/kova.properties`. The `content` property contains the formatted message.
+- **Message.Text(content)**: Direct string messages. The `content` property contains the provided string.
+- **Message.ValidationFailure(details)**: Nested validation failures. The `content` property contains the string representation of failure details.
 
 Resource messages use Java MessageFormat with placeholders: `{0}`, `{1}`, etc.
 
 Example: `kova.charSequence.min="{0}" must be at least {1} characters`
 
 The `Message.resource0`, `Message.resource1`, `Message.resource2`, etc. companion functions create message factories that automatically include the input value as the first argument.
+
+To access the actual error message string, use the `content` property:
+```kotlin
+val result = validator.tryValidate("invalid")
+if (result.isFailure()) {
+    result.messages.forEach { message ->
+        println(message.content)  // Prints the actual error message string
+    }
+}
+```
 
 ## Important Patterns
 
@@ -312,11 +342,11 @@ When `failFast` is true, validation stops at the first constraint violation.
 **Core Validators**:
 - `ConstraintValidator.kt` - Generic constraint evaluator used by all type-specific validators
 - `StringValidator.kt` - Validates strings (min/max length, patterns, email, transformations, numeric conversions, enum validation, etc.)
-- `NumberValidator.kt` - Validates numeric types (Int, Long, Double, Float, BigDecimal, etc.)
+- `NumberValidator.kt` - Validates numeric types (Int, Long, Double, Float, BigDecimal, etc. with min/max/positive/negative/notPositive/notNegative)
 - `LocalDateValidator.kt` - Validates LocalDate values (future, past, futureOrPresent, pastOrPresent)
 - `ComparableValidator.kt` - Validates comparable types (min/max comparisons)
-- `CollectionValidator.kt` - Validates collections (size, element validators)
-- `MapValidator.kt` - Validates maps (size, key/value validators)
+- `CollectionValidator.kt` - Validates collections (min/max/length/notEmpty for size, onEach for element validation)
+- `MapValidator.kt` - Validates maps (min/max/length/notEmpty for size, onEach/onEachKey/onEachValue for entry/key/value validation)
 - `MapEntryValidator.kt` - Validates individual map entries
 - `LiteralValidator.kt` - Validates literal values (single value or list of allowed values)
 - `EmptyValidator.kt` - No-op validator used by `Kova.generic()` that always succeeds
