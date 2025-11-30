@@ -90,8 +90,15 @@ fun <T : Any, S : Any> Validator<T, S>.isNullOrElse(
     message: ((ConstraintContext<T?>) -> Message)? = null,
 ): NullableValidator<T, S> = this.asNullable().isNullOrElse(other, message = message)
 
-// shortcut function for asNullable().toNonNullable()
-fun <T : Any, S : Any> Validator<T, S>.notNull(message: ((ConstraintContext<T?>) -> Message)? = null): Validator<T?, S> {
+// shortcut function for asNullable().notNull()
+fun <T : Any, S : Any> Validator<T, S>.notNull(message: ((ConstraintContext<T?>) -> Message)? = null): NullableValidator<T, S> {
     val nullable = this.asNullable()
-    return if (message == null) nullable.toNonNullable() else nullable.toNonNullable(message)
+    return if (message == null) nullable.notNull() else nullable.notNull(message)
+}
+
+// shortcut function for asNullable().notNull().map { it!! }
+fun <T : Any, S : Any> Validator<T, S>.asNonNullable(message: ((ConstraintContext<T?>) -> Message)? = null): Validator<T?, S> {
+    val nullable = this.asNullable()
+    val notNull = if (message == null) nullable.notNull() else nullable.notNull(message)
+    return notNull.map { it!! }
 }

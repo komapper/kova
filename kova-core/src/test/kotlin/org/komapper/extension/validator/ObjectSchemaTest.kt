@@ -33,7 +33,8 @@ class ObjectSchemaTest :
 
         data class Person(
             val id: Int,
-            val name: String?,
+            val firstName: String?,
+            val lastName: String?,
             val address: Address?,
         )
 
@@ -334,38 +335,45 @@ class ObjectSchemaTest :
 
             val personSchema =
                 object : ObjectSchema<Person>({
-                    Person::name { Kova.nullable() }
+                    Person::firstName { Kova.string().asNullable() }
+                    Person::lastName { Kova.nullable() }
                     Person::address { addressSchema.asNullable() }
                 }) {}
 
             val personSchema2 =
                 object : ObjectSchema<Person>({
-                    Person::name { Kova.nullable<String>().notNull() }
+                    Person::firstName { Kova.string().notNull() }
+                    Person::lastName { Kova.nullable<String>().notNull() }
                     Person::address { addressSchema.asNullable() }
                 }) {}
 
             test("success") {
-                val person = Person(1, "abc", Address(1, Street(1, "def")))
+                val person = Person(1, "abc", "def", Address(1, Street(1, "hij")))
                 val result = personSchema.tryValidate(person)
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe person
             }
 
             test("success - nullable") {
-                val person = Person(1, null, null)
+                val person = Person(1, null, null, null)
                 val result = personSchema.tryValidate(person)
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe person
             }
 
             test("failure - isNotNull") {
-                val person = Person(1, null, null)
+                val person = Person(1, null, null, null)
                 val result = personSchema2.tryValidate(person)
                 result.isFailure().mustBeTrue()
-                result.details.size shouldBe 1
+                result.details.size shouldBe 2
                 result.details[0].let {
                     it.root shouldEndWith $$"$Person"
-                    it.path shouldBe "name"
+                    it.path shouldBe "firstName"
+                    it.message.content shouldBe "Value must not be null"
+                }
+                result.details[1].let {
+                    it.root shouldEndWith $$"$Person"
+                    it.path shouldBe "lastName"
                     it.message.content shouldBe "Value must not be null"
                 }
             }
