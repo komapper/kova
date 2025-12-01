@@ -7,11 +7,6 @@ interface NullableValidator<T : Any, S : Any> :
     Constrainable<T?, NullableValidator<T, S>> {
     fun isNull(message: (ConstraintContext<T?>) -> Message = Message.resource0()): NullableValidator<T, S>
 
-    fun isNullOr(
-        other: Validator<T, S>,
-        message: ((ConstraintContext<T?>) -> Message)? = null,
-    ): NullableValidator<T, S>
-
     fun notNull(message: (ConstraintContext<T?>) -> Message = Message.resource0()): NullableValidator<T, S>
 }
 
@@ -33,28 +28,31 @@ fun <T : Any, S : Any> Validator<T, S>.asNullable(): NullableValidator<T, S> {
     return NullableValidator(wrapped)
 }
 
-fun <T : Any> NullableValidator<T, T>.isNullOr(
-    value: T,
-    message: ((ConstraintContext<T?>) -> Message)? = null,
-): NullableValidator<T, T> = if (message == null) isNullOr(Kova.literal(value)) else isNullOr(Kova.literal(value), message)
-
 // shortcut function for asNullable().isNull()
 fun <T : Any, S : Any> Validator<T, S>.isNull(message: ((ConstraintContext<T?>) -> Message)? = null): NullableValidator<T, S> {
     val nullable = this.asNullable()
     return if (message == null) nullable.isNull() else nullable.isNull(message)
 }
 
-// shortcut function for asNullable().isNullOr()
+// shortcut function for asNullable().isNull().or(other.asNullable())
 fun <T : Any, S : Any> Validator<T, S>.isNullOr(
     other: Validator<T, S>,
     message: ((ConstraintContext<T?>) -> Message)? = null,
-): NullableValidator<T, S> = this.asNullable().isNullOr(other, message = message)
+): Validator<T?, S?> {
+    val nullable = this.asNullable()
+    val isNull = if (message == null) nullable.isNull() else nullable.isNull(message)
+    return isNull.or(other.asNullable())
+}
 
-// shortcut function for asNullable().isNullOr()
-fun <T : Any> Validator<T, T>.isNullOr(
-    value: T,
+// shortcut function for asNullable().isNull().or(Kova.literal(other).asNullable())
+fun <T : Any> Validator<T, T>.isNullOrLiteral(
+    literal: T,
     message: ((ConstraintContext<T?>) -> Message)? = null,
-): NullableValidator<T, T> = this.asNullable().isNullOr(Kova.literal(value), message = message)
+): Validator<T?, T?> {
+    val nullable = this.asNullable()
+    val isNull = if (message == null) nullable.isNull() else nullable.isNull(message)
+    return isNull.or(LiteralValidator<T>().single(literal).asNullable())
+}
 
 // shortcut function for asNullable().notNull()
 fun <T : Any, S : Any> Validator<T, S>.notNull(message: ((ConstraintContext<T?>) -> Message)? = null): NullableValidator<T, S> {
@@ -101,14 +99,6 @@ private class NullableValidatorImpl<T : Any, S : Any>(
         constrain("kova.nullable.isNull", {
             satisfies(it.input == null, message(it))
         })
-
-    override fun isNullOr(
-        other: Validator<T, S>,
-        message: ((ConstraintContext<T?>) -> Message)?,
-    ): NullableValidator<T, S> {
-        val isNull: Validator<T?, S?> = if (message == null) isNull() else isNull(message)
-        return NullableValidatorImpl(isNull.or(other.asNullable()), emptyList())
-    }
 
     override fun notNull(message: (ConstraintContext<T?>) -> Message): NullableValidator<T, S> =
         constrain("kova.nullable.notNull", { ctx ->

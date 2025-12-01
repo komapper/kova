@@ -72,10 +72,7 @@ interface Kova {
     fun <T : Any> isNullOr(
         value: T,
         message: ((ConstraintContext<T?>) -> Message)? = null,
-    ): NullableValidator<T, T> =
-        with(this) {
-            if (message == null) nullable<T>().isNullOr(literal(value)) else nullable<T>().isNullOr(literal(value), message)
-        }
+    ): Validator<T?, T?> = generic<T>().isNullOr(Kova.literal(value), message)
 
     fun <T : Any> notNull(message: ((ConstraintContext<T?>) -> Message)? = null): NullableValidator<T, T> =
         with(this) {

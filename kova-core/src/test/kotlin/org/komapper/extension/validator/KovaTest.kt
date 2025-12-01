@@ -111,8 +111,8 @@ class KovaTest :
 
             val userSchema =
                 object : ObjectSchema<User>() {
-                    val name = User::name { Kova.nullable<String>().isNullOr("") }
-                    val age = User::age { Kova.int().isNullOr(0) }
+                    val name = User::name { Kova.string().isNullOrLiteral("") }
+                    val age = User::age { Kova.int().isNullOrLiteral(0) }
 
                     fun build(
                         name: String?,
