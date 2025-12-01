@@ -72,7 +72,7 @@ val user = User(1, "Alice", "alice@example.com")
 val result = UserSchema.tryValidate(user)
 ```
 
-**Note**: Properties are defined as object properties (outside the constructor lambda). This allows them to be referenced when creating ObjectFactory instances.
+**Note**: Properties must be defined as object properties (outside the constructor lambda), as the `invoke` operator for property definitions is only available on the `ObjectSchema` class itself, not within the lambda scope.
 
 ### Object-Level Constraints
 
@@ -84,16 +84,16 @@ import java.time.LocalDate
 data class Period(val startDate: LocalDate, val endDate: LocalDate)
 
 object PeriodSchema : ObjectSchema<Period>({
-    Period::startDate { Kova.localDate() }
-    Period::endDate { Kova.localDate() }
-
     constrain("dateRange") {
         satisfies(
             it.input.startDate <= it.input.endDate,
             "startDate must be less than or equal to endDate"
         )
     }
-})
+}) {
+    val startDate = Period::startDate { Kova.localDate() }
+    val endDate = Period::endDate { Kova.localDate() }
+}
 
 val result = PeriodSchema.tryValidate(Period(
     LocalDate.of(2024, 1, 1),
@@ -102,7 +102,7 @@ val result = PeriodSchema.tryValidate(Period(
 // Validation fails with message: "startDate must be less than or equal to endDate"
 ```
 
-**Note**: When you need object-level constraints, properties are defined within the constructor lambda. The lambda provides access to `ObjectSchemaScope` which includes the `constrain()` method.
+**Note**: Even when using object-level constraints, properties must still be defined as object properties (outside the constructor lambda). Only the `constrain()` calls are placed within the constructor lambda. The lambda provides access to `ObjectSchemaScope` which includes the `constrain()` method.
 
 ### Object Construction with Validation
 
@@ -115,16 +115,15 @@ import org.komapper.extension.validator.ObjectSchema
 
 data class Person(val name: String, val age: Int)
 
-// Define properties as object properties (not in constructor lambda) when using ObjectFactory
 object PersonSchema : ObjectSchema<Person>() {
     private val name = Person::name { Kova.string().min(1).max(50) }
     private val age = Person::age { Kova.int().min(0).max(150) }
 
     // Create a factory method that builds an ObjectFactory
     fun build(name: String, age: Int): ObjectFactory<Person> {
-        val arg1 = Kova.arg(this.name, name)
-        val arg2 = Kova.arg(this.age, age)
-        return Kova.arguments(arg1, arg2).createFactory(PersonSchema, ::Person)
+        val arg1 = arg(this.name, name)
+        val arg2 = arg(this.age, age)
+        return arguments(arg1, arg2).build(::Person)
     }
 }
 
@@ -144,8 +143,8 @@ object AgeSchema : ObjectSchema<Age>() {
     private val value = Age::value { Kova.int().min(0).max(120) }
 
     fun build(age: String): ObjectFactory<Age> {
-        val arg1 = Kova.arg(Kova.string().toInt().then(this.value), age)
-        return Kova.arguments(arg1).createFactory(AgeSchema, ::Age)
+        val arg1 = arg(Kova.string().toInt().then(this.value), age)
+        return arguments(arg1).build(::Age)
     }
 }
 
@@ -154,9 +153,9 @@ object PersonSchema : ObjectSchema<Person>() {
     private val age = Person::age { AgeSchema }
 
     fun build(name: String, age: String): ObjectFactory<Person> {
-        val arg1 = Kova.arg(this.name, name)
-        val arg2 = Kova.arg(this.age, AgeSchema.build(age))  // Nested factory
-        return Kova.arguments(arg1, arg2).createFactory(PersonSchema, ::Person)
+        val arg1 = arg(this.name, name)
+        val arg2 = arg(this.age, this.age.build(age))  // Nested factory
+        return arguments(arg1, arg2).build(::Person)
     }
 }
 
@@ -165,14 +164,14 @@ val person = factory.create()  // Validates and constructs nested objects
 ```
 
 **Key Components**:
-- **`Kova.arg(validator, value)`**: Creates an `Arg` that wraps a validator and input value
-- **`Kova.arg(validator, factory)`**: Creates an `Arg` that wraps a validator and nested ObjectFactory (for nested objects)
-- **`Kova.arguments(...)`**: Creates an `Arguments1` through `Arguments10` object (supports 1-10 arguments)
-- **`.createFactory(schema, constructor)`**: Creates an `ObjectFactory` that validates inputs and constructs objects
+- **`ObjectSchema.arg(validator, value)`**: Creates an `Arg` that wraps a validator and input value
+- **`ObjectSchema.arg(validator, factory)`**: Creates an `Arg` that wraps a validator and nested ObjectFactory (for nested objects)
+- **`ObjectSchema.arguments(...)`**: Creates an `Arguments1` through `Arguments10` object (supports 1-10 arguments)
+- **`Arguments.build(constructor)`**: Creates an `ObjectFactory` that validates inputs and constructs objects
 - **`ObjectFactory.tryCreate(failFast = false)`**: Validates and constructs, returning `ValidationResult<T>`
 - **`ObjectFactory.create(failFast = false)`**: Validates and constructs, returning `T` or throwing `ValidationException`
 
-**Note**: Properties must be defined as object properties (not within the constructor lambda) so they can be referenced when creating `Arg` instances.
+**Note**: Properties must be defined as object properties because the `invoke` operator for property definitions is only available on the `ObjectSchema` class itself. This also allows properties to be referenced when creating `Arg` instances for ObjectFactory. The `arguments()` method passes the schema itself to the `Arguments` constructor, which is used for validating the constructed object via the `build()` method.
 
 ### Nullable Validation
 
@@ -212,10 +211,10 @@ val result1 = notNullAndMinValidator.tryValidate(null)       // Failure (null no
 val result2 = notNullAndMinValidator.tryValidate("hello")    // Success("hello")
 val result3 = notNullAndMinValidator.tryValidate("hi")       // Failure (min(5) violated)
 
-// Chain nullable validators with notNullThen (renamed from whenNotNullThen)
+// Chain nullable validators with notNullThen
 val chainedValidator = Kova.nullable<String>().notNullThen(Kova.string().min(5))
 
-// Set default value for null inputs (renamed from whenNullAs)
+// Set default value for null inputs
 val withDefault = Kova.nullable<String>().orDefault("default")
 val result = withDefault.tryValidate(null)                   // Success("default")
 
@@ -228,10 +227,8 @@ val validator = Kova.string().min(5).asNullable()
 - `Kova.isNull<T>()` - Convenience method for accepting only null values
 - `Kova.isNullOr(value)` - Accept null or a specific literal value
 - `Kova.notNullThen(validator)` - Chain validation after null check
-- `.notNullThen(validator)` - Extension on nullable validators (renamed from `whenNotNullThen`)
-- `.orDefault(value)` - Replace null with default (renamed from `whenNullAs`)
-
-**Note**: `notNull()` returns a regular `Validator<T?, S>` that enforces non-null constraints while maintaining type safety.
+- `.notNullThen(validator)` - Extension on nullable validators
+- `.orDefault(value)` - Replace null with default
 
 ## Available Validators
 
