@@ -23,10 +23,10 @@ class ObjectFactoryTest :
                         name: String?,
                         age: Int?,
                     ): ObjectFactory<User> {
-                        val arg1 = Kova.arg(this.name.orDefault(""), name)
-                        val arg2 = Kova.arg(this.age.orDefault(0), age)
-                        val arguments = Kova.arguments(arg1, arg2)
-                        return arguments.createFactory(this, ::User)
+                        val arg1 = arg(this.name.orDefault(""), name)
+                        val arg2 = arg(this.age.orDefault(0), age)
+                        val arguments = arguments(arg1, arg2)
+                        return arguments.build(::User)
                     }
                 }
 
@@ -55,9 +55,9 @@ class ObjectFactoryTest :
                     private val id = User::id { Kova.int().min(1) }
 
                     fun build(id: Int): ObjectFactory<User> {
-                        val arg1 = Kova.arg(this.id, id)
-                        val arguments = Kova.arguments(arg1)
-                        return arguments.createFactory(this, ::User)
+                        val arg1 = arg(this.id, id)
+                        val arguments = arguments(arg1)
+                        return arguments.build(::User)
                     }
                 }
 
@@ -115,10 +115,10 @@ class ObjectFactoryTest :
                         id: Int,
                         name: String,
                     ): ObjectFactory<User> {
-                        val arg1 = Kova.arg(this.id, id)
-                        val arg2 = Kova.arg(this.name, name)
-                        val arguments = Kova.arguments(arg1, arg2)
-                        return arguments.createFactory(this, ::User)
+                        val arg1 = arg(this.id, id)
+                        val arg2 = arg(this.name, name)
+                        val arguments = arguments(arg1, arg2)
+                        return arguments.build(::User)
                     }
                 }
 
@@ -150,21 +150,21 @@ class ObjectFactoryTest :
                 val name: String,
             )
 
-            val userFactoryBuilder =
-                object {
+            val userSchema =
+                object : ObjectSchema<User>() {
                     fun build(
                         id: Int,
                         name: String,
                     ): ObjectFactory<User> {
-                        val arg1 = Kova.arg(Kova.generic(), id)
-                        val arg2 = Kova.arg(Kova.generic(), name)
-                        val arguments = Kova.arguments(arg1, arg2)
-                        return arguments.createFactory(Kova.generic(), ::User)
+                        val arg1 = arg(Kova.generic(), id)
+                        val arg2 = arg(Kova.generic(), name)
+                        val arguments = arguments(arg1, arg2)
+                        return arguments.build(::User)
                     }
                 }
 
             test("success") {
-                val factory = userFactoryBuilder.build(1, "abc")
+                val factory = userSchema.build(1, "abc")
                 val result = factory.tryCreate()
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe User(1, "abc")
@@ -190,8 +190,8 @@ class ObjectFactoryTest :
                     private val value = Age::value { Kova.int().min(0) }
 
                     fun build(age: Int): ObjectFactory<Age> {
-                        val args = Kova.arguments(Kova.arg(this.value, age))
-                        return args.createFactory(this, ::Age)
+                        val args = arguments(arg(this.value, age))
+                        return args.build(::Age)
                     }
                 }
 
@@ -200,8 +200,8 @@ class ObjectFactoryTest :
                     private val value = Name::value { Kova.string().notBlank() }
 
                     fun build(name: String): ObjectFactory<Name> {
-                        val args = Kova.arguments(Arg.Value(this.value, name))
-                        return args.createFactory(this, ::Name)
+                        val args = arguments(arg(this.value, name))
+                        return args.build(::Name)
                     }
                 }
 
@@ -214,10 +214,10 @@ class ObjectFactoryTest :
                         name: String,
                         age: Int,
                     ): ObjectFactory<Person> {
-                        val arg1 = Kova.arg(this.name, this.name.build(name))
-                        val arg2 = Kova.arg(this.age, this.age.build(age))
-                        val arguments = Kova.arguments(arg1, arg2)
-                        return arguments.createFactory(this, ::Person)
+                        val arg1 = arg(this.name, this.name.build(name))
+                        val arg2 = arg(this.age, this.age.build(age))
+                        val arguments = arguments(arg1, arg2)
+                        return arguments.build(::Person)
                     }
                 }
 

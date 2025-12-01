@@ -75,13 +75,11 @@ sealed interface Arg<OUT> : ObjectFactory<OUT> {
     }
 }
 
-data class Arguments1<T>(
+data class Arguments1<T, R>(
+    val validator: Validator<R, R>,
     val arg1: Arg<T>,
 ) {
-    fun <R> createFactory(
-        validator: Validator<R, R>,
-        ctor: (T) -> R,
-    ): ObjectFactory<R> =
+    fun build(ctor: (T) -> R): ObjectFactory<R> =
         ObjectFactory {
             val context = it.addRoot(ctor.toString())
             val result1 = arg1.execute(context.addPath("arg1"))
@@ -95,14 +93,12 @@ data class Arguments1<T>(
         }
 }
 
-data class Arguments2<T1, T2>(
+data class Arguments2<T1, T2, R>(
+    val validator: Validator<R, R>,
     val arg1: Arg<T1>,
     val arg2: Arg<T2>,
 ) {
-    fun <R> createFactory(
-        validator: Validator<R, R>,
-        ctor: (T1, T2) -> R,
-    ): ObjectFactory<R> {
+    fun build(ctor: (T1, T2) -> R): ObjectFactory<R> {
         return ObjectFactory {
             val context = it.addRoot(ctor.toString())
             val result1 =
@@ -124,15 +120,13 @@ data class Arguments2<T1, T2>(
     }
 }
 
-data class Arguments3<T1, T2, T3>(
+data class Arguments3<T1, T2, T3, R>(
+    val validator: Validator<R, R>,
     val arg1: Arg<T1>,
     val arg2: Arg<T2>,
     val arg3: Arg<T3>,
 ) {
-    fun <R> createFactory(
-        validator: Validator<R, R>,
-        ctor: (T1, T2, T3) -> R,
-    ): ObjectFactory<R> {
+    fun build(ctor: (T1, T2, T3) -> R): ObjectFactory<R> {
         return ObjectFactory {
             val context = it.addRoot(ctor.toString())
             val result1 =
@@ -158,16 +152,14 @@ data class Arguments3<T1, T2, T3>(
     }
 }
 
-data class Arguments4<T1, T2, T3, T4>(
+data class Arguments4<T1, T2, T3, T4, R>(
+    val validator: Validator<R, R>,
     val arg1: Arg<T1>,
     val arg2: Arg<T2>,
     val arg3: Arg<T3>,
     val arg4: Arg<T4>,
 ) {
-    fun <R> createFactory(
-        validator: Validator<R, R>,
-        ctor: (T1, T2, T3, T4) -> R,
-    ): ObjectFactory<R> {
+    fun build(ctor: (T1, T2, T3, T4) -> R): ObjectFactory<R> {
         return ObjectFactory {
             val context = it.addRoot(ctor.toString())
             val result1 =
@@ -197,17 +189,15 @@ data class Arguments4<T1, T2, T3, T4>(
     }
 }
 
-data class Arguments5<T1, T2, T3, T4, T5>(
+data class Arguments5<T1, T2, T3, T4, T5, R>(
+    val validator: Validator<R, R>,
     val arg1: Arg<T1>,
     val arg2: Arg<T2>,
     val arg3: Arg<T3>,
     val arg4: Arg<T4>,
     val arg5: Arg<T5>,
 ) {
-    fun <R> createFactory(
-        validator: Validator<R, R>,
-        ctor: (T1, T2, T3, T4, T5) -> R,
-    ): ObjectFactory<R> {
+    fun build(ctor: (T1, T2, T3, T4, T5) -> R): ObjectFactory<R> {
         return ObjectFactory {
             val context = it.addRoot(ctor.toString())
             val result1 =
@@ -241,7 +231,8 @@ data class Arguments5<T1, T2, T3, T4, T5>(
     }
 }
 
-data class Arguments6<T1, T2, T3, T4, T5, T6>(
+data class Arguments6<T1, T2, T3, T4, T5, T6, R>(
+    val validator: Validator<R, R>,
     val arg1: Arg<T1>,
     val arg2: Arg<T2>,
     val arg3: Arg<T3>,
@@ -249,10 +240,7 @@ data class Arguments6<T1, T2, T3, T4, T5, T6>(
     val arg5: Arg<T5>,
     val arg6: Arg<T6>,
 ) {
-    fun <R> createFactory(
-        validator: Validator<R, R>,
-        ctor: (T1, T2, T3, T4, T5, T6) -> R,
-    ): ObjectFactory<R> {
+    fun build(ctor: (T1, T2, T3, T4, T5, T6) -> R): ObjectFactory<R> {
         return ObjectFactory {
             val context = it.addRoot(ctor.toString())
             val result1 =
@@ -296,7 +284,8 @@ data class Arguments6<T1, T2, T3, T4, T5, T6>(
     }
 }
 
-data class Arguments7<T1, T2, T3, T4, T5, T6, T7>(
+data class Arguments7<T1, T2, T3, T4, T5, T6, T7, R>(
+    val validator: Validator<R, R>,
     val arg1: Arg<T1>,
     val arg2: Arg<T2>,
     val arg3: Arg<T3>,
@@ -305,10 +294,7 @@ data class Arguments7<T1, T2, T3, T4, T5, T6, T7>(
     val arg6: Arg<T6>,
     val arg7: Arg<T7>,
 ) {
-    fun <R> createFactory(
-        validator: Validator<R, R>,
-        ctor: (T1, T2, T3, T4, T5, T6, T7) -> R,
-    ): ObjectFactory<R> {
+    fun build(ctor: (T1, T2, T3, T4, T5, T6, T7) -> R): ObjectFactory<R> {
         return ObjectFactory {
             val context = it.addRoot(ctor.toString())
             val result1 =
@@ -357,7 +343,8 @@ data class Arguments7<T1, T2, T3, T4, T5, T6, T7>(
     }
 }
 
-data class Arguments8<T1, T2, T3, T4, T5, T6, T7, T8>(
+data class Arguments8<T1, T2, T3, T4, T5, T6, T7, T8, R>(
+    val validator: Validator<R, R>,
     val arg1: Arg<T1>,
     val arg2: Arg<T2>,
     val arg3: Arg<T3>,
@@ -367,10 +354,7 @@ data class Arguments8<T1, T2, T3, T4, T5, T6, T7, T8>(
     val arg7: Arg<T7>,
     val arg8: Arg<T8>,
 ) {
-    fun <R> createFactory(
-        validator: Validator<R, R>,
-        ctor: (T1, T2, T3, T4, T5, T6, T7, T8) -> R,
-    ): ObjectFactory<R> {
+    fun build(ctor: (T1, T2, T3, T4, T5, T6, T7, T8) -> R): ObjectFactory<R> {
         return ObjectFactory {
             val context = it.addRoot(ctor.toString())
             val result1 =
@@ -433,7 +417,8 @@ data class Arguments8<T1, T2, T3, T4, T5, T6, T7, T8>(
     }
 }
 
-data class Arguments9<T1, T2, T3, T4, T5, T6, T7, T8, T9>(
+data class Arguments9<T1, T2, T3, T4, T5, T6, T7, T8, T9, R>(
+    val validator: Validator<R, R>,
     val arg1: Arg<T1>,
     val arg2: Arg<T2>,
     val arg3: Arg<T3>,
@@ -444,10 +429,7 @@ data class Arguments9<T1, T2, T3, T4, T5, T6, T7, T8, T9>(
     val arg8: Arg<T8>,
     val arg9: Arg<T9>,
 ) {
-    fun <R> createFactory(
-        validator: Validator<R, R>,
-        ctor: (T1, T2, T3, T4, T5, T6, T7, T8, T9) -> R,
-    ): ObjectFactory<R> {
+    fun build(ctor: (T1, T2, T3, T4, T5, T6, T7, T8, T9) -> R): ObjectFactory<R> {
         return ObjectFactory {
             val context = it.addRoot(ctor.toString())
             val result1 =
@@ -516,7 +498,8 @@ data class Arguments9<T1, T2, T3, T4, T5, T6, T7, T8, T9>(
     }
 }
 
-data class Arguments10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
+data class Arguments10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R>(
+    val validator: Validator<R, R>,
     val arg1: Arg<T1>,
     val arg2: Arg<T2>,
     val arg3: Arg<T3>,
@@ -528,10 +511,7 @@ data class Arguments10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
     val arg9: Arg<T9>,
     val arg10: Arg<T10>,
 ) {
-    fun <R> createFactory(
-        validator: Validator<R, R>,
-        ctor: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) -> R,
-    ): ObjectFactory<R> {
+    fun build(ctor: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) -> R): ObjectFactory<R> {
         return ObjectFactory {
             val context = it.addRoot(ctor.toString())
             val result1 =
