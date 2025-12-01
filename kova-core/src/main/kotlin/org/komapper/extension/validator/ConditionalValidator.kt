@@ -22,4 +22,4 @@ private class ConditionalValidatorImpl<T>(
         }
 }
 
-fun <T> Validator<T, T>.onlyWhen(condition: (T) -> Boolean): ConditionalValidator<T> = ConditionalValidator(this, condition)
+fun <T> Validator<T, T>.onlyIf(condition: (T) -> Boolean): ConditionalValidator<T> = ConditionalValidator(this, condition)

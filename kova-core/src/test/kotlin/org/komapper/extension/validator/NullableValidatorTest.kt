@@ -211,8 +211,8 @@ class NullableValidatorTest :
             }
         }
 
-        context("orDefault") {
-            val validator = Kova.nullable<Int>().orDefault(0)
+        context("toDefaultIfNull") {
+            val validator = Kova.nullable<Int>().toDefaultIfNull(0)
 
             test("success - null") {
                 val result = validator.tryValidate(null)

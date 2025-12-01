@@ -57,15 +57,15 @@ fun <T> ObjectFactory<T>.create(failFast: Boolean = false): T {
 
 sealed interface Arg<OUT> : ObjectFactory<OUT> {
     data class Value<IN, OUT>(
-        val validator: Validator<IN, OUT>,
         val value: IN,
+        val validator: Validator<IN, OUT>,
     ) : Arg<OUT> {
         override fun execute(context: ValidationContext): ValidationResult<OUT> = validator.execute(context, value)
     }
 
     data class Factory<IN, OUT>(
-        val validator: Validator<IN, OUT>,
         val factory: ObjectFactory<IN>,
+        val validator: Validator<IN, OUT>,
     ) : Arg<OUT> {
         override fun execute(context: ValidationContext): ValidationResult<OUT> =
             when (val result = factory.execute(context)) {

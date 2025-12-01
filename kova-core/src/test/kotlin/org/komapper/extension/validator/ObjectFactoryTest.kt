@@ -8,7 +8,7 @@ import io.kotest.matchers.string.shouldContain
 class ObjectFactoryTest :
     FunSpec({
 
-        context("orDefault - factory") {
+        context("toDefaultIfNull - factory") {
             data class User(
                 val name: String?,
                 val age: Int?,
@@ -23,8 +23,8 @@ class ObjectFactoryTest :
                         name: String?,
                         age: Int?,
                     ): ObjectFactory<User> {
-                        val arg1 = arg(this.name.orDefault(""), name)
-                        val arg2 = arg(this.age.orDefault(0), age)
+                        val arg1 = arg(name, this.name.toDefaultIfNull(""))
+                        val arg2 = arg(age, this.age.toDefaultIfNull(0))
                         val arguments = arguments(arg1, arg2)
                         return arguments.build(::User)
                     }
@@ -55,7 +55,7 @@ class ObjectFactoryTest :
                     private val id = User::id { Kova.int().min(1) }
 
                     fun build(id: Int): ObjectFactory<User> {
-                        val arg1 = arg(this.id, id)
+                        val arg1 = arg(id, this.id)
                         val arguments = arguments(arg1)
                         return arguments.build(::User)
                     }
@@ -115,8 +115,8 @@ class ObjectFactoryTest :
                         id: Int,
                         name: String,
                     ): ObjectFactory<User> {
-                        val arg1 = arg(this.id, id)
-                        val arg2 = arg(this.name, name)
+                        val arg1 = arg(id, this.id)
+                        val arg2 = arg(name, this.name)
                         val arguments = arguments(arg1, arg2)
                         return arguments.build(::User)
                     }
@@ -156,8 +156,8 @@ class ObjectFactoryTest :
                         id: Int,
                         name: String,
                     ): ObjectFactory<User> {
-                        val arg1 = arg(Kova.generic(), id)
-                        val arg2 = arg(Kova.generic(), name)
+                        val arg1 = arg(id, Kova.generic())
+                        val arg2 = arg(name, Kova.generic())
                         val arguments = arguments(arg1, arg2)
                         return arguments.build(::User)
                     }
@@ -190,7 +190,7 @@ class ObjectFactoryTest :
                     private val value = Age::value { Kova.int().min(0) }
 
                     fun build(age: Int): ObjectFactory<Age> {
-                        val args = arguments(arg(this.value, age))
+                        val args = arguments(arg(age, this.value))
                         return args.build(::Age)
                     }
                 }
@@ -200,7 +200,7 @@ class ObjectFactoryTest :
                     private val value = Name::value { Kova.string().notBlank() }
 
                     fun build(name: String): ObjectFactory<Name> {
-                        val args = arguments(arg(this.value, name))
+                        val args = arguments(arg(name, this.value))
                         return args.build(::Name)
                     }
                 }
@@ -214,8 +214,8 @@ class ObjectFactoryTest :
                         name: String,
                         age: Int,
                     ): ObjectFactory<Person> {
-                        val arg1 = arg(this.name, this.name.build(name))
-                        val arg2 = arg(this.age, this.age.build(age))
+                        val arg1 = arg(this.name.build(name), this.name)
+                        val arg2 = arg(this.age.build(age), this.age)
                         val arguments = arguments(arg1, arg2)
                         return arguments.build(::Person)
                     }

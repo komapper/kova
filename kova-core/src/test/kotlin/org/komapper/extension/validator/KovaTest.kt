@@ -118,8 +118,8 @@ class KovaTest :
                         name: String?,
                         age: Int?,
                     ): ObjectFactory<User> {
-                        val arg1 = arg(this.name, name)
-                        val arg2 = arg(this.age, age)
+                        val arg1 = arg(name, this.name)
+                        val arg2 = arg(age, this.age)
                         val arguments = arguments(arg1, arg2)
                         return arguments.build(::User)
                     }

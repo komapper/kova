@@ -106,14 +106,14 @@ open class ObjectSchema<T : Any> private constructor(
     }
 
     fun <IN, OUT> arg(
-        validator: Validator<IN, OUT>,
         value: IN,
-    ): Arg<OUT> = Arg.Value(validator, value)
+        validator: Validator<IN, OUT>,
+    ): Arg<OUT> = Arg.Value(value, validator)
 
     fun <IN, OUT> arg(
-        validator: Validator<IN, OUT>,
         factory: ObjectFactory<IN>,
-    ): Arg<OUT> = Arg.Factory(validator, factory)
+        validator: Validator<IN, OUT>,
+    ): Arg<OUT> = Arg.Factory(factory, validator)
 
     fun <T> arguments(arg1: Arg<T>) = Arguments1(this, arg1)
 

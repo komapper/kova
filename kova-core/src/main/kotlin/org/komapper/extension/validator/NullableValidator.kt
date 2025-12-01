@@ -62,7 +62,7 @@ fun <T : Any, S : Any> Validator<T, S>.notNull(message: ((ConstraintContext<T?>)
 
 fun <T : Any, S : Any, U : Any> Validator<T?, S?>.notNullThen(other: Validator<S, U>): Validator<T?, U?> = then(other.asNullable())
 
-fun <T : Any, S : Any> Validator<T?, S?>.orDefault(value: S): Validator<T?, S> = map { it ?: value }
+fun <T : Any, S : Any> Validator<T?, S?>.toDefaultIfNull(value: S): Validator<T?, S> = map { it ?: value }
 
 fun <T : Any, S : Any> Validator<T?, S?>.toNonNullable(message: ((ConstraintContext<T?>) -> Message)? = null): Validator<T?, S> {
     val nullable = NullableValidator(this, emptyList())
