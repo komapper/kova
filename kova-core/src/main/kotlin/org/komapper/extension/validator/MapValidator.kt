@@ -25,6 +25,14 @@ interface MapValidator<K, V> :
     fun onEachKey(validator: Validator<K, K>): MapValidator<K, V>
 
     fun onEachValue(validator: Validator<V, V>): MapValidator<K, V>
+
+    operator fun plus(other: Validator<Map<K, V>, Map<K, V>>): MapValidator<K, V>
+
+    infix fun and(other: Validator<Map<K, V>, Map<K, V>>): MapValidator<K, V>
+
+    infix fun or(other: Validator<Map<K, V>, Map<K, V>>): MapValidator<K, V>
+
+    fun chain(other: Validator<Map<K, V>, Map<K, V>>): MapValidator<K, V>
 }
 
 fun <K, V> MapValidator(
@@ -34,7 +42,7 @@ fun <K, V> MapValidator(
 
 private class MapValidatorImpl<K, V>(
     private val prev: Validator<Map<K, V>, Map<K, V>>,
-    constraint: Constraint<Map<K, V>>,
+    constraint: Constraint<Map<K, V>> = Constraint.satisfied(),
 ) : MapValidator<K, V> {
     private val next: ConstraintValidator<Map<K, V>> = ConstraintValidator(constraint)
 
@@ -118,5 +126,22 @@ private class MapValidatorImpl<K, V>(
         }
         val failureDetails = failures.flatMap { it.details }
         return satisfies(failureDetails.isEmpty(), Message.ValidationFailure(details = failureDetails))
+    }
+
+    override operator fun plus(other: Validator<Map<K, V>, Map<K, V>>): MapValidator<K, V> = and(other)
+
+    override fun and(other: Validator<Map<K, V>, Map<K, V>>): MapValidator<K, V> {
+        val combined = (this as Validator<Map<K, V>, Map<K, V>>).and(other)
+        return MapValidatorImpl(prev = combined)
+    }
+
+    override fun or(other: Validator<Map<K, V>, Map<K, V>>): MapValidator<K, V> {
+        val combined = (this as Validator<Map<K, V>, Map<K, V>>).or(other)
+        return MapValidatorImpl(prev = combined)
+    }
+
+    override fun chain(other: Validator<Map<K, V>, Map<K, V>>): MapValidator<K, V> {
+        val combined = (this as Validator<Map<K, V>, Map<K, V>>).chain(other)
+        return MapValidatorImpl(prev = combined)
     }
 }

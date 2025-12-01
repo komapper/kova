@@ -97,13 +97,15 @@ interface StringValidator :
     fun toBigInteger(): Validator<String, java.math.BigInteger>
 
     fun toBoolean(): Validator<String, Boolean>
-}
 
-fun StringValidator(
-    prev: Validator<String, String> = EmptyValidator(),
-    transform: (String) -> String = { it },
-    constraint: Constraint<String> = Constraint.satisfied(),
-): StringValidator = StringValidatorImpl(prev, transform, constraint)
+    operator fun plus(other: Validator<String, String>): StringValidator
+
+    infix fun and(other: Validator<String, String>): StringValidator
+
+    infix fun or(other: Validator<String, String>): StringValidator
+
+    fun chain(other: Validator<String, String>): StringValidator
+}
 
 inline fun <reified E : Enum<E>> StringValidator.isEnum(): StringValidator {
     val enumValues = enumValues<E>()
@@ -115,10 +117,16 @@ inline fun <reified E : Enum<E>> StringValidator.isEnum(): StringValidator {
 
 inline fun <reified E : Enum<E>> StringValidator.toEnum(): Validator<String, E> = isEnum<E>().map { enumValueOf<E>(it) }
 
+fun StringValidator(
+    prev: Validator<String, String> = EmptyValidator(),
+    transform: (String) -> String = { it },
+    constraint: Constraint<String> = Constraint.satisfied(),
+): StringValidator = StringValidatorImpl(prev, transform, constraint)
+
 private class StringValidatorImpl(
     private val prev: Validator<String, String>,
-    private val transform: (String) -> String,
-    constraint: Constraint<String>,
+    private val transform: (String) -> String = { it },
+    constraint: Constraint<String> = Constraint.satisfied(),
 ) : StringValidator {
     private val next: ConstraintValidator<String> = ConstraintValidator(constraint)
 
@@ -130,10 +138,9 @@ private class StringValidatorImpl(
     override fun constrain(
         id: String,
         check: ConstraintScope.(ConstraintContext<String>) -> ConstraintResult,
-    ): StringValidator = StringValidatorImpl(prev = this, transform = { it }, constraint = Constraint(id, check))
+    ): StringValidator = StringValidatorImpl(prev = this, constraint = Constraint(id, check))
 
-    override fun modify(transform: (String) -> String): StringValidator =
-        StringValidatorImpl(prev = this, transform = transform, Constraint.satisfied())
+    override fun modify(transform: (String) -> String): StringValidator = StringValidatorImpl(prev = this, transform = transform)
 
     override fun min(
         length: Int,
@@ -299,4 +306,21 @@ private class StringValidatorImpl(
     override fun toBigInteger(): Validator<String, java.math.BigInteger> = isBigInteger().map { it.toBigInteger() }
 
     override fun toBoolean(): Validator<String, Boolean> = isBoolean().map { it.toBoolean() }
+
+    override operator fun plus(other: Validator<String, String>): StringValidator = and(other)
+
+    override fun and(other: Validator<String, String>): StringValidator {
+        val combined = (this as Validator<String, String>).and(other)
+        return StringValidatorImpl(prev = combined)
+    }
+
+    override fun or(other: Validator<String, String>): StringValidator {
+        val combined = (this as Validator<String, String>).or(other)
+        return StringValidatorImpl(prev = combined)
+    }
+
+    override fun chain(other: Validator<String, String>): StringValidator {
+        val combined = (this as Validator<String, String>).chain(other)
+        return StringValidatorImpl(prev = combined)
+    }
 }

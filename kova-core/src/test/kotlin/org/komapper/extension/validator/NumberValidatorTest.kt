@@ -7,20 +7,44 @@ class NumberValidatorTest :
     FunSpec({
 
         context("plus") {
-            val validator = Kova.int().max(2) + Kova.int().max(3)
+            val validator = (Kova.int().max(2) + Kova.int().max(3)).negative()
 
             test("success") {
-                val result = validator.tryValidate(1)
+                val result = validator.tryValidate(-1)
                 result.isSuccess().mustBeTrue()
-                result.value shouldBe 1
+                result.value shouldBe -1
             }
 
             test("failure") {
                 val result = validator.tryValidate(5)
                 result.isFailure().mustBeTrue()
-                result.messages.size shouldBe 2
+                result.messages.size shouldBe 3
                 result.messages[0].content shouldBe "Number 5 must be less than or equal to 2"
                 result.messages[1].content shouldBe "Number 5 must be less than or equal to 3"
+                result.messages[2].content shouldBe "Number 5 must be negative"
+            }
+        }
+
+        context("or") {
+            val validator = (Kova.int().max(2) or Kova.int().max(3)).min(1)
+
+            test("success : 2") {
+                val result = validator.tryValidate(2)
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe 2
+            }
+            test("success : 3") {
+                val result = validator.tryValidate(3)
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe 3
+            }
+
+            test("failure : 4") {
+                val result = validator.tryValidate(4)
+                result.isFailure().mustBeTrue()
+                result.messages.size shouldBe 2
+                result.messages[0].content shouldBe "Number 4 must be less than or equal to 2"
+                result.messages[1].content shouldBe "Number 4 must be less than or equal to 3"
             }
         }
 

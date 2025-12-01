@@ -21,6 +21,14 @@ interface CollectionValidator<E, C : Collection<E>> :
     ): CollectionValidator<E, C>
 
     fun onEach(validator: Validator<E, E>): CollectionValidator<E, C>
+
+    operator fun plus(other: Validator<C, C>): CollectionValidator<E, C>
+
+    infix fun and(other: Validator<C, C>): CollectionValidator<E, C>
+
+    infix fun or(other: Validator<C, C>): CollectionValidator<E, C>
+
+    fun chain(other: Validator<C, C>): CollectionValidator<E, C>
 }
 
 fun <E, C : Collection<E>> CollectionValidator(
@@ -30,7 +38,7 @@ fun <E, C : Collection<E>> CollectionValidator(
 
 private class CollectionValidatorImpl<E, C : Collection<E>>(
     private val prev: Validator<C, C>,
-    constraint: Constraint<C>,
+    constraint: Constraint<C> = Constraint.satisfied(),
 ) : CollectionValidator<E, C> {
     private val next: ConstraintValidator<C> = ConstraintValidator(constraint)
 
@@ -90,4 +98,21 @@ private class CollectionValidatorImpl<E, C : Collection<E>>(
             val failureDetails = failures.flatMap { failure -> failure.details }
             satisfies(failureDetails.isEmpty(), Message.ValidationFailure(details = failureDetails))
         }
+
+    override operator fun plus(other: Validator<C, C>): CollectionValidator<E, C> = and(other)
+
+    override fun and(other: Validator<C, C>): CollectionValidator<E, C> {
+        val combined = (this as Validator<C, C>).and(other)
+        return CollectionValidatorImpl(prev = combined)
+    }
+
+    override fun or(other: Validator<C, C>): CollectionValidator<E, C> {
+        val combined = (this as Validator<C, C>).or(other)
+        return CollectionValidatorImpl(prev = combined)
+    }
+
+    override fun chain(other: Validator<C, C>): CollectionValidator<E, C> {
+        val combined = (this as Validator<C, C>).chain(other)
+        return CollectionValidatorImpl(prev = combined)
+    }
 }

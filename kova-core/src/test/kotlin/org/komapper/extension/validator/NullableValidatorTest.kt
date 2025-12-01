@@ -105,7 +105,8 @@ class NullableValidatorTest :
                 Kova
                     .int()
                     .asNullable()
-                    .isNull().or(min3 or min5)
+                    .isNull()
+                    .or(min3 or min5)
                     .then(max4)
 
             test("success - isNull constraint satisfied") {

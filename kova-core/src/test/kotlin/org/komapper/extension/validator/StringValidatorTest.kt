@@ -24,6 +24,71 @@ class StringValidatorTest :
             }
         }
 
+        context("and") {
+            val validator = Kova.string().max(2) and Kova.string().max(3)
+
+            test("success") {
+                val result = validator.tryValidate("1")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "1"
+            }
+
+            test("failure") {
+                val result = validator.tryValidate("1234")
+                result.isFailure().mustBeTrue()
+                result.messages.size shouldBe 2
+                result.messages[0].content shouldBe "\"1234\" must be at most 2 characters"
+                result.messages[1].content shouldBe "\"1234\" must be at most 3 characters"
+            }
+        }
+
+        context("or") {
+            val validator = (Kova.string().isInt() or Kova.literal("zero")).toUpperCase()
+
+            test("success - int") {
+                val result = validator.tryValidate("1")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "1"
+            }
+
+            test("success - literal") {
+                val result = validator.tryValidate("zero")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "ZERO"
+            }
+
+            test("failure") {
+                val result = validator.tryValidate("abc")
+                result.isFailure().mustBeTrue()
+                result.messages.size shouldBe 2
+                result.messages[0].content shouldBe "\"abc\" must be an int"
+                result.messages[1].content shouldBe "Value abc must be zero"
+            }
+        }
+
+        context("chain") {
+            val length = Kova.string().length(3)
+            val validator =
+                Kova
+                    .string()
+                    .trim()
+                    .chain(length)
+                    .toUpperCase()
+
+            test("success") {
+                val result = validator.tryValidate(" abc ")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "ABC"
+            }
+
+            test("failure") {
+                val result = validator.tryValidate(" a ")
+                result.isFailure().mustBeTrue()
+                result.messages.size shouldBe 1
+                result.messages[0].content shouldBe "\"a\" must be exactly 3 characters"
+            }
+        }
+
         context("constrain") {
             val validator =
                 Kova.string().constrain("test") {

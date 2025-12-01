@@ -21,6 +21,14 @@ interface NumberValidator<T> :
     fun notPositive(message: (ConstraintContext<T>) -> Message = Message.resource0()): NumberValidator<T>
 
     fun notNegative(message: (ConstraintContext<T>) -> Message = Message.resource0()): NumberValidator<T>
+
+    operator fun plus(other: Validator<T, T>): NumberValidator<T>
+
+    infix fun and(other: Validator<T, T>): NumberValidator<T>
+
+    infix fun or(other: Validator<T, T>): NumberValidator<T>
+
+    fun chain(other: Validator<T, T>): NumberValidator<T>
 }
 
 fun <T> NumberValidator(
@@ -30,7 +38,7 @@ fun <T> NumberValidator(
 
 private class NumberValidatorImpl<T>(
     private val prev: Validator<T, T>,
-    constraint: Constraint<T>,
+    constraint: Constraint<T> = Constraint.satisfied(),
 ) : NumberValidator<T>
     where T : Number, T : Comparable<T> {
     private val next: ConstraintValidator<T> = ConstraintValidator(constraint)
@@ -74,4 +82,21 @@ private class NumberValidatorImpl<T>(
         constrain("kova.number.notNegative") {
             satisfies(it.input.toDouble() >= 0.0, message(it))
         }
+
+    override operator fun plus(other: Validator<T, T>): NumberValidator<T> = and(other)
+
+    override fun and(other: Validator<T, T>): NumberValidator<T> {
+        val combined = (this as Validator<T, T>).and(other)
+        return NumberValidatorImpl(prev = combined)
+    }
+
+    override fun or(other: Validator<T, T>): NumberValidator<T> {
+        val combined = (this as Validator<T, T>).or(other)
+        return NumberValidatorImpl(prev = combined)
+    }
+
+    override fun chain(other: Validator<T, T>): NumberValidator<T> {
+        val combined = (this as Validator<T, T>).chain(other)
+        return NumberValidatorImpl(prev = combined)
+    }
 }
