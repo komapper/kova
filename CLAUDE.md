@@ -65,15 +65,15 @@ import org.komapper.extension.validator.ObjectSchema
 
 data class User(val name: String, val age: Int)
 
-object UserSchema : ObjectSchema<User>({
-    User::name { Kova.string().min(1).max(10) }
-    User::age { Kova.int().min(0) }
-})
+object UserSchema : ObjectSchema<User>() {
+    val name = User::name { Kova.string().min(1).max(10) }
+    val age = User::age { Kova.int().min(0) }
+}
 
 val result = UserSchema.tryValidate(user)
 ```
 
-**Important**: Properties are now defined within the constructor lambda scope. The lambda is executed during each validation to build the rule map and constraints. Named object declarations do not require an empty body `{}`; it is only needed for anonymous objects.
+**Important**: Properties are now defined as object properties (outside the constructor lambda). This allows them to be referenced when creating ObjectFactory instances. Property definitions use the `invoke` operator on `KProperty1` to register validators with the schema.
 
 ### Object-Level Constraints
 
@@ -99,7 +99,7 @@ object PeriodSchema : ObjectSchema<Period>({
 })
 ```
 
-The `constrain` method takes a constraint key and a lambda that receives a `ConstraintContext<T>` and returns a `ConstraintResult`. Use `satisfies()` helper to simplify constraint creation.
+**Note**: When you need object-level constraints, properties are defined within the constructor lambda. The lambda provides access to `ObjectSchemaScope` which includes the `constrain()` method. The `constrain` method takes a constraint key and a lambda that receives a `ConstraintContext<T>` and returns a `ConstraintResult`. Use `satisfies()` helper to simplify constraint creation.
 
 ### Object Factory Pattern
 
@@ -174,8 +174,8 @@ object PersonSchema : ObjectSchema<Person>() {
 - **ValidationResult**: Sealed interface with `Success<T>` and `Failure` cases
 - **ConstraintValidator**: Generic constraint evaluator used internally by all type-specific validators
 - **Type-Specific Validators**: StringValidator, NumberValidator, LocalDateValidator, ComparableValidator, CollectionValidator (with min/max/length/notEmpty/onEach), MapValidator (with min/max/length/notEmpty/onEach/onEachKey/onEachValue), MapEntryValidator, LiteralValidator
-- **ObjectSchema**: Validates objects by defining validation rules for individual properties within a constructor lambda scope
-- **ObjectSchemaScope**: Scope class providing access to `constrain()` and property validation methods within ObjectSchema constructor lambda
+- **ObjectSchema**: Validates objects by defining validation rules for individual properties as object properties or within a constructor lambda scope (when using object-level constraints)
+- **ObjectSchemaScope**: Scope class providing access to `constrain()` method within ObjectSchema constructor lambda for object-level constraints
 - **ObjectFactory**: Constructs objects from validated inputs (supports 1-10 arguments via Arguments1-Arguments10)
 - **Arg**: Sealed interface wrapping either a validator with value (`Arg.Value`) or a validator with nested factory (`Arg.Factory`)
 - **Arguments1-Arguments10**: Data classes that hold 1-10 `Arg` instances and provide `createFactory()` method
@@ -400,7 +400,7 @@ When `failFast` is true, validation stops at the first constraint violation.
 - `EmptyValidator.kt` - No-op validator used by `Kova.generic()` that always succeeds
 
 **Special Validators**:
-- `ObjectSchema.kt` - Validates objects by defining validation rules for individual properties within a constructor lambda scope (includes `ObjectSchemaScope` and `PropertyValidator`)
+- `ObjectSchema.kt` - Validates objects by defining validation rules for individual properties as object properties or within a constructor lambda scope (includes `ObjectSchemaScope` for object-level constraints and `PropertyValidator`)
 - `NullableValidator.kt` - Wraps validators to handle nullable types
 - `ConditionalValidator.kt` - Supports conditional validation logic
 

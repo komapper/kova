@@ -61,22 +61,22 @@ val intValidator = Kova.string().toInt()  // Validates and converts to Int
 data class User(val id: Int, val name: String, val email: String)
 
 // Define a schema for the User class
-object UserSchema : ObjectSchema<User>({
-    User::id { Kova.int().min(1) }
-    User::name { Kova.string().min(1).max(50) }
-    User::email { Kova.string().notBlank().contains("@") }
-})
+object UserSchema : ObjectSchema<User>() {
+    val id = User::id { Kova.int().min(1) }
+    val name = User::name { Kova.string().min(1).max(50) }
+    val email = User::email { Kova.string().notBlank().contains("@") }
+}
 
 // Validate a user instance
 val user = User(1, "Alice", "alice@example.com")
 val result = UserSchema.tryValidate(user)
 ```
 
-**Note**: Properties are now defined within the constructor lambda scope. Named object declarations do not require an empty body `{}`; it is only needed for anonymous objects.
+**Note**: Properties are defined as object properties (outside the constructor lambda). This allows them to be referenced when creating ObjectFactory instances.
 
 ### Object-Level Constraints
 
-You can add constraints that validate relationships between properties using the `constrain` method:
+You can add constraints that validate relationships between properties using the `constrain` method within the constructor lambda:
 
 ```kotlin
 import java.time.LocalDate
@@ -101,6 +101,8 @@ val result = PeriodSchema.tryValidate(Period(
 ))
 // Validation fails with message: "startDate must be less than or equal to endDate"
 ```
+
+**Note**: When you need object-level constraints, properties are defined within the constructor lambda. The lambda provides access to `ObjectSchemaScope` which includes the `constrain()` method.
 
 ### Object Construction with Validation
 
@@ -345,12 +347,9 @@ data class Node(
     val children: List<Node> = emptyList(),
 )
 
-val nodeSchema =
-    object : ObjectSchema<Node>({
-        Node::children { Kova.list<Node>().max(2).onEach(caller) } // Recursive call
-    }) {
-    }
-
+object NodeSchema : ObjectSchema<Node>() {
+    val children = Node::children { Kova.list<Node>().max(2).onEach(this@NodeSchema) }
+}
 
 val node = Node(
     listOf(Node(), Node(
@@ -358,7 +357,7 @@ val node = Node(
     )
 )
 
-val result = nodeSchema.tryValidate(node)
+val result = NodeSchema.tryValidate(node)
 ```
 
 ### Maps
