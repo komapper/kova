@@ -41,13 +41,13 @@ class ObjectSchemaTest :
         context("plus") {
 
             val a =
-                object : ObjectSchema<User>({
-                    User::name { Kova.string().min(1).max(10) }
-                }) {}
+                object : ObjectSchema<User>() {
+                    val name = User::name { Kova.string().min(1).max(10) }
+                }
             val b =
-                object : ObjectSchema<User>({
-                    User::id { Kova.int().min(1) }
-                }) {}
+                object : ObjectSchema<User>() {
+                    val id = User::id { Kova.int().min(1) }
+                }
 
             val userSchema = a + b
 
@@ -92,10 +92,10 @@ class ObjectSchemaTest :
         context("replace") {
 
             val userSchema =
-                object : ObjectSchema<User>({
-                    User::id { Kova.int().min(1) }
-                    User::name { Kova.string().min(1).max(10) }
-                }) {}
+                object : ObjectSchema<User>() {
+                    val id = User::id { Kova.int().min(1) }
+                    val name = User::name { Kova.string().min(1).max(10) }
+                }
 
             test("success") {
                 val user = User(-1, "abc")
@@ -144,10 +144,10 @@ class ObjectSchemaTest :
 
         context("nullable") {
             val validator =
-                object : ObjectSchema<User>({
-                    User::id { Kova.int().min(1) }
-                    User::name { Kova.string().min(1).max(10) }
-                }) {}.asNullable()
+                object : ObjectSchema<User>() {
+                    val id = User::id { Kova.int().min(1) }
+                    val name = User::name { Kova.string().min(1).max(10) }
+                }.asNullable()
 
             test("success - non null") {
                 val user = User(1, "abc")
@@ -166,10 +166,9 @@ class ObjectSchemaTest :
         context("prop - simple") {
 
             val userSchema =
-                object : ObjectSchema<User>({
-                    User::id { Kova.int().min(1) }
-                    User::name { Kova.string().min(1).max(10) }
-                }) {
+                object : ObjectSchema<User>() {
+                    val id = User::id { Kova.int().min(1) }
+                    val name = User::name { Kova.string().min(1).max(10) }
                 }
 
             test("success") {
@@ -213,20 +212,20 @@ class ObjectSchemaTest :
         context("prop - nest") {
 
             val streetSchema =
-                object : ObjectSchema<Street>({
-                    Street::id { Kova.int().min(1) }
-                    Street::name { Kova.string().min(3).max(5) }
-                }) {}
+                object : ObjectSchema<Street>() {
+                    val id = Street::id { Kova.int().min(1) }
+                    val name = Street::name { Kova.string().min(3).max(5) }
+                }
 
             val addressSchema =
-                object : ObjectSchema<Address>({
-                    Address::street { streetSchema }
-                }) {}
+                object : ObjectSchema<Address>() {
+                    val street = Address::street { streetSchema }
+                }
 
             val employeeSchema =
-                object : ObjectSchema<Employee>({
-                    Employee::address { addressSchema }
-                }) {}
+                object : ObjectSchema<Employee>() {
+                    val address = Employee::address { addressSchema }
+                }
 
             test("success") {
                 val employee = Employee(1, "abc", Address(1, Street(1, "def")))
@@ -251,28 +250,28 @@ class ObjectSchemaTest :
         context("prop - nest - dynamic") {
 
             val streetSchema =
-                object : ObjectSchema<Street>({
-                    Street::id { Kova.int().min(1) }
-                    Street::name { Kova.string().min(3).max(5) }
-                }) {}
+                object : ObjectSchema<Street>() {
+                    val id = Street::id { Kova.int().min(1) }
+                    val name = Street::name { Kova.string().min(3).max(5) }
+                }
 
             val addressSchema =
-                object : ObjectSchema<Address>({
-                    Address::street { streetSchema }
-                    Address::postalCode choose { address ->
-                        val base = Kova.string()
-                        when (address.country) {
-                            "US" -> base.length(8)
-                            else -> base.length(5)
+                object : ObjectSchema<Address>() {
+                    val street = Address::street { streetSchema }
+                    val postalCode =
+                        Address::postalCode choose { address ->
+                            val base = Kova.string()
+                            when (address.country) {
+                                "US" -> base.length(8)
+                                else -> base.length(5)
+                            }
                         }
-                    }
-                }) {
                 }
 
             val employeeSchema =
-                object : ObjectSchema<Employee>({
-                    Employee::address { addressSchema }
-                }) {}
+                object : ObjectSchema<Employee>() {
+                    val address = Employee::address { addressSchema }
+                }
 
             test("success - country is US") {
                 val employee = Employee(1, "abc", Address(1, Street(1, "def"), country = "US", postalCode = "12345678"))
@@ -317,29 +316,29 @@ class ObjectSchemaTest :
 
         context("prop - nullable") {
             val streetSchema =
-                object : ObjectSchema<Street>({
-                    Street::id { Kova.int().min(1) }
-                    Street::name { Kova.string().min(3).max(5) }
-                }) {}
+                object : ObjectSchema<Street>() {
+                    val id = Street::id { Kova.int().min(1) }
+                    val name = Street::name { Kova.string().min(3).max(5) }
+                }
 
             val addressSchema =
-                object : ObjectSchema<Address>({
-                    Address::street { streetSchema }
-                }) {}
+                object : ObjectSchema<Address>() {
+                    val street = Address::street { streetSchema }
+                }
 
             val personSchema =
-                object : ObjectSchema<Person>({
-                    Person::firstName { Kova.string().asNullable() }
-                    Person::lastName { Kova.nullable() }
-                    Person::address { addressSchema.asNullable() }
-                }) {}
+                object : ObjectSchema<Person>() {
+                    val firstName = Person::firstName { Kova.string().asNullable() }
+                    val lastName = Person::lastName { Kova.nullable() }
+                    val address = Person::address { addressSchema.asNullable() }
+                }
 
             val personSchema2 =
-                object : ObjectSchema<Person>({
-                    Person::firstName { Kova.string().notNull() }
-                    Person::lastName { Kova.nullable<String>().notNull() }
-                    Person::address { addressSchema.asNullable() }
-                }) {}
+                object : ObjectSchema<Person>() {
+                    val firstName = Person::firstName { Kova.string().notNull() }
+                    val lastName = Person::lastName { Kova.nullable<String>().notNull() }
+                    val address = Person::address { addressSchema.asNullable() }
+                }
 
             test("success") {
                 val person = Person(1, "abc", "def", Address(1, Street(1, "hij")))
@@ -379,9 +378,8 @@ class ObjectSchemaTest :
             )
 
             val nodeSchema =
-                object : ObjectSchema<Node>({
-                    Node::children { Kova.list<Node>().max(3).onEach(caller) }
-                }) {
+                object : ObjectSchema<Node>() {
+                    val children = Node::children { Kova.list<Node>().max(3).onEach(this) }
                 }
 
             test("success") {

@@ -3,9 +3,11 @@ package example
 import org.komapper.extension.validator.Kova
 import org.komapper.extension.validator.ObjectFactory
 import org.komapper.extension.validator.ObjectSchema
+import org.komapper.extension.validator.ValidationResult
 import org.komapper.extension.validator.messages
 import org.komapper.extension.validator.then
 import org.komapper.extension.validator.tryCreate
+import org.komapper.extension.validator.tryValidate
 
 data class User(
     val name: String,
@@ -62,15 +64,57 @@ object PersonSchema : ObjectSchema<Person>() {
 }
 
 fun main() {
-    val factory1 = UserSchema.build("aa", 20)
-    val result1 = factory1.tryCreate()
-    println(result1)
+    println("\n#Validation")
+    println("##Success")
+    when (val result = UserSchema.tryValidate(User("a", 10))) {
+        is ValidationResult.Success -> {
+            // Success: User(name=a, age=10)
+            println("Success: ${result.value}")
+        }
+        is ValidationResult.Failure -> error("never happens")
+    }
+    println("##Failure")
+    when (val result = UserSchema.tryValidate(User("", -1))) {
+        is ValidationResult.Success -> error("never happens")
+        is ValidationResult.Failure -> {
+            // Failure: ["" must be at least 1 characters, "" must not be blank, Number -1 must be greater than or equal to 0]
+            println("Failure: ${result.messages.map { it.content }}")
+        }
+    }
 
-    val factory2 = UserSchema.build("", 20)
-    val result2 = factory2.tryCreate()
-    println(result2.messages.map { it.content })
+    println("\n#Creation")
+    println("##Success")
+    when (val result = UserSchema.build("a", 10).tryCreate()) {
+        is ValidationResult.Success -> {
+            // Success: User(name=a, age=10)
+            println("Success: ${result.value}")
+        }
+        is ValidationResult.Failure -> error("never happens")
+    }
+    println("##Failure")
+    when (val result = UserSchema.build("", -1).tryCreate()) {
+        is ValidationResult.Success -> error("never happens")
+        is ValidationResult.Failure -> {
+            // Failure: ["" must be at least 1 characters, "" must not be blank, Number -1 must be greater than or equal to 0]
+            println("Failure: ${result.messages.map { it.content }}")
+        }
+    }
 
-    val personFactory = PersonSchema.build("bb", "30")
-    val personResult = personFactory.tryCreate()
-    println(personResult)
+    println("\n#Creation(nest)")
+    println("##Success")
+    when (val result = PersonSchema.build("a", "30").tryCreate()) {
+        is ValidationResult.Success -> {
+            // Person(name=a, age=Age(value=30))
+            println("Success: ${result.value}")
+        }
+        is ValidationResult.Failure -> error("never happens")
+    }
+    println("##Failure")
+    when (val result = PersonSchema.build("", "not number").tryCreate()) {
+        is ValidationResult.Success -> error("never happens")
+        is ValidationResult.Failure -> {
+            // Failure: ["" must be at least 1 characters, "" must not be blank, "not number" must be an int]
+            println("Failure: ${result.messages.map { it.content }}")
+        }
+    }
 }

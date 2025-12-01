@@ -13,7 +13,7 @@ open class ObjectSchema<T : Any> private constructor(
         input: T,
     ): ValidationResult<T> {
         val constraints: MutableList<Constraint<T>> = mutableListOf()
-        block(ObjectSchemaScope(this, ruleMap, constraints))
+        block(ObjectSchemaScope(constraints))
         val context = context.addRoot(input::class.toString())
         val ruleResult = applyRules(input, context, ruleMap)
         val constraintResult = applyConstraints(input, context, constraints)
@@ -86,13 +86,23 @@ open class ObjectSchema<T : Any> private constructor(
 
     operator fun <V, VALIDATOR : Validator<V, V>> KProperty1<T, V>.invoke(block: () -> VALIDATOR): VALIDATOR {
         val validator = block()
-        ruleMap.addRule(this) { _ -> validator }
+        addRule(this) { _ -> validator }
         return validator
     }
 
     infix fun <V, VALIDATOR : Validator<V, V>> KProperty1<T, V>.choose(block: (T) -> VALIDATOR): (T) -> VALIDATOR {
-        ruleMap.addRule(this, block)
+        addRule(this, block)
         return block
+    }
+
+    private fun <T, V> addRule(
+        key: KProperty1<T, V>,
+        choose: (T) -> Validator<V, V>,
+    ) {
+        val transform = { receiver: T -> key.get(receiver) }
+        transform as (Any?) -> Any?
+        choose as (Any?) -> Validator<Any?, Any?>
+        ruleMap[key.name] = Rule(transform, choose)
     }
 
     fun <IN, OUT> arg(
@@ -189,24 +199,12 @@ open class ObjectSchema<T : Any> private constructor(
     ) = Arguments10(this, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10)
 }
 
-private fun <T, V> MutableMap<String, Rule>.addRule(
-    key: KProperty1<T, V>,
-    choose: (T) -> Validator<V, V>,
-) {
-    val transform = { receiver: T -> key.get(receiver) }
-    transform as (Any?) -> Any?
-    choose as (Any?) -> Validator<Any?, Any?>
-    this[key.name] = Rule(transform, choose)
-}
-
 internal data class Rule(
     val transform: (Any?) -> Any?,
     val choose: (Any?) -> Validator<Any?, Any?>,
 )
 
 class ObjectSchemaScope<T : Any> internal constructor(
-    val caller: ObjectSchema<T>,
-    private val ruleMap: MutableMap<String, Rule>,
     private val constraints: MutableList<Constraint<T>>,
 ) : Constrainable<T, Unit> {
     override fun constrain(
@@ -214,16 +212,5 @@ class ObjectSchemaScope<T : Any> internal constructor(
         check: ConstraintScope.(ConstraintContext<T>) -> ConstraintResult,
     ) {
         constraints.add(Constraint(id, check))
-    }
-
-    operator fun <V> KProperty1<T, V>.invoke(block: () -> Validator<V, V>): Validator<V, V> {
-        val validator = block()
-        ruleMap.addRule(this) { _ -> validator }
-        return validator
-    }
-
-    infix fun <V, VALIDATOR : Validator<V, V>> KProperty1<T, V>.choose(block: (T) -> VALIDATOR): (T) -> VALIDATOR {
-        ruleMap.addRule(this, block)
-        return block
     }
 }
