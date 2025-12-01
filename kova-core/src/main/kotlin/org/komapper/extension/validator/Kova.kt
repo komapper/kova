@@ -64,30 +64,6 @@ interface Kova {
         message: (ConstraintContext<T>, List<T>) -> Message = Message.resource1(),
     ): Validator<T, T> = literal(values.toList(), message)
 
-    fun <T : Any> isNull(message: ((ConstraintContext<T?>) -> Message)? = null): NullableValidator<T, T> =
-        with(this) {
-            if (message == null) nullable<T>().isNull() else nullable<T>().isNull(message)
-        }
-
-    fun <T : Any> isNullOr(
-        value: T,
-        message: ((ConstraintContext<T?>) -> Message)? = null,
-    ): Validator<T?, T?> = generic<T>().isNullOr(Kova.literal(value), message)
-
-    fun <T : Any> notNull(message: ((ConstraintContext<T?>) -> Message)? = null): NullableValidator<T, T> =
-        with(this) {
-            if (message == null) nullable<T>().notNull() else nullable<T>().notNull(message)
-        }
-
-    fun <T : Any, S : Any> notNullThen(
-        next: Validator<T, S>,
-        message: ((ConstraintContext<T?>) -> Message)? = null,
-    ): Validator<T?, S?> =
-        with(this) {
-            val notNull = if (message == null) nullable<T>().notNull() else nullable<T>().notNull(message)
-            notNull.notNullThen(next)
-        }
-
     fun error(message: Message): Nothing = throw MessageException(message)
 
     companion object : Kova

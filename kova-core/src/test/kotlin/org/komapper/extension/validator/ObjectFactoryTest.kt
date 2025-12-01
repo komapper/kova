@@ -8,7 +8,7 @@ import io.kotest.matchers.string.shouldContain
 class ObjectFactoryTest :
     FunSpec({
 
-        context("toDefaultIfNull - factory") {
+        context("toDefaultIfNull") {
             data class User(
                 val name: String?,
                 val age: Int?,
@@ -16,7 +16,7 @@ class ObjectFactoryTest :
 
             val userSchema =
                 object : ObjectSchema<User>() {
-                    private val name = User::name { Kova.generic() }
+                    private val name = User::name { Kova.nullable() }
                     private val age = User::age { Kova.int().asNullable() }
 
                     fun build(

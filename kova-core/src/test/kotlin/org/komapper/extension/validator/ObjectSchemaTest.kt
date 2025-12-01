@@ -335,7 +335,7 @@ class ObjectSchemaTest :
 
             val personSchema2 =
                 object : ObjectSchema<Person>() {
-                    val firstName = Person::firstName { Kova.string().notNull() }
+                    val firstName = Person::firstName { Kova.nullable<String>().notNull() }
                     val lastName = Person::lastName { Kova.nullable<String>().notNull() }
                     val address = Person::address { addressSchema.asNullable() }
                 }

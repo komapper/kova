@@ -52,58 +52,7 @@ class KovaTest :
             }
         }
 
-        context("notNull") {
-            val validator = Kova.notNull<Int>()
-
-            test("success - non-null") {
-                val result = validator.tryValidate(0)
-                result.isSuccess().mustBeTrue()
-                result.value shouldBe 0
-            }
-
-            test("failure - null") {
-                val result = validator.tryValidate(null)
-                result.isFailure().mustBeTrue()
-            }
-        }
-
-        context("isNull") {
-            val validator = Kova.isNull<Int>()
-
-            test("success - null") {
-                val result = validator.tryValidate(null)
-                result.isSuccess().mustBeTrue()
-                result.value shouldBe null
-            }
-
-            test("failure - non-null") {
-                val result = validator.tryValidate(0)
-                result.isFailure().mustBeTrue()
-            }
-        }
-
-        context("isNullOr") {
-            val validator = Kova.isNullOr(0)
-
-            test("success - null") {
-                val result = validator.tryValidate(null)
-                result.isSuccess().mustBeTrue()
-                result.value shouldBe null
-            }
-
-            test("success - 0") {
-                val result = validator.tryValidate(0)
-                result.isSuccess().mustBeTrue()
-                result.value shouldBe 0
-            }
-
-            test("failure - 1") {
-                val result = validator.tryValidate(1)
-                result.isFailure().mustBeTrue()
-            }
-        }
-
-        context("isNullOr - schema") {
+        context("nullable") {
             data class User(
                 val name: String?,
                 val age: Int?,
@@ -111,8 +60,8 @@ class KovaTest :
 
             val userSchema =
                 object : ObjectSchema<User>() {
-                    val name = User::name { Kova.string().isNullOrLiteral("") }
-                    val age = User::age { Kova.int().isNullOrLiteral(0) }
+                    val name = User::name { Kova.nullable<String>().isNull().or(Kova.literal("")) }
+                    val age = User::age { Kova.nullable<Int>().isNull().or(Kova.literal(0)) }
 
                     fun build(
                         name: String?,
@@ -160,8 +109,8 @@ class KovaTest :
                 operator fun get(key: String): String? = map[key]
             }
 
-            val notNull = Kova.notNull<String>()
-            val notNullAndMin3 = Kova.notNullThen(Kova.string().min(3)).toNonNullable()
+            val notNull = Kova.nullable<String>().notNull()
+            val notNullAndMin3 = notNull.and(Kova.string().min(3)).toNonNullable()
             val requestKey = Kova.generic<Request>().name("Request[key]").map { it["key"] }
             val requestKeyIsNotNull = requestKey.then(notNull)
             val requestKeyIsNotNullAndMin3 = requestKey.then(notNullAndMin3)
