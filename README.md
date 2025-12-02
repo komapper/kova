@@ -10,6 +10,7 @@ A type-safe Kotlin validation library that provides composable validators throug
 - **Composable**: Combine validators using intuitive operators (`+`, `and`, `or`)
 - **Immutable**: All validators are immutable and thread-safe
 - **Detailed Error Reporting**: Get precise error messages with path tracking for nested validations
+- **Circular Reference Detection**: Automatically detects and handles circular references in nested object validation
 - **Internationalization**: Built-in support for localized error messages
 - **Fail-Fast Support**: Option to stop validation at the first error or collect all errors
 - **Nullable Support**: First-class support for nullable types
@@ -357,6 +358,32 @@ val node = Node(
 
 val result = NodeSchema.tryValidate(node)
 ```
+
+#### Circular Reference Detection
+
+Kova automatically detects circular references in nested object validation to prevent infinite loops:
+
+```kotlin
+data class Node(
+    val value: Int,
+    var next: Node?,
+)
+
+object NodeSchema : ObjectSchema<Node>() {
+    val value = Node::value { Kova.int().min(0).max(100) }
+    val next = Node::next { Kova.nullable<Node>().then(this@NodeSchema) }
+}
+
+// Create a circular reference: node1 -> node2 -> node1
+val node1 = Node(10, null)
+val node2 = Node(20, node1)
+node1.next = node2
+
+// Validation succeeds without infinite loop
+val result = NodeSchema.tryValidate(node1)  // Success
+```
+
+The circular reference detection uses object identity (`===`) to track objects in the validation path. When a circular reference is detected, validation terminates gracefully for that branch while still validating all accessible paths and constraints.
 
 ### Maps
 
