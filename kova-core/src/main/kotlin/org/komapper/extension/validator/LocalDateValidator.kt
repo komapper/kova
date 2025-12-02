@@ -16,14 +16,16 @@ interface LocalDateValidator :
 }
 
 fun LocalDateValidator(
+    name: String = "empty",
     prev: Validator<LocalDate, LocalDate> = EmptyValidator(),
     constraint: Constraint<LocalDate> = Constraint.satisfied(),
     clock: Clock = Clock.systemDefaultZone(),
-): LocalDateValidator = LocalDateValidatorImpl(prev, constraint, clock)
+): LocalDateValidator = LocalDateValidatorImpl(name, prev, constraint, clock)
 
 private class LocalDateValidatorImpl(
+    private val name: String,
     private val prev: Validator<LocalDate, LocalDate>,
-    constraint: Constraint<LocalDate>,
+    private val constraint: Constraint<LocalDate>,
     private val clock: Clock,
 ) : LocalDateValidator {
     private val next: ConstraintValidator<LocalDate> = ConstraintValidator(constraint)
@@ -31,12 +33,15 @@ private class LocalDateValidatorImpl(
     override fun execute(
         context: ValidationContext,
         input: LocalDate,
-    ): ValidationResult<LocalDate> = prev.chain(next).execute(context, input)
+    ): ValidationResult<LocalDate> {
+        val context = context.copy(logs = context.logs + toString())
+        return prev.chain(next).execute(context, input)
+    }
 
     override fun constrain(
         id: String,
         check: ConstraintScope.(ConstraintContext<LocalDate>) -> ConstraintResult,
-    ): LocalDateValidator = LocalDateValidatorImpl(prev = this, constraint = Constraint(id, check), clock = clock)
+    ): LocalDateValidator = LocalDateValidatorImpl(name = id, prev = this, constraint = Constraint(id, check), clock = clock)
 
     override fun future(message: (ConstraintContext<LocalDate>) -> Message): LocalDateValidator =
         constrain("kova.localDate.future") {
@@ -57,4 +62,6 @@ private class LocalDateValidatorImpl(
         constrain("kova.localDate.pastOrPresent") {
             satisfies(it.input <= LocalDate.now(clock), message(it))
         }
+
+    override fun toString(): String = "${LocalDateValidator::class.simpleName}(name=$name)"
 }

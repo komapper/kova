@@ -120,4 +120,38 @@ class ValidatorTest :
                 result.messages.single().content shouldBe "\"10\" must be at most 1 characters"
             }
         }
+
+        context("logs") {
+            val validator =
+                Kova
+                    .string()
+                    .trim()
+                    .min(3)
+                    .max(5)
+
+            test("success") {
+                val result = validator.tryValidate(" abcde ")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "abcde"
+                result.context.logs shouldBe listOf(
+                    "StringValidator(name=kova.string.max)",
+                    "Validator.chain",
+                    "Validator.map",
+                    "StringValidator(name=kova.string.min)",
+                    "Validator.chain",
+                    "Validator.map",
+                    "StringValidator(name=trim)",
+                    "Validator.chain",
+                    "Validator.map",
+                    "StringValidator(name=empty)",
+                    "Validator.chain",
+                    "Validator.map",
+                    "EmptyValidator",
+                    "ConstraintValidator(name=kova.satisfied)",
+                    "ConstraintValidator(name=kova.satisfied)",
+                    "ConstraintValidator(name=kova.string.min)",
+                    "ConstraintValidator(name=kova.string.max)"
+                )
+            }
+        }
     })

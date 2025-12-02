@@ -14,12 +14,16 @@ private class ConditionalValidatorImpl<T>(
     override fun execute(
         context: ValidationContext,
         input: T,
-    ): ValidationResult<T> =
-        if (condition(input)) {
+    ): ValidationResult<T> {
+        val context = context.copy(logs = context.logs + toString())
+        return if (condition(input)) {
             validator.execute(context, input)
         } else {
             ValidationResult.Success(input, context)
         }
+    }
+
+    override fun toString(): String = "${ConditionalValidator::class.simpleName}"
 }
 
 fun <T> Validator<T, T>.onlyIf(condition: (T) -> Boolean): ConditionalValidator<T> = ConditionalValidator(this, condition)

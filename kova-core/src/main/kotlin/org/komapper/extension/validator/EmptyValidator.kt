@@ -8,5 +8,10 @@ private class EmptyValidatorImpl<T> : EmptyValidator<T> {
     override fun execute(
         context: ValidationContext,
         input: T,
-    ): ValidationResult<T> = ValidationResult.Success(input, context)
+    ): ValidationResult<T> {
+        val context = context.copy(logs = context.logs + toString())
+        return ValidationResult.Success(input, context)
+    }
+
+    override fun toString(): String = "${EmptyValidator::class.simpleName}"
 }

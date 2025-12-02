@@ -23,25 +23,30 @@ interface ComparableValidator<T : Comparable<T>> :
 }
 
 fun <T : Comparable<T>> ComparableValidator(
+    name: String = "empty",
     prev: Validator<T, T> = EmptyValidator(),
     constraint: Constraint<T> = Constraint.satisfied(),
-): ComparableValidator<T> = ComparableValidatorImpl(prev, constraint)
+): ComparableValidator<T> = ComparableValidatorImpl(name, prev, constraint)
 
 private class ComparableValidatorImpl<T : Comparable<T>> internal constructor(
+    private val name: String,
     private val prev: Validator<T, T>,
-    constraint: Constraint<T> = Constraint.satisfied(),
+    private val constraint: Constraint<T> = Constraint.satisfied(),
 ) : ComparableValidator<T> {
     private val next: ConstraintValidator<T> = ConstraintValidator(constraint)
 
     override fun execute(
         context: ValidationContext,
         input: T,
-    ): ValidationResult<T> = prev.chain(next).execute(context, input)
+    ): ValidationResult<T> {
+        val context = context.copy(logs = context.logs + toString())
+        return prev.chain(next).execute(context, input)
+    }
 
     override fun constrain(
         id: String,
         check: ConstraintScope.(ConstraintContext<T>) -> ConstraintResult,
-    ): ComparableValidator<T> = ComparableValidatorImpl(prev = this, constraint = Constraint(id, check))
+    ): ComparableValidator<T> = ComparableValidatorImpl(name = id, prev = this, constraint = Constraint(id, check))
 
     override fun min(
         value: T,
@@ -57,16 +62,18 @@ private class ComparableValidatorImpl<T : Comparable<T>> internal constructor(
 
     override fun and(other: Validator<T, T>): ComparableValidator<T> {
         val combined = (this as Validator<T, T>).and(other)
-        return ComparableValidatorImpl(prev = combined)
+        return ComparableValidatorImpl("and", prev = combined)
     }
 
     override fun or(other: Validator<T, T>): ComparableValidator<T> {
         val combined = (this as Validator<T, T>).or(other)
-        return ComparableValidatorImpl(prev = combined)
+        return ComparableValidatorImpl("or", prev = combined)
     }
 
     override fun chain(other: Validator<T, T>): ComparableValidator<T> {
         val combined = (this as Validator<T, T>).chain(other)
-        return ComparableValidatorImpl(prev = combined)
+        return ComparableValidatorImpl("chain", prev = combined)
     }
+
+    override fun toString(): String = "${ComparableValidator::class.simpleName}(name=$name)"
 }

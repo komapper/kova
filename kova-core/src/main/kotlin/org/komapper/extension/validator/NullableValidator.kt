@@ -46,13 +46,15 @@ private class NullableValidatorImpl<T : Any, S : Any>(
     override fun execute(
         context: ValidationContext,
         input: T?,
-    ): ValidationResult<S?> =
-        if (constraints.isEmpty()) {
+    ): ValidationResult<S?> {
+        val context = context.copy(logs = context.logs + toString())
+        return if (constraints.isEmpty()) {
             inner.execute(context, input)
         } else {
             val validator = constraints.map { ConstraintValidator(it) as Validator<T?, T?> }.reduce { a, b -> a.and(b) }
             validator.then(inner).execute(context, input)
         }
+    }
 
     override fun constrain(
         id: String,
@@ -88,4 +90,7 @@ private class NullableValidatorImpl<T : Any, S : Any>(
     override fun toDefaultIfNull(value: S): Validator<T?, S> = map { it ?: value }
 
     override fun toNonNullable(): Validator<T?, S> = notNull().map { it!! }
+
+    override fun toString(): String =
+        "${NullableValidator::class.simpleName}(constraints=${constraints.map { it.id }})"
 }

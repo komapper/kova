@@ -36,25 +36,30 @@ interface MapValidator<K, V> :
 }
 
 fun <K, V> MapValidator(
+    name: String = "empty",
     prev: Validator<Map<K, V>, Map<K, V>> = EmptyValidator(),
     constraint: Constraint<Map<K, V>> = Constraint.satisfied(),
-): MapValidator<K, V> = MapValidatorImpl(prev, constraint)
+): MapValidator<K, V> = MapValidatorImpl(name, prev, constraint)
 
 private class MapValidatorImpl<K, V>(
+    private val name: String,
     private val prev: Validator<Map<K, V>, Map<K, V>>,
-    constraint: Constraint<Map<K, V>> = Constraint.satisfied(),
+    private val constraint: Constraint<Map<K, V>> = Constraint.satisfied(),
 ) : MapValidator<K, V> {
     private val next: ConstraintValidator<Map<K, V>> = ConstraintValidator(constraint)
 
     override fun execute(
         context: ValidationContext,
         input: Map<K, V>,
-    ): ValidationResult<Map<K, V>> = prev.chain(next).execute(context, input)
+    ): ValidationResult<Map<K, V>> {
+        val context = context.copy(logs = context.logs + toString())
+        return prev.chain(next).execute(context, input)
+    }
 
     override fun constrain(
         id: String,
         check: ConstraintScope.(ConstraintContext<Map<K, V>>) -> ConstraintResult,
-    ): MapValidator<K, V> = MapValidatorImpl(prev = this, constraint = Constraint(id, check))
+    ): MapValidator<K, V> = MapValidatorImpl(name = id, prev = this, constraint = Constraint(id, check))
 
     override fun min(
         size: Int,
@@ -132,16 +137,18 @@ private class MapValidatorImpl<K, V>(
 
     override fun and(other: Validator<Map<K, V>, Map<K, V>>): MapValidator<K, V> {
         val combined = (this as Validator<Map<K, V>, Map<K, V>>).and(other)
-        return MapValidatorImpl(prev = combined)
+        return MapValidatorImpl("and", prev = combined)
     }
 
     override fun or(other: Validator<Map<K, V>, Map<K, V>>): MapValidator<K, V> {
         val combined = (this as Validator<Map<K, V>, Map<K, V>>).or(other)
-        return MapValidatorImpl(prev = combined)
+        return MapValidatorImpl("or", prev = combined)
     }
 
     override fun chain(other: Validator<Map<K, V>, Map<K, V>>): MapValidator<K, V> {
         val combined = (this as Validator<Map<K, V>, Map<K, V>>).chain(other)
-        return MapValidatorImpl(prev = combined)
+        return MapValidatorImpl("chain", prev = combined)
     }
+
+    override fun toString(): String = "${MapValidator::class.simpleName}(name=$name)"
 }

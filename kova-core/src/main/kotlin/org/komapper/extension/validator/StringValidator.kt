@@ -118,29 +118,37 @@ inline fun <reified E : Enum<E>> StringValidator.isEnum(): StringValidator {
 inline fun <reified E : Enum<E>> StringValidator.toEnum(): Validator<String, E> = isEnum<E>().map { enumValueOf<E>(it) }
 
 fun StringValidator(
+    name: String = "empty",
     prev: Validator<String, String> = EmptyValidator(),
     transform: (String) -> String = { it },
     constraint: Constraint<String> = Constraint.satisfied(),
-): StringValidator = StringValidatorImpl(prev, transform, constraint)
+): StringValidator = StringValidatorImpl(name, prev, transform, constraint)
 
 private class StringValidatorImpl(
+    private val name: String,
     private val prev: Validator<String, String>,
     private val transform: (String) -> String = { it },
-    constraint: Constraint<String> = Constraint.satisfied(),
+    private val constraint: Constraint<String> = Constraint.satisfied(),
 ) : StringValidator {
     private val next: ConstraintValidator<String> = ConstraintValidator(constraint)
 
     override fun execute(
         context: ValidationContext,
         input: String,
-    ): ValidationResult<String> = prev.map(transform).chain(next).execute(context, input)
+    ): ValidationResult<String> {
+        val context = context.copy(logs = context.logs + toString())
+        return prev.map(transform).chain(next).execute(context, input)
+    }
 
     override fun constrain(
         id: String,
         check: ConstraintScope.(ConstraintContext<String>) -> ConstraintResult,
-    ): StringValidator = StringValidatorImpl(prev = this, constraint = Constraint(id, check))
+    ): StringValidator = StringValidatorImpl(name = id, prev = this, constraint = Constraint(id, check))
 
-    override fun modify(transform: (String) -> String): StringValidator = StringValidatorImpl(prev = this, transform = transform)
+    override fun modify(
+        name: String,
+        transform: (String) -> String,
+    ): StringValidator = StringValidatorImpl(name = name, prev = this, transform = transform)
 
     override fun min(
         length: Int,
@@ -283,11 +291,11 @@ private class StringValidatorImpl(
             satisfies(it.input == it.input.lowercase(), message(it))
         }
 
-    override fun trim() = modify { it.trim() }
+    override fun trim() = modify("trim") { it.trim() }
 
-    override fun toUpperCase() = modify { it.uppercase() }
+    override fun toUpperCase() = modify("toUpperCase") { it.uppercase() }
 
-    override fun toLowerCase() = modify { it.lowercase() }
+    override fun toLowerCase() = modify("toLowerCase") { it.lowercase() }
 
     override fun toInt(): Validator<String, Int> = isInt().map { it.toInt() }
 
@@ -311,16 +319,18 @@ private class StringValidatorImpl(
 
     override fun and(other: Validator<String, String>): StringValidator {
         val combined = (this as Validator<String, String>).and(other)
-        return StringValidatorImpl(prev = combined)
+        return StringValidatorImpl("and", prev = combined)
     }
 
     override fun or(other: Validator<String, String>): StringValidator {
         val combined = (this as Validator<String, String>).or(other)
-        return StringValidatorImpl(prev = combined)
+        return StringValidatorImpl("or", prev = combined)
     }
 
     override fun chain(other: Validator<String, String>): StringValidator {
         val combined = (this as Validator<String, String>).chain(other)
-        return StringValidatorImpl(prev = combined)
+        return StringValidatorImpl("chain", prev = combined)
     }
+
+    override fun toString(): String = "${StringValidator::class.simpleName}(name=$name)"
 }

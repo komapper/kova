@@ -15,25 +15,30 @@ interface LiteralValidator<T : Any> :
 }
 
 fun <T : Any> LiteralValidator(
+    name: String = "empty",
     prev: Validator<T, T> = EmptyValidator(),
     constraint: Constraint<T> = Constraint.satisfied(),
-): LiteralValidator<T> = LiteralValidatorImpl(prev, constraint)
+): LiteralValidator<T> = LiteralValidatorImpl(name, prev, constraint)
 
 private class LiteralValidatorImpl<T : Any>(
+    private val name: String,
     private val prev: Validator<T, T>,
-    constraint: Constraint<T>,
+    private val constraint: Constraint<T>,
 ) : LiteralValidator<T> {
     private val next: ConstraintValidator<T> = ConstraintValidator(constraint)
 
     override fun execute(
         context: ValidationContext,
         input: T,
-    ): ValidationResult<T> = prev.chain(next).execute(context, input)
+    ): ValidationResult<T> {
+        val context = context.copy(logs = context.logs + toString())
+        return prev.chain(next).execute(context, input)
+    }
 
     override fun constrain(
         id: String,
         check: ConstraintScope.(ConstraintContext<T>) -> ConstraintResult,
-    ): LiteralValidator<T> = LiteralValidatorImpl(prev = this, constraint = Constraint(id, check))
+    ): LiteralValidator<T> = LiteralValidatorImpl(name = id, prev = this, constraint = Constraint(id, check))
 
     override fun single(
         value: T,
@@ -50,4 +55,6 @@ private class LiteralValidatorImpl<T : Any>(
         constrain("kova.literal.list") {
             satisfies(it.input in values, message(it, values))
         }
+
+    override fun toString(): String = "${LiteralValidator::class.simpleName}(name=$name)"
 }

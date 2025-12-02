@@ -32,13 +32,15 @@ interface NumberValidator<T> :
 }
 
 fun <T> NumberValidator(
+    name: String = "empty",
     prev: Validator<T, T> = EmptyValidator(),
     constraint: Constraint<T> = Constraint.satisfied(),
-): NumberValidator<T> where T : Number, T : Comparable<T> = NumberValidatorImpl(prev, constraint)
+): NumberValidator<T> where T : Number, T : Comparable<T> = NumberValidatorImpl(name, prev, constraint)
 
 private class NumberValidatorImpl<T>(
+    private val name: String,
     private val prev: Validator<T, T>,
-    constraint: Constraint<T> = Constraint.satisfied(),
+    private val constraint: Constraint<T> = Constraint.satisfied(),
 ) : NumberValidator<T>
     where T : Number, T : Comparable<T> {
     private val next: ConstraintValidator<T> = ConstraintValidator(constraint)
@@ -46,12 +48,15 @@ private class NumberValidatorImpl<T>(
     override fun execute(
         context: ValidationContext,
         input: T,
-    ): ValidationResult<T> = prev.chain(next).execute(context, input)
+    ): ValidationResult<T> {
+        val context = context.copy(logs = context.logs + toString())
+        return prev.chain(next).execute(context, input)
+    }
 
     override fun constrain(
         id: String,
         check: ConstraintScope.(ConstraintContext<T>) -> ConstraintResult,
-    ): NumberValidator<T> = NumberValidatorImpl(prev = this, constraint = Constraint(id, check))
+    ): NumberValidator<T> = NumberValidatorImpl(name = id, prev = this, constraint = Constraint(id, check))
 
     override fun min(
         value: T,
@@ -87,16 +92,18 @@ private class NumberValidatorImpl<T>(
 
     override fun and(other: Validator<T, T>): NumberValidator<T> {
         val combined = (this as Validator<T, T>).and(other)
-        return NumberValidatorImpl(prev = combined)
+        return NumberValidatorImpl("and", prev = combined)
     }
 
     override fun or(other: Validator<T, T>): NumberValidator<T> {
         val combined = (this as Validator<T, T>).or(other)
-        return NumberValidatorImpl(prev = combined)
+        return NumberValidatorImpl("or", prev = combined)
     }
 
     override fun chain(other: Validator<T, T>): NumberValidator<T> {
         val combined = (this as Validator<T, T>).chain(other)
-        return NumberValidatorImpl(prev = combined)
+        return NumberValidatorImpl("chain", prev = combined)
     }
+
+    override fun toString(): String = "${NumberValidator::class.simpleName}(name=$name)"
 }

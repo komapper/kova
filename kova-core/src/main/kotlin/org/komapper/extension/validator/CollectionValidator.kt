@@ -32,25 +32,30 @@ interface CollectionValidator<E, C : Collection<E>> :
 }
 
 fun <E, C : Collection<E>> CollectionValidator(
+    name: String = "empty",
     prev: Validator<C, C> = EmptyValidator(),
     constraint: Constraint<C> = Constraint.satisfied(),
-): CollectionValidator<E, C> = CollectionValidatorImpl(prev, constraint)
+): CollectionValidator<E, C> = CollectionValidatorImpl(name, prev, constraint)
 
 private class CollectionValidatorImpl<E, C : Collection<E>>(
+    private val name: String,
     private val prev: Validator<C, C>,
-    constraint: Constraint<C> = Constraint.satisfied(),
+    private val constraint: Constraint<C> = Constraint.satisfied(),
 ) : CollectionValidator<E, C> {
     private val next: ConstraintValidator<C> = ConstraintValidator(constraint)
 
     override fun execute(
         context: ValidationContext,
         input: C,
-    ): ValidationResult<C> = prev.chain(next).execute(context, input)
+    ): ValidationResult<C> {
+        val context = context.copy(logs = context.logs + toString())
+        return prev.chain(next).execute(context, input)
+    }
 
     override fun constrain(
         id: String,
         check: ConstraintScope.(ConstraintContext<C>) -> ConstraintResult,
-    ): CollectionValidator<E, C> = CollectionValidatorImpl(prev = this, constraint = Constraint(id, check))
+    ): CollectionValidator<E, C> = CollectionValidatorImpl(name = id, prev = this, constraint = Constraint(id, check))
 
     override fun min(
         size: Int,
@@ -103,16 +108,18 @@ private class CollectionValidatorImpl<E, C : Collection<E>>(
 
     override fun and(other: Validator<C, C>): CollectionValidator<E, C> {
         val combined = (this as Validator<C, C>).and(other)
-        return CollectionValidatorImpl(prev = combined)
+        return CollectionValidatorImpl("and", prev = combined)
     }
 
     override fun or(other: Validator<C, C>): CollectionValidator<E, C> {
         val combined = (this as Validator<C, C>).or(other)
-        return CollectionValidatorImpl(prev = combined)
+        return CollectionValidatorImpl("or", prev = combined)
     }
 
     override fun chain(other: Validator<C, C>): CollectionValidator<E, C> {
         val combined = (this as Validator<C, C>).chain(other)
-        return CollectionValidatorImpl(prev = combined)
+        return CollectionValidatorImpl("chain", prev = combined)
     }
+
+    override fun toString(): String = "${CollectionValidator::class.simpleName}(name=$name)"
 }

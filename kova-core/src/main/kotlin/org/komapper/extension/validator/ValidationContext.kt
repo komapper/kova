@@ -4,6 +4,7 @@ data class ValidationContext(
     val root: String = "",
     val path: String = "",
     val failFast: Boolean = false,
+    val logs: List<String> = emptyList(),
 )
 
 fun ValidationContext.addRoot(root: String): ValidationContext {
