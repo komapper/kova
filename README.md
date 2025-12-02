@@ -125,9 +125,9 @@ object PersonSchema : ObjectSchema<Person>() {
 
     // Create a factory method that builds an ObjectFactory
     fun build(name: String, age: Int): ObjectFactory<Person> {
-        val arg1 = arg(this.name, name)
-        val arg2 = arg(this.age, age)
-        return arguments(arg1, arg2).build(::Person)
+        val arg0 = arg(this.name, name)
+        val arg1 = arg(this.age, age)
+        return arguments(arg0, arg1).build(::Person)
     }
 }
 
@@ -147,8 +147,8 @@ object AgeSchema : ObjectSchema<Age>() {
     private val value = Age::value { Kova.int().min(0).max(120) }
 
     fun build(age: String): ObjectFactory<Age> {
-        val arg1 = arg(Kova.string().toInt().then(this.value), age)
-        return arguments(arg1).build(::Age)
+        val arg0 = arg(Kova.string().toInt().then(this.value), age)
+        return arguments(arg0).build(::Age)
     }
 }
 
@@ -157,9 +157,9 @@ object PersonSchema : ObjectSchema<Person>() {
     private val age = Person::age { AgeSchema }
 
     fun build(name: String, age: String): ObjectFactory<Person> {
-        val arg1 = arg(this.name, name)
-        val arg2 = arg(this.age, this.age.build(age))  // Nested factory
-        return arguments(arg1, arg2).build(::Person)
+        val arg0 = arg(this.name, name)
+        val arg1 = arg(this.age, this.age.build(age))  // Nested factory
+        return arguments(arg0, arg1).build(::Person)
     }
 }
 
