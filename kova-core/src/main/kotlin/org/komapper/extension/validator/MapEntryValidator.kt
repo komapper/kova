@@ -29,7 +29,7 @@ private class MapEntryValidatorImpl<K, V> internal constructor(
         context: ValidationContext,
         input: Map.Entry<K, V>,
     ): ValidationResult<Map.Entry<K, V>> {
-        val context = context.copy(logs = context.logs + toString())
+        val context = context.addLog(toString())
         return prev.chain(next).execute(context, input)
     }
 

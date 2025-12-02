@@ -29,7 +29,7 @@ operator fun <IN, OUT> Validator<IN, OUT>.plus(other: Validator<IN, OUT>): Valid
 infix fun <IN, OUT> Validator<IN, OUT>.and(other: Validator<IN, OUT>): Validator<IN, OUT> {
     val self = this
     return Validator { context, input ->
-        val context = context.copy(logs = context.logs + "Validator.and")
+        val context = context.addLog("Validator.and")
         when (val selfResult = self.execute(context, input)) {
             is Success -> {
                 val otherResult = other.execute(context, input)
@@ -51,7 +51,7 @@ infix fun <IN, OUT> Validator<IN, OUT>.and(other: Validator<IN, OUT>): Validator
 infix fun <IN, OUT> Validator<IN, OUT>.or(other: Validator<IN, OUT>): Validator<IN, OUT> {
     val self = this
     return Validator { context, input ->
-        val context = context.copy(logs = context.logs + "Validator.or")
+        val context = context.addLog("Validator.or")
         when (val selfResult = self.execute(context, input)) {
             is Success -> selfResult
             is Failure -> {
@@ -67,7 +67,7 @@ infix fun <IN, OUT> Validator<IN, OUT>.or(other: Validator<IN, OUT>): Validator<
 fun <IN, OUT, NEW> Validator<IN, OUT>.map(transform: (OUT) -> NEW): Validator<IN, NEW> {
     val self = this
     return Validator { context, input ->
-        val context = context.copy(logs = context.logs + "Validator.map")
+        val context = context.addLog("Validator.map")
         when (val result = self.execute(context, input)) {
             is Success -> {
                 try {
@@ -92,7 +92,7 @@ fun <IN, OUT, NEW> Validator<IN, OUT>.map(transform: (OUT) -> NEW): Validator<IN
 fun <IN, OUT> Validator<IN, OUT>.name(name: String): Validator<IN, OUT> {
     val self = this
     return Validator { context, input ->
-        val context = context.addPath(name).copy(logs = context.logs + "Validator.name(name=$name)")
+        val context = context.addPath(name).addLog("Validator.name(name=$name)")
         when (val result = self.execute(context, input)) {
             is Success -> Success(result.value, result.context)
             is Failure -> result
@@ -105,7 +105,7 @@ fun <IN, OUT, NEW> Validator<OUT, NEW>.compose(before: Validator<IN, OUT>): Vali
 fun <IN, OUT, NEW> Validator<IN, OUT>.then(after: Validator<OUT, NEW>): Validator<IN, NEW> {
     val before = this
     return Validator { context, input ->
-        val context = context.copy(logs = context.logs + "Validator.then")
+        val context = context.addLog("Validator.then")
         when (val result = before.execute(context, input)) {
             is Success -> after.execute(result.context, result.value)
             is Failure -> result
@@ -115,7 +115,7 @@ fun <IN, OUT, NEW> Validator<IN, OUT>.then(after: Validator<OUT, NEW>): Validato
 
 fun <T> Validator<T, T>.chain(next: Validator<T, T>): Validator<T, T> =
     Validator { context, input ->
-        val context = context.copy(logs = context.logs + "Validator.chain")
+        val context = context.addLog("Validator.chain")
         when (val result = this.execute(context, input)) {
             is Success -> {
                 next.execute(result.context, result.value)

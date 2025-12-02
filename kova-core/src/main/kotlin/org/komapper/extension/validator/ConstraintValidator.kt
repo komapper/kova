@@ -13,7 +13,7 @@ private class ConstraintValidatorImpl<T>(
         context: ValidationContext,
         input: T,
     ): ValidationResult<T> {
-        val context = context.copy(logs = context.logs + toString())
+        val context = context.addLog(toString())
         val constraintContext = context.createConstraintContext(input).copy(constraintId = constraint.id)
         return when (val result = constraint.apply(constraintContext)) {
             is ConstraintResult.Satisfied -> return ValidationResult.Success(input, context)
@@ -24,9 +24,7 @@ private class ConstraintValidatorImpl<T>(
         }
     }
 
-    override fun toString(): String {
-        return "${ConstraintValidator::class.simpleName}(name=${constraint.id})"
-    }
+    override fun toString(): String = "${ConstraintValidator::class.simpleName}(name=${constraint.id})"
 
     companion object {
         fun collectFailureDetails(

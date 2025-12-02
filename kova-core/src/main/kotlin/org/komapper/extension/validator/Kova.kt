@@ -47,7 +47,7 @@ interface Kova {
 
     fun <T> generic(): Validator<T, T> = EmptyValidator()
 
-    fun <T : Any> nullable(): NullableValidator<T, T> = NullableValidator(generic())
+    fun <T : Any> nullable(): NullableValidator<T, T> = NullableValidator("nullable", generic())
 
     fun <T : Any> literal(
         value: T,

@@ -133,25 +133,26 @@ class ValidatorTest :
                 val result = validator.tryValidate(" abcde ")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe "abcde"
-                result.context.logs shouldBe listOf(
-                    "StringValidator(name=kova.string.max)",
-                    "Validator.chain",
-                    "Validator.map",
-                    "StringValidator(name=kova.string.min)",
-                    "Validator.chain",
-                    "Validator.map",
-                    "StringValidator(name=trim)",
-                    "Validator.chain",
-                    "Validator.map",
-                    "StringValidator(name=empty)",
-                    "Validator.chain",
-                    "Validator.map",
-                    "EmptyValidator",
-                    "ConstraintValidator(name=kova.satisfied)",
-                    "ConstraintValidator(name=kova.satisfied)",
-                    "ConstraintValidator(name=kova.string.min)",
-                    "ConstraintValidator(name=kova.string.max)"
-                )
+                result.context.logs shouldBe
+                    listOf(
+                        "StringValidator(name=kova.string.max)",
+                        "Validator.chain",
+                        "Validator.map",
+                        "StringValidator(name=kova.string.min)",
+                        "Validator.chain",
+                        "Validator.map",
+                        "StringValidator(name=trim)",
+                        "Validator.chain",
+                        "Validator.map",
+                        "StringValidator(name=empty)",
+                        "Validator.chain",
+                        "Validator.map",
+                        "EmptyValidator",
+                        "ConstraintValidator(name=kova.satisfied)",
+                        "ConstraintValidator(name=kova.satisfied)",
+                        "ConstraintValidator(name=kova.string.min)",
+                        "ConstraintValidator(name=kova.string.max)",
+                    )
             }
         }
     })

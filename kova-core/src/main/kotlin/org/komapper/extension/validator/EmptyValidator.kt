@@ -9,7 +9,7 @@ private class EmptyValidatorImpl<T> : EmptyValidator<T> {
         context: ValidationContext,
         input: T,
     ): ValidationResult<T> {
-        val context = context.copy(logs = context.logs + toString())
+        val context = context.addLog(toString())
         return ValidationResult.Success(input, context)
     }
 

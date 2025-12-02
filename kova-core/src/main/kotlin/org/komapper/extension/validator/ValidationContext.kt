@@ -33,6 +33,8 @@ fun ValidationContext.addPath(path: String): ValidationContext {
     )
 }
 
+fun ValidationContext.addLog(log: String): ValidationContext = copy(logs = this.logs + log)
+
 fun ValidationContext.appendPath(path: String): ValidationContext = copy(path = this.path + path)
 
 fun <T> ValidationContext.createConstraintContext(input: T): ConstraintContext<T> = ConstraintContext(input, root, path, failFast)

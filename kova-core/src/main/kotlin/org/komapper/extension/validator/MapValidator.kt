@@ -52,7 +52,7 @@ private class MapValidatorImpl<K, V>(
         context: ValidationContext,
         input: Map<K, V>,
     ): ValidationResult<Map<K, V>> {
-        val context = context.copy(logs = context.logs + toString())
+        val context = context.addLog(toString())
         return prev.chain(next).execute(context, input)
     }
 

@@ -260,4 +260,21 @@ class NullableValidatorTest :
                 result.messages[0].content shouldBe "Number 6 must be less than or equal to 5"
             }
         }
+
+        context("logs") {
+            val min3 = Kova.int().min(3)
+            val isNullOrMin3Max3 = Kova.nullable<Int>().isNull().or(min3)
+
+            test("success: 3") {
+                val result = isNullOrMin3Max3.tryValidate(3)
+                result.isSuccess().mustBeTrue()
+                println(result.context.logs.joinToString("\n"))
+            }
+
+            test("success: null") {
+                val result = isNullOrMin3Max3.tryValidate(null)
+                result.isSuccess().mustBeTrue()
+                println(result.context.logs.joinToString("\n"))
+            }
+        }
     })

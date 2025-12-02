@@ -34,7 +34,7 @@ private class LocalDateValidatorImpl(
         context: ValidationContext,
         input: LocalDate,
     ): ValidationResult<LocalDate> {
-        val context = context.copy(logs = context.logs + toString())
+        val context = context.addLog(toString())
         return prev.chain(next).execute(context, input)
     }
 

@@ -136,7 +136,7 @@ private class StringValidatorImpl(
         context: ValidationContext,
         input: String,
     ): ValidationResult<String> {
-        val context = context.copy(logs = context.logs + toString())
+        val context = context.addLog(toString())
         return prev.map(transform).chain(next).execute(context, input)
     }
 

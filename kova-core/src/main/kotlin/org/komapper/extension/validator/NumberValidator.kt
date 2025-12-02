@@ -49,7 +49,7 @@ private class NumberValidatorImpl<T>(
         context: ValidationContext,
         input: T,
     ): ValidationResult<T> {
-        val context = context.copy(logs = context.logs + toString())
+        val context = context.addLog(toString())
         return prev.chain(next).execute(context, input)
     }
 
