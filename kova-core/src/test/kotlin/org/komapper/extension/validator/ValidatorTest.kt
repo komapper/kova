@@ -43,7 +43,7 @@ class ValidatorTest :
             }
         }
 
-        context("or") {
+        context("or: 2") {
             val length2 = Kova.string().length(2)
             val length5 = Kova.string().length(5)
             val length2or5 = length2 or length5
@@ -59,7 +59,30 @@ class ValidatorTest :
             test("failure - length(3)") {
                 val result = length2or5.tryValidate("abc")
                 result.isFailure().mustBeTrue()
-                result.messages.size shouldBe 2
+                result.messages.size shouldBe 1
+                result.messages[0].let {
+                    it.constraintId shouldBe "kova.or"
+                    it.content shouldBe
+                        "at least one constraint must be satisfied: [[\"abc\" must be exactly 2 characters], [\"abc\" must be exactly 5 characters]]"
+                }
+            }
+        }
+
+        context("or: 3") {
+            val length2 = Kova.string().length(2)
+            val length5 = Kova.string().length(5)
+            val length7 = Kova.string().length(7)
+            val length2or5or7 = length2 or length5 or length7
+
+            test("failure - length(3)") {
+                val result = length2or5or7.tryValidate("abc")
+                result.isFailure().mustBeTrue()
+                result.messages.size shouldBe 1
+                result.messages[0].let {
+                    it.constraintId shouldBe "kova.or"
+                    it.content shouldBe "at least one constraint must be satisfied: [[[\"abc\" must be exactly 2 characters], " +
+                        "[\"abc\" must be exactly 5 characters]], [\"abc\" must be exactly 7 characters]]"
+                }
             }
         }
 

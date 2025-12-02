@@ -22,8 +22,16 @@ sealed interface Message {
 
         override val content: String by lazy {
             val pattern = getPattern(constraintId)
-            MessageFormat.format(pattern, *args.toTypedArray())
+            val newArgus = args.map { resolveArg(it) }
+            MessageFormat.format(pattern, *newArgus.toTypedArray())
         }
+
+        private fun resolveArg(arg: Any?): Any? =
+            when (arg) {
+                is Message -> arg.content
+                is Iterable<*> -> arg.map { resolveArg(it) }
+                else -> arg
+            }
     }
 
     data class ValidationFailure(

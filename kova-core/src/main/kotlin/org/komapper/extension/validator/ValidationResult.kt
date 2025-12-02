@@ -11,10 +11,21 @@ sealed interface ValidationResult<out T> {
         val context: ValidationContext,
     ) : ValidationResult<T>
 
-    data class Failure(
-        val details: List<FailureDetail>,
-    ) : ValidationResult<Nothing> {
-        constructor(detail: FailureDetail) : this(listOf(detail))
+    sealed class Failure : ValidationResult<Nothing> {
+        abstract val details: List<FailureDetail>
+
+        data class Simple(
+            override val details: List<FailureDetail>,
+        ) : Failure() {
+            constructor(detail: FailureDetail) : this(listOf(detail))
+        }
+
+        data class Or(
+            val first: Failure,
+            val second: Failure,
+        ) : Failure() {
+            override val details: List<FailureDetail> get() = first.details + second.details
+        }
     }
 
     data class FailureDetail(
@@ -33,7 +44,17 @@ operator fun <T> ValidationResult<T>.plus(other: ValidationResult<T>): Validatio
         is Failure ->
             when (other) {
                 is Success -> this
-                is Failure -> Failure(this.details + other.details)
+                is Failure -> Failure.Simple(this.details + other.details)
+            }
+    }
+
+fun <T> ValidationResult<T>.or(other: ValidationResult<T>): ValidationResult<T> =
+    when (this) {
+        is Success -> other
+        is Failure ->
+            when (other) {
+                is Success -> this
+                is Failure -> Failure.Or(this, other)
             }
     }
 
@@ -60,5 +81,19 @@ val ValidationResult<*>.messages: List<Message>
         if (isSuccess()) {
             emptyList()
         } else {
-            details.map { it.message }
+            compositeMessage(this, false)
         }
+
+private fun compositeMessage(
+    failure: Failure,
+    nested: Boolean,
+): List<Message> =
+    when (failure) {
+        is Failure.Simple -> failure.details.map { it.message }
+        is Failure.Or -> {
+            val firstMessages = compositeMessage(failure.first, true)
+            val secondMessages = compositeMessage(failure.second, true)
+            val key = if (nested) "kova.or.nested" else "kova.or"
+            listOf(Message.Resource(key, firstMessages, secondMessages))
+        }
+    }

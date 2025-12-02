@@ -42,9 +42,8 @@ class NumberValidatorTest :
             test("failure : 4") {
                 val result = validator.tryValidate(4)
                 result.isFailure().mustBeTrue()
-                result.messages.size shouldBe 2
-                result.messages[0].content shouldBe "Number 4 must be less than or equal to 2"
-                result.messages[1].content shouldBe "Number 4 must be less than or equal to 3"
+                result.messages.size shouldBe 1
+                result.messages[0].constraintId shouldBe "kova.or"
             }
         }
 

@@ -19,7 +19,7 @@ private class ConstraintValidatorImpl<T>(
             is ConstraintResult.Satisfied -> return ValidationResult.Success(input, context)
             is ConstraintResult.Violated -> {
                 val failureDetails = collectFailureDetails(context, result.message)
-                ValidationResult.Failure(failureDetails)
+                ValidationResult.Failure.Simple(failureDetails)
             }
         }
     }

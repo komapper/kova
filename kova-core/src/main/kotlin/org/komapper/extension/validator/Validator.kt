@@ -57,7 +57,7 @@ infix fun <IN, OUT> Validator<IN, OUT>.or(other: Validator<IN, OUT>): Validator<
             is Failure -> {
                 when (val otherResult = other.execute(context, input)) {
                     is Success -> otherResult
-                    is Failure -> selfResult + otherResult
+                    is Failure -> selfResult.or(otherResult)
                 }
             }
         }
@@ -80,7 +80,7 @@ fun <IN, OUT, NEW> Validator<IN, OUT>.map(transform: (OUT) -> NEW): Validator<IN
                             Message.Text(cause.message.toString())
                         }
                     val detail = ValidationResult.FailureDetail(result.context, message, cause)
-                    Failure(detail)
+                    Failure.Simple(detail)
                 }
             }
 

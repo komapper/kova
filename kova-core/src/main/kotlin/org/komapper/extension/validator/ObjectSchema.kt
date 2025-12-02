@@ -54,7 +54,7 @@ open class ObjectSchema<T : Any> private constructor(
         val validator = rule.choose(input)
         return when (val result = validator.execute(newContext, value)) {
             is ValidationResult.Success -> ValidationResult.Success(input, result.context)
-            is ValidationResult.Failure -> ValidationResult.Failure(result.details)
+            is ValidationResult.Failure -> ValidationResult.Failure.Simple(result.details)
         }
     }
 

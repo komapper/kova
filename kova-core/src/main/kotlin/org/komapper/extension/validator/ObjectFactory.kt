@@ -12,7 +12,7 @@ private fun <T> tryConstruct(
         try {
             block()
         } catch (cause: Exception) {
-            return ValidationResult.Failure(
+            return ValidationResult.Failure.Simple(
                 detail =
                     ValidationResult.FailureDetail(
                         context = context,
@@ -34,7 +34,7 @@ private fun <T : Any> createFailure(
             .reduce { a, b -> a + b }
     return when (result) {
         is ValidationResult.Success -> error("This should never happen.")
-        is ValidationResult.Failure -> ValidationResult.Failure(result.details)
+        is ValidationResult.Failure -> ValidationResult.Failure.Simple(result.details)
     }
 }
 

@@ -60,9 +60,8 @@ class StringValidatorTest :
             test("failure") {
                 val result = validator.tryValidate("abc")
                 result.isFailure().mustBeTrue()
-                result.messages.size shouldBe 2
-                result.messages[0].content shouldBe "\"abc\" must be an int"
-                result.messages[1].content shouldBe "Value abc must be zero"
+                result.messages.size shouldBe 1
+                result.messages[0].constraintId shouldBe "kova.or"
             }
         }
 
