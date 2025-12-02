@@ -223,49 +223,48 @@ val nullableValidator = Kova.string().min(1).asNullable()
 // Create an empty nullable validator (for custom validation)
 val emptyNullableValidator = Kova.nullable<String>()
 
-// Require non-null value - use Kova.notNull() directly
-val notNullValidator = Kova.notNull<String>()
+// Require non-null value
+val notNullValidator = Kova.nullable<String>().notNull()
 // Null values fail validation, non-null values pass
 
-// Accept null explicitly - use Kova.isNull() directly
-val isNullValidator = Kova.isNull<String>()
+// Accept null explicitly
+val isNullValidator = Kova.nullable<String>().isNull()
 // Only null values pass, non-null values fail
 
 // Accept null OR validate non-null values
-val nullOrMinValidator = Kova.nullable<String>().isNullOr(Kova.string().min(5))
+val nullOrMinValidator = Kova.nullable<String>().isNull().or(Kova.int().min(5))
 // Null values pass, non-null values must satisfy min(5)
 
-// Alternative: Use isNullOr for literal values
-val nullOrValueValidator = Kova.isNullOr("default")
+// Alternative: Use isNull().or() for literal values
+val nullOrValueValidator = Kova.nullable<String>().isNull().or(Kova.literal("default"))
 // Accepts null or the exact value "default"
 
-// Require non-null AND validate the value - use Kova.notNullThen() directly
-val notNullAndMinValidator = Kova.notNullThen(Kova.string().min(5)).toNonNullable()
-// Null values fail, non-null values must satisfy min(5)
-
-// Chain nullable validators with notNullThen
-val chainedValidator = Kova.nullable<String>().notNullThen(Kova.string().min(5))
+// Require non-null AND validate the value
+val notNullAndMinValidator = Kova.nullable<String>().notNull().then(Kova.string().min(5))
 // Null values fail, non-null values must satisfy min(5)
 
 // Set default value for null inputs
-val withDefault = Kova.nullable<String>().orDefault("default")
+val withDefault = Kova.nullable<String>().toDefaultIfNull("default")
 // Null inputs are replaced with "default"
+
+// Convert nullable validator to non-nullable
+val nonNullable = Kova.nullable<String>().notNull().toNonNullable()
 ```
 
-**Key behavior**: By default, `Kova.nullable()` treats null as a valid value. Use `Kova.notNull()` or `.notNull()` to enforce non-null requirements.
+**Key behavior**: By default, `Kova.nullable()` treats null as a valid value. Use `.notNull()` to enforce non-null requirements.
 
 **API Summary**:
-- `Kova.notNull<T>()` - Convenience method, same as `Kova.nullable<T>().notNull()`
-- `Kova.isNull<T>()` - Convenience method, same as `Kova.nullable<T>().isNull()`
-- `Kova.isNullOr(value)` - Convenience method, accepts null or a specific literal value
-- `Kova.notNullThen(validator)` - Convenience method for chaining with non-null validation
-- `.notNullThen(validator)` - Extension on nullable validators for chaining
-- `.orDefault(value)` - Replace null values with a default
+- `Kova.nullable<T>()` - Create an empty nullable validator (accepts null by default)
+- `.asNullable()` - Extension method to convert any validator to nullable
+- `.notNull()` - Method on nullable validators to reject null values
+- `.isNull()` - Method on nullable validators to accept only null values
+- `.toDefaultIfNull(value)` - Replace null values with a default
+- `.toNonNullable()` - Convert nullable validator to non-nullable validator
 
 **Implementation note**:
-- The `asNullable()` extension method is also available on any validator as an alternative API for converting a validator to nullable
+- The `asNullable()` extension method is available on any validator as an alternative API for converting a validator to nullable
 - `Kova.nullable()` internally uses `Kova.generic()` which creates an `EmptyValidator` that always succeeds
-- `Kova.notNull()` returns a `NullableValidator<T, T>` that enforces non-null constraints
+- Type-specific validators (StringValidator, NumberValidator, etc.) have composition operators (`+`, `and`, `or`) that return the same type
 
 ### ValidationResult Algebra
 
@@ -274,7 +273,12 @@ The `+` operator on `ValidationResult` enables error accumulation:
 - `Success + Failure` → Failure
 - `Failure + Failure` → merged Failure (all errors combined)
 
-This allows collecting multiple validation errors in a single pass.
+The `.or()` method on `ValidationResult` provides OR semantics:
+- `Success.or(other)` → other result
+- `Failure.or(Success)` → Success
+- `Failure.or(Failure)` → composite OR failure (both branches shown in error message)
+
+This allows collecting multiple validation errors in a single pass or creating alternative validation paths.
 
 ### Path Tracking
 
@@ -342,23 +346,24 @@ This provides a composable validation pipeline while allowing type-specific exte
 
 ### Constraint Evaluation
 
-Constraints are evaluated using the `Constraint` functional interface:
+Constraints are evaluated using the `Constraint` data class:
 
 ```kotlin
-fun interface Constraint<T> {
-    fun apply(context: ConstraintContext<T>): ConstraintResult
+data class Constraint<T>(
+    val id: String,
+    val check: ConstraintScope.(ConstraintContext<T>) -> ConstraintResult,
+)
+```
+
+The `ConstraintScope.satisfies()` helper simplifies constraint creation within the check lambda:
+
+```kotlin
+constrain("custom.id") { ctx ->
+    satisfies(condition, message)
 }
 ```
 
-The `Constraint.satisfies()` helper simplifies constraint creation:
-
-```kotlin
-Constraint.satisfies(condition, message)
-```
-
 Returns `ConstraintResult.Satisfied` if `condition` is true, otherwise `ConstraintResult.Violated(message)`.
-
-**Note**: The old `Constraint.check()` function is deprecated in favor of `satisfies()` for better clarity.
 
 ### ValidationContext and Fail-Fast
 

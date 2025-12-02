@@ -48,11 +48,15 @@ val name = nameValidator.validate("John")
 // Combine validators with + operator (or 'and')
 val emailValidator = Kova.string().notBlank() + Kova.string().contains("@")
 
-// Use 'or' for alternative validations
+// Use 'or' for alternative validations (succeeds if either passes)
 val validator = Kova.string().uppercase() or Kova.string().min(5)
 
 // Transform output with map
 val intValidator = Kova.string().toInt()  // Validates and converts to Int
+
+// Type-specific validators return the same type when composed
+val stringValidator: StringValidator = Kova.string().min(1) + Kova.string().max(10)
+val numberValidator: NumberValidator<Int> = Kova.int().min(0) or Kova.int().max(100)
 ```
 
 ### Object Validation
@@ -185,37 +189,34 @@ val result1 = nullableNameValidator.tryValidate(null)        // Success(null)
 val result2 = nullableNameValidator.tryValidate("hi")        // Success("hi")
 val result3 = nullableNameValidator.tryValidate("")          // Failure (min(1) violated)
 
-// Reject null values explicitly - use Kova.notNull() directly
-val notNullValidator = Kova.notNull<String>()
+// Reject null values explicitly
+val notNullValidator = Kova.nullable<String>().notNull()
 val result = notNullValidator.tryValidate(null)              // Failure
 
-// Accept only null values - use Kova.isNull() directly
-val isNullValidator = Kova.isNull<String>()
+// Accept only null values
+val isNullValidator = Kova.nullable<String>().isNull()
 val result = isNullValidator.tryValidate(null)               // Success(null)
 
 // Accept null OR validate non-null values
-val nullOrMinValidator = Kova.nullable<String>().isNullOr(Kova.string().min(5))
+val nullOrMinValidator = Kova.nullable<Int>().isNull().or(Kova.int().min(5))
 val result1 = nullOrMinValidator.tryValidate(null)           // Success(null)
-val result2 = nullOrMinValidator.tryValidate("hello")        // Success("hello")
-val result3 = nullOrMinValidator.tryValidate("hi")           // Failure (min(5) violated)
+val result2 = nullOrMinValidator.tryValidate(10)             // Success(10)
+val result3 = nullOrMinValidator.tryValidate(3)              // Failure (min(5) violated)
 
 // Accept null OR a specific literal value
-val nullOrDefaultValidator = Kova.isNullOr("default")
+val nullOrDefaultValidator = Kova.nullable<String>().isNull().or(Kova.literal("default"))
 val result1 = nullOrDefaultValidator.tryValidate(null)       // Success(null)
 val result2 = nullOrDefaultValidator.tryValidate("default")  // Success("default")
 val result3 = nullOrDefaultValidator.tryValidate("other")    // Failure
 
-// Require non-null AND validate the value - use Kova.notNullThen() directly
-val notNullAndMinValidator = Kova.notNullThen(Kova.string().min(5)).toNonNullable()
+// Require non-null AND validate the value
+val notNullAndMinValidator = Kova.nullable<String>().notNull().then(Kova.string().min(5))
 val result1 = notNullAndMinValidator.tryValidate(null)       // Failure (null not allowed)
 val result2 = notNullAndMinValidator.tryValidate("hello")    // Success("hello")
 val result3 = notNullAndMinValidator.tryValidate("hi")       // Failure (min(5) violated)
 
-// Chain nullable validators with notNullThen
-val chainedValidator = Kova.nullable<String>().notNullThen(Kova.string().min(5))
-
 // Set default value for null inputs
-val withDefault = Kova.nullable<String>().orDefault("default")
+val withDefault = Kova.nullable<String>().toDefaultIfNull("default")
 val result = withDefault.tryValidate(null)                   // Success("default")
 
 // Convert any validator to nullable using asNullable()
@@ -223,12 +224,12 @@ val validator = Kova.string().min(5).asNullable()
 ```
 
 **API Summary**:
-- `Kova.notNull<T>()` - Convenience method for rejecting null values
-- `Kova.isNull<T>()` - Convenience method for accepting only null values
-- `Kova.isNullOr(value)` - Accept null or a specific literal value
-- `Kova.notNullThen(validator)` - Chain validation after null check
-- `.notNullThen(validator)` - Extension on nullable validators
-- `.orDefault(value)` - Replace null with default
+- `Kova.nullable<T>()` - Create an empty nullable validator (accepts null by default)
+- `.asNullable()` - Extension method to convert any validator to nullable
+- `.notNull()` - Method on nullable validators to reject null values
+- `.isNull()` - Method on nullable validators to accept only null values
+- `.toDefaultIfNull(value)` - Replace null values with a default
+- `.toNonNullable()` - Convert nullable validator to non-nullable validator
 
 ## Available Validators
 
@@ -462,6 +463,21 @@ if (result.isFailure()) {
 }
 ```
 
+### OR Validator Error Messages
+
+When using the `or` operator, if both validators fail, the error message provides composite feedback showing both validation branches:
+
+```kotlin
+val validator = Kova.nullable<Int>().isNull().or(Kova.int().min(5).max(10))
+val result = validator.tryValidate(3)
+
+if (result.isFailure()) {
+    // Composite OR error message showing both branches
+    // "at least one constraint must be satisfied: [[Value 3 must be null], [Number 3 must be greater than or equal to 5]]"
+    println(result.messages[0].content)
+}
+```
+
 ### Path Tracking for Nested Objects
 
 ```kotlin
@@ -489,7 +505,7 @@ val validator = Kova.string().constrain("custom.email") { ctx ->
 }
 ```
 
-The first parameter is the constraint ID, and the second is a lambda that receives a `ConstraintContext<T>` and returns a `ConstraintResult`. Use the `satisfies()` helper within the lambda to simplify constraint creation.
+The first parameter is the constraint ID, and the second is a lambda with `ConstraintScope` receiver that receives a `ConstraintContext<T>` and returns a `ConstraintResult`. Use the `satisfies()` helper within the lambda to simplify constraint creation. The `satisfies()` helper accepts both `Message` objects and plain strings.
 
 ### Creating Custom Extension Methods
 
