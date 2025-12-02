@@ -68,9 +68,19 @@ private data class FunctionDesc(
     }
 }
 
+private val isKotlinReflectAvailable: Boolean =
+    try {
+        Class.forName("kotlin.reflect.full.KClasses")
+        true
+    } catch (ignored: ClassNotFoundException) {
+        false
+    }
+
+@Suppress("NO_REFLECTION_IN_CLASS_PATH")
 private fun introspectFunction(ctor: Any): FunctionDesc =
     if (ctor is KFunction<*>) {
-        FunctionDesc(ctor.name, ctor.parameters)
+        val parameters = if (isKotlinReflectAvailable) ctor.parameters else emptyList()
+        FunctionDesc(ctor.name, parameters)
     } else {
         FunctionDesc(ctor.toString(), emptyList())
     }
