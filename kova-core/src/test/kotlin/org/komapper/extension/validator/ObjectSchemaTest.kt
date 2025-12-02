@@ -2,7 +2,6 @@ package org.komapper.extension.validator
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldEndWith
 import java.time.LocalDate
 
 class ObjectSchemaTest :
@@ -64,7 +63,7 @@ class ObjectSchemaTest :
                 result.isFailure().mustBeTrue()
                 result.details.size shouldBe 1
                 result.details[0].let {
-                    it.root shouldEndWith $$"$User"
+                    it.root shouldBe "User"
                     it.path.fullName shouldBe "name"
                     it.message.content shouldBe "\"too-long-name\" must be at most 10 characters"
                 }
@@ -77,12 +76,12 @@ class ObjectSchemaTest :
 
                 result.details.size shouldBe 2
                 result.details[0].let {
-                    it.root shouldEndWith $$"$User"
+                    it.root shouldBe "User"
                     it.path.fullName shouldBe "name"
                     it.message.content shouldBe "\"too-long-name\" must be at most 10 characters"
                 }
                 result.details[1].let {
-                    it.root shouldEndWith $$"$User"
+                    it.root shouldBe "User"
                     it.path.fullName shouldBe "id"
                     it.message.content shouldBe "Number 0 must be greater than or equal to 1"
                 }
@@ -135,7 +134,7 @@ class ObjectSchemaTest :
                 result.isFailure().mustBeTrue()
                 result.details.size shouldBe 1
                 result.details[0].let {
-                    it.root shouldEndWith $$"$Period"
+                    it.root shouldBe "Period"
                     it.path.fullName shouldBe ""
                     it.message.content shouldBe "startDate must be less than or equal to endDate"
                 }
@@ -184,7 +183,7 @@ class ObjectSchemaTest :
                 result.isFailure().mustBeTrue()
                 result.details.size shouldBe 1
                 result.details[0].let {
-                    it.root shouldEndWith $$"$User"
+                    it.root shouldBe "User"
                     it.path.fullName shouldBe "name"
                     it.message.content shouldBe "\"too-long-name\" must be at most 10 characters"
                 }
@@ -197,12 +196,12 @@ class ObjectSchemaTest :
 
                 result.details.size shouldBe 2
                 result.details[0].let {
-                    it.root shouldEndWith $$"$User"
+                    it.root shouldBe "User"
                     it.path.fullName shouldBe "id"
                     it.message.content shouldBe "Number 0 must be greater than or equal to 1"
                 }
                 result.details[1].let {
-                    it.root shouldEndWith $$"$User"
+                    it.root shouldBe "User"
                     it.path.fullName shouldBe "name"
                     it.message.content shouldBe "\"too-long-name\" must be at most 10 characters"
                 }
@@ -240,7 +239,7 @@ class ObjectSchemaTest :
                 result.isFailure().mustBeTrue()
                 result.details.size shouldBe 1
                 result.details[0].let {
-                    it.root shouldEndWith $$"$Employee"
+                    it.root shouldBe "Employee"
                     it.path.fullName shouldBe "address.street.name"
                     it.message.content shouldBe "\"too-long-name\" must be at most 5 characters"
                 }
@@ -294,7 +293,7 @@ class ObjectSchemaTest :
                 result.isFailure().mustBeTrue()
                 result.details.size shouldBe 1
                 result.details[0].let {
-                    it.root shouldEndWith $$"$Employee"
+                    it.root shouldBe "Employee"
                     it.path.fullName shouldBe "address.postalCode"
                     it.message.content shouldBe "\"123456789\" must be exactly 8 characters"
                 }
@@ -307,7 +306,7 @@ class ObjectSchemaTest :
                 result.isFailure().mustBeTrue()
                 result.details.size shouldBe 1
                 result.details[0].let {
-                    it.root shouldEndWith $$"$Employee"
+                    it.root shouldBe "Employee"
                     it.path.fullName shouldBe "address.postalCode"
                     it.message.content shouldBe "\"123456789\" must be exactly 5 characters"
                 }
@@ -360,12 +359,12 @@ class ObjectSchemaTest :
                 result.isFailure().mustBeTrue()
                 result.details.size shouldBe 2
                 result.details[0].let {
-                    it.root shouldEndWith $$"$Person"
+                    it.root shouldBe "Person"
                     it.path.fullName shouldBe "firstName"
                     it.message.content shouldBe "Value must not be null"
                 }
                 result.details[1].let {
-                    it.root shouldEndWith $$"$Person"
+                    it.root shouldBe "Person"
                     it.path.fullName shouldBe "lastName"
                     it.message.content shouldBe "Value must not be null"
                 }
@@ -406,6 +405,73 @@ class ObjectSchemaTest :
                 result.details[0].path.fullName shouldBe "children[2]<collection element>.children[0]<collection element>.children"
                 result.messages.size shouldBe 1
                 result.messages[0].content shouldBe "Collection(size=4) must have at most 3 elements"
+            }
+        }
+
+        context("circular reference detection") {
+            data class NodeWithValue(
+                val value: Int,
+                var next: NodeWithValue?,
+            )
+
+            val nodeSchema =
+                object : ObjectSchema<NodeWithValue>() {
+                    val value = NodeWithValue::value { Kova.int().min(0).max(100) }
+                    val next = NodeWithValue::next { Kova.nullable<NodeWithValue>().then(this) }
+                }
+
+            test("circular reference detected - validation succeeds without error") {
+                val node1 = NodeWithValue(10, null)
+                val node2 = NodeWithValue(20, node1)
+                node1.next = node2 // Create circular reference: node1 -> node2 -> node1
+
+                val result = nodeSchema.tryValidate(node1)
+                result.isSuccess().mustBeTrue()
+            }
+
+            test("non-circular nested objects - all valid") {
+                val node4 = NodeWithValue(40, null)
+                val node3 = NodeWithValue(30, node4)
+                val node2 = NodeWithValue(20, node3)
+                val node1 = NodeWithValue(10, node2)
+
+                val result = nodeSchema.tryValidate(node1)
+                result.isSuccess().mustBeTrue()
+            }
+
+            test("constraint violation in nested object") {
+                val node3 = NodeWithValue(150, null) // Invalid: > 100
+                val node2 = NodeWithValue(20, node3)
+                val node1 = NodeWithValue(10, node2)
+
+                val result = nodeSchema.tryValidate(node1)
+                result.isFailure().mustBeTrue()
+                result.details.size shouldBe 1
+                result.details[0].path.fullName shouldBe "next.next.value"
+                result.messages[0].content shouldBe "Number 150 must be less than or equal to 100"
+            }
+
+            test("constraint violation in root object") {
+                val node2 = NodeWithValue(20, null)
+                val node1 = NodeWithValue(-5, node2) // Invalid: < 0
+
+                val result = nodeSchema.tryValidate(node1)
+                result.isFailure().mustBeTrue()
+                result.details.size shouldBe 1
+                result.details[0].path.fullName shouldBe "value"
+                result.messages[0].content shouldBe "Number -5 must be greater than or equal to 0"
+            }
+
+            test("circular reference with constraint violation - stops before revisiting") {
+                val node1 = NodeWithValue(200, null) // Invalid: > 100
+                val node2 = NodeWithValue(20, node1)
+                node1.next = node2 // Create circular reference
+
+                val result = nodeSchema.tryValidate(node1)
+                result.isFailure().mustBeTrue()
+                result.details.size shouldBe 1
+                result.details[0].path.fullName shouldBe "value"
+                result.details[0].message.content shouldBe "Number 200 must be less than or equal to 100"
             }
         }
     })

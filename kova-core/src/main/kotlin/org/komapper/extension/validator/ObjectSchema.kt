@@ -14,7 +14,9 @@ open class ObjectSchema<T : Any> private constructor(
     ): ValidationResult<T> {
         val constraints: MutableList<Constraint<T>> = mutableListOf()
         block(ObjectSchemaScope(constraints))
-        val context = context.addRoot(input::class.toString())
+        val klass = input::class
+        val rootName = klass.qualifiedName ?: klass.simpleName ?: klass.toString()
+        val context = context.addRoot(rootName, input)
         val ruleResult = applyRules(input, context, ruleMap)
         val constraintResult = applyConstraints(input, context, constraints)
         if (context.failFast && ruleResult.isFailure()) {
@@ -51,10 +53,16 @@ open class ObjectSchema<T : Any> private constructor(
         // TODO exception handling
         val value = rule.transform(input)
         val validator = rule.choose(input)
-        val newContext = context.addPath(key, value)
-        return when (val result = validator.execute(newContext, value)) {
-            is ValidationResult.Success -> ValidationResult.Success(input, result.context)
-            is ValidationResult.Failure -> ValidationResult.Failure.Simple(result.details)
+        val pathResult = context.addPathChecked(key, value)
+        return when (pathResult) {
+            is ValidationResult.Success -> {
+                when (val result = validator.execute(pathResult.context, value)) {
+                    is ValidationResult.Success -> ValidationResult.Success(input, result.context)
+                    is ValidationResult.Failure -> ValidationResult.Failure.Simple(result.details)
+                }
+            }
+            // If circular reference detected, terminate validation early with success
+            is ValidationResult.Failure -> ValidationResult.Success(input, context)
         }
     }
 
