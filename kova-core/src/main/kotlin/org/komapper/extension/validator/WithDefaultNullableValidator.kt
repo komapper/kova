@@ -24,7 +24,7 @@ interface WithDefaultNullableValidator<T : Any, S : Any> :
 
 fun <T : Any, S : Any> Validator<T, S>.asNullable(defaultValue: S): WithDefaultNullableValidator<T, S> {
     val self = this
-    // convert Validator<T, S> to Validator<T?, S?>
+    // convert Validator<T, S> to Validator<T?, S>
     val wrapped =
         Validator<T?, S> { context, input ->
             val context = context.addLog("Validator.asNullable(defaultValue=$defaultValue)")
@@ -60,14 +60,10 @@ private class WithDefaultNullableValidatorImpl<T : Any, S : Any>(
     ): WithDefaultNullableValidator<T, S> = WithDefaultNullableValidatorImpl(id, after, Constraint(id, check))
 
     override fun isNull(message: (ConstraintContext<T?>) -> Message): WithDefaultNullableValidator<T, S> =
-        constrain("kova.nullable.isNull", {
-            satisfies(it.input == null, message(it))
-        })
+        constrain("kova.nullable.isNull", Constraints.isNull(message))
 
     override fun notNull(message: (ConstraintContext<T?>) -> Message): WithDefaultNullableValidator<T, S> =
-        constrain("kova.nullable.notNull", {
-            satisfies(it.input != null, message(it))
-        })
+        constrain("kova.nullable.notNull", Constraints.notNull(message))
 
     override operator fun plus(other: Validator<T?, S>): WithDefaultNullableValidator<T, S> = and(other)
 
