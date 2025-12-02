@@ -23,8 +23,8 @@ class ObjectFactoryTest :
                         name: String?,
                         age: Int?,
                     ): ObjectFactory<User> {
-                        val arg1 = arg(name, this.name.toDefaultIfNull(""))
-                        val arg2 = arg(age, this.age.toDefaultIfNull(0))
+                        val arg1 = arg(name, this.name.withDefault(""))
+                        val arg2 = arg(age, this.age.withDefault(0))
                         val arguments = arguments(arg1, arg2)
                         return arguments.build(::User)
                     }

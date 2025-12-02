@@ -19,9 +19,9 @@ interface NullableValidator<T : Any, S : Any> :
 
     fun <U : Any> then(other: Validator<S, U>): NullableValidator<T, U>
 
-    fun toDefaultIfNull(value: S): Validator<T?, S>
-
     fun toNonNullable(): Validator<T?, S>
+
+    fun withDefault(defaultValue: S): WithDefaultNullableValidator<T, S>
 }
 
 fun <T : Any, S : Any> Validator<T, S>.asNullable(): NullableValidator<T, S> {
@@ -67,8 +67,8 @@ private class NullableValidatorImpl<T : Any, S : Any>(
         })
 
     override fun notNull(message: (ConstraintContext<T?>) -> Message): NullableValidator<T, S> =
-        constrain("kova.nullable.notNull", { ctx ->
-            satisfies(ctx.input != null, message(ctx))
+        constrain("kova.nullable.notNull", {
+            satisfies(it.input != null, message(it))
         })
 
     override operator fun plus(other: Validator<T, S>): NullableValidator<T, S> = and(other)
@@ -88,9 +88,15 @@ private class NullableValidatorImpl<T : Any, S : Any>(
             NullableValidatorImpl("then", it)
         }
 
-    override fun toDefaultIfNull(value: S): Validator<T?, S> = map { it ?: value }
-
     override fun toNonNullable(): Validator<T?, S> = notNull().map { it!! }
+
+    override fun withDefault(defaultValue: S): WithDefaultNullableValidator<T, S> =
+        WithDefaultNullableValidator(
+            "withDefault",
+            map {
+                it ?: defaultValue
+            },
+        )
 
     override fun toString(): String = "${NullableValidator::class.simpleName}(name=$name)"
 }
