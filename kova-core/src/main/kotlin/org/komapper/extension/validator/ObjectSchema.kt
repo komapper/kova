@@ -115,44 +115,55 @@ open class ObjectSchema<T : Any> private constructor(
         validator: Validator<IN, OUT>,
     ): Arg<OUT> = Arg.Factory(factory, validator)
 
-    fun <T> arguments(arg1: Arg<T>) = Arguments1(this, arg1)
+    fun <T0> arguments(arg0: Arg<T0>) = Arguments(this, arg0)
 
-    fun <T1, T2> arguments(
+    fun <T0, T1> arguments(
+        arg0: Arg<T0>,
+        arg1: Arg<T1>,
+    ) = Arguments1(this, arg0, arg1)
+
+    fun <T0, T1, T2> arguments(
+        arg0: Arg<T0>,
         arg1: Arg<T1>,
         arg2: Arg<T2>,
-    ) = Arguments2(this, arg1, arg2)
+    ) = Arguments2(this, arg0, arg1, arg2)
 
-    fun <T1, T2, T3> arguments(
+    fun <T0, T1, T2, T3> arguments(
+        arg0: Arg<T0>,
         arg1: Arg<T1>,
         arg2: Arg<T2>,
         arg3: Arg<T3>,
-    ) = Arguments3(this, arg1, arg2, arg3)
+    ) = Arguments3(this, arg0, arg1, arg2, arg3)
 
-    fun <T1, T2, T3, T4> arguments(
+    fun <T0, T1, T2, T3, T4> arguments(
+        arg0: Arg<T0>,
         arg1: Arg<T1>,
         arg2: Arg<T2>,
         arg3: Arg<T3>,
         arg4: Arg<T4>,
-    ) = Arguments4(this, arg1, arg2, arg3, arg4)
+    ) = Arguments4(this, arg0, arg1, arg2, arg3, arg4)
 
-    fun <T1, T2, T3, T4, T5> arguments(
+    fun <T0, T1, T2, T3, T4, T5> arguments(
+        arg0: Arg<T0>,
         arg1: Arg<T1>,
         arg2: Arg<T2>,
         arg3: Arg<T3>,
         arg4: Arg<T4>,
         arg5: Arg<T5>,
-    ) = Arguments5(this, arg1, arg2, arg3, arg4, arg5)
+    ) = Arguments5(this, arg0, arg1, arg2, arg3, arg4, arg5)
 
-    fun <T1, T2, T3, T4, T5, T6> arguments(
+    fun <T0, T1, T2, T3, T4, T5, T6> arguments(
+        arg0: Arg<T0>,
         arg1: Arg<T1>,
         arg2: Arg<T2>,
         arg3: Arg<T3>,
         arg4: Arg<T4>,
         arg5: Arg<T5>,
         arg6: Arg<T6>,
-    ) = Arguments6(this, arg1, arg2, arg3, arg4, arg5, arg6)
+    ) = Arguments6(this, arg0, arg1, arg2, arg3, arg4, arg5, arg6)
 
-    fun <T1, T2, T3, T4, T5, T6, T7> arguments(
+    fun <T0, T1, T2, T3, T4, T5, T6, T7> arguments(
+        arg0: Arg<T0>,
         arg1: Arg<T1>,
         arg2: Arg<T2>,
         arg3: Arg<T3>,
@@ -160,9 +171,10 @@ open class ObjectSchema<T : Any> private constructor(
         arg5: Arg<T5>,
         arg6: Arg<T6>,
         arg7: Arg<T7>,
-    ) = Arguments7(this, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
+    ) = Arguments7(this, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
 
-    fun <T1, T2, T3, T4, T5, T6, T7, T8> arguments(
+    fun <T0, T1, T2, T3, T4, T5, T6, T7, T8> arguments(
+        arg0: Arg<T0>,
         arg1: Arg<T1>,
         arg2: Arg<T2>,
         arg3: Arg<T3>,
@@ -171,9 +183,10 @@ open class ObjectSchema<T : Any> private constructor(
         arg6: Arg<T6>,
         arg7: Arg<T7>,
         arg8: Arg<T8>,
-    ) = Arguments8(this, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8)
+    ) = Arguments8(this, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8)
 
-    fun <T1, T2, T3, T4, T5, T6, T7, T8, T9> arguments(
+    fun <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> arguments(
+        arg0: Arg<T0>,
         arg1: Arg<T1>,
         arg2: Arg<T2>,
         arg3: Arg<T3>,
@@ -183,20 +196,7 @@ open class ObjectSchema<T : Any> private constructor(
         arg7: Arg<T7>,
         arg8: Arg<T8>,
         arg9: Arg<T9>,
-    ) = Arguments9(this, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)
-
-    fun <T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> arguments(
-        arg1: Arg<T1>,
-        arg2: Arg<T2>,
-        arg3: Arg<T3>,
-        arg4: Arg<T4>,
-        arg5: Arg<T5>,
-        arg6: Arg<T6>,
-        arg7: Arg<T7>,
-        arg8: Arg<T8>,
-        arg9: Arg<T9>,
-        arg10: Arg<T10>,
-    ) = Arguments10(this, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10)
+    ) = Arguments9(this, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)
 }
 
 internal data class Rule(

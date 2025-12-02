@@ -134,7 +134,7 @@ val person = factory.create()     // Returns Person or throws ValidationExceptio
 **Key Components**:
 - **`ObjectSchema.arg(validator, value)`**: Creates an `Arg` that wraps a validator and input value
 - **`ObjectSchema.arg(validator, factory)`**: Creates an `Arg` that wraps a validator and nested ObjectFactory (for nested objects)
-- **`ObjectSchema.arguments(...)`**: Creates an `Arguments1` through `Arguments10` object (supports 1-10 arguments)
+- **`ObjectSchema.arguments(...)`**: Creates an `Arguments` through `Arguments9` object (supports 1-10 arguments)
 - **`Arguments.build(constructor)`**: Creates an `ObjectFactory` that validates inputs and constructs objects
 - **`ObjectFactory.tryCreate(failFast = false)`**: Validates and constructs, returning `ValidationResult<T>`
 - **`ObjectFactory.create(failFast = false)`**: Validates and constructs, returning `T` or throwing `ValidationException`
@@ -175,9 +175,9 @@ object PersonSchema : ObjectSchema<Person>() {
 - **Type-Specific Validators**: StringValidator, NumberValidator, LocalDateValidator, ComparableValidator, CollectionValidator (with min/max/length/notEmpty/onEach), MapValidator (with min/max/length/notEmpty/onEach/onEachKey/onEachValue), MapEntryValidator, LiteralValidator
 - **ObjectSchema**: Validates objects by defining validation rules for individual properties as object properties or within a constructor lambda scope (when using object-level constraints)
 - **ObjectSchemaScope**: Scope class providing access to `constrain()` method within ObjectSchema constructor lambda for object-level constraints
-- **ObjectFactory**: Constructs objects from validated inputs (supports 1-10 arguments via Arguments1-Arguments10)
+- **ObjectFactory**: Constructs objects from validated inputs (supports 1-10 arguments via Arguments-Arguments9)
 - **Arg**: Sealed interface wrapping either a validator with value (`Arg.Value`) or a validator with nested factory (`Arg.Factory`)
-- **Arguments1-Arguments10**: Data classes that hold 1-10 `Arg` instances and provide `createFactory()` method
+- **Arguments-Arguments9**: Data classes that hold 1-10 `Arg` instances and provide `build()` method
 - **NullableValidator**: Wraps validators to handle nullable types
 - **ConditionalValidator**: Supports conditional validation logic
 - **EmptyValidator**: No-op validator that always succeeds, used by `Kova.generic()`

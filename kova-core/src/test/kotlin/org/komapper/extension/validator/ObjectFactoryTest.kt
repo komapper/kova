@@ -81,7 +81,7 @@ class ObjectFactoryTest :
                 result.details.size shouldBe 1
                 val detail = result.details.first()
                 detail.root shouldContain $$"$User"
-                detail.path shouldBe "arg1"
+                detail.path shouldBe "id"
                 detail.message.content shouldBe "Number -1 must be greater than or equal to 1"
             }
 
@@ -94,7 +94,7 @@ class ObjectFactoryTest :
                 ex.details.size shouldBe 1
                 val detail = ex.details.first()
                 detail.root shouldContain $$"$User"
-                detail.path shouldBe "arg1"
+                detail.path shouldBe "id"
                 detail.message.content shouldBe "Number -1 must be greater than or equal to 1"
             }
         }

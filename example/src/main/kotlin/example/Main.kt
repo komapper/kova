@@ -31,9 +31,9 @@ object UserSchema : ObjectSchema<User>() {
         name: String,
         age: Int,
     ): ObjectFactory<User> {
-        val arg1 = arg(name, this.name)
-        val arg2 = arg(age, this.age)
-        val arguments = arguments(arg1, arg2)
+        val arg0 = arg(name, this.name)
+        val arg1 = arg(age, this.age)
+        val arguments = arguments(arg0, arg1)
         return arguments.build(::User)
     }
 }
@@ -42,8 +42,8 @@ object AgeSchema : ObjectSchema<Age>() {
     private val value = Age::value { Kova.int().min(0).max(120) }
 
     fun build(age: String): ObjectFactory<Age> {
-        val arg1 = arg(age, Kova.string().toInt().then(this.value))
-        val arguments = arguments(arg1)
+        val arg0 = arg(age, Kova.string().toInt().then(this.value))
+        val arguments = arguments(arg0)
         return arguments.build(::Age)
     }
 }
@@ -56,9 +56,9 @@ object PersonSchema : ObjectSchema<Person>() {
         name: String,
         age: String,
     ): ObjectFactory<Person> {
-        val arg1 = arg(name, this.name)
-        val arg2 = arg(this.age.build(age), this.age)
-        val arguments = arguments(arg1, arg2)
+        val arg0 = arg(name, this.name)
+        val arg1 = arg(this.age.build(age), this.age)
+        val arguments = arguments(arg0, arg1)
         return arguments.build(::Person)
     }
 }

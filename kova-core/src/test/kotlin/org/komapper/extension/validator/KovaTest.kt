@@ -67,9 +67,9 @@ class KovaTest :
                         name: String?,
                         age: Int?,
                     ): ObjectFactory<User> {
-                        val arg1 = arg(name, this.name)
-                        val arg2 = arg(age, this.age)
-                        val arguments = arguments(arg1, arg2)
+                        val arg0 = arg(name, this.name)
+                        val arg1 = arg(age, this.age)
+                        val arguments = arguments(arg0, arg1)
                         return arguments.build(::User)
                     }
                 }

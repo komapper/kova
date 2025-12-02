@@ -170,7 +170,7 @@ val person = factory.create()  // Validates and constructs nested objects
 **Key Components**:
 - **`ObjectSchema.arg(validator, value)`**: Creates an `Arg` that wraps a validator and input value
 - **`ObjectSchema.arg(validator, factory)`**: Creates an `Arg` that wraps a validator and nested ObjectFactory (for nested objects)
-- **`ObjectSchema.arguments(...)`**: Creates an `Arguments1` through `Arguments10` object (supports 1-10 arguments)
+- **`ObjectSchema.arguments(...)`**: Creates an `Arguments` through `Arguments9` object (supports 1-10 arguments)
 - **`Arguments.build(constructor)`**: Creates an `ObjectFactory` that validates inputs and constructs objects
 - **`ObjectFactory.tryCreate(failFast = false)`**: Validates and constructs, returning `ValidationResult<T>`
 - **`ObjectFactory.create(failFast = false)`**: Validates and constructs, returning `T` or throwing `ValidationException`
