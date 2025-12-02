@@ -18,16 +18,12 @@ object Constraints {
             satisfies(it.input <= value, message(it, value))
         }
 
-    fun <T : Any> isNull(
-        message: (ConstraintContext<T?>) -> Message,
-    ): ConstraintScope.(ConstraintContext<T?>) -> ConstraintResult =
+    fun <T : Any> isNull(message: (ConstraintContext<T?>) -> Message): ConstraintScope.(ConstraintContext<T?>) -> ConstraintResult =
         {
             satisfies(it.input == null, message(it))
         }
 
-    fun <T : Any> notNull(
-        message: (ConstraintContext<T?>) -> Message,
-    ): ConstraintScope.(ConstraintContext<T?>) -> ConstraintResult =
+    fun <T : Any> notNull(message: (ConstraintContext<T?>) -> Message): ConstraintScope.(ConstraintContext<T?>) -> ConstraintResult =
         {
             satisfies(it.input != null, message(it))
         }

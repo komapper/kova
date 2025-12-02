@@ -211,26 +211,32 @@ val result2 = nullOrDefaultValidator.tryValidate("default")  // Success("default
 val result3 = nullOrDefaultValidator.tryValidate("other")    // Failure
 
 // Require non-null AND validate the value
-val notNullAndMinValidator = Kova.nullable<String>().notNull().then(Kova.string().min(5))
+val notNullAndMinValidator = Kova.nullable<String>().notNull().and(Kova.string().min(5))
 val result1 = notNullAndMinValidator.tryValidate(null)       // Failure (null not allowed)
 val result2 = notNullAndMinValidator.tryValidate("hello")    // Success("hello")
 val result3 = notNullAndMinValidator.tryValidate("hi")       // Failure (min(5) violated)
 
-// Set default value for null inputs
-val withDefault = Kova.nullable<String>().toDefaultIfNull("default")
-val result = withDefault.tryValidate(null)                   // Success("default")
+// Convert with default value for null inputs using asNullable(defaultValue)
+val withDefault = Kova.int().min(0).asNullable(10)
+val result1 = withDefault.tryValidate(null)                  // Success(10)
+val result2 = withDefault.tryValidate(5)                     // Success(5)
+val result3 = withDefault.tryValidate(-1)                    // Failure (min(0) violated)
 
-// Convert any validator to nullable using asNullable()
-val validator = Kova.string().min(5).asNullable()
+// Set default value for null inputs using nullable validator
+val withDefaultAlt = Kova.nullable<String>().withDefault("default")
+val result = withDefaultAlt.tryValidate(null)                // Success("default")
 ```
 
-**API Summary**:
+**Creating Nullable Validators**:
 - `Kova.nullable<T>()` - Create an empty nullable validator (accepts null by default)
-- `.asNullable()` - Extension method to convert any validator to nullable
-- `.notNull()` - Method on nullable validators to reject null values
-- `.isNull()` - Method on nullable validators to accept only null values
-- `.toDefaultIfNull(value)` - Replace null values with a default
-- `.toNonNullable()` - Convert nullable validator to non-nullable validator
+- `Validator<T, S>.asNullable()` - Convert any validator to nullable (accepts null as-is)
+- `Validator<T, S>.asNullable(defaultValue)` - Convert to nullable with default value for null inputs
+
+**Methods on NullableValidator**:
+- `.isNull()` - Accept only null values
+- `.notNull()` - Reject null values
+- `.withDefault(value)` - Replace null values with a default
+- `.toNonNullable()` - Convert to non-nullable validator
 
 ## Available Validators
 

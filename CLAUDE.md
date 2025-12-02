@@ -71,7 +71,8 @@ Properties must be object properties (not in constructor lambda) since the `invo
 
 ### Nullable Handling
 - `Kova.nullable<T>()` accepts null by default
-- `.asNullable()` converts any validator to nullable
+- `.asNullable()` converts any validator to nullable (accepts null)
+- `.asNullable(defaultValue)` converts to nullable with default value for null inputs
 - `.notNull()` rejects null values
 - `.isNull()` accepts only null values
 
@@ -84,3 +85,4 @@ Three types: `Message.Text`, `Message.Resource` (i18n from `kova.properties`), `
 - `ValidationContext.kt` - State tracking with circular reference detection
 - `ObjectSchema.kt` - Object validation with property rules
 - `ObjectFactory.kt` - Validate + construct (supports 1-10 args)
+- `Constraints.kt` - Shared constraint utilities (`min`, `max`, `isNull`, `notNull`)
