@@ -17,7 +17,7 @@ data class Constraint<T>(
 data class ConstraintContext<T>(
     val input: T,
     val root: String = "",
-    val path: String = "",
+    val path: Path = Path(name = "", obj = null, parent = null),
     val failFast: Boolean = false,
     val constraintId: String = "",
 )

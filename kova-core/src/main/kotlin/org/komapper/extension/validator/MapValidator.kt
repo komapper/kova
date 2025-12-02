@@ -94,7 +94,7 @@ private class MapValidatorImpl<K, V>(
         constrain("kova.map.onEach") {
             validateOnEach(it) { entry, validationContext ->
                 val path = "<map entry>"
-                validator.execute(validationContext.appendPath(path = path), entry)
+                validator.execute(validationContext.appendPath(text = path), entry)
             }
         }
 
@@ -102,7 +102,7 @@ private class MapValidatorImpl<K, V>(
         constrain("kova.map.onEachKey") {
             validateOnEach(it) { entry, validationContext ->
                 val path = "<map key>"
-                validator.execute(validationContext.appendPath(path = path), entry.key)
+                validator.execute(validationContext.appendPath(text = path), entry.key)
             }
         }
 
@@ -110,7 +110,7 @@ private class MapValidatorImpl<K, V>(
         constrain("kova.map.onEachValue") {
             validateOnEach(it) { entry, validationContext ->
                 val path = "[${entry.key}]<map value>"
-                validator.execute(validationContext.appendPath(path = path), entry.value)
+                validator.execute(validationContext.appendPath(text = path), entry.value)
             }
         }
 

@@ -65,7 +65,7 @@ class ObjectSchemaTest :
                 result.details.size shouldBe 1
                 result.details[0].let {
                     it.root shouldEndWith $$"$User"
-                    it.path shouldBe "name"
+                    it.path.fullName shouldBe "name"
                     it.message.content shouldBe "\"too-long-name\" must be at most 10 characters"
                 }
             }
@@ -78,12 +78,12 @@ class ObjectSchemaTest :
                 result.details.size shouldBe 2
                 result.details[0].let {
                     it.root shouldEndWith $$"$User"
-                    it.path shouldBe "name"
+                    it.path.fullName shouldBe "name"
                     it.message.content shouldBe "\"too-long-name\" must be at most 10 characters"
                 }
                 result.details[1].let {
                     it.root shouldEndWith $$"$User"
-                    it.path shouldBe "id"
+                    it.path.fullName shouldBe "id"
                     it.message.content shouldBe "Number 0 must be greater than or equal to 1"
                 }
             }
@@ -136,7 +136,7 @@ class ObjectSchemaTest :
                 result.details.size shouldBe 1
                 result.details[0].let {
                     it.root shouldEndWith $$"$Period"
-                    it.path shouldBe ""
+                    it.path.fullName shouldBe ""
                     it.message.content shouldBe "startDate must be less than or equal to endDate"
                 }
             }
@@ -185,7 +185,7 @@ class ObjectSchemaTest :
                 result.details.size shouldBe 1
                 result.details[0].let {
                     it.root shouldEndWith $$"$User"
-                    it.path shouldBe "name"
+                    it.path.fullName shouldBe "name"
                     it.message.content shouldBe "\"too-long-name\" must be at most 10 characters"
                 }
             }
@@ -198,12 +198,12 @@ class ObjectSchemaTest :
                 result.details.size shouldBe 2
                 result.details[0].let {
                     it.root shouldEndWith $$"$User"
-                    it.path shouldBe "id"
+                    it.path.fullName shouldBe "id"
                     it.message.content shouldBe "Number 0 must be greater than or equal to 1"
                 }
                 result.details[1].let {
                     it.root shouldEndWith $$"$User"
-                    it.path shouldBe "name"
+                    it.path.fullName shouldBe "name"
                     it.message.content shouldBe "\"too-long-name\" must be at most 10 characters"
                 }
             }
@@ -241,7 +241,7 @@ class ObjectSchemaTest :
                 result.details.size shouldBe 1
                 result.details[0].let {
                     it.root shouldEndWith $$"$Employee"
-                    it.path shouldBe "address.street.name"
+                    it.path.fullName shouldBe "address.street.name"
                     it.message.content shouldBe "\"too-long-name\" must be at most 5 characters"
                 }
             }
@@ -295,7 +295,7 @@ class ObjectSchemaTest :
                 result.details.size shouldBe 1
                 result.details[0].let {
                     it.root shouldEndWith $$"$Employee"
-                    it.path shouldBe "address.postalCode"
+                    it.path.fullName shouldBe "address.postalCode"
                     it.message.content shouldBe "\"123456789\" must be exactly 8 characters"
                 }
             }
@@ -308,7 +308,7 @@ class ObjectSchemaTest :
                 result.details.size shouldBe 1
                 result.details[0].let {
                     it.root shouldEndWith $$"$Employee"
-                    it.path shouldBe "address.postalCode"
+                    it.path.fullName shouldBe "address.postalCode"
                     it.message.content shouldBe "\"123456789\" must be exactly 5 characters"
                 }
             }
@@ -361,12 +361,12 @@ class ObjectSchemaTest :
                 result.details.size shouldBe 2
                 result.details[0].let {
                     it.root shouldEndWith $$"$Person"
-                    it.path shouldBe "firstName"
+                    it.path.fullName shouldBe "firstName"
                     it.message.content shouldBe "Value must not be null"
                 }
                 result.details[1].let {
                     it.root shouldEndWith $$"$Person"
-                    it.path shouldBe "lastName"
+                    it.path.fullName shouldBe "lastName"
                     it.message.content shouldBe "Value must not be null"
                 }
             }
@@ -393,7 +393,7 @@ class ObjectSchemaTest :
                 val result = nodeSchema.tryValidate(node)
                 result.isFailure().mustBeTrue()
                 result.details.size shouldBe 1
-                result.details[0].path shouldBe "children[2]<collection element>.children"
+                result.details[0].path.fullName shouldBe "children[2]<collection element>.children"
                 result.messages.size shouldBe 1
                 result.messages[0].content shouldBe "Collection(size=4) must have at most 3 elements"
             }
@@ -403,7 +403,7 @@ class ObjectSchemaTest :
                 val result = nodeSchema.tryValidate(node)
                 result.isFailure().mustBeTrue()
                 result.details.size shouldBe 1
-                result.details[0].path shouldBe "children[2]<collection element>.children[0]<collection element>.children"
+                result.details[0].path.fullName shouldBe "children[2]<collection element>.children[0]<collection element>.children"
                 result.messages.size shouldBe 1
                 result.messages[0].content shouldBe "Collection(size=4) must have at most 3 elements"
             }

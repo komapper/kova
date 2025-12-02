@@ -92,7 +92,8 @@ fun <IN, OUT, NEW> Validator<IN, OUT>.map(transform: (OUT) -> NEW): Validator<IN
 fun <IN, OUT> Validator<IN, OUT>.name(name: String): Validator<IN, OUT> {
     val self = this
     return Validator { context, input ->
-        val context = context.addPath(name).addLog("Validator.name(name=$name)")
+        // TODO
+        val context = context.addPath(name, input).addLog("Validator.name(name=$name)")
         when (val result = self.execute(context, input)) {
             is Success -> Success(result.value, result.context)
             is Failure -> result

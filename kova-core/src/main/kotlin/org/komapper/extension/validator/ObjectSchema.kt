@@ -49,9 +49,9 @@ open class ObjectSchema<T : Any> private constructor(
         rule: Rule,
     ): ValidationResult<T> {
         // TODO exception handling
-        val newContext = context.addPath(key)
         val value = rule.transform(input)
         val validator = rule.choose(input)
+        val newContext = context.addPath(key, value)
         return when (val result = validator.execute(newContext, value)) {
             is ValidationResult.Success -> ValidationResult.Success(input, result.context)
             is ValidationResult.Failure -> ValidationResult.Failure.Simple(result.details)

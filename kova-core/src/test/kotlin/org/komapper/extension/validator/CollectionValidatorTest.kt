@@ -98,13 +98,13 @@ class CollectionValidatorTest :
                 result.details.size shouldBe 2
                 result.details[0].let {
                     it.root shouldBe ""
-                    it.path shouldBe "[1]<collection element>"
+                    it.path.fullName shouldBe "[1]<collection element>"
                     it.message.constraintId shouldBe "kova.string.length"
                     it.message.content shouldBe "\"4567\" must be exactly 3 characters"
                 }
                 result.details[1].let {
                     it.root shouldBe ""
-                    it.path shouldBe "[2]<collection element>"
+                    it.path.fullName shouldBe "[2]<collection element>"
                     it.message.constraintId shouldBe "kova.string.length"
                     it.message.content shouldBe "\"8910\" must be exactly 3 characters"
                 }
@@ -116,7 +116,7 @@ class CollectionValidatorTest :
                 result.details.size shouldBe 1
                 result.details[0].let {
                     it.root shouldBe ""
-                    it.path shouldBe "[1]<collection element>"
+                    it.path.fullName shouldBe "[1]<collection element>"
                     it.message.content shouldBe "\"4567\" must be exactly 3 characters"
                 }
             }
@@ -145,8 +145,8 @@ class CollectionValidatorTest :
                 result.isFailure().mustBeTrue()
                 result.details.size shouldBe 1
                 result.details[0].let {
-                    it.root shouldEndWith $$"$ListHolder"
-                    it.path shouldBe "list[1]<collection element>"
+                    it.root shouldEndWith "ListHolder"
+                    it.path.fullName shouldBe "list[1]<collection element>"
                     it.message.content shouldBe "\"4567\" must be exactly 3 characters"
                 }
             }

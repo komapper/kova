@@ -80,8 +80,8 @@ class ObjectFactoryTest :
                 result.isFailure().mustBeTrue()
                 result.details.size shouldBe 1
                 val detail = result.details.first()
-                detail.root shouldContain $$"$User"
-                detail.path shouldBe "id"
+                detail.root shouldContain "<init>"
+                detail.path.fullName shouldBe "id"
                 detail.message.content shouldBe "Number -1 must be greater than or equal to 1"
             }
 
@@ -93,8 +93,8 @@ class ObjectFactoryTest :
                     }
                 ex.details.size shouldBe 1
                 val detail = ex.details.first()
-                detail.root shouldContain $$"$User"
-                detail.path shouldBe "id"
+                detail.root shouldContain "<init>"
+                detail.path.fullName shouldBe "id"
                 detail.message.content shouldBe "Number -1 must be greater than or equal to 1"
             }
         }

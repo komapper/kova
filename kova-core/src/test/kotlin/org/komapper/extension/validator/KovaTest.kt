@@ -126,7 +126,7 @@ class KovaTest :
                 result.isFailure().mustBeTrue()
                 result.details.size shouldBe 1
                 result.details[0].let {
-                    it.path shouldBe "Request[key]"
+                    it.path.fullName shouldBe "Request[key]"
                     it.message.content shouldBe "Value must not be null"
                 }
             }
@@ -142,7 +142,7 @@ class KovaTest :
                 result.isFailure().mustBeTrue()
                 result.details.size shouldBe 1
                 result.details[0].let {
-                    it.path shouldBe "Request[key]"
+                    it.path.fullName shouldBe "Request[key]"
                     it.message.content shouldBe "\"ab\" must be at least 3 characters"
                 }
             }
