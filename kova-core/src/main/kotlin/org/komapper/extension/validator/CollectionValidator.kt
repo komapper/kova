@@ -20,7 +20,7 @@ interface CollectionValidator<E, C : Collection<E>> :
         message: (ConstraintContext<C>, Int) -> Message = Message.resource1(),
     ): CollectionValidator<E, C>
 
-    fun onEach(validator: Validator<E, E>): CollectionValidator<E, C>
+    fun onEach(validator: Validator<E, *>): CollectionValidator<E, C>
 
     operator fun plus(other: Validator<C, C>): CollectionValidator<E, C>
 
@@ -86,7 +86,7 @@ private class CollectionValidatorImpl<E, C : Collection<E>>(
             satisfies(it.input.size == size, message(it, size))
         }
 
-    override fun onEach(validator: Validator<E, E>): CollectionValidator<E, C> =
+    override fun onEach(validator: Validator<E, *>): CollectionValidator<E, C> =
         constrain("kova.collection.onEach") {
             val validationContext = it.createValidationContext()
             val failures = mutableListOf<ValidationResult.Failure>()

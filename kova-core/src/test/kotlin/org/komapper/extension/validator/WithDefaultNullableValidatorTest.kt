@@ -169,29 +169,28 @@ class WithDefaultNullableValidatorTest :
             }
         }
 
-        // TODO
-//        context("and - each List element") {
-//            val min3 = Kova.int().min(3)
-//            val nullableMin3 = Kova.nullable(0).and(min3)
-//            val onEachNullableMin3 = Kova.list<Int?>().onEach(nullableMin3)
-//
-//            test("success - non-null") {
-//                val result = onEachNullableMin3.tryValidate(listOf(4, 5))
-//                result.isSuccess().mustBeTrue()
-//            }
-//
-//            test("success - null") {
-//                val result = onEachNullableMin3.tryValidate(listOf(null, null))
-//                result.isSuccess().mustBeTrue()
-//            }
-//
-//            test("failure - min3　constraint violated") {
-//                val result = onEachNullableMin3.tryValidate(listOf(2, null))
-//                result.isFailure().mustBeTrue()
-//                result.messages.size shouldBe 1
-//                result.messages[0].content shouldBe "Number 2 must be greater than or equal to 3"
-//            }
-//        }
+        context("and - each List element") {
+            val min3 = Kova.int().min(3)
+            val nullableMin3 = Kova.nullable(0).and(min3.asNullable(0))
+            val onEachNullableMin3 = Kova.list<Int?>().onEach(nullableMin3)
+
+            test("success - non-null") {
+                val result = onEachNullableMin3.tryValidate(listOf(4, 5))
+                result.isSuccess().mustBeTrue()
+            }
+
+            test("success - null") {
+                val result = onEachNullableMin3.tryValidate(listOf(null, null))
+                result.isSuccess().mustBeTrue()
+            }
+
+            test("failure - min3　constraint violated") {
+                val result = onEachNullableMin3.tryValidate(listOf(2, null))
+                result.isFailure().mustBeTrue()
+                result.messages.size shouldBe 1
+                result.messages[0].content shouldBe "Number 2 must be greater than or equal to 3"
+            }
+        }
 
         context("toNonNullable") {
             val min3 = Kova.int().min(3)

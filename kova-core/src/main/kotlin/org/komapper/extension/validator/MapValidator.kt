@@ -20,11 +20,11 @@ interface MapValidator<K, V> :
         message: (ConstraintContext<Map<K, V>>, Int) -> Message = Message.resource1(),
     ): MapValidator<K, V>
 
-    fun onEach(validator: Validator<Map.Entry<K, V>, Map.Entry<K, V>>): MapValidator<K, V>
+    fun onEach(validator: Validator<Map.Entry<K, V>, *>): MapValidator<K, V>
 
-    fun onEachKey(validator: Validator<K, K>): MapValidator<K, V>
+    fun onEachKey(validator: Validator<K, *>): MapValidator<K, V>
 
-    fun onEachValue(validator: Validator<V, V>): MapValidator<K, V>
+    fun onEachValue(validator: Validator<V, *>): MapValidator<K, V>
 
     operator fun plus(other: Validator<Map<K, V>, Map<K, V>>): MapValidator<K, V>
 
@@ -90,7 +90,7 @@ private class MapValidatorImpl<K, V>(
             satisfies(it.input.size == size, message(it, size))
         }
 
-    override fun onEach(validator: Validator<Map.Entry<K, V>, Map.Entry<K, V>>): MapValidator<K, V> =
+    override fun onEach(validator: Validator<Map.Entry<K, V>, *>): MapValidator<K, V> =
         constrain("kova.map.onEach") {
             validateOnEach(it) { entry, validationContext ->
                 val path = "<map entry>"
@@ -98,7 +98,7 @@ private class MapValidatorImpl<K, V>(
             }
         }
 
-    override fun onEachKey(validator: Validator<K, K>): MapValidator<K, V> =
+    override fun onEachKey(validator: Validator<K, *>): MapValidator<K, V> =
         constrain("kova.map.onEachKey") {
             validateOnEach(it) { entry, validationContext ->
                 val path = "<map key>"
@@ -106,7 +106,7 @@ private class MapValidatorImpl<K, V>(
             }
         }
 
-    override fun onEachValue(validator: Validator<V, V>): MapValidator<K, V> =
+    override fun onEachValue(validator: Validator<V, *>): MapValidator<K, V> =
         constrain("kova.map.onEachValue") {
             validateOnEach(it) { entry, validationContext ->
                 val path = "[${entry.key}]<map value>"
