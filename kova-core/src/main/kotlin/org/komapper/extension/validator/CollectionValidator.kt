@@ -45,11 +45,11 @@ private class CollectionValidatorImpl<E, C : Collection<E>>(
     private val next: ConstraintValidator<C> = ConstraintValidator(constraint)
 
     override fun execute(
-        context: ValidationContext,
         input: C,
+        context: ValidationContext,
     ): ValidationResult<C> {
         val context = context.addLog(toString())
-        return prev.chain(next).execute(context, input)
+        return prev.chain(next).execute(input, context)
     }
 
     override fun constrain(
@@ -92,7 +92,7 @@ private class CollectionValidatorImpl<E, C : Collection<E>>(
             val failures = mutableListOf<ValidationResult.Failure>()
             for ((i, element) in it.input.withIndex()) {
                 val path = "[$i]<collection element>"
-                val result = validator.execute(validationContext.appendPath(path), element)
+                val result = validator.execute(element, validationContext.appendPath(path))
                 if (result.isFailure()) {
                     failures.add(result)
                     if (validationContext.failFast) {

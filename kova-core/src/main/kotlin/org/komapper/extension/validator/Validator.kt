@@ -5,21 +5,21 @@ import org.komapper.extension.validator.ValidationResult.Success
 
 fun interface Validator<IN, OUT> {
     fun execute(
-        context: ValidationContext,
         input: IN,
+        context: ValidationContext,
     ): ValidationResult<OUT>
 }
 
 fun <IN, OUT> Validator<IN, OUT>.tryValidate(
     input: IN,
     config: ValidationConfig = ValidationConfig(),
-): ValidationResult<OUT> = execute(ValidationContext(config = config), input)
+): ValidationResult<OUT> = execute(input, ValidationContext(config = config))
 
 fun <IN, OUT> Validator<IN, OUT>.validate(
     input: IN,
     config: ValidationConfig = ValidationConfig(),
 ): OUT =
-    when (val result = execute(ValidationContext(config = config), input)) {
+    when (val result = execute(input, ValidationContext(config = config))) {
         is Success<OUT> -> result.value
         is Failure -> throw ValidationException(result.details)
     }
@@ -28,11 +28,11 @@ operator fun <IN, OUT> Validator<IN, OUT>.plus(other: Validator<IN, OUT>): Valid
 
 infix fun <IN, OUT> Validator<IN, OUT>.and(other: Validator<IN, OUT>): Validator<IN, OUT> {
     val self = this
-    return Validator { context, input ->
+    return Validator { input, context ->
         val context = context.addLog("Validator.and")
-        when (val selfResult = self.execute(context, input)) {
+        when (val selfResult = self.execute(input, context)) {
             is Success -> {
-                val otherResult = other.execute(context, input)
+                val otherResult = other.execute(input, context)
                 selfResult + otherResult
             }
 
@@ -40,7 +40,7 @@ infix fun <IN, OUT> Validator<IN, OUT>.and(other: Validator<IN, OUT>): Validator
                 if (context.failFast) {
                     selfResult
                 } else {
-                    val otherResult = other.execute(context, input)
+                    val otherResult = other.execute(input, context)
                     selfResult + otherResult
                 }
             }
@@ -50,12 +50,12 @@ infix fun <IN, OUT> Validator<IN, OUT>.and(other: Validator<IN, OUT>): Validator
 
 infix fun <IN, OUT> Validator<IN, OUT>.or(other: Validator<IN, OUT>): Validator<IN, OUT> {
     val self = this
-    return Validator { context, input ->
+    return Validator { input, context ->
         val context = context.addLog("Validator.or")
-        when (val selfResult = self.execute(context, input)) {
+        when (val selfResult = self.execute(input, context)) {
             is Success -> selfResult
             is Failure -> {
-                when (val otherResult = other.execute(context, input)) {
+                when (val otherResult = other.execute(input, context)) {
                     is Success -> otherResult
                     is Failure -> selfResult.or(otherResult)
                 }
@@ -66,9 +66,9 @@ infix fun <IN, OUT> Validator<IN, OUT>.or(other: Validator<IN, OUT>): Validator<
 
 fun <IN, OUT, NEW> Validator<IN, OUT>.map(transform: (OUT) -> NEW): Validator<IN, NEW> {
     val self = this
-    return Validator { context, input ->
+    return Validator { input, context ->
         val context = context.addLog("Validator.map")
-        when (val result = self.execute(context, input)) {
+        when (val result = self.execute(input, context)) {
             is Success -> {
                 try {
                     Success(transform(result.value), result.context)
@@ -91,10 +91,10 @@ fun <IN, OUT, NEW> Validator<IN, OUT>.map(transform: (OUT) -> NEW): Validator<IN
 
 fun <IN, OUT> Validator<IN, OUT>.name(name: String): Validator<IN, OUT> {
     val self = this
-    return Validator { context, input ->
+    return Validator { input, context ->
         // TODO
         val context = context.addPath(name, input).addLog("Validator.name(name=$name)")
-        when (val result = self.execute(context, input)) {
+        when (val result = self.execute(input, context)) {
             is Success -> Success(result.value, result.context)
             is Failure -> result
         }
@@ -105,28 +105,28 @@ fun <IN, OUT, NEW> Validator<OUT, NEW>.compose(before: Validator<IN, OUT>): Vali
 
 fun <IN, OUT, NEW> Validator<IN, OUT>.then(after: Validator<OUT, NEW>): Validator<IN, NEW> {
     val before = this
-    return Validator { context, input ->
+    return Validator { input, context ->
         val context = context.addLog("Validator.then")
-        when (val result = before.execute(context, input)) {
-            is Success -> after.execute(result.context, result.value)
+        when (val result = before.execute(input, context)) {
+            is Success -> after.execute(result.value, result.context)
             is Failure -> result
         }
     }
 }
 
 fun <T> Validator<T, T>.chain(next: Validator<T, T>): Validator<T, T> =
-    Validator { context, input ->
+    Validator { input, context ->
         val context = context.addLog("Validator.chain")
-        when (val result = this.execute(context, input)) {
+        when (val result = this.execute(input, context)) {
             is Success -> {
-                next.execute(result.context, result.value)
+                next.execute(result.value, result.context)
             }
 
             is Failure -> {
                 if (context.failFast) {
                     result
                 } else {
-                    result + next.execute(context, input)
+                    result + next.execute(input, context)
                 }
             }
         }

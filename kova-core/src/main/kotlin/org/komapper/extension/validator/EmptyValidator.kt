@@ -6,8 +6,8 @@ fun <T> EmptyValidator(): EmptyValidator<T> = EmptyValidatorImpl()
 
 private class EmptyValidatorImpl<T> : EmptyValidator<T> {
     override fun execute(
-        context: ValidationContext,
         input: T,
+        context: ValidationContext,
     ): ValidationResult<T> {
         val context = context.addLog(toString())
         return ValidationResult.Success(input, context)

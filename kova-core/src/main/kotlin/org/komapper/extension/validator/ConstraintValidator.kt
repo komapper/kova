@@ -10,8 +10,8 @@ private class ConstraintValidatorImpl<T>(
     val constraint: Constraint<T>,
 ) : ConstraintValidator<T> {
     override fun execute(
-        context: ValidationContext,
         input: T,
+        context: ValidationContext,
     ): ValidationResult<T> {
         val context = context.addLog(toString())
         val constraintContext = context.createConstraintContext(input).copy(constraintId = constraint.id)

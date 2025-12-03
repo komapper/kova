@@ -26,11 +26,11 @@ private class MapEntryValidatorImpl<K, V> internal constructor(
     private val next: ConstraintValidator<Map.Entry<K, V>> = ConstraintValidator(constraint)
 
     override fun execute(
-        context: ValidationContext,
         input: Map.Entry<K, V>,
+        context: ValidationContext,
     ): ValidationResult<Map.Entry<K, V>> {
         val context = context.addLog(toString())
-        return prev.chain(next).execute(context, input)
+        return prev.chain(next).execute(input, context)
     }
 
     override fun constrain(

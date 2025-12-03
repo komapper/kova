@@ -31,11 +31,11 @@ private class LocalDateValidatorImpl(
     private val next: ConstraintValidator<LocalDate> = ConstraintValidator(constraint)
 
     override fun execute(
-        context: ValidationContext,
         input: LocalDate,
+        context: ValidationContext,
     ): ValidationResult<LocalDate> {
         val context = context.addLog(toString())
-        return prev.chain(next).execute(context, input)
+        return prev.chain(next).execute(input, context)
     }
 
     override fun constrain(

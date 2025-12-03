@@ -49,11 +49,11 @@ private class MapValidatorImpl<K, V>(
     private val next: ConstraintValidator<Map<K, V>> = ConstraintValidator(constraint)
 
     override fun execute(
-        context: ValidationContext,
         input: Map<K, V>,
+        context: ValidationContext,
     ): ValidationResult<Map<K, V>> {
         val context = context.addLog(toString())
-        return prev.chain(next).execute(context, input)
+        return prev.chain(next).execute(input, context)
     }
 
     override fun constrain(
@@ -94,7 +94,7 @@ private class MapValidatorImpl<K, V>(
         constrain("kova.map.onEach") {
             validateOnEach(it) { entry, validationContext ->
                 val path = "<map entry>"
-                validator.execute(validationContext.appendPath(text = path), entry)
+                validator.execute(entry, validationContext.appendPath(text = path))
             }
         }
 
@@ -102,7 +102,7 @@ private class MapValidatorImpl<K, V>(
         constrain("kova.map.onEachKey") {
             validateOnEach(it) { entry, validationContext ->
                 val path = "<map key>"
-                validator.execute(validationContext.appendPath(text = path), entry.key)
+                validator.execute(entry.key, validationContext.appendPath(text = path))
             }
         }
 
@@ -110,7 +110,7 @@ private class MapValidatorImpl<K, V>(
         constrain("kova.map.onEachValue") {
             validateOnEach(it) { entry, validationContext ->
                 val path = "[${entry.key}]<map value>"
-                validator.execute(validationContext.appendPath(text = path), entry.value)
+                validator.execute(entry.value, validationContext.appendPath(text = path))
             }
         }
 

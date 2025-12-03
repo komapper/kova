@@ -23,7 +23,7 @@ private fun <T> tryConstruct(
                     ),
             )
         }
-    return validator.execute(context, instance)
+    return validator.execute(instance, context)
 }
 
 private fun <T : Any> createFailure(
@@ -97,7 +97,7 @@ sealed interface Arg<OUT> : ObjectFactory<OUT> {
         override val value: IN,
         val validator: Validator<IN, OUT>,
     ) : Arg<OUT> {
-        override fun execute(context: ValidationContext): ValidationResult<OUT> = validator.execute(context, value)
+        override fun execute(context: ValidationContext): ValidationResult<OUT> = validator.execute(value, context)
     }
 
     data class Factory<IN, OUT>(
@@ -108,7 +108,7 @@ sealed interface Arg<OUT> : ObjectFactory<OUT> {
 
         override fun execute(context: ValidationContext): ValidationResult<OUT> =
             when (val result = factory.execute(context)) {
-                is ValidationResult.Success -> validator.execute(result.context, result.value)
+                is ValidationResult.Success -> validator.execute(result.value, result.context)
                 is ValidationResult.Failure -> result
             }
     }

@@ -133,11 +133,11 @@ private class StringValidatorImpl(
     private val next: ConstraintValidator<String> = ConstraintValidator(constraint)
 
     override fun execute(
-        context: ValidationContext,
         input: String,
+        context: ValidationContext,
     ): ValidationResult<String> {
         val context = context.addLog(toString())
-        return prev.map(transform).chain(next).execute(context, input)
+        return prev.map(transform).chain(next).execute(input, context)
     }
 
     override fun constrain(

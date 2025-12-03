@@ -9,8 +9,8 @@ open class ObjectSchema<T : Any> private constructor(
     constructor(block: ObjectSchemaScope<T>.() -> Unit = {}) : this(mutableMapOf(), block)
 
     override fun execute(
-        context: ValidationContext,
         input: T,
+        context: ValidationContext,
     ): ValidationResult<T> {
         val constraints: MutableList<Constraint<T>> = mutableListOf()
         block(ObjectSchemaScope(constraints))
@@ -56,7 +56,7 @@ open class ObjectSchema<T : Any> private constructor(
         val pathResult = context.addPathChecked(key, value)
         return when (pathResult) {
             is ValidationResult.Success -> {
-                when (val result = validator.execute(pathResult.context, value)) {
+                when (val result = validator.execute(value, pathResult.context)) {
                     is ValidationResult.Success -> ValidationResult.Success(input, result.context)
                     is ValidationResult.Failure -> ValidationResult.Failure.Simple(result.details)
                 }
@@ -75,7 +75,7 @@ open class ObjectSchema<T : Any> private constructor(
             constraints
                 .map { ConstraintValidator(it) }
                 .fold(EmptyValidator<T>() as Validator<T, T>) { acc, v -> acc + v }
-        return validator.execute(context, input)
+        return validator.execute(input, context)
     }
 
     fun <V> replace(

@@ -26,9 +26,9 @@ fun <T : Any, S : Any> Validator<T, S>.asNullable(defaultValue: S): WithDefaultN
     val self = this
     // convert Validator<T, S> to Validator<T?, S>
     val wrapped =
-        Validator<T?, S> { context, input ->
+        Validator<T?, S> { input, context ->
             val context = context.addLog("Validator.asNullable(defaultValue=$defaultValue)")
-            if (input == null) Success(defaultValue, context) else self.execute(context, input)
+            if (input == null) Success(defaultValue, context) else self.execute(input, context)
         }
     return WithDefaultNullableValidator("asNullable", wrapped)
 }
@@ -47,11 +47,11 @@ private class WithDefaultNullableValidatorImpl<T : Any, S : Any>(
     private val before: ConstraintValidator<T?> = ConstraintValidator(constraint)
 
     override fun execute(
-        context: ValidationContext,
         input: T?,
+        context: ValidationContext,
     ): ValidationResult<S> {
         val context = context.addLog(toString())
-        return before.then(after).execute(context, input)
+        return before.then(after).execute(input, context)
     }
 
     override fun constrain(

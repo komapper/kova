@@ -12,12 +12,12 @@ private class ConditionalValidatorImpl<T>(
     private val condition: (T) -> Boolean,
 ) : ConditionalValidator<T> {
     override fun execute(
-        context: ValidationContext,
         input: T,
+        context: ValidationContext,
     ): ValidationResult<T> {
         val context = context.addLog(toString())
         return if (condition(input)) {
-            validator.execute(context, input)
+            validator.execute(input, context)
         } else {
             ValidationResult.Success(input, context)
         }

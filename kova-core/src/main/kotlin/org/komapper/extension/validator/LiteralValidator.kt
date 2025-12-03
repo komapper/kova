@@ -28,11 +28,11 @@ private class LiteralValidatorImpl<T : Any>(
     private val next: ConstraintValidator<T> = ConstraintValidator(constraint)
 
     override fun execute(
-        context: ValidationContext,
         input: T,
+        context: ValidationContext,
     ): ValidationResult<T> {
         val context = context.addLog(toString())
-        return prev.chain(next).execute(context, input)
+        return prev.chain(next).execute(input, context)
     }
 
     override fun constrain(
