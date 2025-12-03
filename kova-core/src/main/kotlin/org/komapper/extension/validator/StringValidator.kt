@@ -8,71 +8,71 @@ interface StringValidator :
     Modifiable<String, StringValidator> {
     fun min(
         length: Int,
-        message: (ConstraintContext<String>, Int) -> Message = Message.resource1(),
+        message: MessageProvider1<String, Int> = Message.resource1("kova.string.min"),
     ): StringValidator
 
     fun max(
         length: Int,
-        message: (ConstraintContext<String>, Int) -> Message = Message.resource1(),
+        message: MessageProvider1<String, Int> = Message.resource1("kova.string.max"),
     ): StringValidator
 
-    fun notBlank(message: (ConstraintContext<String>) -> Message = Message.resource0()): StringValidator
+    fun notBlank(message: MessageProvider0<String> = Message.resource0("kova.string.notBlank")): StringValidator
 
-    fun notEmpty(message: (ConstraintContext<String>) -> Message = Message.resource0()): StringValidator
+    fun notEmpty(message: MessageProvider0<String> = Message.resource0("kova.string.notEmpty")): StringValidator
 
     fun length(
         length: Int,
-        message: (ConstraintContext<String>, Int) -> Message = Message.resource1(),
+        message: MessageProvider1<String, Int> = Message.resource1("kova.string.length"),
     ): StringValidator
 
     fun startsWith(
         prefix: CharSequence,
-        message: (ConstraintContext<String>, CharSequence) -> Message = Message.resource1(),
+        message: MessageProvider1<String, CharSequence> = Message.resource1("kova.string.startsWith"),
     ): StringValidator
 
     fun endsWith(
         suffix: CharSequence,
-        message: (ConstraintContext<String>, CharSequence) -> Message = Message.resource1(),
+        message: MessageProvider1<String, CharSequence> = Message.resource1("kova.string.endsWith"),
     ): StringValidator
 
     fun contains(
         infix: CharSequence,
-        message: (ConstraintContext<String>, CharSequence) -> Message = Message.resource1(),
+        message: MessageProvider1<String, CharSequence> = Message.resource1("kova.string.contains"),
     ): StringValidator
 
     fun matches(
         pattern: Regex,
-        message: (ConstraintContext<String>, Regex) -> Message = Message.resource1(),
+        message: MessageProvider1<String, Regex> = Message.resource1("kova.string.matches"),
     ): StringValidator
 
-    fun email(message: (ConstraintContext<String>) -> Message = Message.resource0()): StringValidator
+    fun email(message: MessageProvider0<String> = Message.resource0("kova.string.email")): StringValidator
 
-    fun isInt(message: (ConstraintContext<String>) -> Message = Message.resource0()): StringValidator
+    fun isInt(message: MessageProvider0<String> = Message.resource0("kova.string.isInt")): StringValidator
 
-    fun isLong(message: (ConstraintContext<String>) -> Message = Message.resource0()): StringValidator
+    fun isLong(message: MessageProvider0<String> = Message.resource0("kova.string.isLong")): StringValidator
 
-    fun isShort(message: (ConstraintContext<String>) -> Message = Message.resource0()): StringValidator
+    fun isShort(message: MessageProvider0<String> = Message.resource0("kova.string.isShort")): StringValidator
 
-    fun isByte(message: (ConstraintContext<String>) -> Message = Message.resource0()): StringValidator
+    fun isByte(message: MessageProvider0<String> = Message.resource0("kova.string.isByte")): StringValidator
 
-    fun isDouble(message: (ConstraintContext<String>) -> Message = Message.resource0()): StringValidator
+    fun isDouble(message: MessageProvider0<String> = Message.resource0("kova.string.isDouble")): StringValidator
 
-    fun isFloat(message: (ConstraintContext<String>) -> Message = Message.resource0()): StringValidator
+    fun isFloat(message: MessageProvider0<String> = Message.resource0("kova.string.isFloat")): StringValidator
 
-    fun isBigDecimal(message: (ConstraintContext<String>) -> Message = Message.resource0()): StringValidator
+    fun isBigDecimal(message: MessageProvider0<String> = Message.resource0("kova.string.isBigDecimal")): StringValidator
 
-    fun isBigInteger(message: (ConstraintContext<String>) -> Message = Message.resource0()): StringValidator
+    fun isBigInteger(message: MessageProvider0<String> = Message.resource0("kova.string.isBigInteger")): StringValidator
 
-    fun isBoolean(message: (ConstraintContext<String>) -> Message = Message.resource0()): StringValidator
+    fun isBoolean(message: MessageProvider0<String> = Message.resource0("kova.string.isBoolean")): StringValidator
 
     fun <E : Enum<E>> isEnum(
         klass: KClass<E>,
-        message: (ConstraintContext<String>, List<String>) -> Message = Message.resource1(),
+        message: MessageProvider1<String, List<String>> = Message.resource1("kova.string.isEnum"),
     ): StringValidator
 
-    fun uppercase(message: (ConstraintContext<String>) -> Message = Message.resource0()): StringValidator
+    fun uppercase(message: MessageProvider0<String> = Message.resource0("kova.string.uppercase")): StringValidator
 
-    fun lowercase(message: (ConstraintContext<String>) -> Message = Message.resource0()): StringValidator
+    fun lowercase(message: MessageProvider0<String> = Message.resource0("kova.string.lowercase")): StringValidator
 
     fun trim(): StringValidator
 
@@ -152,71 +152,71 @@ private class StringValidatorImpl(
 
     override fun min(
         length: Int,
-        message: (ConstraintContext<String>, Int) -> Message,
+        message: MessageProvider1<String, Int>,
     ): StringValidator =
-        constrain("kova.string.min") {
+        constrain(message.key) {
             satisfies(it.input.length >= length, message(it, length))
         }
 
     override fun max(
         length: Int,
-        message: (ConstraintContext<String>, Int) -> Message,
+        message: MessageProvider1<String, Int>,
     ): StringValidator =
-        constrain("kova.string.max") {
+        constrain(message.key) {
             satisfies(it.input.length <= length, message(it, length))
         }
 
-    override fun notBlank(message: (ConstraintContext<String>) -> Message): StringValidator =
-        constrain("kova.string.notBlank") {
+    override fun notBlank(message: MessageProvider0<String>): StringValidator =
+        constrain(message.key) {
             satisfies(it.input.isNotBlank(), message(it))
         }
 
-    override fun notEmpty(message: (ConstraintContext<String>) -> Message): StringValidator =
-        constrain("kova.string.notEmpty") {
+    override fun notEmpty(message: MessageProvider0<String>): StringValidator =
+        constrain(message.key) {
             satisfies(it.input.isNotEmpty(), message(it))
         }
 
     override fun length(
         length: Int,
-        message: (ConstraintContext<String>, Int) -> Message,
+        message: MessageProvider1<String, Int>,
     ): StringValidator =
-        constrain("kova.string.length") {
+        constrain(message.key) {
             satisfies(it.input.length == length, message(it, length))
         }
 
     override fun startsWith(
         prefix: CharSequence,
-        message: (ConstraintContext<String>, CharSequence) -> Message,
+        message: MessageProvider1<String, CharSequence>,
     ): StringValidator =
-        constrain("kova.string.startsWith") {
+        constrain(message.key) {
             satisfies(it.input.startsWith(prefix), message(it, prefix))
         }
 
     override fun endsWith(
         suffix: CharSequence,
-        message: (ConstraintContext<String>, CharSequence) -> Message,
+        message: MessageProvider1<String, CharSequence>,
     ): StringValidator =
-        constrain("kova.string.endsWith") {
+        constrain(message.key) {
             satisfies(it.input.endsWith(suffix), message(it, suffix))
         }
 
     override fun contains(
         infix: CharSequence,
-        message: (ConstraintContext<String>, CharSequence) -> Message,
-    ) = constrain("kova.string.contains") {
+        message: MessageProvider1<String, CharSequence>,
+    ) = constrain(message.key) {
         satisfies(it.input.contains(infix), message(it, infix))
     }
 
     override fun matches(
         pattern: Regex,
-        message: (ConstraintContext<String>, Regex) -> Message,
+        message: MessageProvider1<String, Regex>,
     ): StringValidator =
-        constrain("kova.string.matches") {
+        constrain(message.key) {
             satisfies(pattern.matches(it.input), message(it, pattern))
         }
 
-    override fun email(message: (ConstraintContext<String>) -> Message): StringValidator =
-        constrain("kova.string.email") {
+    override fun email(message: MessageProvider0<String>): StringValidator =
+        constrain(message.key) {
             val emailPattern =
                 Regex(
                     "^(?!\\.)(?!.*\\.\\.)([a-z0-9_'+\\-\\.]*)[a-z0-9_+-]@([a-z0-9][a-z0-9\\-]*\\.)+[a-z]{2,}\$",
@@ -225,69 +225,69 @@ private class StringValidatorImpl(
             satisfies(emailPattern.matches(it.input), message(it))
         }
 
-    override fun isInt(message: (ConstraintContext<String>) -> Message): StringValidator =
-        constrain("kova.string.isInt") {
+    override fun isInt(message: MessageProvider0<String>): StringValidator =
+        constrain(message.key) {
             satisfies(it.input.toIntOrNull() != null, message(it))
         }
 
-    override fun isLong(message: (ConstraintContext<String>) -> Message): StringValidator =
-        constrain("kova.string.isLong") {
+    override fun isLong(message: MessageProvider0<String>): StringValidator =
+        constrain(message.key) {
             satisfies(it.input.toLongOrNull() != null, message(it))
         }
 
-    override fun isShort(message: (ConstraintContext<String>) -> Message): StringValidator =
-        constrain("kova.string.isShort") {
+    override fun isShort(message: MessageProvider0<String>): StringValidator =
+        constrain(message.key) {
             satisfies(it.input.toShortOrNull() != null, message(it))
         }
 
-    override fun isByte(message: (ConstraintContext<String>) -> Message): StringValidator =
-        constrain("kova.string.isByte") {
+    override fun isByte(message: MessageProvider0<String>): StringValidator =
+        constrain(message.key) {
             satisfies(it.input.toByteOrNull() != null, message(it))
         }
 
-    override fun isDouble(message: (ConstraintContext<String>) -> Message): StringValidator =
-        constrain("kova.string.isDouble") {
+    override fun isDouble(message: MessageProvider0<String>): StringValidator =
+        constrain(message.key) {
             satisfies(it.input.toDoubleOrNull() != null, message(it))
         }
 
-    override fun isFloat(message: (ConstraintContext<String>) -> Message): StringValidator =
-        constrain("kova.string.isFloat") {
+    override fun isFloat(message: MessageProvider0<String>): StringValidator =
+        constrain(message.key) {
             satisfies(it.input.toFloatOrNull() != null, message(it))
         }
 
-    override fun isBigDecimal(message: (ConstraintContext<String>) -> Message): StringValidator =
-        constrain("kova.string.isBigDecimal") {
+    override fun isBigDecimal(message: MessageProvider0<String>): StringValidator =
+        constrain(message.key) {
             satisfies(it.input.toBigDecimalOrNull() != null, message(it))
         }
 
-    override fun isBigInteger(message: (ConstraintContext<String>) -> Message): StringValidator =
-        constrain("kova.string.isBigInteger") {
+    override fun isBigInteger(message: MessageProvider0<String>): StringValidator =
+        constrain(message.key) {
             satisfies(it.input.toBigIntegerOrNull() != null, message(it))
         }
 
-    override fun isBoolean(message: (ConstraintContext<String>) -> Message): StringValidator =
-        constrain("kova.string.isBoolean") {
+    override fun isBoolean(message: MessageProvider0<String>): StringValidator =
+        constrain(message.key) {
             satisfies(it.input.toBooleanStrictOrNull() != null, message(it))
         }
 
     override fun <E : Enum<E>> isEnum(
         klass: KClass<E>,
-        message: (ConstraintContext<String>, List<String>) -> Message,
+        message: MessageProvider1<String, List<String>>,
     ): StringValidator {
         val enumValues = klass.java.enumConstants
         val validNames = enumValues.map { it.name }
-        return this.constrain("kova.string.isEnum") { ctx ->
+        return this.constrain(message.key) { ctx ->
             satisfies(validNames.contains(ctx.input), message(ctx, validNames))
         }
     }
 
-    override fun uppercase(message: (ConstraintContext<String>) -> Message): StringValidator =
-        constrain("kova.string.uppercase") {
+    override fun uppercase(message: MessageProvider0<String>): StringValidator =
+        constrain(message.key) {
             satisfies(it.input == it.input.uppercase(), message(it))
         }
 
-    override fun lowercase(message: (ConstraintContext<String>) -> Message): StringValidator =
-        constrain("kova.string.lowercase") {
+    override fun lowercase(message: MessageProvider0<String>): StringValidator =
+        constrain(message.key) {
             satisfies(it.input == it.input.lowercase(), message(it))
         }
 

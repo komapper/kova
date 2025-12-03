@@ -54,17 +54,17 @@ interface Kova {
 
     fun <T : Any> literal(
         value: T,
-        message: (ConstraintContext<T>, T) -> Message = Message.resource1(),
+        message: MessageProvider1<T, T> = Message.resource1("kova.literal.single"),
     ): Validator<T, T> = LiteralValidator<T>().single(value, message)
 
     fun <T : Any> literal(
         values: List<T>,
-        message: (ConstraintContext<T>, List<T>) -> Message = Message.resource1(),
+        message: MessageProvider1<T, List<T>> = Message.resource1("kova.literal.list"),
     ): Validator<T, T> = LiteralValidator<T>().list(values.toList(), message)
 
     fun <T : Any> literal(
         vararg values: T,
-        message: (ConstraintContext<T>, List<T>) -> Message = Message.resource1(),
+        message: MessageProvider1<T, List<T>> = Message.resource1("kova.literal.list"),
     ): Validator<T, T> = literal(values.toList(), message)
 
     fun error(message: Message): Nothing = throw MessageException(message)

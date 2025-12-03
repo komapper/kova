@@ -5,19 +5,19 @@ interface MapValidator<K, V> :
     Constrainable<Map<K, V>, MapValidator<K, V>> {
     fun min(
         size: Int,
-        message: (ConstraintContext<Map<K, V>>, Int, Int) -> Message = Message.resource2(),
+        message: MessageProvider2<Map<K, V>, Int, Int> = Message.resource2("kova.map.min"),
     ): MapValidator<K, V>
 
     fun max(
         size: Int,
-        message: (ConstraintContext<Map<K, V>>, Int, Int) -> Message = Message.resource2(),
+        message: MessageProvider2<Map<K, V>, Int, Int> = Message.resource2("kova.map.max"),
     ): MapValidator<K, V>
 
-    fun notEmpty(message: (ConstraintContext<Map<K, V>>) -> Message = Message.resource0()): MapValidator<K, V>
+    fun notEmpty(message: MessageProvider0<Map<K, V>> = Message.resource0("kova.map.notEmpty")): MapValidator<K, V>
 
     fun length(
         size: Int,
-        message: (ConstraintContext<Map<K, V>>, Int) -> Message = Message.resource1(),
+        message: MessageProvider1<Map<K, V>, Int> = Message.resource1("kova.map.length"),
     ): MapValidator<K, V>
 
     fun onEach(validator: Validator<Map.Entry<K, V>, *>): MapValidator<K, V>
@@ -63,30 +63,30 @@ private class MapValidatorImpl<K, V>(
 
     override fun min(
         size: Int,
-        message: (ConstraintContext<Map<K, V>>, Int, Int) -> Message,
+        message: MessageProvider2<Map<K, V>, Int, Int>,
     ): MapValidator<K, V> =
-        constrain("kova.map.min") {
+        constrain(message.key) {
             satisfies(it.input.size >= size, message(it, it.input.size, size))
         }
 
     override fun max(
         size: Int,
-        message: (ConstraintContext<Map<K, V>>, Int, Int) -> Message,
+        message: MessageProvider2<Map<K, V>, Int, Int>,
     ): MapValidator<K, V> =
-        constrain("kova.map.max") {
+        constrain(message.key) {
             satisfies(it.input.size <= size, message(it, it.input.size, size))
         }
 
-    override fun notEmpty(message: (ConstraintContext<Map<K, V>>) -> Message): MapValidator<K, V> =
-        constrain("kova.map.notEmpty") {
+    override fun notEmpty(message: MessageProvider0<Map<K, V>>): MapValidator<K, V> =
+        constrain(message.key) {
             satisfies(it.input.isNotEmpty(), message(it))
         }
 
     override fun length(
         size: Int,
-        message: (ConstraintContext<Map<K, V>>, Int) -> Message,
+        message: MessageProvider1<Map<K, V>, Int>,
     ): MapValidator<K, V> =
-        constrain("kova.map.length") {
+        constrain(message.key) {
             satisfies(it.input.size == size, message(it, size))
         }
 

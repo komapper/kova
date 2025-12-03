@@ -5,19 +5,19 @@ interface CollectionValidator<E, C : Collection<E>> :
     Constrainable<C, CollectionValidator<E, C>> {
     fun min(
         size: Int,
-        message: (ConstraintContext<C>, Int, Int) -> Message = Message.resource2(),
+        message: MessageProvider2<C, Int, Int> = Message.resource2("kova.collection.min"),
     ): CollectionValidator<E, C>
 
     fun max(
         size: Int,
-        message: (ConstraintContext<C>, Int, Int) -> Message = Message.resource2(),
+        message: MessageProvider2<C, Int, Int> = Message.resource2("kova.collection.max"),
     ): CollectionValidator<E, C>
 
-    fun notEmpty(message: (ConstraintContext<C>) -> Message = Message.resource0()): CollectionValidator<E, C>
+    fun notEmpty(message: MessageProvider0<C> = Message.resource0("kova.collection.notEmpty")): CollectionValidator<E, C>
 
     fun length(
         size: Int,
-        message: (ConstraintContext<C>, Int) -> Message = Message.resource1(),
+        message: MessageProvider1<C, Int> = Message.resource1("kova.collection.length"),
     ): CollectionValidator<E, C>
 
     fun onEach(validator: Validator<E, *>): CollectionValidator<E, C>
@@ -59,30 +59,30 @@ private class CollectionValidatorImpl<E, C : Collection<E>>(
 
     override fun min(
         size: Int,
-        message: (ConstraintContext<C>, Int, Int) -> Message,
+        message: MessageProvider2<C, Int, Int>,
     ): CollectionValidator<E, C> =
-        constrain("kova.collection.min") {
+        constrain(message.key) {
             satisfies(it.input.size >= size, message(it, it.input.size, size))
         }
 
     override fun max(
         size: Int,
-        message: (ConstraintContext<C>, Int, Int) -> Message,
+        message: MessageProvider2<C, Int, Int>,
     ): CollectionValidator<E, C> =
-        constrain("kova.collection.max") {
+        constrain(message.key) {
             satisfies(it.input.size <= size, message(it, it.input.size, size))
         }
 
-    override fun notEmpty(message: (ConstraintContext<C>) -> Message): CollectionValidator<E, C> =
-        constrain("kova.collection.notEmpty") {
+    override fun notEmpty(message: MessageProvider0<C>): CollectionValidator<E, C> =
+        constrain(message.key) {
             satisfies(it.input.isNotEmpty(), message(it))
         }
 
     override fun length(
         size: Int,
-        message: (ConstraintContext<C>, Int) -> Message,
+        message: MessageProvider1<C, Int>,
     ): CollectionValidator<E, C> =
-        constrain("kova.collection.length") {
+        constrain(message.key) {
             satisfies(it.input.size == size, message(it, size))
         }
 

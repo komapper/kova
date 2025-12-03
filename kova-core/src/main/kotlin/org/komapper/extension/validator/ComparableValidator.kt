@@ -5,12 +5,12 @@ interface ComparableValidator<T : Comparable<T>> :
     Constrainable<T, ComparableValidator<T>> {
     fun min(
         value: T,
-        message: (ConstraintContext<T>, T) -> Message = Message.resource1(),
+        message: MessageProvider1<T, T> = Message.resource1("kova.comparable.min"),
     ): ComparableValidator<T>
 
     fun max(
         value: T,
-        message: (ConstraintContext<T>, T) -> Message = Message.resource1(),
+        message: MessageProvider1<T, T> = Message.resource1("kova.comparable.max"),
     ): ComparableValidator<T>
 
     operator fun plus(other: Validator<T, T>): ComparableValidator<T>
@@ -50,13 +50,13 @@ private class ComparableValidatorImpl<T : Comparable<T>> internal constructor(
 
     override fun min(
         value: T,
-        message: (ConstraintContext<T>, T) -> Message,
-    ): ComparableValidator<T> = constrain("kova.comparable.min", Constraints.min(value, message))
+        message: MessageProvider1<T, T>,
+    ): ComparableValidator<T> = constrain(message.key, Constraints.min(value, message))
 
     override fun max(
         value: T,
-        message: (ConstraintContext<T>, T) -> Message,
-    ): ComparableValidator<T> = constrain("kova.comparable.max", Constraints.max(value, message))
+        message: MessageProvider1<T, T>,
+    ): ComparableValidator<T> = constrain(message.key, Constraints.max(value, message))
 
     override operator fun plus(other: Validator<T, T>): ComparableValidator<T> = and(other)
 

@@ -5,12 +5,12 @@ interface LiteralValidator<T : Any> :
     Constrainable<T, LiteralValidator<T>> {
     fun single(
         value: T,
-        message: (ConstraintContext<T>, T) -> Message = Message.resource1(),
+        message: MessageProvider1<T, T> = Message.resource1("kova.literal.single"),
     ): LiteralValidator<T>
 
     fun list(
         values: List<T>,
-        message: (ConstraintContext<T>, List<T>) -> Message = Message.resource1(),
+        message: MessageProvider1<T, List<T>> = Message.resource1("kova.literal.list"),
     ): LiteralValidator<T>
 }
 
@@ -42,17 +42,17 @@ private class LiteralValidatorImpl<T : Any>(
 
     override fun single(
         value: T,
-        message: (ConstraintContext<T>, T) -> Message,
+        message: MessageProvider1<T, T>,
     ): LiteralValidator<T> =
-        constrain("kova.literal.single") {
+        constrain(message.key) {
             satisfies(it.input == value, message(it, value))
         }
 
     override fun list(
         values: List<T>,
-        message: (ConstraintContext<T>, List<T>) -> Message,
+        message: MessageProvider1<T, List<T>>,
     ): LiteralValidator<T> =
-        constrain("kova.literal.list") {
+        constrain(message.key) {
             satisfies(it.input in values, message(it, values))
         }
 

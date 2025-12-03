@@ -5,9 +5,9 @@ import org.komapper.extension.validator.ValidationResult.Success
 interface WithDefaultNullableValidator<T : Any, S : Any> :
     Validator<T?, S>,
     Constrainable<T?, WithDefaultNullableValidator<T, S>> {
-    fun isNull(message: (ConstraintContext<T?>) -> Message = Message.resource0()): WithDefaultNullableValidator<T, S>
+    fun isNull(message: MessageProvider0<T?> = Message.resource0("kova.nullable.isNull")): WithDefaultNullableValidator<T, S>
 
-    fun notNull(message: (ConstraintContext<T?>) -> Message = Message.resource0()): WithDefaultNullableValidator<T, S>
+    fun notNull(message: MessageProvider0<T?> = Message.resource0("kova.nullable.notNull")): WithDefaultNullableValidator<T, S>
 
     operator fun plus(other: Validator<T?, S>): WithDefaultNullableValidator<T, S>
 
@@ -59,11 +59,11 @@ private class WithDefaultNullableValidatorImpl<T : Any, S : Any>(
         check: ConstraintScope.(ConstraintContext<T?>) -> ConstraintResult,
     ): WithDefaultNullableValidator<T, S> = WithDefaultNullableValidatorImpl(id, after, Constraint(id, check))
 
-    override fun isNull(message: (ConstraintContext<T?>) -> Message): WithDefaultNullableValidator<T, S> =
-        constrain("kova.nullable.isNull", Constraints.isNull(message))
+    override fun isNull(message: MessageProvider0<T?>): WithDefaultNullableValidator<T, S> =
+        constrain(message.key, Constraints.isNull(message))
 
-    override fun notNull(message: (ConstraintContext<T?>) -> Message): WithDefaultNullableValidator<T, S> =
-        constrain("kova.nullable.notNull", Constraints.notNull(message))
+    override fun notNull(message: MessageProvider0<T?>): WithDefaultNullableValidator<T, S> =
+        constrain(message.key, Constraints.notNull(message))
 
     override operator fun plus(other: Validator<T?, S>): WithDefaultNullableValidator<T, S> = and(other)
 

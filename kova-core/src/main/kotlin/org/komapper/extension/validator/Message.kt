@@ -41,27 +41,7 @@ sealed interface Message {
         override val content: String get() = details.toString()
     }
 
-    companion object {
-        fun <T, A0 : ConstraintContext<T>> resource0(): (A0) -> Message =
-            { ctx ->
-                Resource(ctx.constraintId, ctx.input)
-            }
-
-        fun <T, A0 : ConstraintContext<T>, A1> resource1(): (A0, A1) -> Message =
-            { ctx, arg1 ->
-                Resource(ctx.constraintId, ctx.input, arg1)
-            }
-
-        fun <T, A0 : ConstraintContext<T>, A1, A2> resource2(): (A0, A1, A2) -> Message =
-            { ctx, arg1, arg2 ->
-                Resource(ctx.constraintId, ctx.input, arg1, arg2)
-            }
-
-        fun <T, A0 : ConstraintContext<T>, A1, A2, A3> resource3(): (A0, A1, A2, A3) -> Message =
-            { ctx, arg1, arg2, arg3 ->
-                Resource(ctx.constraintId, ctx.input, arg1, arg2, arg3)
-            }
-    }
+    companion object : MessageProvider0Factory, MessageProvider1Factory, MessageProvider2Factory
 }
 
 private const val RESOURCE_BUNDLE_BASE_NAME = "kova"

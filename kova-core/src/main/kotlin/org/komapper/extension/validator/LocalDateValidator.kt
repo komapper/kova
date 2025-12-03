@@ -6,13 +6,13 @@ import java.time.LocalDate
 interface LocalDateValidator :
     Validator<LocalDate, LocalDate>,
     Constrainable<LocalDate, LocalDateValidator> {
-    fun future(message: (ConstraintContext<LocalDate>) -> Message = Message.resource0()): LocalDateValidator
+    fun future(message: MessageProvider0<LocalDate> = Message.resource0("kova.localDate.future")): LocalDateValidator
 
-    fun futureOrPresent(message: (ConstraintContext<LocalDate>) -> Message = Message.resource0()): LocalDateValidator
+    fun futureOrPresent(message: MessageProvider0<LocalDate> = Message.resource0("kova.localDate.futureOrPresent")): LocalDateValidator
 
-    fun past(message: (ConstraintContext<LocalDate>) -> Message = Message.resource0()): LocalDateValidator
+    fun past(message: MessageProvider0<LocalDate> = Message.resource0("kova.localDate.past")): LocalDateValidator
 
-    fun pastOrPresent(message: (ConstraintContext<LocalDate>) -> Message = Message.resource0()): LocalDateValidator
+    fun pastOrPresent(message: MessageProvider0<LocalDate> = Message.resource0("kova.localDate.pastOrPresent")): LocalDateValidator
 }
 
 fun LocalDateValidator(
@@ -43,23 +43,23 @@ private class LocalDateValidatorImpl(
         check: ConstraintScope.(ConstraintContext<LocalDate>) -> ConstraintResult,
     ): LocalDateValidator = LocalDateValidatorImpl(name = id, prev = this, constraint = Constraint(id, check), clock = clock)
 
-    override fun future(message: (ConstraintContext<LocalDate>) -> Message): LocalDateValidator =
-        constrain("kova.localDate.future") {
+    override fun future(message: MessageProvider0<LocalDate>): LocalDateValidator =
+        constrain(message.key) {
             satisfies(it.input > LocalDate.now(clock), message(it))
         }
 
-    override fun futureOrPresent(message: (ConstraintContext<LocalDate>) -> Message): LocalDateValidator =
-        constrain("kova.localDate.futureOrPresent") {
+    override fun futureOrPresent(message: MessageProvider0<LocalDate>): LocalDateValidator =
+        constrain(message.key) {
             satisfies(it.input >= LocalDate.now(clock), message(it))
         }
 
-    override fun past(message: (ConstraintContext<LocalDate>) -> Message): LocalDateValidator =
-        constrain("kova.localDate.past") {
+    override fun past(message: MessageProvider0<LocalDate>): LocalDateValidator =
+        constrain(message.key) {
             satisfies(it.input < LocalDate.now(clock), message(it))
         }
 
-    override fun pastOrPresent(message: (ConstraintContext<LocalDate>) -> Message): LocalDateValidator =
-        constrain("kova.localDate.pastOrPresent") {
+    override fun pastOrPresent(message: MessageProvider0<LocalDate>): LocalDateValidator =
+        constrain(message.key) {
             satisfies(it.input <= LocalDate.now(clock), message(it))
         }
 
