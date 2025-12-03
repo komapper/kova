@@ -126,8 +126,8 @@ object PersonSchema : ObjectSchema<Person>() {
 
     // Create a factory method that builds an ObjectFactory
     fun build(name: String, age: Int): ObjectFactory<Person> {
-        val arg0 = arg(this.name, name)
-        val arg1 = arg(this.age, age)
+        val arg0 = arg(name, this.name)
+        val arg1 = arg(age, this.age)
         return arguments(arg0, arg1).build(::Person)
     }
 }
@@ -148,7 +148,7 @@ object AgeSchema : ObjectSchema<Age>() {
     private val value = Age::value { Kova.int().min(0).max(120) }
 
     fun build(age: String): ObjectFactory<Age> {
-        val arg0 = arg(Kova.string().toInt().then(this.value), age)
+        val arg0 = arg(age, Kova.string().toInt().then(this.value))
         return arguments(arg0).build(::Age)
     }
 }
@@ -158,8 +158,8 @@ object PersonSchema : ObjectSchema<Person>() {
     private val age = Person::age { AgeSchema }
 
     fun build(name: String, age: String): ObjectFactory<Person> {
-        val arg0 = arg(this.name, name)
-        val arg1 = arg(this.age, this.age.build(age))  // Nested factory
+        val arg0 = arg(name, this.name)
+        val arg1 = arg(this.age.build(age), this.age)  // Nested factory
         return arguments(arg0, arg1).build(::Person)
     }
 }
@@ -169,8 +169,8 @@ val person = factory.create()  // Validates and constructs nested objects
 ```
 
 **Key Components**:
-- **`ObjectSchema.arg(validator, value)`**: Creates an `Arg` that wraps a validator and input value
-- **`ObjectSchema.arg(validator, factory)`**: Creates an `Arg` that wraps a validator and nested ObjectFactory (for nested objects)
+- **`ObjectSchema.arg(value, validator)`**: Creates an `Arg` that wraps an input value and validator
+- **`ObjectSchema.arg(factory, validator)`**: Creates an `Arg` that wraps a nested ObjectFactory and validator (for nested objects)
 - **`ObjectSchema.arguments(...)`**: Creates an `Arguments` through `Arguments9` object (supports 1-10 arguments)
 - **`Arguments.build(constructor)`**: Creates an `ObjectFactory` that validates inputs and constructs objects
 - **`ObjectFactory.tryCreate(failFast = false)`**: Validates and constructs, returning `ValidationResult<T>`
@@ -591,7 +591,7 @@ if (result.isFailure()) {
 
 ### Failure Details Structure
 
-Validation failures provide detailed information through the `FailureDetail` hierarchy:
+Validation failures provide detailed information through the `FailureDetail` interface:
 
 ```kotlin
 sealed interface FailureDetail {
@@ -599,20 +599,6 @@ sealed interface FailureDetail {
     val message: Message
     val root: Any?       // The root object being validated
     val path: Path       // The path to the failed property
-
-    // Single failure with optional exception cause
-    data class Single(
-        override val context: ValidationContext,
-        override val message: Message,
-        val cause: Throwable? = null
-    ) : FailureDetail
-
-    // Composite failure from 'or' operator showing both branches
-    data class Or(
-        override val context: ValidationContext,
-        val first: List<FailureDetail>,
-        val second: List<FailureDetail>
-    ) : FailureDetail
 }
 ```
 
@@ -622,17 +608,8 @@ Access failure details:
 val result = validator.tryValidate(input)
 if (result.isFailure()) {
     result.details.forEach { detail ->
-        when (detail) {
-            is FailureDetail.Single -> {
-                println("Single failure: ${detail.message.content}")
-                detail.cause?.let { println("Caused by: $it") }
-            }
-            is FailureDetail.Or -> {
-                println("OR failure: ${detail.message.content}")
-                // message.content contains composite message like:
-                // "at least one constraint must be satisfied: [[msg1], [msg2]]"
-            }
-        }
+        println("Path: ${detail.path}")
+        println("Message: ${detail.message.content}")
     }
 }
 ```

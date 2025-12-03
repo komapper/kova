@@ -10,19 +10,7 @@ private fun <T> tryConstruct(
     validator: Validator<T, T>,
     block: () -> T,
 ): ValidationResult<T> {
-    val instance =
-        try {
-            block()
-        } catch (cause: Exception) {
-            return ValidationResult.Failure(
-                detail =
-                    FailureDetail.Single(
-                        context = context,
-                        message = Message.Text(content = cause.toString()),
-                        cause = cause,
-                    ),
-            )
-        }
+    val instance = block()
     return validator.execute(instance, context)
 }
 

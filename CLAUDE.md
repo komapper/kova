@@ -53,7 +53,7 @@ object PersonSchema : ObjectSchema<Person>() {
     private val age = Person::age { Kova.int().min(0) }
 
     fun build(name: String, age: Int) =
-        arguments(arg(this.name, name), arg(this.age, age)).build(::Person)
+        arguments(arg(name, this.name), arg(age, this.age)).build(::Person)
 }
 val result = PersonSchema.build("Alice", 30).tryCreate()
 ```
@@ -77,7 +77,7 @@ val validator = Kova.localDate().past() + Kova.localDate().min(LocalDate.of(2020
 ## Important Implementation Details
 
 ### Immutability & Composition
-All validators are immutable. Composition operators (`+`, `and`, `or`, `map`, `andThen`) return new instances.
+All validators are immutable. Composition operators (`+`, `and`, `or`, `map`, `then`, `chain`) return new instances.
 
 ### Circular Reference Detection
 - `ValidationContext.addRoot()` accepts object reference for tracking
@@ -99,16 +99,16 @@ Properties must be object properties (not in constructor lambda) since the `invo
 
 ### Failure Structure
 - **ValidationResult.Failure**: Contains a list of `FailureDetail` objects
-- **FailureDetail.Single**: Individual failure with context, message, and optional cause
-- **FailureDetail.Or**: Composite failure from `or` operator with first/second branches
+- **FailureDetail**: Interface with `context`, `message`, `root`, and `path` properties
+- Internal implementations handle simple and composite (OR) failures
 - **Message Types**: `Message.Text`, `Message.Resource` (i18n from `kova.properties`), `Message.ValidationFailure` (contains nested FailureDetail list)
 - Access message content via `.content` property
 - OR failures automatically compose messages showing both validation branches
 
 ## Key Files
 - `Kova.kt` - Main API entry point
-- `Validator.kt` - Core interface and composition operators (`+`, `and`, `or`, `map`, `andThen`)
-- `ValidationResult.kt` - Result types (`Success`, `Failure`) and `FailureDetail` hierarchy (`Single`, `Or`)
+- `Validator.kt` - Core interface and composition operators (`+`, `and`, `or`, `map`, `then`, `chain`)
+- `ValidationResult.kt` - Result types (`Success`, `Failure`) and `FailureDetail` interface
 - `ValidationContext.kt` - State tracking with circular reference detection
 - `ValidationConfig.kt` - Centralized validation settings (failFast, locale)
 - `ObjectSchema.kt` - Object validation with property rules

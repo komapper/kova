@@ -23,31 +23,30 @@ sealed interface FailureDetail {
     val message: Message
     val root get() = context.root
     val path get() = context.path
+}
 
-    data class Single(
-        override val context: ValidationContext,
-        override val message: Message,
-        val cause: Throwable? = null,
-    ) : FailureDetail
+internal data class SimpleFailureDetail(
+    override val context: ValidationContext,
+    override val message: Message,
+) : FailureDetail
 
-    data class Or(
-        override val context: ValidationContext,
-        val first: List<FailureDetail>,
-        val second: List<FailureDetail>,
-    ) : FailureDetail {
-        override val message: Message get() {
-            val firstMessages = composeMessages(first)
-            val secondMessages = composeMessages(second)
-            return Message.Resource("kova.or", firstMessages, secondMessages)
-        }
+internal data class CompositeFailureDetail(
+    override val context: ValidationContext,
+    val first: List<FailureDetail>,
+    val second: List<FailureDetail>,
+) : FailureDetail {
+    override val message: Message get() {
+        val firstMessages = composeMessages(first)
+        val secondMessages = composeMessages(second)
+        return Message.Resource("kova.or", firstMessages, secondMessages)
     }
 }
 
 private fun composeMessages(details: List<FailureDetail>): List<Message> =
     details.map {
         when (it) {
-            is FailureDetail.Single -> it.message
-            is FailureDetail.Or -> {
+            is SimpleFailureDetail -> it.message
+            is CompositeFailureDetail -> {
                 val first = composeMessages(it.first)
                 val second = composeMessages(it.second)
                 Message.Resource("kova.or.nested", first, second)
