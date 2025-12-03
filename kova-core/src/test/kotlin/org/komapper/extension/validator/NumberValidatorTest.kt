@@ -202,4 +202,192 @@ class NumberValidatorTest :
                 result.messages[0].content shouldBe "Number 0.1 must not be positive"
             }
         }
+
+        context("gt (greater than)") {
+            val validator = Kova.int().gt(5)
+
+            test("success with value greater than threshold") {
+                val result = validator.tryValidate(6)
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe 6
+            }
+
+            test("success with large value") {
+                val result = validator.tryValidate(100)
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe 100
+            }
+
+            test("failure with equal value") {
+                val result = validator.tryValidate(5)
+                result.isFailure().mustBeTrue()
+                result.messages[0].content shouldBe "Number 5 must be greater than 5"
+            }
+
+            test("failure with value less than threshold") {
+                val result = validator.tryValidate(4)
+                result.isFailure().mustBeTrue()
+                result.messages[0].content shouldBe "Number 4 must be greater than 5"
+            }
+        }
+
+        context("gt with double") {
+            val validator = Kova.double().gt(5.5)
+
+            test("success") {
+                val result = validator.tryValidate(5.6)
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe 5.6
+            }
+
+            test("failure with equal value") {
+                val result = validator.tryValidate(5.5)
+                result.isFailure().mustBeTrue()
+                result.messages[0].content shouldBe "Number 5.5 must be greater than 5.5"
+            }
+
+            test("failure with smaller value") {
+                val result = validator.tryValidate(5.4)
+                result.isFailure().mustBeTrue()
+                result.messages[0].content shouldBe "Number 5.4 must be greater than 5.5"
+            }
+        }
+
+        context("gte (greater than or equal)") {
+            val validator = Kova.int().gte(5)
+
+            test("success with value greater than threshold") {
+                val result = validator.tryValidate(6)
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe 6
+            }
+
+            test("success with equal value") {
+                val result = validator.tryValidate(5)
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe 5
+            }
+
+            test("failure with value less than threshold") {
+                val result = validator.tryValidate(4)
+                result.isFailure().mustBeTrue()
+                result.messages[0].content shouldBe "Number 4 must be greater than or equal to 5"
+            }
+        }
+
+        context("gte with double") {
+            val validator = Kova.double().gte(5.5)
+
+            test("success with greater value") {
+                val result = validator.tryValidate(5.6)
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe 5.6
+            }
+
+            test("success with equal value") {
+                val result = validator.tryValidate(5.5)
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe 5.5
+            }
+
+            test("failure") {
+                val result = validator.tryValidate(5.4)
+                result.isFailure().mustBeTrue()
+                result.messages[0].content shouldBe "Number 5.4 must be greater than or equal to 5.5"
+            }
+        }
+
+        context("lt (less than)") {
+            val validator = Kova.int().lt(5)
+
+            test("success with value less than threshold") {
+                val result = validator.tryValidate(4)
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe 4
+            }
+
+            test("success with large negative value") {
+                val result = validator.tryValidate(-100)
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe -100
+            }
+
+            test("failure with equal value") {
+                val result = validator.tryValidate(5)
+                result.isFailure().mustBeTrue()
+                result.messages[0].content shouldBe "Number 5 must be less than 5"
+            }
+
+            test("failure with value greater than threshold") {
+                val result = validator.tryValidate(6)
+                result.isFailure().mustBeTrue()
+                result.messages[0].content shouldBe "Number 6 must be less than 5"
+            }
+        }
+
+        context("lt with double") {
+            val validator = Kova.double().lt(5.5)
+
+            test("success") {
+                val result = validator.tryValidate(5.4)
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe 5.4
+            }
+
+            test("failure with equal value") {
+                val result = validator.tryValidate(5.5)
+                result.isFailure().mustBeTrue()
+                result.messages[0].content shouldBe "Number 5.5 must be less than 5.5"
+            }
+
+            test("failure with greater value") {
+                val result = validator.tryValidate(5.6)
+                result.isFailure().mustBeTrue()
+                result.messages[0].content shouldBe "Number 5.6 must be less than 5.5"
+            }
+        }
+
+        context("lte (less than or equal)") {
+            val validator = Kova.int().lte(5)
+
+            test("success with value less than threshold") {
+                val result = validator.tryValidate(4)
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe 4
+            }
+
+            test("success with equal value") {
+                val result = validator.tryValidate(5)
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe 5
+            }
+
+            test("failure with value greater than threshold") {
+                val result = validator.tryValidate(6)
+                result.isFailure().mustBeTrue()
+                result.messages[0].content shouldBe "Number 6 must be less than or equal to 5"
+            }
+        }
+
+        context("lte with double") {
+            val validator = Kova.double().lte(5.5)
+
+            test("success with smaller value") {
+                val result = validator.tryValidate(5.4)
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe 5.4
+            }
+
+            test("success with equal value") {
+                val result = validator.tryValidate(5.5)
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe 5.5
+            }
+
+            test("failure") {
+                val result = validator.tryValidate(5.6)
+                result.isFailure().mustBeTrue()
+                result.messages[0].content shouldBe "Number 5.6 must be less than or equal to 5.5"
+            }
+        }
     })
