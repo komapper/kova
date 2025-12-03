@@ -16,11 +16,13 @@ data class Constraint<T>(
 
 data class ConstraintContext<T>(
     val input: T,
-    val root: String = "",
-    val path: Path = Path(name = "", obj = null, parent = null),
-    val failFast: Boolean = false,
     val constraintId: String = "",
-)
+    val validationContext: ValidationContext = ValidationContext(),
+) {
+    val root: String get() = validationContext.root
+    val path: Path get() = validationContext.path
+    val failFast: Boolean get() = validationContext.failFast
+}
 
 sealed interface ConstraintResult {
     object Satisfied : ConstraintResult

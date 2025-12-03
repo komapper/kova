@@ -118,7 +118,7 @@ private class MapValidatorImpl<K, V>(
         context: ConstraintContext<Map<K, V>>,
         validate: (Map.Entry<K, V>, ValidationContext) -> ValidationResult<T>,
     ): ConstraintResult {
-        val validationContext = context.createValidationContext()
+        val validationContext = context.validationContext
         val failures = mutableListOf<ValidationResult.Failure>()
         for (entry in context.input.entries) {
             val result = validate(entry, validationContext)

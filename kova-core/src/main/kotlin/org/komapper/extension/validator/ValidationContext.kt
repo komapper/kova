@@ -3,8 +3,16 @@ package org.komapper.extension.validator
 data class ValidationContext(
     val root: String = "",
     val path: Path = Path(name = "", obj = null, parent = null),
-    val failFast: Boolean = false,
     val logs: List<String> = emptyList(),
+    val config: ValidationConfig = ValidationConfig(),
+) {
+    val failFast: Boolean get() = config.failFast
+    val logging: Boolean get() = config.logging
+}
+
+data class ValidationConfig(
+    val failFast: Boolean = false,
+    val logging: Boolean = false,
 )
 
 fun ValidationContext.addRoot(
@@ -53,16 +61,15 @@ fun <T> ValidationContext.addPathChecked(
     return ValidationResult.Success(obj, addPath(name, obj))
 }
 
-fun ValidationContext.addLog(log: String): ValidationContext = copy(logs = this.logs + log)
+fun ValidationContext.addLog(log: String): ValidationContext = if (logging) copy(logs = this.logs + log) else this
 
 fun ValidationContext.appendPath(text: String): ValidationContext {
     val path = this.path.copy(name = this.path.name + text)
     return copy(path = path)
 }
 
-fun <T> ValidationContext.createConstraintContext(input: T): ConstraintContext<T> = ConstraintContext(input, root, path, failFast)
-
-fun ConstraintContext<*>.createValidationContext(): ValidationContext = ValidationContext(root, path, failFast)
+fun <T> ValidationContext.createConstraintContext(input: T): ConstraintContext<T> =
+    ConstraintContext(input = input, validationContext = this)
 
 data class Path(
     val name: String,

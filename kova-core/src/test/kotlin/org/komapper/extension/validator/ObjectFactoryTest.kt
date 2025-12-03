@@ -20,7 +20,6 @@ class ObjectFactoryTest :
                 desc[0] shouldBe "param0"
                 desc[1] shouldBe "param1"
             }
-
         }
 
         context("withDefault") {
@@ -153,7 +152,7 @@ class ObjectFactoryTest :
 
             test("failure - failFast is true") {
                 val userFactory = userSchema.build(0, "")
-                val result = userFactory.tryCreate(failFast = true)
+                val result = userFactory.tryCreate(ValidationConfig(failFast = true))
                 result.isFailure().mustBeTrue()
                 result.details.size shouldBe 1
             }

@@ -153,7 +153,7 @@ class ValidatorTest :
                     .max(5)
 
             test("success") {
-                val result = validator.tryValidate(" abcde ")
+                val result = validator.tryValidate(" abcde ", ValidationConfig(logging = true))
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe "abcde"
                 result.context.logs shouldBe

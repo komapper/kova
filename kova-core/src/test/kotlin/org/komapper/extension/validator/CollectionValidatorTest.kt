@@ -111,7 +111,7 @@ class CollectionValidatorTest :
             }
 
             test("failure - failFast is true") {
-                val result = validator.tryValidate(listOf("123", "4567", "8910"), failFast = true)
+                val result = validator.tryValidate(listOf("123", "4567", "8910"), ValidationConfig(failFast = true))
                 result.isFailure().mustBeTrue()
                 result.details.size shouldBe 1
                 result.details[0].let {

@@ -88,7 +88,7 @@ private class CollectionValidatorImpl<E, C : Collection<E>>(
 
     override fun onEach(validator: Validator<E, *>): CollectionValidator<E, C> =
         constrain("kova.collection.onEach") {
-            val validationContext = it.createValidationContext()
+            val validationContext = it.validationContext
             val failures = mutableListOf<ValidationResult.Failure>()
             for ((i, element) in it.input.withIndex()) {
                 val path = "[$i]<collection element>"

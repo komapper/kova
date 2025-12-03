@@ -50,10 +50,11 @@ fun interface ObjectFactory<T> {
     fun execute(context: ValidationContext): ValidationResult<T>
 }
 
-fun <T> ObjectFactory<T>.tryCreate(failFast: Boolean = false): ValidationResult<T> = execute(ValidationContext("", failFast = failFast))
+fun <T> ObjectFactory<T>.tryCreate(config: ValidationConfig = ValidationConfig()): ValidationResult<T> =
+    execute(ValidationContext(config = config))
 
-fun <T> ObjectFactory<T>.create(failFast: Boolean = false): T {
-    val result = execute(ValidationContext("", failFast = failFast))
+fun <T> ObjectFactory<T>.create(config: ValidationConfig = ValidationConfig()): T {
+    val result = execute(ValidationContext(config = config))
     return unwrapValidationResult(result)
 }
 
@@ -78,10 +79,12 @@ private val isKotlinReflectAvailable: Boolean =
 @Suppress("NO_REFLECTION_IN_CLASS_PATH")
 private fun introspectFunction(ctor: Any): FunctionDesc =
     if (ctor is KFunction<*>) {
-        val parameters = if (isKotlinReflectAvailable)
-            ctor.parameters.withIndex().associate { (i, p) -> i to p.name }
-        else
-            emptyMap()
+        val parameters =
+            if (isKotlinReflectAvailable) {
+                ctor.parameters.withIndex().associate { (i, p) -> i to p.name }
+            } else {
+                emptyMap()
+            }
         FunctionDesc(ctor.name, parameters)
     } else {
         FunctionDesc(ctor.toString(), emptyMap())

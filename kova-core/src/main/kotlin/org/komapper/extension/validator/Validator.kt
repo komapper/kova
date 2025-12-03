@@ -12,14 +12,14 @@ fun interface Validator<IN, OUT> {
 
 fun <IN, OUT> Validator<IN, OUT>.tryValidate(
     input: IN,
-    failFast: Boolean = false,
-): ValidationResult<OUT> = execute(ValidationContext(failFast = failFast), input)
+    config: ValidationConfig = ValidationConfig(),
+): ValidationResult<OUT> = execute(ValidationContext(config = config), input)
 
 fun <IN, OUT> Validator<IN, OUT>.validate(
     input: IN,
-    failFast: Boolean = false,
+    config: ValidationConfig = ValidationConfig(),
 ): OUT =
-    when (val result = execute(ValidationContext(failFast = failFast), input)) {
+    when (val result = execute(ValidationContext(config = config), input)) {
         is Success<OUT> -> result.value
         is Failure -> throw ValidationException(result.details)
     }
