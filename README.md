@@ -324,14 +324,34 @@ Kova.bigInteger()  // BigInteger
 Kova.boolean()     // Returns generic validator for boolean values
 ```
 
-### LocalDate
+### Temporal Types
 
 ```kotlin
+// LocalDate validation
 Kova.localDate()           // Optional clock parameter (defaults to Clock.systemDefaultZone())
     .future()              // Must be in the future
     .futureOrPresent()     // Must be in the future or present
     .past()                // Must be in the past
     .pastOrPresent()       // Must be in the past or present
+
+// LocalTime validation
+Kova.localTime()           // Optional clock parameter (defaults to Clock.systemDefaultZone())
+    .future()              // Must be in the future
+    .futureOrPresent()     // Must be in the future or present
+    .past()                // Must be in the past
+    .pastOrPresent()       // Must be in the past or present
+
+// LocalDateTime validation
+Kova.localDateTime()       // Optional clock parameter (defaults to Clock.systemDefaultZone())
+    .future()              // Must be in the future
+    .futureOrPresent()     // Must be in the future or present
+    .past()                // Must be in the past
+    .pastOrPresent()       // Must be in the past or present
+
+// All temporal validators support composition operators
+val dateValidator: LocalDateValidator = Kova.localDate().past() + Kova.localDate().pastOrPresent()
+val timeValidator: LocalTimeValidator = Kova.localTime().future() or Kova.localTime().futureOrPresent()
+val dateTimeValidator: LocalDateTimeValidator = Kova.localDateTime().past().chain(Kova.localDateTime().futureOrPresent())
 ```
 
 ### Collections

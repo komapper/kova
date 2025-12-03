@@ -58,6 +58,17 @@ object PersonSchema : ObjectSchema<Person>() {
 val result = PersonSchema.build("Alice", 30).tryCreate()
 ```
 
+**Temporal validators:**
+```kotlin
+// LocalDate, LocalTime, and LocalDateTime validators with temporal constraints
+Kova.localDate().past()
+Kova.localTime().future()
+Kova.localDateTime().futureOrPresent()
+
+// All temporal validators support composition operators (+, and, or, chain)
+val validator = Kova.localDate().past() + Kova.localDate().pastOrPresent()
+```
+
 ## Important Implementation Details
 
 ### Immutability & Composition
