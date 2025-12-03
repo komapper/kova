@@ -1,34 +1,88 @@
 package org.komapper.extension.validator
 
+/**
+ * Validator for numeric values with comparison constraints.
+ *
+ * Supports validation for all numeric types: Int, Long, Double, Float, Byte, Short,
+ * BigDecimal, and BigInteger.
+ *
+ * Example:
+ * ```kotlin
+ * val ageValidator = Kova.int().min(0).max(120)
+ * val priceValidator = Kova.bigDecimal().gt(BigDecimal.ZERO).max(BigDecimal("999.99"))
+ * ```
+ *
+ * @param T The numeric type being validated
+ */
 interface NumberValidator<T> :
     Validator<T, T>,
     Constrainable<T, NumberValidator<T>>
     where T : Number, T : Comparable<T> {
+    /**
+     * Validates that the number is greater than or equal to [value] (inclusive).
+     *
+     * @param value Minimum allowed value
+     * @param message Custom error message provider
+     */
     fun min(
         value: T,
         message: MessageProvider1<T, T> = Message.resource1("kova.number.min"),
     ): NumberValidator<T>
 
+    /**
+     * Validates that the number is less than or equal to [value] (inclusive).
+     *
+     * @param value Maximum allowed value
+     * @param message Custom error message provider
+     */
     fun max(
         value: T,
         message: MessageProvider1<T, T> = Message.resource1("kova.number.max"),
     ): NumberValidator<T>
 
+    /**
+     * Validates that the number is strictly greater than [value] (exclusive).
+     *
+     * @param value The value that the input must be greater than
+     * @param message Custom error message provider
+     */
     fun gt(
         value: T,
         message: MessageProvider1<T, T> = Message.resource1("kova.number.gt"),
     ): NumberValidator<T>
 
+    /**
+     * Validates that the number is greater than or equal to [value] (inclusive).
+     *
+     * Alias for [min].
+     *
+     * @param value The minimum value (inclusive)
+     * @param message Custom error message provider
+     */
     fun gte(
         value: T,
         message: MessageProvider1<T, T> = Message.resource1("kova.number.gte"),
     ): NumberValidator<T>
 
+    /**
+     * Validates that the number is strictly less than [value] (exclusive).
+     *
+     * @param value The value that the input must be less than
+     * @param message Custom error message provider
+     */
     fun lt(
         value: T,
         message: MessageProvider1<T, T> = Message.resource1("kova.number.lt"),
     ): NumberValidator<T>
 
+    /**
+     * Validates that the number is less than or equal to [value] (inclusive).
+     *
+     * Alias for [max].
+     *
+     * @param value The maximum value (inclusive)
+     * @param message Custom error message provider
+     */
     fun lte(
         value: T,
         message: MessageProvider1<T, T> = Message.resource1("kova.number.lte"),

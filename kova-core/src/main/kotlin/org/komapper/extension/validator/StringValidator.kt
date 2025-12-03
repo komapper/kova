@@ -2,49 +2,121 @@ package org.komapper.extension.validator
 
 import kotlin.reflect.KClass
 
+/**
+ * Validator for String values with string-specific validation constraints.
+ *
+ * Provides methods for validating string length, content, format, and patterns.
+ * All validators are immutable and can be composed using operators.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.string()
+ *     .min(3)
+ *     .max(20)
+ *     .notBlank()
+ *     .matches(Regex("[a-zA-Z0-9]+"))
+ * ```
+ */
 interface StringValidator :
     Validator<String, String>,
     Constrainable<String, StringValidator>,
     Modifiable<String, StringValidator> {
+    /**
+     * Validates that the string has at least [length] characters.
+     *
+     * @param length Minimum number of characters required
+     * @param message Custom error message provider
+     */
     fun min(
         length: Int,
         message: MessageProvider1<String, Int> = Message.resource1("kova.string.min"),
     ): StringValidator
 
+    /**
+     * Validates that the string has at most [length] characters.
+     *
+     * @param length Maximum number of characters allowed
+     * @param message Custom error message provider
+     */
     fun max(
         length: Int,
         message: MessageProvider1<String, Int> = Message.resource1("kova.string.max"),
     ): StringValidator
 
+    /**
+     * Validates that the string is not blank (not empty and contains non-whitespace characters).
+     *
+     * @param message Custom error message provider
+     */
     fun notBlank(message: MessageProvider0<String> = Message.resource0("kova.string.notBlank")): StringValidator
 
+    /**
+     * Validates that the string is not empty (length > 0).
+     *
+     * @param message Custom error message provider
+     */
     fun notEmpty(message: MessageProvider0<String> = Message.resource0("kova.string.notEmpty")): StringValidator
 
+    /**
+     * Validates that the string has exactly [length] characters.
+     *
+     * @param length Exact number of characters required
+     * @param message Custom error message provider
+     */
     fun length(
         length: Int,
         message: MessageProvider1<String, Int> = Message.resource1("kova.string.length"),
     ): StringValidator
 
+    /**
+     * Validates that the string starts with the specified prefix.
+     *
+     * @param prefix The required prefix
+     * @param message Custom error message provider
+     */
     fun startsWith(
         prefix: CharSequence,
         message: MessageProvider1<String, CharSequence> = Message.resource1("kova.string.startsWith"),
     ): StringValidator
 
+    /**
+     * Validates that the string ends with the specified suffix.
+     *
+     * @param suffix The required suffix
+     * @param message Custom error message provider
+     */
     fun endsWith(
         suffix: CharSequence,
         message: MessageProvider1<String, CharSequence> = Message.resource1("kova.string.endsWith"),
     ): StringValidator
 
+    /**
+     * Validates that the string contains the specified substring.
+     *
+     * @param infix The required substring
+     * @param message Custom error message provider
+     */
     fun contains(
         infix: CharSequence,
         message: MessageProvider1<String, CharSequence> = Message.resource1("kova.string.contains"),
     ): StringValidator
 
+    /**
+     * Validates that the string matches the specified regular expression pattern.
+     *
+     * @param pattern The regex pattern to match
+     * @param message Custom error message provider
+     */
     fun matches(
         pattern: Regex,
         message: MessageProvider1<String, Regex> = Message.resource1("kova.string.matches"),
     ): StringValidator
 
+    /**
+     * Validates that the string is a valid email address format.
+     *
+     * @param message Custom error message provider
+     */
     fun email(message: MessageProvider0<String> = Message.resource0("kova.string.email")): StringValidator
 
     fun isInt(message: MessageProvider0<String> = Message.resource0("kova.string.isInt")): StringValidator

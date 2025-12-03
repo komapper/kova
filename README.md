@@ -4,6 +4,18 @@ A type-safe Kotlin validation library that provides composable validators throug
 
 > **⚠️ Note**: This project is currently under active development. The API may change until a stable 1.0.0 release.
 
+## Setup
+
+Add Kova to your Gradle project:
+
+### Gradle Kotlin DSL (build.gradle.kts)
+
+```kotlin
+dependencies {
+    implementation("org.komapper:kova-core:0.0.1")
+}
+```
+
 ## Features
 
 - **Type-Safe**: Leverages Kotlin's type system for compile-time safety

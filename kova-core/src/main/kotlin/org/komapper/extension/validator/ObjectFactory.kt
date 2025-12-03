@@ -35,13 +35,90 @@ private fun <T> unwrapValidationResult(result: ValidationResult<T>): T =
         is ValidationResult.Failure -> throw ValidationException(result.details)
     }
 
+/**
+ * Factory for validating inputs and constructing objects.
+ *
+ * ObjectFactory combines validation with object construction, allowing you to
+ * validate multiple inputs and then construct an object only if all validations succeed.
+ * This is commonly used in ObjectSchema to create validated instances.
+ *
+ * Example:
+ * ```kotlin
+ * data class Person(val name: String, val age: Int)
+ *
+ * object PersonSchema : ObjectSchema<Person>() {
+ *     private val name = Person::name { Kova.string().min(1).max(50) }
+ *     private val age = Person::age { Kova.int().min(0).max(120) }
+ *
+ *     fun build(nameInput: String, ageInput: Int) =
+ *         arguments(
+ *             arg(nameInput, name),
+ *             arg(ageInput, age)
+ *         ).build(::Person)
+ * }
+ *
+ * // Usage
+ * val result = PersonSchema.build("Alice", 30).tryCreate()
+ * when (result) {
+ *     is ValidationResult.Success -> println("Created: ${result.value}")
+ *     is ValidationResult.Failure -> println("Errors: ${result.details}")
+ * }
+ * ```
+ *
+ * @param T The type of object this factory creates
+ */
 fun interface ObjectFactory<T> {
+    /**
+     * Executes validation and object construction.
+     *
+     * @param context The validation context
+     * @return A validation result containing either the constructed object or failure details
+     */
     fun execute(context: ValidationContext): ValidationResult<T>
 }
 
+/**
+ * Validates inputs and attempts to create an object, returning a [ValidationResult].
+ *
+ * This is the recommended way to use ObjectFactory when you want to handle
+ * both success and failure cases programmatically.
+ *
+ * Example:
+ * ```kotlin
+ * val factory = PersonSchema.build("Alice", 30)
+ * val result = factory.tryCreate()
+ * when (result) {
+ *     is ValidationResult.Success -> println("Created: ${result.value}")
+ *     is ValidationResult.Failure -> result.details.forEach { println(it.message.content) }
+ * }
+ * ```
+ *
+ * @param config Configuration options for validation (failFast, logging)
+ * @return A validation result containing either the created object or failure details
+ */
 fun <T> ObjectFactory<T>.tryCreate(config: ValidationConfig = ValidationConfig()): ValidationResult<T> =
     execute(ValidationContext(config = config))
 
+/**
+ * Validates inputs and creates an object, or throws an exception on failure.
+ *
+ * Use this when you want validation failures to throw exceptions rather than
+ * handling them programmatically.
+ *
+ * Example:
+ * ```kotlin
+ * try {
+ *     val person = PersonSchema.build("Alice", 30).create()
+ *     println("Created: $person")
+ * } catch (e: ValidationException) {
+ *     println("Validation failed: ${e.messages}")
+ * }
+ * ```
+ *
+ * @param config Configuration options for validation (failFast, logging)
+ * @return The created object of type [T]
+ * @throws ValidationException if validation fails
+ */
 fun <T> ObjectFactory<T>.create(config: ValidationConfig = ValidationConfig()): T {
     val result = execute(ValidationContext(config = config))
     return unwrapValidationResult(result)
