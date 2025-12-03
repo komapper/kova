@@ -532,11 +532,59 @@ if (result.isFailure()) {
 ```kotlin
 val result = userValidator.tryValidate(User(-1, "", "invalid"))
 
-result.details.forEach { detail ->
-    println("Root: ${detail.root}")      // e.g., "User"
-    println("Path: ${detail.path}")      // e.g., "name"
-    detail.messages.forEach { message ->
-        println("Message: ${message.content}")
+if (result.isFailure()) {
+    result.details.forEach { detail ->
+        println("Root: ${detail.root}")      // e.g., "User"
+        println("Path: ${detail.path}")      // e.g., "name"
+        println("Message: ${detail.message.content}")
+    }
+}
+```
+
+### Failure Details Structure
+
+Validation failures provide detailed information through the `FailureDetail` hierarchy:
+
+```kotlin
+sealed interface FailureDetail {
+    val context: ValidationContext
+    val message: Message
+    val root: Any?       // The root object being validated
+    val path: Path       // The path to the failed property
+
+    // Single failure with optional exception cause
+    data class Single(
+        override val context: ValidationContext,
+        override val message: Message,
+        val cause: Throwable? = null
+    ) : FailureDetail
+
+    // Composite failure from 'or' operator showing both branches
+    data class Or(
+        override val context: ValidationContext,
+        val first: List<FailureDetail>,
+        val second: List<FailureDetail>
+    ) : FailureDetail
+}
+```
+
+Access failure details:
+
+```kotlin
+val result = validator.tryValidate(input)
+if (result.isFailure()) {
+    result.details.forEach { detail ->
+        when (detail) {
+            is FailureDetail.Single -> {
+                println("Single failure: ${detail.message.content}")
+                detail.cause?.let { println("Caused by: $it") }
+            }
+            is FailureDetail.Or -> {
+                println("OR failure: ${detail.message.content}")
+                // message.content contains composite message like:
+                // "at least one constraint must be satisfied: [[msg1], [msg2]]"
+            }
+        }
     }
 }
 ```

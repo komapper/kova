@@ -15,9 +15,11 @@
 ## Core Architecture
 
 ### Validators
-- **Validator<IN, OUT>**: Core interface with `execute(context, input)` method
+- **Validator<IN, OUT>**: Core interface with `execute(input, context)` method (input first, context second)
 - **ValidationResult**: Sealed interface (`Success<T>` | `Failure`)
-- **ValidationContext**: Tracks state (root, path, failFast), supports circular reference detection via `Path.containsObject()`
+- **FailureDetail**: Sealed interface (`Single` | `Or`) representing individual failure information
+- **ValidationContext**: Tracks state (root, path, config), supports circular reference detection via `Path.containsObject()`
+- **ValidationConfig**: Centralized settings (failFast, locale)
 
 ### Key Patterns
 
@@ -79,13 +81,22 @@ Properties must be object properties (not in constructor lambda) since the `invo
 - `.notNull()` rejects null values
 - `.isNull()` accepts only null values
 
-### Message System
-Three types: `Message.Text`, `Message.Resource` (i18n from `kova.properties`), `Message.ValidationFailure` (nested). Access via `.content` property.
+### Failure Structure
+- **ValidationResult.Failure**: Contains a list of `FailureDetail` objects
+- **FailureDetail.Single**: Individual failure with context, message, and optional cause
+- **FailureDetail.Or**: Composite failure from `or` operator with first/second branches
+- **Message Types**: `Message.Text`, `Message.Resource` (i18n from `kova.properties`), `Message.ValidationFailure` (contains nested FailureDetail list)
+- Access message content via `.content` property
+- OR failures automatically compose messages showing both validation branches
 
 ## Key Files
-- `Kova.kt` - Main API
-- `Validator.kt` - Core interface
+- `Kova.kt` - Main API entry point
+- `Validator.kt` - Core interface and composition operators (`+`, `and`, `or`, `map`, `andThen`)
+- `ValidationResult.kt` - Result types (`Success`, `Failure`) and `FailureDetail` hierarchy (`Single`, `Or`)
 - `ValidationContext.kt` - State tracking with circular reference detection
+- `ValidationConfig.kt` - Centralized validation settings (failFast, locale)
 - `ObjectSchema.kt` - Object validation with property rules
 - `ObjectFactory.kt` - Validate + construct (supports 1-10 args)
+- `ConstraintValidator.kt` - Converts `ConstraintResult` to `ValidationResult`
 - `Constraints.kt` - Shared constraint utilities (`min`, `max`, `isNull`, `notNull`)
+- `Message.kt` - Message types (Text, Resource, ValidationFailure)
