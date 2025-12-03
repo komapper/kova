@@ -50,10 +50,9 @@ fun <T> ValidationContext.addPathChecked(
         // Return failure to signal circular reference detection
         // The caller will convert this to success and terminate validation
         return ValidationResult.Failure(
-            FailureDetail.Single(
+            SimpleFailureDetail(
                 this,
                 Message.Text("Circular reference detected."),
-                null,
             ),
         )
     }

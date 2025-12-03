@@ -18,7 +18,7 @@ private class ConstraintValidatorImpl<T>(
             is ConstraintResult.Violated -> {
                 val failureDetails =
                     when (result.message) {
-                        is Message.Text, is Message.Resource -> listOf(FailureDetail.Single(context, result.message))
+                        is Message.Text, is Message.Resource -> listOf(SimpleFailureDetail(context, result.message))
                         is Message.ValidationFailure -> result.message.details
                     }
                 ValidationResult.Failure(failureDetails)
