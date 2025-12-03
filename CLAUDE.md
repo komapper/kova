@@ -65,8 +65,13 @@ Kova.localDate().past()
 Kova.localTime().future()
 Kova.localDateTime().futureOrPresent()
 
+// Comparison methods (min, max, gt, gte, lt, lte)
+Kova.localDate().min(LocalDate.of(2024, 1, 1)).max(LocalDate.of(2024, 12, 31))
+Kova.localTime().gte(LocalTime.of(9, 0)).lte(LocalTime.of(17, 0))
+Kova.localDateTime().gt(startDateTime).lt(endDateTime)
+
 // All temporal validators support composition operators (+, and, or, chain)
-val validator = Kova.localDate().past() + Kova.localDate().pastOrPresent()
+val validator = Kova.localDate().past() + Kova.localDate().min(LocalDate.of(2020, 1, 1))
 ```
 
 ## Important Implementation Details

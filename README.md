@@ -312,6 +312,10 @@ Kova.bigInteger()  // BigInteger
 // All numeric validators support:
     .min(0)         // Minimum value (>= 0)
     .max(100)       // Maximum value (<= 100)
+    .gt(0)          // Greater than (> 0)
+    .gte(0)         // Greater than or equal (>= 0)
+    .lt(100)        // Less than (< 100)
+    .lte(100)       // Less than or equal (<= 100)
     .positive()     // Must be positive (> 0)
     .negative()     // Must be negative (< 0)
     .notPositive()  // Must not be positive (<= 0)
@@ -329,29 +333,47 @@ Kova.boolean()     // Returns generic validator for boolean values
 ```kotlin
 // LocalDate validation
 Kova.localDate()           // Optional clock parameter (defaults to Clock.systemDefaultZone())
-    .future()              // Must be in the future
-    .futureOrPresent()     // Must be in the future or present
-    .past()                // Must be in the past
-    .pastOrPresent()       // Must be in the past or present
+    .min(LocalDate.of(2024, 1, 1))     // Minimum date (>=)
+    .max(LocalDate.of(2024, 12, 31))   // Maximum date (<=)
+    .gt(LocalDate.of(2024, 6, 1))      // Greater than (>)
+    .gte(LocalDate.of(2024, 1, 1))     // Greater than or equal (>=)
+    .lt(LocalDate.of(2025, 1, 1))      // Less than (<)
+    .lte(LocalDate.of(2024, 12, 31))   // Less than or equal (<=)
+    .future()                           // Must be in the future
+    .futureOrPresent()                  // Must be in the future or present
+    .past()                             // Must be in the past
+    .pastOrPresent()                    // Must be in the past or present
 
 // LocalTime validation
 Kova.localTime()           // Optional clock parameter (defaults to Clock.systemDefaultZone())
-    .future()              // Must be in the future
-    .futureOrPresent()     // Must be in the future or present
-    .past()                // Must be in the past
-    .pastOrPresent()       // Must be in the past or present
+    .min(LocalTime.of(9, 0))           // Minimum time (>=)
+    .max(LocalTime.of(17, 0))          // Maximum time (<=)
+    .gt(LocalTime.of(8, 30))           // Greater than (>)
+    .gte(LocalTime.of(9, 0))           // Greater than or equal (>=)
+    .lt(LocalTime.of(18, 0))           // Less than (<)
+    .lte(LocalTime.of(17, 30))         // Less than or equal (<=)
+    .future()                           // Must be in the future
+    .futureOrPresent()                  // Must be in the future or present
+    .past()                             // Must be in the past
+    .pastOrPresent()                    // Must be in the past or present
 
 // LocalDateTime validation
 Kova.localDateTime()       // Optional clock parameter (defaults to Clock.systemDefaultZone())
-    .future()              // Must be in the future
-    .futureOrPresent()     // Must be in the future or present
-    .past()                // Must be in the past
-    .pastOrPresent()       // Must be in the past or present
+    .min(LocalDateTime.of(2024, 1, 1, 0, 0))     // Minimum datetime (>=)
+    .max(LocalDateTime.of(2024, 12, 31, 23, 59)) // Maximum datetime (<=)
+    .gt(startDateTime)                            // Greater than (>)
+    .gte(startDateTime)                           // Greater than or equal (>=)
+    .lt(endDateTime)                              // Less than (<)
+    .lte(endDateTime)                             // Less than or equal (<=)
+    .future()                                     // Must be in the future
+    .futureOrPresent()                            // Must be in the future or present
+    .past()                                       // Must be in the past
+    .pastOrPresent()                              // Must be in the past or present
 
 // All temporal validators support composition operators
-val dateValidator: LocalDateValidator = Kova.localDate().past() + Kova.localDate().pastOrPresent()
-val timeValidator: LocalTimeValidator = Kova.localTime().future() or Kova.localTime().futureOrPresent()
-val dateTimeValidator: LocalDateTimeValidator = Kova.localDateTime().past().chain(Kova.localDateTime().futureOrPresent())
+val dateValidator: LocalDateValidator = Kova.localDate().past() + Kova.localDate().min(LocalDate.of(2020, 1, 1))
+val timeValidator: LocalTimeValidator = Kova.localTime().gte(LocalTime.of(9, 0)) or Kova.localTime().lte(LocalTime.of(17, 0))
+val dateTimeValidator: LocalDateTimeValidator = Kova.localDateTime().min(start).max(end)
 ```
 
 ### Collections
@@ -491,7 +513,13 @@ Kova.uLong()
 Kova.uByte()
 Kova.uShort()
 
-// Support min/max comparisons
+// All unsigned integer validators support comparison methods:
+    .min(0u)        // Minimum value (>= 0u)
+    .max(100u)      // Maximum value (<= 100u)
+    .gt(0u)         // Greater than (> 0u)
+    .gte(0u)        // Greater than or equal (>= 0u)
+    .lt(100u)       // Less than (< 100u)
+    .lte(100u)      // Less than or equal (<= 100u)
 ```
 
 ### Generic Validator
