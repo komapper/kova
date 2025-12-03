@@ -122,15 +122,16 @@ class CollectionValidatorTest :
             }
         }
 
-        // TODO
-        context("obj and rule") {
+        context("property") {
+            data class ListHolder(
+                val list: List<String>,
+            )
+
             val schema =
                 object : ObjectSchema<ListHolder>() {
                     val list =
                         ListHolder::list {
-                            Kova.list<String>().onEach(Kova.string().length(3)).constrain("", {
-                                ConstraintResult.Satisfied
-                            })
+                            Kova.list<String>().onEach(Kova.string().length(3))
                         }
                 }
 
@@ -151,8 +152,4 @@ class CollectionValidatorTest :
                 }
             }
         }
-    }) {
-    data class ListHolder(
-        val list: List<String>,
-    )
-}
+    })

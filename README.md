@@ -222,20 +222,36 @@ val result1 = withDefault.tryValidate(null)                  // Success(10)
 val result2 = withDefault.tryValidate(5)                     // Success(5)
 val result3 = withDefault.tryValidate(-1)                    // Failure (min(0) violated)
 
+// Lazy-evaluated default value using lambda
+val withLazyDefault = Kova.int().min(0).asNullable { computeDefault() }
+val result = withLazyDefault.tryValidate(null)               // Success(computeDefault())
+
 // Set default value for null inputs using nullable validator
 val withDefaultAlt = Kova.nullable<String>().withDefault("default")
 val result = withDefaultAlt.tryValidate(null)                // Success("default")
+
+// Lazy-evaluated default with nullable validator
+val withLazyDefaultAlt = Kova.nullable<String>().withDefault { "computed-default" }
+val result2 = withLazyDefaultAlt.tryValidate(null)           // Success("computed-default")
+
+// Create nullable validator with default value directly
+val nullableWithDefault = Kova.nullable(10)
+val nullableWithLazyDefault = Kova.nullable { 10 }
 ```
 
 **Creating Nullable Validators**:
 - `Kova.nullable<T>()` - Create an empty nullable validator (accepts null by default)
+- `Kova.nullable(defaultValue)` - Create nullable validator with default value for null inputs
+- `Kova.nullable { defaultValue }` - Create nullable validator with lazy-evaluated default for null inputs
 - `Validator<T, S>.asNullable()` - Convert any validator to nullable (accepts null as-is)
 - `Validator<T, S>.asNullable(defaultValue)` - Convert to nullable with default value for null inputs
+- `Validator<T, S>.asNullable { defaultValue }` - Convert to nullable with lazy-evaluated default for null inputs
 
 **Methods on NullableValidator**:
 - `.isNull()` - Accept only null values
 - `.notNull()` - Reject null values
 - `.withDefault(value)` - Replace null values with a default
+- `.withDefault { value }` - Replace null values with a lazy-evaluated default
 - `.toNonNullable()` - Convert to non-nullable validator
 
 ## Available Validators

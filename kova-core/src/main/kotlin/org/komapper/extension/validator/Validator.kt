@@ -69,21 +69,7 @@ fun <IN, OUT, NEW> Validator<IN, OUT>.map(transform: (OUT) -> NEW): Validator<IN
     return Validator { input, context ->
         val context = context.addLog("Validator.map")
         when (val result = self.execute(input, context)) {
-            is Success -> {
-                try {
-                    Success(transform(result.value), result.context)
-                } catch (cause: Exception) {
-                    val message =
-                        if (cause is MessageException) {
-                            cause.validationMessage
-                        } else {
-                            Message.Text(cause.message.toString())
-                        }
-                    val detail = ValidationResult.FailureDetail(result.context, message, cause)
-                    Failure.Simple(detail)
-                }
-            }
-
+            is Success -> tryRun(result.context) { transform(result.value) }
             is Failure -> result
         }
     }
@@ -92,7 +78,6 @@ fun <IN, OUT, NEW> Validator<IN, OUT>.map(transform: (OUT) -> NEW): Validator<IN
 fun <IN, OUT> Validator<IN, OUT>.name(name: String): Validator<IN, OUT> {
     val self = this
     return Validator { input, context ->
-        // TODO
         val context = context.addPath(name, input).addLog("Validator.name(name=$name)")
         when (val result = self.execute(input, context)) {
             is Success -> Success(result.value, result.context)
@@ -131,3 +116,21 @@ fun <T> Validator<T, T>.chain(next: Validator<T, T>): Validator<T, T> =
             }
         }
     }
+
+internal fun <R> tryRun(
+    context: ValidationContext,
+    block: () -> R,
+): ValidationResult<R> {
+    return try {
+        return Success(block(), context)
+    } catch (cause: Exception) {
+        val message =
+            if (cause is MessageException) {
+                cause.validationMessage
+            } else {
+                throw cause
+            }
+        val detail = ValidationResult.FailureDetail(context, message, cause)
+        Failure.Simple(detail)
+    }
+}

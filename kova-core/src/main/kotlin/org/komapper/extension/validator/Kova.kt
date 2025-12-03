@@ -69,7 +69,9 @@ interface Kova {
         message: MessageProvider1<T, List<T>> = Message.resource1("kova.literal.list"),
     ): Validator<T, T> = literal(values.toList(), message)
 
-    fun error(message: Message): Nothing = throw MessageException(message)
+    fun fail(content: String): Nothing = fail(Message.Text(content))
+
+    fun fail(message: Message): Nothing = throw MessageException(message)
 
     companion object : Kova
 }

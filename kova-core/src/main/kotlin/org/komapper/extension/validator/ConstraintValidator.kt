@@ -16,7 +16,7 @@ private class ConstraintValidatorImpl<T>(
         val context = context.addLog(toString())
         val constraintContext = context.createConstraintContext(input).copy(constraintId = constraint.id)
         return when (val result = constraint.apply(constraintContext)) {
-            is ConstraintResult.Satisfied -> return ValidationResult.Success(input, context)
+            is ConstraintResult.Satisfied -> ValidationResult.Success(input, context)
             is ConstraintResult.Violated -> {
                 val failureDetails = collectFailureDetails(context, result.message)
                 ValidationResult.Failure.Simple(failureDetails)

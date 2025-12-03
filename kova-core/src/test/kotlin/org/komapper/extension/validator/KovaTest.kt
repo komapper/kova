@@ -77,7 +77,7 @@ class KovaTest :
             test("success - null") {
                 val userFactory = userSchema.build(null, null)
                 val result = userFactory.tryCreate()
-                result.isSuccess().mustBeTrue()
+                result.isSuccess().mustBeTrue(result.toString())
                 result.value shouldBe User(null, null)
             }
 

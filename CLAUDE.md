@@ -73,6 +73,9 @@ Properties must be object properties (not in constructor lambda) since the `invo
 - `Kova.nullable<T>()` accepts null by default
 - `.asNullable()` converts any validator to nullable (accepts null)
 - `.asNullable(defaultValue)` converts to nullable with default value for null inputs
+- `.asNullable { defaultValue }` converts to nullable with lazy-evaluated default value
+- `.withDefault(value)` sets default value for null inputs on nullable validators
+- `.withDefault { value }` sets lazy-evaluated default for null inputs on nullable validators
 - `.notNull()` rejects null values
 - `.isNull()` accepts only null values
 

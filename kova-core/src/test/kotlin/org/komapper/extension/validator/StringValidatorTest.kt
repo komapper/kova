@@ -685,7 +685,7 @@ class StringValidatorTest :
                         "1" -> true
                         "false" -> false
                         "0" -> false
-                        else -> Kova.error(Message.Text("\"$it\" is not a boolean value"))
+                        else -> Kova.fail("\"$it\" is not a boolean value")
                     }
                 }
 

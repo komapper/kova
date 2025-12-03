@@ -50,13 +50,12 @@ open class ObjectSchema<T : Any> private constructor(
         key: String,
         rule: Rule,
     ): ValidationResult<T> {
-        // TODO exception handling
         val value = rule.transform(input)
         val validator = rule.choose(input)
         val pathResult = context.addPathChecked(key, value)
         return when (pathResult) {
             is ValidationResult.Success -> {
-                when (val result = validator.execute(value, pathResult.context)) {
+                when (val result = validator.execute(pathResult.value, pathResult.context)) {
                     is ValidationResult.Success -> ValidationResult.Success(input, result.context)
                     is ValidationResult.Failure -> ValidationResult.Failure.Simple(result.details)
                 }
