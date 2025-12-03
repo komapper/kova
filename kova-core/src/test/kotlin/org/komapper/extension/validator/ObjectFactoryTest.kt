@@ -8,7 +8,22 @@ import io.kotest.matchers.string.shouldContain
 class ObjectFactoryTest :
     FunSpec({
 
-        context("toDefaultIfNull") {
+        context("FunctionDesc") {
+            test("KParameter available") {
+                val desc = FunctionDesc("User", mapOf(0 to "name", 1 to "age"))
+                desc[0] shouldBe "name"
+                desc[1] shouldBe "age"
+            }
+
+            test("KParameter unavailable") {
+                val desc = FunctionDesc("", emptyMap())
+                desc[0] shouldBe "param0"
+                desc[1] shouldBe "param1"
+            }
+
+        }
+
+        context("withDefault") {
             data class User(
                 val name: String?,
                 val age: Int?,
