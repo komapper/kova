@@ -14,7 +14,7 @@ class ValidationContextTest :
             test("no root") {
                 val context = ValidationContext(path = Path("c", null, null))
                 val newContext = context.addRoot(name = "a", null)
-                newContext shouldBe ValidationContext("a", Path("c", null, null))
+                newContext shouldBe ValidationContext("a", Path("", null, null))
             }
 
             test("already has root") {
@@ -26,7 +26,7 @@ class ValidationContextTest :
             test("add empty") {
                 val context = ValidationContext(path = Path("c", null, null))
                 val newContext = context.addRoot(name = "", null)
-                newContext shouldBe ValidationContext("", Path("c", null, null))
+                newContext shouldBe ValidationContext("", Path("", null, null))
             }
         }
 

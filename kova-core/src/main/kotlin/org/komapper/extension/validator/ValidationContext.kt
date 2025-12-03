@@ -20,7 +20,8 @@ fun ValidationContext.addRoot(
     obj: Any?,
 ): ValidationContext =
     if (root.isEmpty()) {
-        copy(root = name, path = path.copy(obj = obj))
+        // initialize root
+        copy(root = name, path = Path(name = "", obj = obj, parent = null))
     } else {
         this
     }
