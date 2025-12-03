@@ -35,6 +35,10 @@ interface Kova {
 
     fun localDate(clock: Clock = Clock.systemDefaultZone()): LocalDateValidator = LocalDateValidator(clock = clock)
 
+    fun localTime(clock: Clock = Clock.systemDefaultZone()): LocalTimeValidator = LocalTimeValidator(clock = clock)
+
+    fun localDateTime(clock: Clock = Clock.systemDefaultZone()): LocalDateTimeValidator = LocalDateTimeValidator(clock = clock)
+
     fun <E> collection(): CollectionValidator<E, Collection<E>> = CollectionValidator()
 
     fun <E> list(): CollectionValidator<E, List<E>> = CollectionValidator()

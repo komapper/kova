@@ -13,6 +13,14 @@ interface LocalDateValidator :
     fun past(message: MessageProvider0<LocalDate> = Message.resource0("kova.localDate.past")): LocalDateValidator
 
     fun pastOrPresent(message: MessageProvider0<LocalDate> = Message.resource0("kova.localDate.pastOrPresent")): LocalDateValidator
+
+    operator fun plus(other: Validator<LocalDate, LocalDate>): LocalDateValidator
+
+    infix fun and(other: Validator<LocalDate, LocalDate>): LocalDateValidator
+
+    infix fun or(other: Validator<LocalDate, LocalDate>): LocalDateValidator
+
+    fun chain(other: Validator<LocalDate, LocalDate>): LocalDateValidator
 }
 
 fun LocalDateValidator(
@@ -62,6 +70,23 @@ private class LocalDateValidatorImpl(
         constrain(message.key) {
             satisfies(it.input <= LocalDate.now(clock), message(it))
         }
+
+    override operator fun plus(other: Validator<LocalDate, LocalDate>): LocalDateValidator = and(other)
+
+    override fun and(other: Validator<LocalDate, LocalDate>): LocalDateValidator {
+        val combined = (this as Validator<LocalDate, LocalDate>).and(other)
+        return LocalDateValidatorImpl("and", prev = combined, constraint = Constraint.satisfied(), clock = clock)
+    }
+
+    override fun or(other: Validator<LocalDate, LocalDate>): LocalDateValidator {
+        val combined = (this as Validator<LocalDate, LocalDate>).or(other)
+        return LocalDateValidatorImpl("or", prev = combined, constraint = Constraint.satisfied(), clock = clock)
+    }
+
+    override fun chain(other: Validator<LocalDate, LocalDate>): LocalDateValidator {
+        val combined = (this as Validator<LocalDate, LocalDate>).chain(other)
+        return LocalDateValidatorImpl("chain", prev = combined, constraint = Constraint.satisfied(), clock = clock)
+    }
 
     override fun toString(): String = "${LocalDateValidator::class.simpleName}(name=$name)"
 }
