@@ -18,8 +18,8 @@ class ComparableValidatorTest :
             test("failure") {
                 val result = validator.tryValidate(5u)
                 result.messages.size shouldBe 2
-                result.messages[0].content shouldBe "Comparable 5 must be less than or equal to 2"
-                result.messages[1].content shouldBe "Comparable 5 must be less than or equal to 3"
+                result.messages[0].content shouldBe "UInt 5 must be less than or equal to 2"
+                result.messages[1].content shouldBe "UInt 5 must be less than or equal to 3"
             }
         }
 

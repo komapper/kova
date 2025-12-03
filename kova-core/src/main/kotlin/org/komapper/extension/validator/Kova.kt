@@ -25,13 +25,13 @@ interface Kova {
 
     fun bigInteger(): NumberValidator<BigInteger> = NumberValidator()
 
-    fun uInt(): ComparableValidator<UInt> = ComparableValidator()
+    fun uInt(): UIntValidator = UIntValidator()
 
-    fun uLong(): ComparableValidator<ULong> = ComparableValidator()
+    fun uLong(): ULongValidator = ULongValidator()
 
-    fun uByte(): ComparableValidator<UByte> = ComparableValidator()
+    fun uByte(): UByteValidator = UByteValidator()
 
-    fun uShort(): ComparableValidator<UShort> = ComparableValidator()
+    fun uShort(): UShortValidator = UShortValidator()
 
     fun localDate(clock: Clock = Clock.systemDefaultZone()): LocalDateValidator = LocalDateValidator(clock = clock)
 
