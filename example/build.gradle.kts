@@ -1,6 +1,7 @@
 plugins {
     id("java")
     alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotest)
 }
 
 repositories {
@@ -9,6 +10,8 @@ repositories {
 
 dependencies {
     implementation(project(":kova-core"))
+    testImplementation(libs.kotest.assertions.core)
+    testImplementation(libs.kotest.framework.engine)
 }
 
 kotlin {
@@ -17,6 +20,6 @@ kotlin {
 
 tasks {
     test {
-        dependsOn(":kova-core:kotest")
+        dependsOn("kotest")
     }
 }
