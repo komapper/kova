@@ -21,7 +21,9 @@ interface NullableValidator<T : Any, S : Any> :
 
     fun toNonNullable(): Validator<T?, S>
 
-    fun withDefault(defaultValue: S): WithDefaultNullableValidator<T, S>
+    fun withDefault(defaultValue: S): WithDefaultNullableValidator<T, S> = withDefault { defaultValue }
+
+    fun withDefault(provide: () -> S): WithDefaultNullableValidator<T, S>
 }
 
 fun <T : Any, S : Any> Validator<T, S>.asNullable(): NullableValidator<T, S> {
@@ -84,12 +86,10 @@ private class NullableValidatorImpl<T : Any, S : Any>(
 
     override fun toNonNullable(): Validator<T?, S> = notNull().map { it!! }
 
-    override fun withDefault(defaultValue: S): WithDefaultNullableValidator<T, S> =
+    override fun withDefault(provide: () -> S): WithDefaultNullableValidator<T, S> =
         WithDefaultNullableValidator(
             "withDefault",
-            map {
-                it ?: defaultValue
-            },
+            map { it ?: provide() },
         )
 
     override fun toString(): String = "${NullableValidator::class.simpleName}(name=$name)"

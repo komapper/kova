@@ -22,6 +22,22 @@ class WithDefaultNullableValidatorTest :
             }
         }
 
+        context("nullable - default value with lambda") {
+            val nullable = Kova.nullable { 0 }
+
+            test("success - null") {
+                val result = nullable.tryValidate(null)
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe 0
+            }
+
+            test("success - non null") {
+                val result = nullable.tryValidate(123)
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe 123
+            }
+        }
+
         context("isNull") {
             val isNull = Kova.nullable(0).isNull()
 

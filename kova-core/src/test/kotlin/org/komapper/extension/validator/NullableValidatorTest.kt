@@ -12,11 +12,45 @@ class NullableValidatorTest :
             test("success - null") {
                 val result = nullable.tryValidate(null)
                 result.isSuccess().mustBeTrue()
+                result.value shouldBe null
             }
 
             test("success - non null") {
                 val result = nullable.tryValidate(123)
                 result.isSuccess().mustBeTrue()
+                result.value shouldBe 123
+            }
+        }
+
+        context("withDefault - literal") {
+            val nullable = Kova.nullable<Int>().withDefault(0)
+
+            test("success - null") {
+                val result = nullable.tryValidate(null)
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe 0
+            }
+
+            test("success - non null") {
+                val result = nullable.tryValidate(123)
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe 123
+            }
+        }
+
+        context("withDefault - lambda") {
+            val nullable = Kova.nullable<Int>().withDefault { 0 }
+
+            test("success - null") {
+                val result = nullable.tryValidate(null)
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe 0
+            }
+
+            test("success - non null") {
+                val result = nullable.tryValidate(123)
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe 123
             }
         }
 

@@ -49,8 +49,10 @@ interface Kova {
 
     fun <T : Any> nullable(): NullableValidator<T, T> = NullableValidator("nullable", generic())
 
-    fun <T : Any> nullable(defaultValue: T): WithDefaultNullableValidator<T, T> =
-        WithDefaultNullableValidator("nullable", generic<T>().asNullable(defaultValue))
+    fun <T : Any> nullable(defaultValue: T): WithDefaultNullableValidator<T, T> = nullable { defaultValue }
+
+    fun <T : Any> nullable(withDefault: () -> T): WithDefaultNullableValidator<T, T> =
+        WithDefaultNullableValidator("nullable", generic<T>().asNullable(withDefault))
 
     fun <T : Any> literal(
         value: T,

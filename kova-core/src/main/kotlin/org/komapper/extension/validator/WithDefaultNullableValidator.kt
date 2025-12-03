@@ -22,11 +22,14 @@ interface WithDefaultNullableValidator<T : Any, S : Any> :
     fun toNonNullable(): Validator<T?, S>
 }
 
-fun <T : Any, S : Any> Validator<T, S>.asNullable(defaultValue: S): WithDefaultNullableValidator<T, S> {
+fun <T : Any, S : Any> Validator<T, S>.asNullable(defaultValue: S): WithDefaultNullableValidator<T, S> = asNullable { defaultValue }
+
+fun <T : Any, S : Any> Validator<T, S>.asNullable(withDefault: () -> S): WithDefaultNullableValidator<T, S> {
     val self = this
     // convert Validator<T, S> to Validator<T?, S>
     val wrapped =
         Validator<T?, S> { input, context ->
+            val defaultValue = withDefault()
             val context = context.addLog("Validator.asNullable(defaultValue=$defaultValue)")
             if (input == null) Success(defaultValue, context) else self.execute(input, context)
         }
