@@ -22,3 +22,6 @@ kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
 kotest = { id = "io.kotest", version.ref = "kotest" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
+publish = { id = "io.github.gradle-nexus.publish-plugin", version = "2.0.0" }
+release = { id = "net.researchgate.release", version = "3.1.0" }
+
