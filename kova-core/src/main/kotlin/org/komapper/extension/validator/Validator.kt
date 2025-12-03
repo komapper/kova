@@ -57,7 +57,10 @@ infix fun <IN, OUT> Validator<IN, OUT>.or(other: Validator<IN, OUT>): Validator<
             is Failure -> {
                 when (val otherResult = other.execute(input, context)) {
                     is Success -> otherResult
-                    is Failure -> selfResult.or(otherResult)
+                    is Failure -> {
+                        val composite = FailureDetail.Or(context, selfResult.details, otherResult.details)
+                        Failure(composite)
+                    }
                 }
             }
         }
@@ -130,7 +133,6 @@ internal fun <R> tryRun(
             } else {
                 throw cause
             }
-        val detail = ValidationResult.FailureDetail(context, message, cause)
-        Failure.Simple(detail)
+        Failure(FailureDetail.Single(context, message, cause))
     }
 }

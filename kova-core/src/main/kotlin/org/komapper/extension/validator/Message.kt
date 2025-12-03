@@ -22,8 +22,8 @@ sealed interface Message {
 
         override val content: String by lazy {
             val pattern = getPattern(constraintId)
-            val newArgus = args.map { resolveArg(it) }
-            MessageFormat.format(pattern, *newArgus.toTypedArray())
+            val newArgs = args.map { resolveArg(it) }
+            MessageFormat.format(pattern, *newArgs.toTypedArray())
         }
 
         private fun resolveArg(arg: Any?): Any? =
@@ -36,7 +36,7 @@ sealed interface Message {
 
     data class ValidationFailure(
         override val constraintId: String? = null,
-        val details: List<ValidationResult.FailureDetail>,
+        val details: List<FailureDetail>,
     ) : Message {
         override val content: String get() = details.toString()
     }

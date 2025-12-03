@@ -88,16 +88,15 @@ class KovaTest :
                 result.value shouldBe User("", 0)
             }
 
-            // TODO
             test("failure") {
                 val userFactory = userSchema.build("abc", 10)
                 val result = userFactory.tryCreate()
                 result.isFailure().mustBeTrue(result.messages.toString())
-                result.messages.size shouldBe 4
-                result.messages[0].content shouldBe "Value abc must be null"
-                result.messages[1].content shouldBe "Value abc must be "
-                result.messages[2].content shouldBe "Value 10 must be null"
-                result.messages[3].content shouldBe "Value 10 must be 0"
+                result.messages.size shouldBe 2
+                result.messages[0].content shouldBe
+                    "at least one constraint must be satisfied: [[Value abc must be null], [Value abc must be ]]"
+                result.messages[1].content shouldBe
+                    "at least one constraint must be satisfied: [[Value 10 must be null], [Value 10 must be 0]]"
             }
         }
 

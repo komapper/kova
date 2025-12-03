@@ -11,32 +11,49 @@ sealed interface ValidationResult<out T> {
         val context: ValidationContext,
     ) : ValidationResult<T>
 
-    sealed class Failure : ValidationResult<Nothing> {
-        abstract val details: List<FailureDetail>
-
-        data class Simple(
-            override val details: List<FailureDetail>,
-        ) : Failure() {
-            constructor(detail: FailureDetail) : this(listOf(detail))
-        }
-
-        data class Or(
-            val first: Failure,
-            val second: Failure,
-        ) : Failure() {
-            override val details: List<FailureDetail> get() = first.details + second.details
-        }
-    }
-
-    data class FailureDetail(
-        val context: ValidationContext,
-        val message: Message,
-        val cause: Throwable? = null,
-    ) {
-        val root get() = context.root
-        val path get() = context.path
+    data class Failure(
+        val details: List<FailureDetail>,
+    ) : ValidationResult<Nothing> {
+        constructor(detail: FailureDetail) : this(listOf(detail))
     }
 }
+
+sealed interface FailureDetail {
+    val context: ValidationContext
+    val message: Message
+    val root get() = context.root
+    val path get() = context.path
+
+    data class Single(
+        override val context: ValidationContext,
+        override val message: Message,
+        val cause: Throwable? = null,
+    ) : FailureDetail
+
+    data class Or(
+        override val context: ValidationContext,
+        val first: List<FailureDetail>,
+        val second: List<FailureDetail>,
+    ) : FailureDetail {
+        override val message: Message get() {
+            val firstMessages = composeMessages(first)
+            val secondMessages = composeMessages(second)
+            return Message.Resource("kova.or", firstMessages, secondMessages)
+        }
+    }
+}
+
+private fun composeMessages(details: List<FailureDetail>): List<Message> =
+    details.map {
+        when (it) {
+            is FailureDetail.Single -> it.message
+            is FailureDetail.Or -> {
+                val first = composeMessages(it.first)
+                val second = composeMessages(it.second)
+                Message.Resource("kova.or.nested", first, second)
+            }
+        }
+    }
 
 operator fun <T> ValidationResult<T>.plus(other: ValidationResult<T>): ValidationResult<T> =
     when (this) {
@@ -44,17 +61,7 @@ operator fun <T> ValidationResult<T>.plus(other: ValidationResult<T>): Validatio
         is Failure ->
             when (other) {
                 is Success -> this
-                is Failure -> Failure.Simple(this.details + other.details)
-            }
-    }
-
-fun <T> ValidationResult<T>.or(other: ValidationResult<T>): ValidationResult<T> =
-    when (this) {
-        is Success -> other
-        is Failure ->
-            when (other) {
-                is Success -> this
-                is Failure -> Failure.Or(this, other)
+                is Failure -> Failure(this.details + other.details)
             }
     }
 
@@ -81,19 +88,5 @@ val ValidationResult<*>.messages: List<Message>
         if (isSuccess()) {
             emptyList()
         } else {
-            compositeMessage(this, false)
+            details.map { it.message }
         }
-
-private fun compositeMessage(
-    failure: Failure,
-    nested: Boolean,
-): List<Message> =
-    when (failure) {
-        is Failure.Simple -> failure.details.map { it.message }
-        is Failure.Or -> {
-            val firstMessages = compositeMessage(failure.first, true)
-            val secondMessages = compositeMessage(failure.second, true)
-            val key = if (nested) "kova.or.nested" else "kova.or"
-            listOf(Message.Resource(key, firstMessages, secondMessages))
-        }
-    }

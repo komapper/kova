@@ -48,13 +48,11 @@ fun <T> ValidationContext.addPathChecked(
     if (obj != null && parent.containsObject(obj)) {
         // Return failure to signal circular reference detection
         // The caller will convert this to success and terminate validation
-        return ValidationResult.Failure.Simple(
-            listOf(
-                ValidationResult.FailureDetail(
-                    this,
-                    Message.Text("Circular reference detected."),
-                    null,
-                ),
+        return ValidationResult.Failure(
+            FailureDetail.Single(
+                this,
+                Message.Text("Circular reference detected."),
+                null,
             ),
         )
     }

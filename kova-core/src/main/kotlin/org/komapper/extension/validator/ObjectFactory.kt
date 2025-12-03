@@ -14,9 +14,9 @@ private fun <T> tryConstruct(
         try {
             block()
         } catch (cause: Exception) {
-            return ValidationResult.Failure.Simple(
+            return ValidationResult.Failure(
                 detail =
-                    ValidationResult.FailureDetail(
+                    FailureDetail.Single(
                         context = context,
                         message = Message.Text(content = cause.toString()),
                         cause = cause,

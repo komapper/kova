@@ -57,7 +57,7 @@ open class ObjectSchema<T : Any> private constructor(
             is ValidationResult.Success -> {
                 when (val result = validator.execute(pathResult.value, pathResult.context)) {
                     is ValidationResult.Success -> ValidationResult.Success(input, result.context)
-                    is ValidationResult.Failure -> ValidationResult.Failure.Simple(result.details)
+                    is ValidationResult.Failure -> ValidationResult.Failure(result.details)
                 }
             }
             // If circular reference detected, terminate validation early with success
