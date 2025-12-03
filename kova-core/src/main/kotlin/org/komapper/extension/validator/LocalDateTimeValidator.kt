@@ -6,6 +6,36 @@ import java.time.LocalDateTime
 interface LocalDateTimeValidator :
     Validator<LocalDateTime, LocalDateTime>,
     Constrainable<LocalDateTime, LocalDateTimeValidator> {
+    fun min(
+        value: LocalDateTime,
+        message: MessageProvider1<LocalDateTime, LocalDateTime> = Message.resource1("kova.localDateTime.min"),
+    ): LocalDateTimeValidator
+
+    fun max(
+        value: LocalDateTime,
+        message: MessageProvider1<LocalDateTime, LocalDateTime> = Message.resource1("kova.localDateTime.max"),
+    ): LocalDateTimeValidator
+
+    fun gt(
+        value: LocalDateTime,
+        message: MessageProvider1<LocalDateTime, LocalDateTime> = Message.resource1("kova.localDateTime.gt"),
+    ): LocalDateTimeValidator
+
+    fun gte(
+        value: LocalDateTime,
+        message: MessageProvider1<LocalDateTime, LocalDateTime> = Message.resource1("kova.localDateTime.gte"),
+    ): LocalDateTimeValidator
+
+    fun lt(
+        value: LocalDateTime,
+        message: MessageProvider1<LocalDateTime, LocalDateTime> = Message.resource1("kova.localDateTime.lt"),
+    ): LocalDateTimeValidator
+
+    fun lte(
+        value: LocalDateTime,
+        message: MessageProvider1<LocalDateTime, LocalDateTime> = Message.resource1("kova.localDateTime.lte"),
+    ): LocalDateTimeValidator
+
     fun future(message: MessageProvider0<LocalDateTime> = Message.resource0("kova.localDateTime.future")): LocalDateTimeValidator
 
     fun futureOrPresent(
@@ -54,6 +84,36 @@ private class LocalDateTimeValidatorImpl(
         id: String,
         check: ConstraintScope.(ConstraintContext<LocalDateTime>) -> ConstraintResult,
     ): LocalDateTimeValidator = LocalDateTimeValidatorImpl(name = id, prev = this, constraint = Constraint(id, check), clock = clock)
+
+    override fun min(
+        value: LocalDateTime,
+        message: MessageProvider1<LocalDateTime, LocalDateTime>,
+    ): LocalDateTimeValidator = constrain(message.key, Constraints.min(value, message))
+
+    override fun max(
+        value: LocalDateTime,
+        message: MessageProvider1<LocalDateTime, LocalDateTime>,
+    ): LocalDateTimeValidator = constrain(message.key, Constraints.max(value, message))
+
+    override fun gt(
+        value: LocalDateTime,
+        message: MessageProvider1<LocalDateTime, LocalDateTime>,
+    ): LocalDateTimeValidator = constrain(message.key, Constraints.gt(value, message))
+
+    override fun gte(
+        value: LocalDateTime,
+        message: MessageProvider1<LocalDateTime, LocalDateTime>,
+    ): LocalDateTimeValidator = constrain(message.key, Constraints.gte(value, message))
+
+    override fun lt(
+        value: LocalDateTime,
+        message: MessageProvider1<LocalDateTime, LocalDateTime>,
+    ): LocalDateTimeValidator = constrain(message.key, Constraints.lt(value, message))
+
+    override fun lte(
+        value: LocalDateTime,
+        message: MessageProvider1<LocalDateTime, LocalDateTime>,
+    ): LocalDateTimeValidator = constrain(message.key, Constraints.lte(value, message))
 
     override fun future(message: MessageProvider0<LocalDateTime>): LocalDateTimeValidator =
         constrain(message.key) {
