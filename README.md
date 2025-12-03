@@ -12,7 +12,7 @@ Add Kova to your Gradle project:
 
 ```kotlin
 dependencies {
-    implementation("org.komapper:kova-core:0.0.1")
+    implementation("org.komapper:kova-core:0.0.2")
 }
 ```
 
