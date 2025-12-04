@@ -1,7 +1,6 @@
 package example
 
 import org.komapper.extension.validator.Kova
-import org.komapper.extension.validator.ObjectFactory
 import org.komapper.extension.validator.ObjectSchema
 import org.komapper.extension.validator.ValidationResult
 import org.komapper.extension.validator.messages
@@ -30,25 +29,26 @@ object UserSchema : ObjectSchema<User>() {
     fun bind(
         name: String,
         age: Int,
-    ): ObjectFactory<User> {
+    ) = factory {
         val name = nameV.bind(name)
         val age = ageV.bind(age)
-        return create(::User, name, age)
+        create(::User, name, age)
     }
 }
 
 object AgeSchema : ObjectSchema<Age>() {
     private val valueV = Age::value { Kova.int().min(0).max(120) }
 
-    fun bind(age: String): ObjectFactory<Age> {
-        val age =
-            Kova
-                .string()
-                .toInt()
-                .then(valueV)
-                .bind(age)
-        return create(::Age, age)
-    }
+    fun bind(age: String) =
+        factory {
+            val age =
+                Kova
+                    .string()
+                    .toInt()
+                    .then(valueV)
+                    .bind(age)
+            create(::Age, age)
+        }
 }
 
 object PersonSchema : ObjectSchema<Person>() {
@@ -58,10 +58,10 @@ object PersonSchema : ObjectSchema<Person>() {
     fun bind(
         name: String,
         age: String,
-    ): ObjectFactory<Person> {
+    ) = factory {
         val name = nameV.bind(name)
         val age = ageV.bind(age)
-        return create(::Person, name, age)
+        create(::Person, name, age)
     }
 }
 
