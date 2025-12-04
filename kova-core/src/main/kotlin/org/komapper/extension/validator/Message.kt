@@ -25,7 +25,7 @@ import java.util.ResourceBundle
  */
 sealed interface Message {
     /** Optional constraint identifier for this message */
-    val constraintId: String? get() = null
+    val id: String? get() = null
 
     /** The formatted message content */
     val content: String
@@ -38,11 +38,11 @@ sealed interface Message {
      * Example:
      * ```kotlin
      * Message.Text("Value must be positive")
-     * Message.Text(constraintId = "positive", content = "Value must be positive")
+     * Message.Text(id = "positive", content = "Value must be positive")
      * ```
      */
     data class Text(
-        override val constraintId: String? = null,
+        override val id: String? = null,
         override val content: String,
     ) : Message {
         constructor(content: String) : this(null, content)
@@ -65,17 +65,17 @@ sealed interface Message {
      * Message.Resource("custom.range", value, min, max)
      * ```
      *
-     * @property constraintId The resource bundle key
+     * @property id The resource bundle key
      * @property args Arguments to substitute into the message pattern
      */
     data class Resource(
-        override val constraintId: String,
+        override val id: String,
         val args: List<Any?>,
     ) : Message {
-        constructor(key: String, vararg args: Any?) : this(key, args.toList())
+        constructor(id: String, vararg args: Any?) : this(id, args.toList())
 
         override val content: String by lazy {
-            val pattern = getPattern(constraintId)
+            val pattern = getPattern(id)
             val newArgs = args.map { resolveArg(it) }
             MessageFormat.format(pattern, *newArgs.toTypedArray())
         }
@@ -94,7 +94,7 @@ sealed interface Message {
      * Used internally for composite failures from OR operations.
      */
     data class ValidationFailure(
-        override val constraintId: String? = null,
+        override val id: String? = null,
         val details: List<FailureDetail>,
     ) : Message {
         override val content: String get() = details.toString()

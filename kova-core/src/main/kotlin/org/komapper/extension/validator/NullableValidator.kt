@@ -63,9 +63,9 @@ private class NullableValidatorImpl<T : Any, S : Any>(
         check: ConstraintScope.(ConstraintContext<T?>) -> ConstraintResult,
     ): NullableValidator<T, S> = NullableValidatorImpl(id, after, Constraint(id, check))
 
-    override fun isNull(message: MessageProvider0<T?>): NullableValidator<T, S> = constrain(message.key, Constraints.isNull(message))
+    override fun isNull(message: MessageProvider0<T?>): NullableValidator<T, S> = constrain(message.id, Constraints.isNull(message))
 
-    override fun notNull(message: MessageProvider0<T?>): NullableValidator<T, S> = constrain(message.key, Constraints.notNull(message))
+    override fun notNull(message: MessageProvider0<T?>): NullableValidator<T, S> = constrain(message.id, Constraints.notNull(message))
 
     override operator fun plus(other: Validator<T, S>): NullableValidator<T, S> = and(other)
 

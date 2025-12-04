@@ -173,50 +173,50 @@ private class TemporalValidatorImpl<T>(
     override fun min(
         value: T,
         message: MessageProvider1<T, T>,
-    ): TemporalValidator<T> = constrain(message.key, Constraints.min(value, message))
+    ): TemporalValidator<T> = constrain(message.id, Constraints.min(value, message))
 
     override fun max(
         value: T,
         message: MessageProvider1<T, T>,
-    ): TemporalValidator<T> = constrain(message.key, Constraints.max(value, message))
+    ): TemporalValidator<T> = constrain(message.id, Constraints.max(value, message))
 
     override fun gt(
         value: T,
         message: MessageProvider1<T, T>,
-    ): TemporalValidator<T> = constrain(message.key, Constraints.gt(value, message))
+    ): TemporalValidator<T> = constrain(message.id, Constraints.gt(value, message))
 
     override fun gte(
         value: T,
         message: MessageProvider1<T, T>,
-    ): TemporalValidator<T> = constrain(message.key, Constraints.gte(value, message))
+    ): TemporalValidator<T> = constrain(message.id, Constraints.gte(value, message))
 
     override fun lt(
         value: T,
         message: MessageProvider1<T, T>,
-    ): TemporalValidator<T> = constrain(message.key, Constraints.lt(value, message))
+    ): TemporalValidator<T> = constrain(message.id, Constraints.lt(value, message))
 
     override fun lte(
         value: T,
         message: MessageProvider1<T, T>,
-    ): TemporalValidator<T> = constrain(message.key, Constraints.lte(value, message))
+    ): TemporalValidator<T> = constrain(message.id, Constraints.lte(value, message))
 
     override fun future(message: MessageProvider0<T>): TemporalValidator<T> =
-        constrain(message.key) {
+        constrain(message.id) {
             satisfies(it.input > temporalNow.now(clock), message(it))
         }
 
     override fun futureOrPresent(message: MessageProvider0<T>): TemporalValidator<T> =
-        constrain(message.key) {
+        constrain(message.id) {
             satisfies(it.input >= temporalNow.now(clock), message(it))
         }
 
     override fun past(message: MessageProvider0<T>): TemporalValidator<T> =
-        constrain(message.key) {
+        constrain(message.id) {
             satisfies(it.input < temporalNow.now(clock), message(it))
         }
 
     override fun pastOrPresent(message: MessageProvider0<T>): TemporalValidator<T> =
-        constrain(message.key) {
+        constrain(message.id) {
             satisfies(it.input <= temporalNow.now(clock), message(it))
         }
 

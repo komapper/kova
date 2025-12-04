@@ -65,7 +65,7 @@ private class MapValidatorImpl<K, V>(
         size: Int,
         message: MessageProvider2<Map<K, V>, Int, Int>,
     ): MapValidator<K, V> =
-        constrain(message.key) {
+        constrain(message.id) {
             satisfies(it.input.size >= size, message(it, it.input.size, size))
         }
 
@@ -73,12 +73,12 @@ private class MapValidatorImpl<K, V>(
         size: Int,
         message: MessageProvider2<Map<K, V>, Int, Int>,
     ): MapValidator<K, V> =
-        constrain(message.key) {
+        constrain(message.id) {
             satisfies(it.input.size <= size, message(it, it.input.size, size))
         }
 
     override fun notEmpty(message: MessageProvider0<Map<K, V>>): MapValidator<K, V> =
-        constrain(message.key) {
+        constrain(message.id) {
             satisfies(it.input.isNotEmpty(), message(it))
         }
 
@@ -86,7 +86,7 @@ private class MapValidatorImpl<K, V>(
         size: Int,
         message: MessageProvider1<Map<K, V>, Int>,
     ): MapValidator<K, V> =
-        constrain(message.key) {
+        constrain(message.id) {
             satisfies(it.input.size == size, message(it, size))
         }
 

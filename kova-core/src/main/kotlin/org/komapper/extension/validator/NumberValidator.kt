@@ -135,50 +135,50 @@ private class NumberValidatorImpl<T>(
     override fun min(
         value: T,
         message: MessageProvider1<T, T>,
-    ): NumberValidator<T> = constrain(message.key, Constraints.min(value, message))
+    ): NumberValidator<T> = constrain(message.id, Constraints.min(value, message))
 
     override fun max(
         value: T,
         message: MessageProvider1<T, T>,
-    ): NumberValidator<T> = constrain(message.key, Constraints.max(value, message))
+    ): NumberValidator<T> = constrain(message.id, Constraints.max(value, message))
 
     override fun gt(
         value: T,
         message: MessageProvider1<T, T>,
-    ): NumberValidator<T> = constrain(message.key, Constraints.gt(value, message))
+    ): NumberValidator<T> = constrain(message.id, Constraints.gt(value, message))
 
     override fun gte(
         value: T,
         message: MessageProvider1<T, T>,
-    ): NumberValidator<T> = constrain(message.key, Constraints.gte(value, message))
+    ): NumberValidator<T> = constrain(message.id, Constraints.gte(value, message))
 
     override fun lt(
         value: T,
         message: MessageProvider1<T, T>,
-    ): NumberValidator<T> = constrain(message.key, Constraints.lt(value, message))
+    ): NumberValidator<T> = constrain(message.id, Constraints.lt(value, message))
 
     override fun lte(
         value: T,
         message: MessageProvider1<T, T>,
-    ): NumberValidator<T> = constrain(message.key, Constraints.lte(value, message))
+    ): NumberValidator<T> = constrain(message.id, Constraints.lte(value, message))
 
     override fun positive(message: MessageProvider0<T>): NumberValidator<T> =
-        constrain(message.key) {
+        constrain(message.id) {
             satisfies(it.input.toDouble() > 0.0, message(it))
         }
 
     override fun negative(message: MessageProvider0<T>): NumberValidator<T> =
-        constrain(message.key) {
+        constrain(message.id) {
             satisfies(it.input.toDouble() < 0.0, message(it))
         }
 
     override fun notPositive(message: MessageProvider0<T>): NumberValidator<T> =
-        constrain(message.key) {
+        constrain(message.id) {
             satisfies(it.input.toDouble() <= 0.0, message(it))
         }
 
     override fun notNegative(message: MessageProvider0<T>): NumberValidator<T> =
-        constrain(message.key) {
+        constrain(message.id) {
             satisfies(it.input.toDouble() >= 0.0, message(it))
         }
 

@@ -43,7 +43,7 @@ class NumberValidatorTest :
                 val result = validator.tryValidate(4)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].constraintId shouldBe "kova.or"
+                result.messages[0].id shouldBe "kova.or"
             }
         }
 

@@ -226,7 +226,7 @@ private class StringValidatorImpl(
         length: Int,
         message: MessageProvider1<String, Int>,
     ): StringValidator =
-        constrain(message.key) {
+        constrain(message.id) {
             satisfies(it.input.length >= length, message(it, length))
         }
 
@@ -234,17 +234,17 @@ private class StringValidatorImpl(
         length: Int,
         message: MessageProvider1<String, Int>,
     ): StringValidator =
-        constrain(message.key) {
+        constrain(message.id) {
             satisfies(it.input.length <= length, message(it, length))
         }
 
     override fun notBlank(message: MessageProvider0<String>): StringValidator =
-        constrain(message.key) {
+        constrain(message.id) {
             satisfies(it.input.isNotBlank(), message(it))
         }
 
     override fun notEmpty(message: MessageProvider0<String>): StringValidator =
-        constrain(message.key) {
+        constrain(message.id) {
             satisfies(it.input.isNotEmpty(), message(it))
         }
 
@@ -252,7 +252,7 @@ private class StringValidatorImpl(
         length: Int,
         message: MessageProvider1<String, Int>,
     ): StringValidator =
-        constrain(message.key) {
+        constrain(message.id) {
             satisfies(it.input.length == length, message(it, length))
         }
 
@@ -260,7 +260,7 @@ private class StringValidatorImpl(
         prefix: CharSequence,
         message: MessageProvider1<String, CharSequence>,
     ): StringValidator =
-        constrain(message.key) {
+        constrain(message.id) {
             satisfies(it.input.startsWith(prefix), message(it, prefix))
         }
 
@@ -268,14 +268,14 @@ private class StringValidatorImpl(
         suffix: CharSequence,
         message: MessageProvider1<String, CharSequence>,
     ): StringValidator =
-        constrain(message.key) {
+        constrain(message.id) {
             satisfies(it.input.endsWith(suffix), message(it, suffix))
         }
 
     override fun contains(
         infix: CharSequence,
         message: MessageProvider1<String, CharSequence>,
-    ) = constrain(message.key) {
+    ) = constrain(message.id) {
         satisfies(it.input.contains(infix), message(it, infix))
     }
 
@@ -283,12 +283,12 @@ private class StringValidatorImpl(
         pattern: Regex,
         message: MessageProvider1<String, Regex>,
     ): StringValidator =
-        constrain(message.key) {
+        constrain(message.id) {
             satisfies(pattern.matches(it.input), message(it, pattern))
         }
 
     override fun email(message: MessageProvider0<String>): StringValidator =
-        constrain(message.key) {
+        constrain(message.id) {
             val emailPattern =
                 Regex(
                     "^(?!\\.)(?!.*\\.\\.)([a-z0-9_'+\\-\\.]*)[a-z0-9_+-]@([a-z0-9][a-z0-9\\-]*\\.)+[a-z]{2,}\$",
@@ -298,47 +298,47 @@ private class StringValidatorImpl(
         }
 
     override fun isInt(message: MessageProvider0<String>): StringValidator =
-        constrain(message.key) {
+        constrain(message.id) {
             satisfies(it.input.toIntOrNull() != null, message(it))
         }
 
     override fun isLong(message: MessageProvider0<String>): StringValidator =
-        constrain(message.key) {
+        constrain(message.id) {
             satisfies(it.input.toLongOrNull() != null, message(it))
         }
 
     override fun isShort(message: MessageProvider0<String>): StringValidator =
-        constrain(message.key) {
+        constrain(message.id) {
             satisfies(it.input.toShortOrNull() != null, message(it))
         }
 
     override fun isByte(message: MessageProvider0<String>): StringValidator =
-        constrain(message.key) {
+        constrain(message.id) {
             satisfies(it.input.toByteOrNull() != null, message(it))
         }
 
     override fun isDouble(message: MessageProvider0<String>): StringValidator =
-        constrain(message.key) {
+        constrain(message.id) {
             satisfies(it.input.toDoubleOrNull() != null, message(it))
         }
 
     override fun isFloat(message: MessageProvider0<String>): StringValidator =
-        constrain(message.key) {
+        constrain(message.id) {
             satisfies(it.input.toFloatOrNull() != null, message(it))
         }
 
     override fun isBigDecimal(message: MessageProvider0<String>): StringValidator =
-        constrain(message.key) {
+        constrain(message.id) {
             satisfies(it.input.toBigDecimalOrNull() != null, message(it))
         }
 
     override fun isBigInteger(message: MessageProvider0<String>): StringValidator =
-        constrain(message.key) {
+        constrain(message.id) {
             satisfies(it.input.toBigIntegerOrNull() != null, message(it))
         }
 
     override fun isBoolean(message: MessageProvider0<String>): StringValidator =
-        constrain(message.key) {
+        constrain(message.id) {
             satisfies(it.input.toBooleanStrictOrNull() != null, message(it))
         }
 
@@ -348,18 +348,18 @@ private class StringValidatorImpl(
     ): StringValidator {
         val enumValues = klass.java.enumConstants
         val validNames = enumValues.map { it.name }
-        return this.constrain(message.key) { ctx ->
+        return this.constrain(message.id) { ctx ->
             satisfies(validNames.contains(ctx.input), message(ctx, validNames))
         }
     }
 
     override fun uppercase(message: MessageProvider0<String>): StringValidator =
-        constrain(message.key) {
+        constrain(message.id) {
             satisfies(it.input == it.input.uppercase(), message(it))
         }
 
     override fun lowercase(message: MessageProvider0<String>): StringValidator =
-        constrain(message.key) {
+        constrain(message.id) {
             satisfies(it.input == it.input.lowercase(), message(it))
         }
 
