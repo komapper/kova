@@ -51,12 +51,12 @@ private class ComparableValidatorImpl<T : Comparable<T>> internal constructor(
     override fun min(
         value: T,
         message: MessageProvider1<T, T>,
-    ): ComparableValidator<T> = constrain(message.key, Constraints.min(value, message))
+    ): ComparableValidator<T> = constrain(message.id, Constraints.min(value, message))
 
     override fun max(
         value: T,
         message: MessageProvider1<T, T>,
-    ): ComparableValidator<T> = constrain(message.key, Constraints.max(value, message))
+    ): ComparableValidator<T> = constrain(message.id, Constraints.max(value, message))
 
     override operator fun plus(other: Validator<T, T>): ComparableValidator<T> = and(other)
 

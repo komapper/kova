@@ -63,10 +63,10 @@ private class WithDefaultNullableValidatorImpl<T : Any, S : Any>(
     ): WithDefaultNullableValidator<T, S> = WithDefaultNullableValidatorImpl(id, after, Constraint(id, check))
 
     override fun isNull(message: MessageProvider0<T?>): WithDefaultNullableValidator<T, S> =
-        constrain(message.key, Constraints.isNull(message))
+        constrain(message.id, Constraints.isNull(message))
 
     override fun notNull(message: MessageProvider0<T?>): WithDefaultNullableValidator<T, S> =
-        constrain(message.key, Constraints.notNull(message))
+        constrain(message.id, Constraints.notNull(message))
 
     override operator fun plus(other: Validator<T?, S>): WithDefaultNullableValidator<T, S> = and(other)
 

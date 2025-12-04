@@ -72,7 +72,7 @@ private class UByteValidatorImpl(
         value: UByte,
         message: MessageProvider1<UByte, UByte>,
     ): UByteValidator =
-        constrain(message.key) {
+        constrain(message.id) {
             satisfies(it.input >= value, message(it, value))
         }
 
@@ -80,7 +80,7 @@ private class UByteValidatorImpl(
         value: UByte,
         message: MessageProvider1<UByte, UByte>,
     ): UByteValidator =
-        constrain(message.key) {
+        constrain(message.id) {
             satisfies(it.input <= value, message(it, value))
         }
 
@@ -88,7 +88,7 @@ private class UByteValidatorImpl(
         value: UByte,
         message: MessageProvider1<UByte, UByte>,
     ): UByteValidator =
-        constrain(message.key) {
+        constrain(message.id) {
             satisfies(it.input > value, message(it, value))
         }
 
@@ -96,7 +96,7 @@ private class UByteValidatorImpl(
         value: UByte,
         message: MessageProvider1<UByte, UByte>,
     ): UByteValidator =
-        constrain(message.key) {
+        constrain(message.id) {
             satisfies(it.input >= value, message(it, value))
         }
 
@@ -104,7 +104,7 @@ private class UByteValidatorImpl(
         value: UByte,
         message: MessageProvider1<UByte, UByte>,
     ): UByteValidator =
-        constrain(message.key) {
+        constrain(message.id) {
             satisfies(it.input < value, message(it, value))
         }
 
@@ -112,7 +112,7 @@ private class UByteValidatorImpl(
         value: UByte,
         message: MessageProvider1<UByte, UByte>,
     ): UByteValidator =
-        constrain(message.key) {
+        constrain(message.id) {
             satisfies(it.input <= value, message(it, value))
         }
 

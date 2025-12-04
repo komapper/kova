@@ -44,7 +44,7 @@ private class LiteralValidatorImpl<T : Any>(
         value: T,
         message: MessageProvider1<T, T>,
     ): LiteralValidator<T> =
-        constrain(message.key) {
+        constrain(message.id) {
             satisfies(it.input == value, message(it, value))
         }
 
@@ -52,7 +52,7 @@ private class LiteralValidatorImpl<T : Any>(
         values: List<T>,
         message: MessageProvider1<T, List<T>>,
     ): LiteralValidator<T> =
-        constrain(message.key) {
+        constrain(message.id) {
             satisfies(it.input in values, message(it, values))
         }
 

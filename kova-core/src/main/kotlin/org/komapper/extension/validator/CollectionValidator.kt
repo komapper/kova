@@ -112,7 +112,7 @@ private class CollectionValidatorImpl<E, C : Collection<E>>(
         size: Int,
         message: MessageProvider2<C, Int, Int>,
     ): CollectionValidator<E, C> =
-        constrain(message.key) {
+        constrain(message.id) {
             satisfies(it.input.size >= size, message(it, it.input.size, size))
         }
 
@@ -120,12 +120,12 @@ private class CollectionValidatorImpl<E, C : Collection<E>>(
         size: Int,
         message: MessageProvider2<C, Int, Int>,
     ): CollectionValidator<E, C> =
-        constrain(message.key) {
+        constrain(message.id) {
             satisfies(it.input.size <= size, message(it, it.input.size, size))
         }
 
     override fun notEmpty(message: MessageProvider0<C>): CollectionValidator<E, C> =
-        constrain(message.key) {
+        constrain(message.id) {
             satisfies(it.input.isNotEmpty(), message(it))
         }
 
@@ -133,7 +133,7 @@ private class CollectionValidatorImpl<E, C : Collection<E>>(
         size: Int,
         message: MessageProvider1<C, Int>,
     ): CollectionValidator<E, C> =
-        constrain(message.key) {
+        constrain(message.id) {
             satisfies(it.input.size == size, message(it, size))
         }
 

@@ -90,7 +90,7 @@ class WithDefaultNullableValidatorTest :
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].let {
-                    it.constraintId shouldBe "kova.or"
+                    it.id shouldBe "kova.or"
                     it.content shouldBe
                         "at least one constraint must be satisfied: [[Value 5 must be null], [Number 5 must be less than or equal to 3]]"
                 }
@@ -118,7 +118,7 @@ class WithDefaultNullableValidatorTest :
                 val result = isNullOrMin3Max3.tryValidate(5)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].constraintId shouldBe "kova.or"
+                result.messages[0].id shouldBe "kova.or"
             }
         }
 
@@ -157,7 +157,7 @@ class WithDefaultNullableValidatorTest :
                 val result = isNullOrMin3OrMin5AndThenMax4.tryValidate(2)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].constraintId shouldBe "kova.or"
+                result.messages[0].id shouldBe "kova.or"
             }
         }
 

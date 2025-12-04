@@ -15,8 +15,8 @@ package org.komapper.extension.validator
  * @param T The type being validated
  */
 interface MessageProvider0<T> {
-    /** The message key or identifier */
-    val key: String
+    /** The message identifier */
+    val id: String
 
     /**
      * Creates a message for the given constraint context.
@@ -44,8 +44,8 @@ interface MessageProvider0<T> {
  * @param A1 The type of the first argument
  */
 interface MessageProvider1<T, A1> {
-    /** The message key or identifier */
-    val key: String
+    /** The message identifier */
+    val id: String
 
     /**
      * Creates a message for the given constraint context and argument.
@@ -78,8 +78,8 @@ interface MessageProvider1<T, A1> {
  * @param A2 The type of the second argument
  */
 interface MessageProvider2<T, A1, A2> {
-    /** The message key or identifier */
-    val key: String
+    /** The message identifier */
+    val id: String
 
     /**
      * Creates a message for the given constraint context and arguments.
@@ -114,18 +114,18 @@ interface MessageProvider0Factory {
      * }): NumberValidator<Int>
      * ```
      *
-     * @param key Optional identifier for this message provider
+     * @param id Optional identifier for this message provider
      * @param get Function that generates the message text
      * @return A message provider
      */
     fun <T> text0(
-        key: String = "",
+        id: String = "",
         get: (ConstraintContext<T>) -> String,
     ): MessageProvider0<T> =
         object : MessageProvider0<T> {
-            override val key: String = key
+            override val id: String = id
 
-            override fun invoke(context: ConstraintContext<T>): Message = Message.Text(get(context))
+            override fun invoke(context: ConstraintContext<T>): Message = Message.Text(id, get(context))
         }
 
     /**
@@ -138,14 +138,14 @@ interface MessageProvider0Factory {
      * fun notBlank(message: MessageProvider0<String> = Message.resource0("kova.string.notBlank")): StringValidator
      * ```
      *
-     * @param key The resource bundle key
+     * @param id The resource bundle key
      * @return A message provider that loads messages from resources
      */
-    fun <T> resource0(key: String): MessageProvider0<T> =
+    fun <T> resource0(id: String): MessageProvider0<T> =
         object : MessageProvider0<T> {
-            override val key: String = key
+            override val id: String = id
 
-            override fun invoke(context: ConstraintContext<T>): Message = Message.Resource(key, context.input)
+            override fun invoke(context: ConstraintContext<T>): Message = Message.Resource(id, context.input)
         }
 }
 
@@ -170,21 +170,21 @@ interface MessageProvider1Factory {
      * ): StringValidator
      * ```
      *
-     * @param key Optional identifier for this message provider
+     * @param id Optional identifier for this message provider
      * @param get Function that generates the message text from context and argument
      * @return A message provider
      */
     fun <T, A1> text1(
-        key: String = "",
+        id: String = "",
         get: (ConstraintContext<T>, A1) -> String,
     ): MessageProvider1<T, A1> =
         object : MessageProvider1<T, A1> {
-            override val key: String = key
+            override val id: String = id
 
             override fun invoke(
                 context: ConstraintContext<T>,
                 arg1: A1,
-            ): Message = Message.Text(get(context, arg1))
+            ): Message = Message.Text(id, get(context, arg1))
         }
 
     /**
@@ -206,17 +206,17 @@ interface MessageProvider1Factory {
      * ): StringValidator
      * ```
      *
-     * @param key The resource bundle key
+     * @param id The resource bundle key
      * @return A message provider that loads messages from resources
      */
-    fun <T, A1> resource1(key: String): MessageProvider1<T, A1> =
+    fun <T, A1> resource1(id: String): MessageProvider1<T, A1> =
         object : MessageProvider1<T, A1> {
-            override val key: String = key
+            override val id: String = id
 
             override fun invoke(
                 context: ConstraintContext<T>,
                 arg1: A1,
-            ): Message = Message.Resource(key, context.input, arg1)
+            ): Message = Message.Resource(id, context.input, arg1)
         }
 }
 
@@ -242,22 +242,22 @@ interface MessageProvider2Factory {
      * ): NumberValidator<Int>
      * ```
      *
-     * @param key Optional identifier for this message provider
+     * @param id Optional identifier for this message provider
      * @param get Function that generates the message text from context and arguments
      * @return A message provider
      */
     fun <T, A1, A2> text2(
-        key: String = "",
+        id: String = "",
         get: (ConstraintContext<T>, A1, A2) -> String,
     ): MessageProvider2<T, A1, A2> =
         object : MessageProvider2<T, A1, A2> {
-            override val key: String = key
+            override val id: String = id
 
             override fun invoke(
                 context: ConstraintContext<T>,
                 arg1: A1,
                 arg2: A2,
-            ): Message = Message.Text(get(context, arg1, arg2))
+            ): Message = Message.Text(id, get(context, arg1, arg2))
         }
 
     /**
@@ -280,17 +280,17 @@ interface MessageProvider2Factory {
      * ): CollectionValidator<E, C>
      * ```
      *
-     * @param key The resource bundle key
+     * @param id The resource bundle key
      * @return A message provider that loads messages from resources
      */
-    fun <T, A1, A2> resource2(key: String): MessageProvider2<T, A1, A2> =
+    fun <T, A1, A2> resource2(id: String): MessageProvider2<T, A1, A2> =
         object : MessageProvider2<T, A1, A2> {
-            override val key: String = key
+            override val id: String = id
 
             override fun invoke(
                 context: ConstraintContext<T>,
                 arg1: A1,
                 arg2: A2,
-            ): Message = Message.Resource(key, context.input, arg1, arg2)
+            ): Message = Message.Resource(id, context.input, arg1, arg2)
         }
 }
