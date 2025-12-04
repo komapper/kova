@@ -203,144 +203,160 @@ open class ObjectSchema<T : Any> private constructor(
     }
 
     /**
-     * Creates an argument from a raw value and its validator.
+     * Binds a validator to a specific value, creating an ObjectFactory.
      *
-     * Used with [arguments] to build objects from validated inputs.
-     *
-     * @param value The input value to validate
-     * @param validator The validator to apply to the value
-     * @return An Arg that can be passed to the arguments builder
-     */
-    fun <IN, OUT> arg(
-        value: IN,
-        validator: Validator<IN, OUT>,
-    ): Arg<OUT> = Arg.Value(value, validator)
-
-    /**
-     * Creates an argument from an ObjectFactory and its validator.
-     *
-     * Used with [arguments] to build nested objects from validated inputs.
-     *
-     * @param factory The ObjectFactory that creates the nested object
-     * @param validator The validator to apply to the created object
-     * @return An Arg that can be passed to the arguments builder
-     */
-    fun <IN, OUT> arg(
-        factory: ObjectFactory<IN>,
-        validator: Validator<IN, OUT>,
-    ): Arg<OUT> = Arg.Factory(factory, validator)
-
-    /**
-     * Creates an object factory with 1 validated argument.
-     *
-     * Use this to validate inputs and construct objects in a type-safe way.
+     * This extension function converts a validator and its input value into an ObjectFactory
+     * that can be used with the `create` method for nested object validation and construction.
      *
      * Example:
      * ```kotlin
      * object PersonSchema : ObjectSchema<Person>() {
-     *     private val name = Person::name { Kova.string().min(1) }
+     *     private val nameV = Person::name { Kova.string().min(1) }
+     *     private val ageV = Person::age { Kova.int().min(0) }
      *
-     *     fun build(nameInput: String) =
-     *         arguments(arg(nameInput, name)).build(::Person)
+     *     fun bind(name: String, ageFactory: ObjectFactory<Int>) =
+     *         create(::Person, nameV.bind(name), ageFactory)
+     *
+     *     fun bind(name: String, age: Int) =
+     *         create(::Person, nameV.bind(name), ageV.bind(age))
      * }
-     * val result = PersonSchema.build("Alice").tryCreate()
      * ```
+     *
+     * @param value The input value to validate
+     * @return An ObjectFactory that executes the validator with the bound value
      */
-    fun <T0> arguments(arg0: Arg<T0>) = Arguments(this, arg0)
+    fun <IN, OUT> Validator<IN, OUT>.bind(value: IN): ObjectFactory<OUT> =
+        ObjectFactory {
+            execute(value, it.bindObject(value))
+        }
 
     /**
-     * Creates an object factory with 2 validated arguments.
+     * Creates an object factory with 1 ObjectFactory argument.
      *
-     * @see arguments for usage examples
+     * This method validates and constructs objects from nested ObjectFactories.
+     * Use this when you need to compose multiple validations together.
+     *
+     * Example:
+     * ```kotlin
+     * object PersonSchema : ObjectSchema<Person>() {
+     *     private val nameV = Person::name { Kova.string().min(1) }
+     *
+     *     fun build(name: String) =
+     *         create(::Person, nameV.bind(name))
+     * }
+     * ```
+     *
+     * @param ctor The constructor function to create the object
+     * @param arg0 The ObjectFactory for the first argument
+     * @return An ObjectFactory that validates inputs and constructs the object
      */
-    fun <T0, T1> arguments(
-        arg0: Arg<T0>,
-        arg1: Arg<T1>,
-    ) = Arguments1(this, arg0, arg1)
+    fun <T0> create(
+        ctor: (T0) -> T,
+        arg0: ObjectFactory<T0>,
+    ): ObjectFactory<T> = createObjectFactory(this, ctor, arg0)
 
-    /** Creates an object factory with 3 validated arguments. @see arguments */
-    fun <T0, T1, T2> arguments(
-        arg0: Arg<T0>,
-        arg1: Arg<T1>,
-        arg2: Arg<T2>,
-    ) = Arguments2(this, arg0, arg1, arg2)
+    /**
+     * Creates an object factory with 2 ObjectFactory arguments.
+     *
+     * @see create for usage examples
+     */
+    fun <T0, T1> create(
+        ctor: (T0, T1) -> T,
+        arg0: ObjectFactory<T0>,
+        arg1: ObjectFactory<T1>,
+    ): ObjectFactory<T> = createObjectFactory(this, ctor, arg0, arg1)
 
-    /** Creates an object factory with 4 validated arguments. @see arguments */
-    fun <T0, T1, T2, T3> arguments(
-        arg0: Arg<T0>,
-        arg1: Arg<T1>,
-        arg2: Arg<T2>,
-        arg3: Arg<T3>,
-    ) = Arguments3(this, arg0, arg1, arg2, arg3)
+    /** Creates an object factory with 3 ObjectFactory arguments. @see create */
+    fun <T0, T1, T2> create(
+        ctor: (T0, T1, T2) -> T,
+        arg0: ObjectFactory<T0>,
+        arg1: ObjectFactory<T1>,
+        arg2: ObjectFactory<T2>,
+    ): ObjectFactory<T> = createObjectFactory(this, ctor, arg0, arg1, arg2)
 
-    /** Creates an object factory with 5 validated arguments. @see arguments */
-    fun <T0, T1, T2, T3, T4> arguments(
-        arg0: Arg<T0>,
-        arg1: Arg<T1>,
-        arg2: Arg<T2>,
-        arg3: Arg<T3>,
-        arg4: Arg<T4>,
-    ) = Arguments4(this, arg0, arg1, arg2, arg3, arg4)
+    /** Creates an object factory with 4 ObjectFactory arguments. @see create */
+    fun <T0, T1, T2, T3> create(
+        ctor: (T0, T1, T2, T3) -> T,
+        arg0: ObjectFactory<T0>,
+        arg1: ObjectFactory<T1>,
+        arg2: ObjectFactory<T2>,
+        arg3: ObjectFactory<T3>,
+    ): ObjectFactory<T> = createObjectFactory(this, ctor, arg0, arg1, arg2, arg3)
 
-    /** Creates an object factory with 6 validated arguments. @see arguments */
-    fun <T0, T1, T2, T3, T4, T5> arguments(
-        arg0: Arg<T0>,
-        arg1: Arg<T1>,
-        arg2: Arg<T2>,
-        arg3: Arg<T3>,
-        arg4: Arg<T4>,
-        arg5: Arg<T5>,
-    ) = Arguments5(this, arg0, arg1, arg2, arg3, arg4, arg5)
+    /** Creates an object factory with 5 ObjectFactory arguments. @see create */
+    fun <T0, T1, T2, T3, T4> create(
+        ctor: (T0, T1, T2, T3, T4) -> T,
+        arg0: ObjectFactory<T0>,
+        arg1: ObjectFactory<T1>,
+        arg2: ObjectFactory<T2>,
+        arg3: ObjectFactory<T3>,
+        arg4: ObjectFactory<T4>,
+    ): ObjectFactory<T> = createObjectFactory(this, ctor, arg0, arg1, arg2, arg3, arg4)
 
-    /** Creates an object factory with 7 validated arguments. @see arguments */
-    fun <T0, T1, T2, T3, T4, T5, T6> arguments(
-        arg0: Arg<T0>,
-        arg1: Arg<T1>,
-        arg2: Arg<T2>,
-        arg3: Arg<T3>,
-        arg4: Arg<T4>,
-        arg5: Arg<T5>,
-        arg6: Arg<T6>,
-    ) = Arguments6(this, arg0, arg1, arg2, arg3, arg4, arg5, arg6)
+    /** Creates an object factory with 6 ObjectFactory arguments. @see create */
+    fun <T0, T1, T2, T3, T4, T5> create(
+        ctor: (T0, T1, T2, T3, T4, T5) -> T,
+        arg0: ObjectFactory<T0>,
+        arg1: ObjectFactory<T1>,
+        arg2: ObjectFactory<T2>,
+        arg3: ObjectFactory<T3>,
+        arg4: ObjectFactory<T4>,
+        arg5: ObjectFactory<T5>,
+    ): ObjectFactory<T> = createObjectFactory(this, ctor, arg0, arg1, arg2, arg3, arg4, arg5)
 
-    /** Creates an object factory with 8 validated arguments. @see arguments */
-    fun <T0, T1, T2, T3, T4, T5, T6, T7> arguments(
-        arg0: Arg<T0>,
-        arg1: Arg<T1>,
-        arg2: Arg<T2>,
-        arg3: Arg<T3>,
-        arg4: Arg<T4>,
-        arg5: Arg<T5>,
-        arg6: Arg<T6>,
-        arg7: Arg<T7>,
-    ) = Arguments7(this, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
+    /** Creates an object factory with 7 ObjectFactory arguments. @see create */
+    fun <T0, T1, T2, T3, T4, T5, T6> create(
+        ctor: (T0, T1, T2, T3, T4, T5, T6) -> T,
+        arg0: ObjectFactory<T0>,
+        arg1: ObjectFactory<T1>,
+        arg2: ObjectFactory<T2>,
+        arg3: ObjectFactory<T3>,
+        arg4: ObjectFactory<T4>,
+        arg5: ObjectFactory<T5>,
+        arg6: ObjectFactory<T6>,
+    ): ObjectFactory<T> = createObjectFactory(this, ctor, arg0, arg1, arg2, arg3, arg4, arg5, arg6)
 
-    /** Creates an object factory with 9 validated arguments. @see arguments */
-    fun <T0, T1, T2, T3, T4, T5, T6, T7, T8> arguments(
-        arg0: Arg<T0>,
-        arg1: Arg<T1>,
-        arg2: Arg<T2>,
-        arg3: Arg<T3>,
-        arg4: Arg<T4>,
-        arg5: Arg<T5>,
-        arg6: Arg<T6>,
-        arg7: Arg<T7>,
-        arg8: Arg<T8>,
-    ) = Arguments8(this, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8)
+    /** Creates an object factory with 8 ObjectFactory arguments. @see create */
+    fun <T0, T1, T2, T3, T4, T5, T6, T7> create(
+        ctor: (T0, T1, T2, T3, T4, T5, T6, T7) -> T,
+        arg0: ObjectFactory<T0>,
+        arg1: ObjectFactory<T1>,
+        arg2: ObjectFactory<T2>,
+        arg3: ObjectFactory<T3>,
+        arg4: ObjectFactory<T4>,
+        arg5: ObjectFactory<T5>,
+        arg6: ObjectFactory<T6>,
+        arg7: ObjectFactory<T7>,
+    ): ObjectFactory<T> = createObjectFactory(this, ctor, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
 
-    /** Creates an object factory with 10 validated arguments. @see arguments */
-    fun <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> arguments(
-        arg0: Arg<T0>,
-        arg1: Arg<T1>,
-        arg2: Arg<T2>,
-        arg3: Arg<T3>,
-        arg4: Arg<T4>,
-        arg5: Arg<T5>,
-        arg6: Arg<T6>,
-        arg7: Arg<T7>,
-        arg8: Arg<T8>,
-        arg9: Arg<T9>,
-    ) = Arguments9(this, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)
+    /** Creates an object factory with 9 ObjectFactory arguments. @see create */
+    fun <T0, T1, T2, T3, T4, T5, T6, T7, T8> create(
+        ctor: (T0, T1, T2, T3, T4, T5, T6, T7, T8) -> T,
+        arg0: ObjectFactory<T0>,
+        arg1: ObjectFactory<T1>,
+        arg2: ObjectFactory<T2>,
+        arg3: ObjectFactory<T3>,
+        arg4: ObjectFactory<T4>,
+        arg5: ObjectFactory<T5>,
+        arg6: ObjectFactory<T6>,
+        arg7: ObjectFactory<T7>,
+        arg8: ObjectFactory<T8>,
+    ): ObjectFactory<T> = createObjectFactory(this, ctor, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8)
+
+    /** Creates an object factory with 10 ObjectFactory arguments. @see create */
+    fun <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> create(
+        ctor: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9) -> T,
+        arg0: ObjectFactory<T0>,
+        arg1: ObjectFactory<T1>,
+        arg2: ObjectFactory<T2>,
+        arg3: ObjectFactory<T3>,
+        arg4: ObjectFactory<T4>,
+        arg5: ObjectFactory<T5>,
+        arg6: ObjectFactory<T6>,
+        arg7: ObjectFactory<T7>,
+        arg8: ObjectFactory<T8>,
+        arg9: ObjectFactory<T9>,
+    ): ObjectFactory<T> = createObjectFactory(this, ctor, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)
 }
 
 internal data class Rule(

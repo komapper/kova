@@ -44,14 +44,14 @@ class MainTest :
 
         context("UserSchema creation with ObjectFactory") {
             test("success - valid inputs") {
-                val result = UserSchema.build("Alice", 30).tryCreate()
+                val result = UserSchema.bind("Alice", 30).tryCreate()
 
                 result.shouldBeInstanceOf<ValidationResult.Success<User>>()
                 result.value shouldBe User("Alice", 30)
             }
 
             test("failure - invalid inputs") {
-                val result = UserSchema.build("", -1).tryCreate()
+                val result = UserSchema.bind("", -1).tryCreate()
 
                 result.shouldBeInstanceOf<ValidationResult.Failure>()
                 val messages = result.messages.map { it.content }
@@ -64,14 +64,14 @@ class MainTest :
 
         context("AgeSchema validation and creation") {
             test("success - valid age string") {
-                val result = AgeSchema.build("30").tryCreate()
+                val result = AgeSchema.bind("30").tryCreate()
 
                 result.shouldBeInstanceOf<ValidationResult.Success<Age>>()
                 result.value shouldBe Age(30)
             }
 
             test("failure - non-numeric string") {
-                val result = AgeSchema.build("not a number").tryCreate()
+                val result = AgeSchema.bind("not a number").tryCreate()
 
                 result.shouldBeInstanceOf<ValidationResult.Failure>()
                 val messages = result.messages.map { it.content }
@@ -79,7 +79,7 @@ class MainTest :
             }
 
             test("failure - age out of range") {
-                val result = AgeSchema.build("150").tryCreate()
+                val result = AgeSchema.bind("150").tryCreate()
 
                 result.shouldBeInstanceOf<ValidationResult.Failure>()
                 val messages = result.messages.map { it.content }
@@ -89,14 +89,14 @@ class MainTest :
 
         context("PersonSchema nested validation") {
             test("success - valid person") {
-                val result = PersonSchema.build("Alice", "30").tryCreate()
+                val result = PersonSchema.bind("Alice", "30").tryCreate()
 
                 result.shouldBeInstanceOf<ValidationResult.Success<Person>>()
                 result.value shouldBe Person("Alice", Age(30))
             }
 
             test("failure - invalid name and non-numeric age") {
-                val result = PersonSchema.build("", "not number").tryCreate()
+                val result = PersonSchema.bind("", "not number").tryCreate()
 
                 result.shouldBeInstanceOf<ValidationResult.Failure>()
                 val messages = result.messages.map { it.content }
@@ -107,7 +107,7 @@ class MainTest :
             }
 
             test("failure - blank name") {
-                val result = PersonSchema.build("   ", "25").tryCreate()
+                val result = PersonSchema.bind("   ", "25").tryCreate()
 
                 result.shouldBeInstanceOf<ValidationResult.Failure>()
                 val messages = result.messages.map { it.content }

@@ -60,36 +60,35 @@ class KovaTest :
 
             val userSchema =
                 object : ObjectSchema<User>() {
-                    val name = User::name { Kova.nullable<String>().isNull().or(Kova.literal("")) }
-                    val age = User::age { Kova.nullable<Int>().isNull().or(Kova.literal(0)) }
+                    val nameV = User::name { Kova.nullable<String>().isNull().or(Kova.literal("")) }
+                    val ageV = User::age { Kova.nullable<Int>().isNull().or(Kova.literal(0)) }
 
-                    fun build(
+                    fun bind(
                         name: String?,
                         age: Int?,
                     ): ObjectFactory<User> {
-                        val arg0 = arg(name, this.name)
-                        val arg1 = arg(age, this.age)
-                        val arguments = arguments(arg0, arg1)
-                        return arguments.build(::User)
+                        val name = nameV.bind(name)
+                        val age = ageV.bind(age)
+                        return create(::User, name, age)
                     }
                 }
 
             test("success - null") {
-                val userFactory = userSchema.build(null, null)
+                val userFactory = userSchema.bind(null, null)
                 val result = userFactory.tryCreate()
                 result.isSuccess().mustBeTrue(result.toString())
                 result.value shouldBe User(null, null)
             }
 
             test("success - non-null") {
-                val userFactory = userSchema.build("", 0)
+                val userFactory = userSchema.bind("", 0)
                 val result = userFactory.tryCreate()
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe User("", 0)
             }
 
             test("failure") {
-                val userFactory = userSchema.build("abc", 10)
+                val userFactory = userSchema.bind("abc", 10)
                 val result = userFactory.tryCreate()
                 result.isFailure().mustBeTrue(result.messages.toString())
                 result.messages.size shouldBe 2

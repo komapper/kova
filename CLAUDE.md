@@ -49,13 +49,13 @@ object PeriodSchema : ObjectSchema<Period>({
 **Object factory (validate + construct):**
 ```kotlin
 object PersonSchema : ObjectSchema<Person>() {
-    private val name = Person::name { Kova.string().min(1) }
-    private val age = Person::age { Kova.int().min(0) }
+    private val nameV = Person::name { Kova.string().min(1) }
+    private val ageV = Person::age { Kova.int().min(0) }
 
-    fun build(name: String, age: Int) =
-        arguments(arg(name, this.name), arg(age, this.age)).build(::Person)
+    fun bind(name: String, age: Int) =
+        create(::Person, nameV.bind(name), ageV.bind(age))
 }
-val result = PersonSchema.build("Alice", 30).tryCreate()
+val result = PersonSchema.bind("Alice", 30).tryCreate()
 ```
 
 **Temporal validators:**
@@ -105,14 +105,20 @@ Properties must be object properties (not in constructor lambda) since the `invo
 - Access message content via `.content` property
 - OR failures automatically compose messages showing both validation branches
 
+### ObjectFactory Pattern
+- **`bind(value)`**: Extension method on validators that creates an ObjectFactory from a validator and value
+- **`create(constructor, ...factories)`**: Methods on ObjectSchema that validate ObjectFactories and construct objects (supports 1-10 arguments)
+- **`tryCreate(config)`**: Execute ObjectFactory, returning ValidationResult
+- **`create(config)`**: Execute ObjectFactory, returning object or throwing ValidationException
+
 ## Key Files
 - `Kova.kt` - Main API entry point
 - `Validator.kt` - Core interface and composition operators (`+`, `and`, `or`, `map`, `then`, `chain`)
 - `ValidationResult.kt` - Result types (`Success`, `Failure`) and `FailureDetail` interface
 - `ValidationContext.kt` - State tracking with circular reference detection
 - `ValidationConfig.kt` - Centralized validation settings (failFast, locale)
-- `ObjectSchema.kt` - Object validation with property rules
-- `ObjectFactory.kt` - Validate + construct (supports 1-10 args)
+- `ObjectSchema.kt` - Object validation with property rules, bind/create methods for object construction
+- `ObjectFactory.kt` - Object construction interface and internal createObjectFactory functions (1-10 args)
 - `ConstraintValidator.kt` - Converts `ConstraintResult` to `ValidationResult`
 - `Constraints.kt` - Shared constraint utilities (`min`, `max`, `isNull`, `notNull`)
 - `Message.kt` - Message types (Text, Resource, ValidationFailure)

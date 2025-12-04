@@ -133,19 +133,17 @@ import org.komapper.extension.validator.ObjectSchema
 data class Person(val name: String, val age: Int)
 
 object PersonSchema : ObjectSchema<Person>() {
-    private val name = Person::name { Kova.string().min(1).max(50) }
-    private val age = Person::age { Kova.int().min(0).max(150) }
+    private val nameV = Person::name { Kova.string().min(1).max(50) }
+    private val ageV = Person::age { Kova.int().min(0).max(150) }
 
     // Create a factory method that builds an ObjectFactory
-    fun build(name: String, age: Int): ObjectFactory<Person> {
-        val arg0 = arg(name, this.name)
-        val arg1 = arg(age, this.age)
-        return arguments(arg0, arg1).build(::Person)
+    fun bind(name: String, age: Int): ObjectFactory<Person> {
+        return create(::Person, nameV.bind(name), ageV.bind(age))
     }
 }
 
 // Use the factory to validate and construct
-val factory = PersonSchema.build("Alice", 30)
+val factory = PersonSchema.bind("Alice", 30)
 val result = factory.tryCreate()  // Returns ValidationResult<Person>
 // or
 val person = factory.create()     // Returns Person or throws ValidationException
@@ -157,38 +155,33 @@ data class Age(val value: Int)
 data class Person(val name: String, val age: Age)
 
 object AgeSchema : ObjectSchema<Age>() {
-    private val value = Age::value { Kova.int().min(0).max(120) }
+    private val valueV = Age::value { Kova.int().min(0).max(120) }
 
-    fun build(age: String): ObjectFactory<Age> {
-        val arg0 = arg(age, Kova.string().toInt().then(this.value))
-        return arguments(arg0).build(::Age)
+    fun bind(age: String): ObjectFactory<Age> {
+        return create(::Age, Kova.string().toInt().then(valueV).bind(age))
     }
 }
 
 object PersonSchema : ObjectSchema<Person>() {
-    private val name = Person::name { Kova.string().min(1) }
-    private val age = Person::age { AgeSchema }
+    private val nameV = Person::name { Kova.string().min(1) }
+    private val ageV = Person::age { AgeSchema }
 
-    fun build(name: String, age: String): ObjectFactory<Person> {
-        val arg0 = arg(name, this.name)
-        val arg1 = arg(this.age.build(age), this.age)  // Nested factory
-        return arguments(arg0, arg1).build(::Person)
+    fun bind(name: String, age: String): ObjectFactory<Person> {
+        return create(::Person, nameV.bind(name), ageV.bind(age))
     }
 }
 
-val factory = PersonSchema.build("Bob", "25")
+val factory = PersonSchema.bind("Bob", "25")
 val person = factory.create()  // Validates and constructs nested objects
 ```
 
 **Key Components**:
-- **`ObjectSchema.arg(value, validator)`**: Creates an `Arg` that wraps an input value and validator
-- **`ObjectSchema.arg(factory, validator)`**: Creates an `Arg` that wraps a nested ObjectFactory and validator (for nested objects)
-- **`ObjectSchema.arguments(...)`**: Creates an `Arguments` through `Arguments9` object (supports 1-10 arguments)
-- **`Arguments.build(constructor)`**: Creates an `ObjectFactory` that validates inputs and constructs objects
-- **`ObjectFactory.tryCreate(failFast = false)`**: Validates and constructs, returning `ValidationResult<T>`
-- **`ObjectFactory.create(failFast = false)`**: Validates and constructs, returning `T` or throwing `ValidationException`
+- **`Validator.bind(value)`**: Extension method that creates an `ObjectFactory` from a validator and input value
+- **`ObjectSchema.create(constructor, ...factories)`**: Creates an `ObjectFactory` that validates ObjectFactories and constructs objects (supports 1-10 arguments)
+- **`ObjectFactory.tryCreate(config = ValidationConfig())`**: Validates and constructs, returning `ValidationResult<T>`
+- **`ObjectFactory.create(config = ValidationConfig())`**: Validates and constructs, returning `T` or throwing `ValidationException`
 
-**Note**: Properties must be defined as object properties because the `invoke` operator for property definitions is only available on the `ObjectSchema` class itself. This also allows properties to be referenced when creating `Arg` instances for ObjectFactory. The `arguments()` method passes the schema itself to the `Arguments` constructor, which is used for validating the constructed object via the `build()` method.
+**Note**: Properties must be defined as object properties because the `invoke` operator for property definitions is only available on the `ObjectSchema` class itself. This also allows properties to be referenced when binding values. The `create()` method uses the schema's validator to validate the constructed object.
 
 ### Nullable Validation
 
