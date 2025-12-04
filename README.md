@@ -27,7 +27,7 @@ dependencies {
 - **Fail-Fast Support**: Option to stop validation at the first error or collect all errors
 - **Nullable Support**: First-class support for nullable types
 - **Object Construction**: Validate inputs and construct objects in a single step
-- **Reflection-Based**: Uses Kotlin reflection for property binding and object construction
+- **Zero Dependencies**: No external runtime dependencies, only requires Kotlin standard library
 
 ## Quick Start
 
