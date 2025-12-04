@@ -24,42 +24,44 @@ data class Person(
 )
 
 object UserSchema : ObjectSchema<User>() {
-    private val name = User::name { Kova.string().min(1).notBlank() }
-    private val age = User::age { Kova.int().min(0).max(120) }
+    private val nameV = User::name { Kova.string().min(1).notBlank() }
+    private val ageV = User::age { Kova.int().min(0).max(120) }
 
-    fun build(
+    fun bind(
         name: String,
         age: Int,
     ): ObjectFactory<User> {
-        val arg0 = arg(name, this.name)
-        val arg1 = arg(age, this.age)
-        val arguments = arguments(arg0, arg1)
-        return arguments.build(::User)
+        val name = nameV.bind(name)
+        val age = ageV.bind(age)
+        return create(::User, name, age)
     }
 }
 
 object AgeSchema : ObjectSchema<Age>() {
-    private val value = Age::value { Kova.int().min(0).max(120) }
+    private val valueV = Age::value { Kova.int().min(0).max(120) }
 
-    fun build(age: String): ObjectFactory<Age> {
-        val arg0 = arg(age, Kova.string().toInt().then(this.value))
-        val arguments = arguments(arg0)
-        return arguments.build(::Age)
+    fun bind(age: String): ObjectFactory<Age> {
+        val age =
+            Kova
+                .string()
+                .toInt()
+                .then(valueV)
+                .bind(age)
+        return create(::Age, age)
     }
 }
 
 object PersonSchema : ObjectSchema<Person>() {
-    private val name = Person::name { Kova.string().min(1).notBlank() }
-    private val age = Person::age { AgeSchema }
+    private val nameV = Person::name { Kova.string().min(1).notBlank() }
+    private val ageV = Person::age { AgeSchema }
 
-    fun build(
+    fun bind(
         name: String,
         age: String,
     ): ObjectFactory<Person> {
-        val arg0 = arg(name, this.name)
-        val arg1 = arg(this.age.build(age), this.age)
-        val arguments = arguments(arg0, arg1)
-        return arguments.build(::Person)
+        val name = nameV.bind(name)
+        val age = ageV.bind(age)
+        return create(::Person, name, age)
     }
 }
 
@@ -71,6 +73,7 @@ fun main() {
             // Success: User(name=a, age=10)
             println("Success: ${result.value}")
         }
+
         is ValidationResult.Failure -> error("never happens")
     }
     println("##Failure")
@@ -84,15 +87,16 @@ fun main() {
 
     println("\n#Creation")
     println("##Success")
-    when (val result = UserSchema.build("a", 10).tryCreate()) {
+    when (val result = UserSchema.bind("a", 10).tryCreate()) {
         is ValidationResult.Success -> {
             // Success: User(name=a, age=10)
             println("Success: ${result.value}")
         }
+
         is ValidationResult.Failure -> error("never happens")
     }
     println("##Failure")
-    when (val result = UserSchema.build("", -1).tryCreate()) {
+    when (val result = UserSchema.bind("", -1).tryCreate()) {
         is ValidationResult.Success -> error("never happens")
         is ValidationResult.Failure -> {
             // Failure: ["" must be at least 1 characters, "" must not be blank, Number -1 must be greater than or equal to 0]
@@ -102,15 +106,16 @@ fun main() {
 
     println("\n#Creation(nest)")
     println("##Success")
-    when (val result = PersonSchema.build("a", "30").tryCreate()) {
+    when (val result = PersonSchema.bind("a", "30").tryCreate()) {
         is ValidationResult.Success -> {
             // Person(name=a, age=Age(value=30))
             println("Success: ${result.value}")
         }
+
         is ValidationResult.Failure -> error("never happens")
     }
     println("##Failure")
-    when (val result = PersonSchema.build("", "not number").tryCreate()) {
+    when (val result = PersonSchema.bind("", "not number").tryCreate()) {
         is ValidationResult.Success -> error("never happens")
         is ValidationResult.Failure -> {
             // Failure: ["" must be at least 1 characters, "" must not be blank, "not number" must be an int]

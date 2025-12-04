@@ -68,6 +68,11 @@ fun ValidationContext.addPath(
     return copy(path = path)
 }
 
+fun ValidationContext.bindObject(obj: Any?): ValidationContext {
+    val path = this.path.copy(obj = obj)
+    return copy(path = path)
+}
+
 fun <T> ValidationContext.addPathChecked(
     name: String,
     obj: T,

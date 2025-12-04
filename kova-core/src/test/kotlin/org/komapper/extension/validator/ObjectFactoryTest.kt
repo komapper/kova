@@ -30,29 +30,28 @@ class ObjectFactoryTest :
 
             val userSchema =
                 object : ObjectSchema<User>() {
-                    private val name = User::name { Kova.nullable() }
-                    private val age = User::age { Kova.int().asNullable() }
+                    private val nameV = User::name { Kova.nullable() }
+                    private val ageV = User::age { Kova.int().asNullable() }
 
-                    fun build(
+                    fun bind(
                         name: String?,
                         age: Int?,
                     ): ObjectFactory<User> {
-                        val arg1 = arg(name, this.name.withDefault(""))
-                        val arg2 = arg(age, this.age.withDefault(0))
-                        val arguments = arguments(arg1, arg2)
-                        return arguments.build(::User)
+                        val arg0 = nameV.withDefault("").bind(name)
+                        val arg1 = ageV.withDefault(0).bind(age)
+                        return create(::User, arg0, arg1)
                     }
                 }
 
             test("success - null") {
-                val userFactory = userSchema.build(null, null)
+                val userFactory = userSchema.bind(null, null)
                 val result = userFactory.tryCreate()
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe User("", 0)
             }
 
             test("success - non-null") {
-                val userFactory = userSchema.build("abc", 10)
+                val userFactory = userSchema.bind("abc", 10)
                 val result = userFactory.tryCreate()
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe User("abc", 10)
@@ -66,30 +65,29 @@ class ObjectFactoryTest :
 
             val userSchema =
                 object : ObjectSchema<User>() {
-                    private val id = User::id { Kova.int().min(1) }
+                    private val idV = User::id { Kova.int().min(1) }
 
-                    fun build(id: Int): ObjectFactory<User> {
-                        val arg1 = arg(id, this.id)
-                        val arguments = arguments(arg1)
-                        return arguments.build(::User)
+                    fun bind(id: Int): ObjectFactory<User> {
+                        val arg0 = idV.bind(id)
+                        return create(::User, arg0)
                     }
                 }
 
             test("success - tryCreate") {
-                val factory = userSchema.build(1)
+                val factory = userSchema.bind(1)
                 val result = factory.tryCreate()
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe User(1)
             }
 
             test("success - create") {
-                val factory = userSchema.build(1)
+                val factory = userSchema.bind(1)
                 val user = factory.create()
                 user shouldBe User(1)
             }
 
             test("failure - tryCreate") {
-                val factory = userSchema.build(-1)
+                val factory = userSchema.bind(-1)
                 val result = factory.tryCreate()
                 result.isFailure().mustBeTrue()
                 result.details.size shouldBe 1
@@ -100,7 +98,7 @@ class ObjectFactoryTest :
             }
 
             test("failure - create") {
-                val factory = userSchema.build(-1)
+                val factory = userSchema.bind(-1)
                 val ex =
                     shouldThrow<ValidationException> {
                         factory.create()
@@ -122,36 +120,35 @@ class ObjectFactoryTest :
 
             val userSchema =
                 object : ObjectSchema<User>() {
-                    private val id = User::id { Kova.int().min(1) }
-                    private val name = User::name { Kova.string().min(1).max(10) }
+                    private val idV = User::id { Kova.int().min(1) }
+                    private val nameV = User::name { Kova.string().min(1).max(10) }
 
-                    fun build(
+                    fun bind(
                         id: Int,
                         name: String,
                     ): ObjectFactory<User> {
-                        val arg1 = arg(id, this.id)
-                        val arg2 = arg(name, this.name)
-                        val arguments = arguments(arg1, arg2)
-                        return arguments.build(::User)
+                        val id = idV.bind(id)
+                        val name = nameV.bind(name)
+                        return create(::User, id, name)
                     }
                 }
 
             test("success") {
-                val userFactory = userSchema.build(1, "abc")
+                val userFactory = userSchema.bind(1, "abc")
                 val result = userFactory.tryCreate()
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe User(1, "abc")
             }
 
             test("failure") {
-                val userFactory = userSchema.build(0, "")
+                val userFactory = userSchema.bind(0, "")
                 val result = userFactory.tryCreate()
                 result.isFailure().mustBeTrue()
                 result.details.size shouldBe 2
             }
 
             test("failure - failFast is true") {
-                val userFactory = userSchema.build(0, "")
+                val userFactory = userSchema.bind(0, "")
                 val result = userFactory.tryCreate(ValidationConfig(failFast = true))
                 result.isFailure().mustBeTrue()
                 result.details.size shouldBe 1
@@ -166,19 +163,18 @@ class ObjectFactoryTest :
 
             val userSchema =
                 object : ObjectSchema<User>() {
-                    fun build(
+                    fun bind(
                         id: Int,
                         name: String,
                     ): ObjectFactory<User> {
-                        val arg1 = arg(id, Kova.generic())
-                        val arg2 = arg(name, Kova.generic())
-                        val arguments = arguments(arg1, arg2)
-                        return arguments.build(::User)
+                        val id = Kova.generic<Int>().bind(id)
+                        val name = Kova.generic<String>().bind(name)
+                        return create(::User, id, name)
                     }
                 }
 
             test("success") {
-                val factory = userSchema.build(1, "abc")
+                val factory = userSchema.bind(1, "abc")
                 val result = factory.tryCreate()
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe User(1, "abc")
@@ -201,42 +197,41 @@ class ObjectFactoryTest :
 
             val ageSchema =
                 object : ObjectSchema<Age>() {
-                    private val value = Age::value { Kova.int().min(0) }
+                    private val valueV = Age::value { Kova.int().min(0) }
 
-                    fun build(age: Int): ObjectFactory<Age> {
-                        val args = arguments(arg(age, this.value))
-                        return args.build(::Age)
+                    fun bind(age: Int): ObjectFactory<Age> {
+                        val arg0 = valueV.bind(age)
+                        return create(::Age, arg0)
                     }
                 }
 
             val nameSchema =
                 object : ObjectSchema<Name>() {
-                    private val value = Name::value { Kova.string().notBlank() }
+                    private val valueV = Name::value { Kova.string().notBlank() }
 
-                    fun build(name: String): ObjectFactory<Name> {
-                        val args = arguments(arg(name, this.value))
-                        return args.build(::Name)
+                    fun bind(name: String): ObjectFactory<Name> {
+                        val arg0 = valueV.bind(name)
+                        return create(::Name, arg0)
                     }
                 }
 
             val personSchema =
                 object : ObjectSchema<Person>() {
-                    private val name = Person::name { nameSchema }
-                    private val age = Person::age { ageSchema }
+                    private val nameV = Person::name { nameSchema }
+                    private val ageV = Person::age { ageSchema }
 
-                    fun build(
+                    fun bind(
                         name: String,
                         age: Int,
                     ): ObjectFactory<Person> {
-                        val arg1 = arg(this.name.build(name), this.name)
-                        val arg2 = arg(this.age.build(age), this.age)
-                        val arguments = arguments(arg1, arg2)
-                        return arguments.build(::Person)
+                        val arg0 = nameV.bind(name)
+                        val arg1 = ageV.bind(age)
+                        return create(::Person, arg0, arg1)
                     }
                 }
 
             test("success") {
-                val factory = personSchema.build("abc", 10)
+                val factory = personSchema.bind("abc", 10)
                 val result = factory.tryCreate()
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe Person(Name("abc"), Age(10))
