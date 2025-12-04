@@ -66,10 +66,10 @@ class KovaTest :
                     fun bind(
                         name: String?,
                         age: Int?,
-                    ): ObjectFactory<User> {
+                    ) = factory {
                         val name = nameV.bind(name)
                         val age = ageV.bind(age)
-                        return create(::User, name, age)
+                        create(::User, name, age)
                     }
                 }
 

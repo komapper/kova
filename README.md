@@ -127,7 +127,6 @@ The ObjectFactory pattern allows you to validate inputs and construct objects in
 
 ```kotlin
 import org.komapper.extension.validator.Kova
-import org.komapper.extension.validator.ObjectFactory
 import org.komapper.extension.validator.ObjectSchema
 
 data class Person(val name: String, val age: Int)
@@ -137,8 +136,8 @@ object PersonSchema : ObjectSchema<Person>() {
     private val ageV = Person::age { Kova.int().min(0).max(150) }
 
     // Create a factory method that builds an ObjectFactory
-    fun bind(name: String, age: Int): ObjectFactory<Person> {
-        return create(::Person, nameV.bind(name), ageV.bind(age))
+    fun bind(name: String, age: Int) = factory {
+        create(::Person, nameV.bind(name), ageV.bind(age))
     }
 }
 
@@ -157,8 +156,8 @@ data class Person(val name: String, val age: Age)
 object AgeSchema : ObjectSchema<Age>() {
     private val valueV = Age::value { Kova.int().min(0).max(120) }
 
-    fun bind(age: String): ObjectFactory<Age> {
-        return create(::Age, Kova.string().toInt().then(valueV).bind(age))
+    fun bind(age: String) = factory {
+        create(::Age, Kova.string().toInt().then(valueV).bind(age))
     }
 }
 
@@ -166,8 +165,8 @@ object PersonSchema : ObjectSchema<Person>() {
     private val nameV = Person::name { Kova.string().min(1) }
     private val ageV = Person::age { AgeSchema }
 
-    fun bind(name: String, age: String): ObjectFactory<Person> {
-        return create(::Person, nameV.bind(name), ageV.bind(age))
+    fun bind(name: String, age: String) = factory {
+        create(::Person, nameV.bind(name), ageV.bind(age))
     }
 }
 
@@ -176,12 +175,13 @@ val person = factory.create()  // Validates and constructs nested objects
 ```
 
 **Key Components**:
-- **`Validator.bind(value)`**: Extension method that creates an `ObjectFactory` from a validator and input value
-- **`ObjectSchema.create(constructor, ...factories)`**: Creates an `ObjectFactory` that validates ObjectFactories and constructs objects (supports 1-10 arguments)
+- **`ObjectSchema.factory(block)`**: Creates an object factory scope that provides access to `bind` and `create` methods for composing validators with object construction
+- **`Validator.bind(value)`**: Extension method (available in factory scope) that creates an `ObjectFactory` from a validator and input value
+- **`create(constructor, ...factories)`**: Method (available in factory scope) that creates an `ObjectFactory` which validates ObjectFactories and constructs objects (supports 1-10 arguments)
 - **`ObjectFactory.tryCreate(config = ValidationConfig())`**: Validates and constructs, returning `ValidationResult<T>`
 - **`ObjectFactory.create(config = ValidationConfig())`**: Validates and constructs, returning `T` or throwing `ValidationException`
 
-**Note**: Properties must be defined as object properties because the `invoke` operator for property definitions is only available on the `ObjectSchema` class itself. This also allows properties to be referenced when binding values. The `create()` method uses the schema's validator to validate the constructed object.
+**Note**: Properties must be defined as object properties because the `invoke` operator for property definitions is only available on the `ObjectSchema` class itself. This also allows properties to be referenced when binding values. The `bind` and `create` methods are only available within the `factory { }` scope, which provides access to `ObjectSchemaFactoryScope`.
 
 ### Nullable Validation
 

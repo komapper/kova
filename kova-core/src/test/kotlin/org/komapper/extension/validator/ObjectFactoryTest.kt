@@ -36,10 +36,10 @@ class ObjectFactoryTest :
                     fun bind(
                         name: String?,
                         age: Int?,
-                    ): ObjectFactory<User> {
+                    ) = factory {
                         val arg0 = nameV.withDefault("").bind(name)
                         val arg1 = ageV.withDefault(0).bind(age)
-                        return create(::User, arg0, arg1)
+                        create(::User, arg0, arg1)
                     }
                 }
 
@@ -67,10 +67,11 @@ class ObjectFactoryTest :
                 object : ObjectSchema<User>() {
                     private val idV = User::id { Kova.int().min(1) }
 
-                    fun bind(id: Int): ObjectFactory<User> {
-                        val arg0 = idV.bind(id)
-                        return create(::User, arg0)
-                    }
+                    fun bind(id: Int) =
+                        factory {
+                            val arg0 = idV.bind(id)
+                            create(::User, arg0)
+                        }
                 }
 
             test("success - tryCreate") {
@@ -126,10 +127,10 @@ class ObjectFactoryTest :
                     fun bind(
                         id: Int,
                         name: String,
-                    ): ObjectFactory<User> {
+                    ) = factory {
                         val id = idV.bind(id)
                         val name = nameV.bind(name)
-                        return create(::User, id, name)
+                        create(::User, id, name)
                     }
                 }
 
@@ -166,10 +167,10 @@ class ObjectFactoryTest :
                     fun bind(
                         id: Int,
                         name: String,
-                    ): ObjectFactory<User> {
+                    ) = factory {
                         val id = Kova.generic<Int>().bind(id)
                         val name = Kova.generic<String>().bind(name)
-                        return create(::User, id, name)
+                        create(::User, id, name)
                     }
                 }
 
@@ -199,20 +200,22 @@ class ObjectFactoryTest :
                 object : ObjectSchema<Age>() {
                     private val valueV = Age::value { Kova.int().min(0) }
 
-                    fun bind(age: Int): ObjectFactory<Age> {
-                        val arg0 = valueV.bind(age)
-                        return create(::Age, arg0)
-                    }
+                    fun bind(age: Int) =
+                        factory {
+                            val arg0 = valueV.bind(age)
+                            create(::Age, arg0)
+                        }
                 }
 
             val nameSchema =
                 object : ObjectSchema<Name>() {
                     private val valueV = Name::value { Kova.string().notBlank() }
 
-                    fun bind(name: String): ObjectFactory<Name> {
-                        val arg0 = valueV.bind(name)
-                        return create(::Name, arg0)
-                    }
+                    fun bind(name: String) =
+                        factory {
+                            val arg0 = valueV.bind(name)
+                            create(::Name, arg0)
+                        }
                 }
 
             val personSchema =
@@ -223,10 +226,10 @@ class ObjectFactoryTest :
                     fun bind(
                         name: String,
                         age: Int,
-                    ): ObjectFactory<Person> {
+                    ) = factory {
                         val arg0 = nameV.bind(name)
                         val arg1 = ageV.bind(age)
-                        return create(::Person, arg0, arg1)
+                        create(::Person, arg0, arg1)
                     }
                 }
 
