@@ -2,8 +2,6 @@ package org.komapper.extension.validator
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import org.komapper.extension.validator.gt
-import org.komapper.extension.validator.gte
 
 class UIntValidatorTest :
     FunSpec({
@@ -21,7 +19,7 @@ class UIntValidatorTest :
                 val result = validator.tryValidate(15u)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].content shouldBe "UInt 15 must be less than or equal to 10"
+                result.messages[0].content shouldBe "Number 15 must be less than or equal to 10"
             }
         }
 
@@ -84,7 +82,7 @@ class UIntValidatorTest :
             test("failure with value less than threshold") {
                 val result = validator.tryValidate(4u)
                 result.isFailure().mustBeTrue()
-                result.messages[0].content shouldBe "UInt 4 must be greater than or equal to 5"
+                result.messages[0].content shouldBe "Number 4 must be greater than or equal to 5"
             }
         }
 
@@ -106,7 +104,7 @@ class UIntValidatorTest :
             test("failure with value greater than threshold") {
                 val result = validator.tryValidate(11u)
                 result.isFailure().mustBeTrue()
-                result.messages[0].content shouldBe "UInt 11 must be less than or equal to 10"
+                result.messages[0].content shouldBe "Number 11 must be less than or equal to 10"
             }
         }
 
@@ -128,13 +126,13 @@ class UIntValidatorTest :
             test("failure with equal value") {
                 val result = validator.tryValidate(5u)
                 result.isFailure().mustBeTrue()
-                result.messages[0].content shouldBe "UInt 5 must be greater than 5"
+                result.messages[0].content shouldBe "Number 5 must be greater than 5"
             }
 
             test("failure with value less than threshold") {
                 val result = validator.tryValidate(4u)
                 result.isFailure().mustBeTrue()
-                result.messages[0].content shouldBe "UInt 4 must be greater than 5"
+                result.messages[0].content shouldBe "Number 4 must be greater than 5"
             }
         }
 
@@ -156,7 +154,7 @@ class UIntValidatorTest :
             test("failure with value less than threshold") {
                 val result = validator.tryValidate(4u)
                 result.isFailure().mustBeTrue()
-                result.messages[0].content shouldBe "UInt 4 must be greater than or equal to 5"
+                result.messages[0].content shouldBe "Number 4 must be greater than or equal to 5"
             }
         }
 
@@ -178,13 +176,13 @@ class UIntValidatorTest :
             test("failure with equal value") {
                 val result = validator.tryValidate(5u)
                 result.isFailure().mustBeTrue()
-                result.messages[0].content shouldBe "UInt 5 must be less than 5"
+                result.messages[0].content shouldBe "Number 5 must be less than 5"
             }
 
             test("failure with value greater than threshold") {
                 val result = validator.tryValidate(6u)
                 result.isFailure().mustBeTrue()
-                result.messages[0].content shouldBe "UInt 6 must be less than 5"
+                result.messages[0].content shouldBe "Number 6 must be less than 5"
             }
         }
 
@@ -206,7 +204,7 @@ class UIntValidatorTest :
             test("failure with value greater than threshold") {
                 val result = validator.tryValidate(6u)
                 result.isFailure().mustBeTrue()
-                result.messages[0].content shouldBe "UInt 6 must be less than or equal to 5"
+                result.messages[0].content shouldBe "Number 6 must be less than or equal to 5"
             }
         }
 
@@ -223,7 +221,7 @@ class UIntValidatorTest :
                 test("failure") {
                     val result = validator.tryValidate(4uL)
                     result.isFailure().mustBeTrue()
-                    result.messages[0].content shouldBe "ULong 4 must be greater than or equal to 5"
+                    result.messages[0].content shouldBe "Number 4 must be greater than or equal to 5"
                 }
             }
 
@@ -239,7 +237,7 @@ class UIntValidatorTest :
                 test("failure") {
                     val result = validator.tryValidate(11uL)
                     result.isFailure().mustBeTrue()
-                    result.messages[0].content shouldBe "ULong 11 must be less than or equal to 10"
+                    result.messages[0].content shouldBe "Number 11 must be less than or equal to 10"
                 }
             }
         }
@@ -257,7 +255,7 @@ class UIntValidatorTest :
                 test("failure") {
                     val result = validator.tryValidate(4u)
                     result.isFailure().mustBeTrue()
-                    result.messages[0].content shouldBe "UByte 4 must be greater than or equal to 5"
+                    result.messages[0].content shouldBe "Number 4 must be greater than or equal to 5"
                 }
             }
 
@@ -273,7 +271,7 @@ class UIntValidatorTest :
                 test("failure") {
                     val result = validator.tryValidate(11u)
                     result.isFailure().mustBeTrue()
-                    result.messages[0].content shouldBe "UByte 11 must be less than or equal to 10"
+                    result.messages[0].content shouldBe "Number 11 must be less than or equal to 10"
                 }
             }
         }
@@ -291,7 +289,7 @@ class UIntValidatorTest :
                 test("failure") {
                     val result = validator.tryValidate(4u)
                     result.isFailure().mustBeTrue()
-                    result.messages[0].content shouldBe "UShort 4 must be greater than or equal to 5"
+                    result.messages[0].content shouldBe "Number 4 must be greater than or equal to 5"
                 }
             }
 
@@ -307,7 +305,7 @@ class UIntValidatorTest :
                 test("failure") {
                     val result = validator.tryValidate(11u)
                     result.isFailure().mustBeTrue()
-                    result.messages[0].content shouldBe "UShort 11 must be less than or equal to 10"
+                    result.messages[0].content shouldBe "Number 11 must be less than or equal to 10"
                 }
             }
         }
@@ -336,13 +334,13 @@ class UIntValidatorTest :
             test("failure with value 5") {
                 val result = validator.tryValidate(5u)
                 result.isFailure().mustBeTrue()
-                result.messages[0].content shouldBe "UInt 5 must be greater than 6"
+                result.messages[0].content shouldBe "Number 5 must be greater than 6"
             }
 
             test("failure with value 10") {
                 val result = validator.tryValidate(10u)
                 result.isFailure().mustBeTrue()
-                result.messages[0].content shouldBe "UInt 10 must be less than or equal to 9"
+                result.messages[0].content shouldBe "Number 10 must be less than or equal to 9"
             }
         }
     })

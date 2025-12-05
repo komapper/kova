@@ -8,15 +8,13 @@ import java.time.temporal.Temporal
  *
  * @param T The temporal type being validated
  * @param name Debug name for the validator
- * @param prev Previous validator in the chain
- * @param constraint Constraint to apply
+ * @param validator Validator to wrap
  * @param clock Clock used for temporal comparisons (past, future, etc.)
  * @param temporalNow Strategy for obtaining the current temporal value
  */
 fun <T> TemporalValidator(
     name: String = "empty",
-    prev: IdentityValidator<T> = Validator.success(),
-    constraint: Constraint<T> = Constraint.satisfied(),
+    validator: IdentityValidator<T> = Validator.success(),
     clock: Clock = Clock.systemDefaultZone(),
     temporalNow: TemporalNow<T>,
 ): TemporalValidator<T> where T : Temporal, T : Comparable<T> =
@@ -27,10 +25,7 @@ fun <T> TemporalValidator(
         override fun execute(
             input: T,
             context: ValidationContext,
-        ): ValidationResult<T> {
-            val next = ConstraintValidator(constraint)
-            return prev.chain(next).execute(input, context)
-        }
+        ): ValidationResult<T> = validator.execute(input, context)
     }
 
 /**
@@ -57,7 +52,12 @@ fun <T> TemporalValidator<T>.constrain(
     id: String,
     check: ConstraintScope.(ConstraintContext<T>) -> ConstraintResult,
 ): TemporalValidator<T> where T : Temporal, T : Comparable<T> =
-    TemporalValidator(name = id, prev = this, constraint = Constraint(id, check), clock = clock, temporalNow = temporalNow)
+    TemporalValidator(
+        name = id,
+        validator = chain(ConstraintValidator(Constraint(id, check))),
+        clock = clock,
+        temporalNow = temporalNow
+    )
 
 /**
  * Validates that the temporal value is greater than or equal to [value] (inclusive).
@@ -185,8 +185,7 @@ fun <T> TemporalValidator<T>.pastOrPresent(
  * @param other The validator to combine with
  */
 operator fun <T> TemporalValidator<T>.plus(other: IdentityValidator<T>): TemporalValidator<T>
-    where T : Temporal, T : Comparable<T> =
-    and(other)
+    where T : Temporal, T : Comparable<T> = and(other)
 
 /**
  * Combines this validator with another validator using logical AND.
@@ -196,16 +195,12 @@ operator fun <T> TemporalValidator<T>.plus(other: IdentityValidator<T>): Tempora
  * @param other The validator to combine with
  */
 infix fun <T> TemporalValidator<T>.and(other: IdentityValidator<T>): TemporalValidator<T>
-    where T : Temporal, T : Comparable<T> {
-    val combined = (this as IdentityValidator<T>).and(other)
-    return TemporalValidator(
-        name = "and",
-        prev = combined,
-        constraint = Constraint.satisfied(),
-        clock = clock,
-        temporalNow = temporalNow,
-    )
-}
+    where T : Temporal, T : Comparable<T> = TemporalValidator(
+    name = "and",
+    validator = (this as IdentityValidator<T>).and(other),
+    clock = clock,
+    temporalNow = temporalNow,
+)
 
 /**
  * Combines this validator with another validator using logical OR.
@@ -215,16 +210,12 @@ infix fun <T> TemporalValidator<T>.and(other: IdentityValidator<T>): TemporalVal
  * @param other The validator to combine with
  */
 infix fun <T> TemporalValidator<T>.or(other: IdentityValidator<T>): TemporalValidator<T>
-    where T : Temporal, T : Comparable<T> {
-    val combined = (this as IdentityValidator<T>).or(other)
-    return TemporalValidator(
+    where T : Temporal, T : Comparable<T> = TemporalValidator(
         name = "or",
-        prev = combined,
-        constraint = Constraint.satisfied(),
+        validator = (this as IdentityValidator<T>).or(other),
         clock = clock,
         temporalNow = temporalNow,
     )
-}
 
 /**
  * Chains this validator with another validator.
@@ -234,13 +225,9 @@ infix fun <T> TemporalValidator<T>.or(other: IdentityValidator<T>): TemporalVali
  * @param other The validator to chain after this one
  */
 fun <T> TemporalValidator<T>.chain(other: IdentityValidator<T>): TemporalValidator<T>
-    where T : Temporal, T : Comparable<T> {
-    val combined = (this as IdentityValidator<T>).chain(other)
-    return TemporalValidator(
-        name = "chain",
-        prev = combined,
-        constraint = Constraint.satisfied(),
-        clock = clock,
-        temporalNow = temporalNow,
-    )
-}
+    where T : Temporal, T : Comparable<T> = TemporalValidator(
+    name = "chain",
+    validator = (this as IdentityValidator<T>).chain(other),
+    clock = clock,
+    temporalNow = temporalNow,
+)

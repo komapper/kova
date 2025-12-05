@@ -79,11 +79,7 @@ fun <T> IdentityValidator<T>.literal(
 fun <T> IdentityValidator<T>.constrain(
     id: String,
     check: ConstraintScope.(ConstraintContext<T>) -> ConstraintResult,
-) = IdentityValidator<T> { input, context ->
-    val constraint = Constraint(id, check)
-    val next = ConstraintValidator(constraint)
-    chain(next).execute(input, context)
-}
+): IdentityValidator<T> = chain(ConstraintValidator(Constraint(id, check)))
 
 /**
  * Conditionally applies this validator based on a predicate.
