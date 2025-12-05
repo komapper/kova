@@ -2,95 +2,250 @@ package org.komapper.extension.validator
 
 import org.komapper.extension.validator.ValidationResult.Success
 
-interface NullableValidator<T : Any, S : Any> :
-    Validator<T?, S?>,
-    Constrainable<T?, NullableValidator<T, S>> {
-    fun isNull(message: MessageProvider0<T?> = Message.resource0("kova.nullable.isNull")): NullableValidator<T, S>
+/**
+ * Type alias for validators that accept nullable input and produce nullable output.
+ *
+ * This allows validation of optional values where null is a valid state.
+ *
+ * Example:
+ * ```kotlin
+ * val validator: NullableValidator<String, String> = Kova.string().min(1).asNullable()
+ * validator.validate(null)    // Success: null
+ * validator.validate("hello") // Success: "hello"
+ * validator.validate("")      // Failure: too short
+ * ```
+ *
+ * @param T The non-null input type
+ * @param S The non-null output type
+ */
+typealias NullableValidator<T, S> = Validator<T?, S?>
 
-    fun notNull(message: MessageProvider0<T?> = Message.resource0("kova.nullable.notNull")): NullableValidator<T, S>
-
-    operator fun plus(other: Validator<T, S>): NullableValidator<T, S>
-
-    infix fun and(other: Validator<T, S>): NullableValidator<T, S>
-
-    infix fun or(other: Validator<T, S>): NullableValidator<T, S>
-
-    fun <U : Any> compose(other: Validator<U, T>): NullableValidator<U, S>
-
-    fun <U : Any> then(other: Validator<S, U>): NullableValidator<T, U>
-
-    fun toNonNullable(): Validator<T?, S>
-
-    fun withDefault(defaultValue: S): WithDefaultNullableValidator<T, S> = withDefault { defaultValue }
-
-    fun withDefault(provide: () -> S): WithDefaultNullableValidator<T, S>
+/**
+ * Converts a non-nullable validator to a nullable validator.
+ *
+ * The resulting validator accepts null values and passes them through unchanged.
+ * Non-null values are validated using the original validator.
+ *
+ * Example:
+ * ```kotlin
+ * val nonNullValidator = Kova.string().min(3).max(10)
+ * val nullableValidator = nonNullValidator.asNullable()
+ *
+ * nullableValidator.validate(null)    // Success: null
+ * nullableValidator.validate("hello") // Success: "hello"
+ * nullableValidator.validate("ab")    // Failure: too short
+ * ```
+ *
+ * @return A new nullable validator that accepts null input
+ */
+fun <T : Any, S : Any> Validator<T, S>.asNullable(): NullableValidator<T, S> = Validator { input, context ->
+    val context = context.addLog("Validator.asNullable")
+    if (input == null) Success(null, context) else this.execute(input, context)
 }
 
-fun <T : Any, S : Any> Validator<T, S>.asNullable(): NullableValidator<T, S> {
-    val self = this
-    // convert Validator<T, S> to Validator<T?, S?>
-    val wrapped =
-        Validator<T?, S?> { input, context ->
-            val context = context.addLog("Validator.asNullable")
-            if (input == null) Success(null, context) else self.execute(input, context)
-        }
-    return NullableValidator("asNullable", wrapped)
-}
+/**
+ * Adds a custom constraint to this nullable validator.
+ *
+ * The constraint can check both null and non-null values.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.string().asNullable()
+ *     .constrain("custom") {
+ *         satisfies(it.input == null || it.input.length >= 3, "Must be null or at least 3 chars")
+ *     }
+ * ```
+ *
+ * @param id Unique identifier for the constraint
+ * @param check Constraint logic that produces a [ConstraintResult]
+ * @return A new nullable validator with the constraint applied
+ */
+fun <T : Any, S : Any> NullableValidator<T, S>.constrain(
+    id: String,
+    check: ConstraintScope.(ConstraintContext<T?>) -> ConstraintResult,
+): NullableValidator<T, S> = compose(ConstraintValidator(Constraint(id, check)))
 
-fun <T : Any, S : Any> NullableValidator(
-    name: String,
-    after: Validator<T?, S?>,
-    constraint: Constraint<T?> = Constraint.satisfied(),
-): NullableValidator<T, S> = NullableValidatorImpl(name, after, constraint)
+/**
+ * Validates that the input is null.
+ *
+ * This constraint fails if the input is non-null.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.string().asNullable().isNull()
+ * validator.validate(null)    // Success: null
+ * validator.validate("hello") // Failure
+ * ```
+ *
+ * @param message Custom error message provider
+ * @return A new validator that only accepts null
+ */
+fun <T : Any, S : Any> NullableValidator<T, S>.isNull(
+    message: MessageProvider0<T?> = Message.resource0("kova.nullable.isNull"),
+): NullableValidator<T, S> = constrain(message.id, Constraints.isNull(message))
 
-private class NullableValidatorImpl<T : Any, S : Any>(
-    private val name: String,
-    private val after: Validator<T?, S?>,
-    constraint: Constraint<T?> = Constraint.satisfied(),
-) : NullableValidator<T, S> {
-    private val before: ConstraintValidator<T?> = ConstraintValidator(constraint)
+/**
+ * Validates that the input is not null.
+ *
+ * This constraint fails if the input is null.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.string().asNullable().notNull()
+ * validator.validate("hello") // Success: "hello"
+ * validator.validate(null)    // Failure
+ * ```
+ *
+ * @param message Custom error message provider
+ * @return A new validator that rejects null
+ */
+fun <T : Any, S : Any> NullableValidator<T, S>.notNull(
+    message: MessageProvider0<T?> = Message.resource0("kova.nullable.notNull"),
+): NullableValidator<T, S> = constrain(message.id, Constraints.notNull(message))
 
-    override fun execute(
-        input: T?,
-        context: ValidationContext,
-    ): ValidationResult<S?> {
-        val context = context.addLog(toString())
-        return before.then(after).execute(input, context)
-    }
+/**
+ * Converts a nullable validator to a validator with non-nullable output.
+ *
+ * This adds a `notNull()` constraint and converts the output type from `S?` to `S`.
+ *
+ * Example:
+ * ```kotlin
+ * val nullableValidator = Kova.string().min(3).asNullable()
+ * val nonNullableValidator: Validator<String?, String> = nullableValidator.toNonNullable()
+ *
+ * nonNullableValidator.validate("hello") // Success: "hello" (non-null type)
+ * nonNullableValidator.validate(null)    // Failure
+ * ```
+ *
+ * @return A validator that rejects null and produces non-nullable output
+ */
+fun <T : Any, S : Any> NullableValidator<T, S>.toNonNullable(): Validator<T?, S> = notNull().map { it!! }
 
-    override fun constrain(
-        id: String,
-        check: ConstraintScope.(ConstraintContext<T?>) -> ConstraintResult,
-    ): NullableValidator<T, S> = NullableValidatorImpl(id, after, Constraint(id, check))
+/**
+ * Provides a default value for null inputs.
+ *
+ * If the input is null, the validator returns the default value instead.
+ * This converts the validator to a [WithDefaultNullableValidator] that produces non-nullable output.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.string().min(3).asNullable().withDefault("default")
+ * validator.validate(null)    // Success: "default"
+ * validator.validate("hello") // Success: "hello"
+ * validator.validate("ab")    // Failure: too short
+ * ```
+ *
+ * @param defaultValue The value to use when input is null
+ * @return A new validator with non-nullable output that uses the default for null inputs
+ */
+fun <T : Any, S : Any> NullableValidator<T, S>.withDefault(defaultValue: S): WithDefaultNullableValidator<T, S> =
+    withDefault { defaultValue }
 
-    override fun isNull(message: MessageProvider0<T?>): NullableValidator<T, S> = constrain(message.id, Constraints.isNull(message))
+/**
+ * Provides a lazily-evaluated default value for null inputs.
+ *
+ * If the input is null, the provider function is called to generate the default value.
+ * This is useful when the default value is expensive to compute.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.string().asNullable()
+ *     .withDefault { generateDefaultValue() }
+ *
+ * validator.validate(null)    // Success: result of generateDefaultValue()
+ * validator.validate("hello") // Success: "hello"
+ * ```
+ *
+ * @param provide Function that generates the default value
+ * @return A new validator with non-nullable output that uses the provided default for null inputs
+ */
+fun <T : Any, S : Any> NullableValidator<T, S>.withDefault(provide: () -> S): WithDefaultNullableValidator<T, S> =
+    map { it ?: provide() }
 
-    override fun notNull(message: MessageProvider0<T?>): NullableValidator<T, S> = constrain(message.id, Constraints.notNull(message))
+/**
+ * Operator overload for [and]. Combines this nullable validator with a non-nullable validator.
+ *
+ * The non-nullable validator is automatically converted to nullable.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.string().asNullable() + Kova.string().min(3)
+ * validator.validate(null)    // Success: null
+ * validator.validate("hello") // Success: "hello"
+ * validator.validate("ab")    // Failure: too short
+ * ```
+ *
+ * @param other The non-nullable validator to combine with
+ * @return A new nullable validator combining both
+ */
+operator fun <T : Any, S : Any> NullableValidator<T, S>.plus(other: Validator<T, S>): NullableValidator<T, S> = and(other)
 
-    override operator fun plus(other: Validator<T, S>): NullableValidator<T, S> = and(other)
+/**
+ * Combines this nullable validator with a non-nullable validator using logical AND.
+ *
+ * The non-nullable validator is automatically converted to nullable before combining.
+ * Both validators must pass for the combined validator to pass.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.string().asNullable() and Kova.string().min(3)
+ * validator.validate(null)    // Success: null
+ * validator.validate("hello") // Success: "hello"
+ * validator.validate("ab")    // Failure: too short
+ * ```
+ *
+ * @param other The non-nullable validator to combine with
+ * @return A new nullable validator combining both
+ */
+fun <T : Any, S : Any> NullableValidator<T, S>.and(other: Validator<T, S>): NullableValidator<T, S> = and(other.asNullable())
 
-    override fun and(other: Validator<T, S>): NullableValidator<T, S> =
-        this.and(other.asNullable()).let { NullableValidatorImpl("and", it) }
+/**
+ * Combines this nullable validator with a non-nullable validator using logical OR.
+ *
+ * The non-nullable validator is automatically converted to nullable before combining.
+ * Either validator can pass for the combined validator to pass.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.string().asNullable().isNull() or Kova.string().min(3)
+ * validator.validate(null)    // Success: null (first validator passes)
+ * validator.validate("hello") // Success: "hello" (second validator passes)
+ * validator.validate("ab")    // Failure: both validators fail
+ * ```
+ *
+ * @param other The non-nullable validator to combine with
+ * @return A new nullable validator combining both
+ */
+fun <T : Any, S : Any> NullableValidator<T, S>.or(other: Validator<T, S>): NullableValidator<T, S> = or(other.asNullable())
 
-    override fun or(other: Validator<T, S>): NullableValidator<T, S> = this.or(other.asNullable()).let { NullableValidatorImpl("or", it) }
+/**
+ * Composes this nullable validator with a non-nullable validator applied before it.
+ *
+ * The non-nullable validator is automatically converted to nullable before composing.
+ * This is the reverse of [then].
+ *
+ * @param other The non-nullable validator to apply first
+ * @return A new nullable validator with both validators composed
+ */
+fun <T : Any, S : Any, U : Any> NullableValidator<T, S>.compose(other: Validator<U, T>): NullableValidator<U, S> =
+    compose(other.asNullable())
 
-    override fun <U : Any> compose(other: Validator<U, T>): NullableValidator<U, S> =
-        this.compose(other.asNullable()).let {
-            NullableValidatorImpl("compose", it)
-        }
-
-    override fun <U : Any> then(other: Validator<S, U>): NullableValidator<T, U> =
-        this.then(other.asNullable()).let {
-            NullableValidatorImpl("then", it)
-        }
-
-    override fun toNonNullable(): Validator<T?, S> = notNull().map { it!! }
-
-    override fun withDefault(provide: () -> S): WithDefaultNullableValidator<T, S> =
-        WithDefaultNullableValidator(
-            "withDefault",
-            map { it ?: provide() },
-        )
-
-    override fun toString(): String = "${NullableValidator::class.simpleName}(name=$name)"
-}
+/**
+ * Chains this nullable validator with a non-nullable validator applied after it.
+ *
+ * The non-nullable validator is automatically converted to nullable before chaining.
+ * The second validator only executes if the first passes.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.string().asNullable()
+ *     .then(Kova.string().map { it.uppercase() })
+ *
+ * validator.validate(null)    // Success: null
+ * validator.validate("hello") // Success: "HELLO"
+ * ```
+ *
+ * @param other The non-nullable validator to apply after this one
+ * @return A new nullable validator with both validators chained
+ */
+fun <T : Any, S : Any, U : Any> NullableValidator<T, S>.then(other: Validator<S, U>): NullableValidator<T, U> = then(other.asNullable())

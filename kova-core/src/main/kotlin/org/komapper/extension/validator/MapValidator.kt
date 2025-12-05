@@ -1,154 +1,194 @@
 package org.komapper.extension.validator
 
-interface MapValidator<K, V> :
-    Validator<Map<K, V>, Map<K, V>>,
-    Constrainable<Map<K, V>, MapValidator<K, V>> {
-    fun min(
-        size: Int,
-        message: MessageProvider2<Map<K, V>, Int, Int> = Message.resource2("kova.map.min"),
-    ): MapValidator<K, V>
+/**
+ * Type alias for map validators.
+ *
+ * Provides a convenient type for validators that work with Map types.
+ *
+ * @param K The key type of the map
+ * @param V The value type of the map
+ */
+typealias MapValidator<K, V> = IdentityValidator<Map<K, V>>
 
-    fun max(
-        size: Int,
-        message: MessageProvider2<Map<K, V>, Int, Int> = Message.resource2("kova.map.max"),
-    ): MapValidator<K, V>
-
-    fun notEmpty(message: MessageProvider0<Map<K, V>> = Message.resource0("kova.map.notEmpty")): MapValidator<K, V>
-
-    fun length(
-        size: Int,
-        message: MessageProvider1<Map<K, V>, Int> = Message.resource1("kova.map.length"),
-    ): MapValidator<K, V>
-
-    fun onEach(validator: Validator<Map.Entry<K, V>, *>): MapValidator<K, V>
-
-    fun onEachKey(validator: Validator<K, *>): MapValidator<K, V>
-
-    fun onEachValue(validator: Validator<V, *>): MapValidator<K, V>
-
-    operator fun plus(other: Validator<Map<K, V>, Map<K, V>>): MapValidator<K, V>
-
-    infix fun and(other: Validator<Map<K, V>, Map<K, V>>): MapValidator<K, V>
-
-    infix fun or(other: Validator<Map<K, V>, Map<K, V>>): MapValidator<K, V>
-
-    fun chain(other: Validator<Map<K, V>, Map<K, V>>): MapValidator<K, V>
+/**
+ * Validates that the map size is at least the specified minimum.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.map<String, Int>().min(2)
+ * validator.validate(mapOf("a" to 1, "b" to 2, "c" to 3)) // Success
+ * validator.validate(mapOf("a" to 1))                     // Failure
+ * ```
+ *
+ * @param size Minimum map size (inclusive)
+ * @param message Custom error message provider
+ * @return A new validator with the minimum size constraint
+ */
+fun <K, V> MapValidator<K, V>.min(
+    size: Int,
+    message: MessageProvider2<Map<K, V>, Int, Int> = Message.resource2("kova.map.min"),
+) = constrain(message.id) {
+    satisfies(it.input.size >= size, message(it, it.input.size, size))
 }
 
-fun <K, V> MapValidator(
-    name: String = "empty",
-    prev: Validator<Map<K, V>, Map<K, V>> = EmptyValidator(),
-    constraint: Constraint<Map<K, V>> = Constraint.satisfied(),
-): MapValidator<K, V> = MapValidatorImpl(name, prev, constraint)
+/**
+ * Validates that the map size does not exceed the specified maximum.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.map<String, Int>().max(3)
+ * validator.validate(mapOf("a" to 1, "b" to 2))                // Success
+ * validator.validate(mapOf("a" to 1, "b" to 2, "c" to 3, "d" to 4)) // Failure
+ * ```
+ *
+ * @param size Maximum map size (inclusive)
+ * @param message Custom error message provider
+ * @return A new validator with the maximum size constraint
+ */
+fun <K, V> MapValidator<K, V>.max(
+    size: Int,
+    message: MessageProvider2<Map<K, V>, Int, Int> = Message.resource2("kova.map.max"),
+) = constrain(message.id) {
+    satisfies(it.input.size <= size, message(it, it.input.size, size))
+}
 
-private class MapValidatorImpl<K, V>(
-    private val name: String,
-    private val prev: Validator<Map<K, V>, Map<K, V>>,
-    private val constraint: Constraint<Map<K, V>> = Constraint.satisfied(),
-) : MapValidator<K, V> {
-    private val next: ConstraintValidator<Map<K, V>> = ConstraintValidator(constraint)
-
-    override fun execute(
-        input: Map<K, V>,
-        context: ValidationContext,
-    ): ValidationResult<Map<K, V>> {
-        val context = context.addLog(toString())
-        return prev.chain(next).execute(input, context)
+/**
+ * Validates that the map is not empty.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.map<String, Int>().notEmpty()
+ * validator.validate(mapOf("a" to 1)) // Success
+ * validator.validate(mapOf())         // Failure
+ * ```
+ *
+ * @param message Custom error message provider
+ * @return A new validator with the not-empty constraint
+ */
+fun <K, V> MapValidator<K, V>.notEmpty(message: MessageProvider0<Map<K, V>> = Message.resource0("kova.map.notEmpty")) =
+    constrain(message.id) {
+        satisfies(it.input.isNotEmpty(), message(it))
     }
 
-    override fun constrain(
-        id: String,
-        check: ConstraintScope.(ConstraintContext<Map<K, V>>) -> ConstraintResult,
-    ): MapValidator<K, V> = MapValidatorImpl(name = id, prev = this, constraint = Constraint(id, check))
+/**
+ * Validates that the map size equals exactly the specified value.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.map<String, Int>().length(3)
+ * validator.validate(mapOf("a" to 1, "b" to 2, "c" to 3)) // Success
+ * validator.validate(mapOf("a" to 1, "b" to 2))           // Failure
+ * ```
+ *
+ * @param size Exact map size required
+ * @param message Custom error message provider
+ * @return A new validator with the exact size constraint
+ */
+fun <K, V> MapValidator<K, V>.length(
+    size: Int,
+    message: MessageProvider1<Map<K, V>, Int> = Message.resource1("kova.map.length"),
+) = constrain(message.id) {
+    satisfies(it.input.size == size, message(it, size))
+}
 
-    override fun min(
-        size: Int,
-        message: MessageProvider2<Map<K, V>, Int, Int>,
-    ): MapValidator<K, V> =
-        constrain(message.id) {
-            satisfies(it.input.size >= size, message(it, it.input.size, size))
+/**
+ * Validates each entry (key-value pair) of the map using the specified validator.
+ *
+ * If any entry fails validation, the entire map validation fails.
+ * Error paths include entry information for better error reporting.
+ *
+ * Example:
+ * ```kotlin
+ * val entryValidator = Validator<Map.Entry<String, Int>, Map.Entry<String, Int>> { entry, ctx ->
+ *     if (entry.key.length >= 2 && entry.value >= 0) {
+ *         ValidationResult.Success(entry, ctx)
+ *     } else {
+ *         ValidationResult.Failure(/* ... */)
+ *     }
+ * }
+ * val validator = Kova.map<String, Int>().onEach(entryValidator)
+ * ```
+ *
+ * @param validator The validator to apply to each entry
+ * @return A new validator with per-entry validation
+ */
+fun <K, V> MapValidator<K, V>.onEach(validator: Validator<Map.Entry<K, V>, *>) =
+    constrain("kova.map.onEach") {
+        validateOnEach(it) { entry, validationContext ->
+            val path = "<map entry>"
+            validator.execute(entry, validationContext.appendPath(text = path))
         }
+    }
 
-    override fun max(
-        size: Int,
-        message: MessageProvider2<Map<K, V>, Int, Int>,
-    ): MapValidator<K, V> =
-        constrain(message.id) {
-            satisfies(it.input.size <= size, message(it, it.input.size, size))
+/**
+ * Validates each key of the map using the specified validator.
+ *
+ * If any key fails validation, the entire map validation fails.
+ * Error paths include key information for better error reporting.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.map<String, Int>()
+ *     .notEmpty()
+ *     .onEachKey(Kova.string().min(2).max(10))
+ *
+ * validator.validate(mapOf("abc" to 1, "def" to 2)) // Success
+ * validator.validate(mapOf("a" to 1, "b" to 2))     // Failure: keys too short
+ * ```
+ *
+ * @param validator The validator to apply to each key
+ * @return A new validator with per-key validation
+ */
+fun <K, V> MapValidator<K, V>.onEachKey(validator: Validator<K, *>) =
+    constrain("kova.map.onEachKey") {
+        validateOnEach(it) { entry, validationContext ->
+            val path = "<map key>"
+            validator.execute(entry.key, validationContext.appendPath(text = path))
         }
+    }
 
-    override fun notEmpty(message: MessageProvider0<Map<K, V>>): MapValidator<K, V> =
-        constrain(message.id) {
-            satisfies(it.input.isNotEmpty(), message(it))
+/**
+ * Validates each value of the map using the specified validator.
+ *
+ * If any value fails validation, the entire map validation fails.
+ * Error paths include the associated key for better error reporting.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.map<String, Int>()
+ *     .notEmpty()
+ *     .onEachValue(Kova.int().min(0).max(100))
+ *
+ * validator.validate(mapOf("a" to 10, "b" to 20))  // Success
+ * validator.validate(mapOf("a" to -1, "b" to 150)) // Failure: values out of range
+ * ```
+ *
+ * @param validator The validator to apply to each value
+ * @return A new validator with per-value validation
+ */
+fun <K, V> MapValidator<K, V>.onEachValue(validator: Validator<V, *>) =
+    constrain("kova.map.onEachValue") {
+        validateOnEach(it) { entry, validationContext ->
+            val path = "[${entry.key}]<map value>"
+            validator.execute(entry.value, validationContext.appendPath(text = path))
         }
+    }
 
-    override fun length(
-        size: Int,
-        message: MessageProvider1<Map<K, V>, Int>,
-    ): MapValidator<K, V> =
-        constrain(message.id) {
-            satisfies(it.input.size == size, message(it, size))
-        }
-
-    override fun onEach(validator: Validator<Map.Entry<K, V>, *>): MapValidator<K, V> =
-        constrain("kova.map.onEach") {
-            validateOnEach(it) { entry, validationContext ->
-                val path = "<map entry>"
-                validator.execute(entry, validationContext.appendPath(text = path))
+private fun <K, V, T> ConstraintScope.validateOnEach(
+    context: ConstraintContext<Map<K, V>>,
+    validate: (Map.Entry<K, V>, ValidationContext) -> ValidationResult<T>,
+): ConstraintResult {
+    val validationContext = context.validationContext
+    val failures = mutableListOf<ValidationResult.Failure>()
+    for (entry in context.input.entries) {
+        val result = validate(entry, validationContext)
+        if (result.isFailure()) {
+            failures.add(result)
+            if (context.failFast) {
+                break
             }
         }
-
-    override fun onEachKey(validator: Validator<K, *>): MapValidator<K, V> =
-        constrain("kova.map.onEachKey") {
-            validateOnEach(it) { entry, validationContext ->
-                val path = "<map key>"
-                validator.execute(entry.key, validationContext.appendPath(text = path))
-            }
-        }
-
-    override fun onEachValue(validator: Validator<V, *>): MapValidator<K, V> =
-        constrain("kova.map.onEachValue") {
-            validateOnEach(it) { entry, validationContext ->
-                val path = "[${entry.key}]<map value>"
-                validator.execute(entry.value, validationContext.appendPath(text = path))
-            }
-        }
-
-    private fun <T> ConstraintScope.validateOnEach(
-        context: ConstraintContext<Map<K, V>>,
-        validate: (Map.Entry<K, V>, ValidationContext) -> ValidationResult<T>,
-    ): ConstraintResult {
-        val validationContext = context.validationContext
-        val failures = mutableListOf<ValidationResult.Failure>()
-        for (entry in context.input.entries) {
-            val result = validate(entry, validationContext)
-            if (result.isFailure()) {
-                failures.add(result)
-                if (context.failFast) {
-                    break
-                }
-            }
-        }
-        val failureDetails = failures.flatMap { it.details }
-        return satisfies(failureDetails.isEmpty(), Message.ValidationFailure(details = failureDetails))
     }
-
-    override operator fun plus(other: Validator<Map<K, V>, Map<K, V>>): MapValidator<K, V> = and(other)
-
-    override fun and(other: Validator<Map<K, V>, Map<K, V>>): MapValidator<K, V> {
-        val combined = (this as Validator<Map<K, V>, Map<K, V>>).and(other)
-        return MapValidatorImpl("and", prev = combined)
-    }
-
-    override fun or(other: Validator<Map<K, V>, Map<K, V>>): MapValidator<K, V> {
-        val combined = (this as Validator<Map<K, V>, Map<K, V>>).or(other)
-        return MapValidatorImpl("or", prev = combined)
-    }
-
-    override fun chain(other: Validator<Map<K, V>, Map<K, V>>): MapValidator<K, V> {
-        val combined = (this as Validator<Map<K, V>, Map<K, V>>).chain(other)
-        return MapValidatorImpl("chain", prev = combined)
-    }
-
-    override fun toString(): String = "${MapValidator::class.simpleName}(name=$name)"
+    val failureDetails = failures.flatMap { it.details }
+    return satisfies(failureDetails.isEmpty(), Message.ValidationFailure(details = failureDetails))
 }

@@ -10,6 +10,9 @@ import io.kotest.property.arbitrary.string
 import io.kotest.property.checkAll
 import org.komapper.extension.validator.Kova
 import org.komapper.extension.validator.isSuccess
+import org.komapper.extension.validator.max
+import org.komapper.extension.validator.min
+import org.komapper.extension.validator.onEach
 import org.komapper.extension.validator.plus
 import org.komapper.extension.validator.tryValidate
 

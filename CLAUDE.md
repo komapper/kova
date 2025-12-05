@@ -16,10 +16,12 @@
 
 ### Validators
 - **Validator<IN, OUT>**: Core interface with `execute(input, context)` method (input first, context second)
+- **IdentityValidator<T>**: Type alias for `Validator<T, T>` - simplifies type signatures for validators that don't transform types
 - **ValidationResult**: Sealed interface (`Success<T>` | `Failure`)
 - **FailureDetail**: Sealed interface (`Single` | `Or`) representing individual failure information
 - **ValidationContext**: Tracks state (root, path, config), supports circular reference detection via `Path.containsObject()`
 - **ValidationConfig**: Centralized settings (failFast, locale)
+- **Architecture**: Validators use extension functions built on top of `constrain()` rather than specialized interfaces
 
 ### Key Patterns
 
@@ -78,7 +80,7 @@ val validator = Kova.localDate().past() + Kova.localDate().min(LocalDate.of(2020
 ## Important Implementation Details
 
 ### Immutability & Composition
-All validators are immutable. Composition operators (`+`, `and`, `or`, `map`, `then`, `chain`) return new instances.
+All validators are immutable. Composition operators (`+`, `and`, `or`, `map`, `then`) return new instances. The `chain` method is available on `IdentityValidator<T>` for chaining validators with the same input/output type.
 
 ### Circular Reference Detection
 - `ValidationContext.addRoot()` accepts object reference for tracking
@@ -115,13 +117,15 @@ Properties must be object properties (not in constructor lambda) since the `invo
 - **Note**: The `bind` and `create` methods are only available within the `factory { }` scope (ObjectSchemaFactoryScope)
 
 ## Key Files
-- `Kova.kt` - Main API entry point
-- `Validator.kt` - Core interface and composition operators (`+`, `and`, `or`, `map`, `then`, `chain`)
+- `Kova.kt` - Main API entry point, factory methods returning `IdentityValidator<T>`
+- `Validator.kt` - Core interface and composition operators (`+`, `and`, `or`, `map`, `then`)
+- `IdentityValidator.kt` - Type alias for `Validator<T, T>`, provides `chain`, `constrain`, `onlyIf`, and `literal` extension functions
 - `ValidationResult.kt` - Result types (`Success`, `Failure`) and `FailureDetail` interface
 - `ValidationContext.kt` - State tracking with circular reference detection
 - `ValidationConfig.kt` - Centralized validation settings (failFast, locale)
 - `ObjectSchema.kt` - Object validation with property rules, factory method, and ObjectSchemaFactoryScope for object construction
 - `ObjectFactory.kt` - Object construction interface and internal createObjectFactory functions (1-10 args)
-- `ConstraintValidator.kt` - Converts `ConstraintResult` to `ValidationResult`
+- `ConstraintValidator.kt` - Converts `ConstraintResult` to `ValidationResult`, base for extension functions
 - `Constraints.kt` - Shared constraint utilities (`min`, `max`, `isNull`, `notNull`)
 - `Message.kt` - Message types (Text, Resource, ValidationFailure)
+- **Validator extension files** - `StringValidator.kt`, `NumberValidator.kt`, `CollectionValidator.kt`, etc. define extension functions on `IdentityValidator<T>`

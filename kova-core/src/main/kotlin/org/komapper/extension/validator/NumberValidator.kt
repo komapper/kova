@@ -1,203 +1,203 @@
 package org.komapper.extension.validator
 
 /**
- * Validator for numeric values with comparison constraints.
- *
- * Supports validation for all numeric types: Int, Long, Double, Float, Byte, Short,
- * BigDecimal, and BigInteger.
+ * Validates that the number is greater than or equal to the specified minimum value.
  *
  * Example:
  * ```kotlin
- * val ageValidator = Kova.int().min(0).max(120)
- * val priceValidator = Kova.bigDecimal().gt(BigDecimal.ZERO).max(BigDecimal("999.99"))
+ * val validator = Kova.int().min(0)
+ * validator.validate(10)  // Success
+ * validator.validate(-1)  // Failure
  * ```
  *
- * @param T The numeric type being validated
+ * @param value Minimum value (inclusive)
+ * @param message Custom error message provider
+ * @return A new validator with the minimum constraint
  */
-interface NumberValidator<T> :
-    Validator<T, T>,
-    Constrainable<T, NumberValidator<T>>
-    where T : Number, T : Comparable<T> {
-    /**
-     * Validates that the number is greater than or equal to [value] (inclusive).
-     *
-     * @param value Minimum allowed value
-     * @param message Custom error message provider
-     */
-    fun min(
-        value: T,
-        message: MessageProvider1<T, T> = Message.resource1("kova.number.min"),
-    ): NumberValidator<T>
+fun <T : Comparable<T>> IdentityValidator<T>.min(
+    value: T,
+    message: MessageProvider1<T, T> = Message.resource1("kova.number.min"),
+): IdentityValidator<T> = constrain(message.id, Constraints.min(value, message))
 
-    /**
-     * Validates that the number is less than or equal to [value] (inclusive).
-     *
-     * @param value Maximum allowed value
-     * @param message Custom error message provider
-     */
-    fun max(
-        value: T,
-        message: MessageProvider1<T, T> = Message.resource1("kova.number.max"),
-    ): NumberValidator<T>
+/**
+ * Validates that the number is less than or equal to the specified maximum value.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.int().max(100)
+ * validator.validate(50)   // Success
+ * validator.validate(150)  // Failure
+ * ```
+ *
+ * @param value Maximum value (inclusive)
+ * @param message Custom error message provider
+ * @return A new validator with the maximum constraint
+ */
+fun <T : Comparable<T>> IdentityValidator<T>.max(
+    value: T,
+    message: MessageProvider1<T, T> = Message.resource1("kova.number.max"),
+): IdentityValidator<T> = constrain(message.id, Constraints.max(value, message))
 
-    /**
-     * Validates that the number is strictly greater than [value] (exclusive).
-     *
-     * @param value The value that the input must be greater than
-     * @param message Custom error message provider
-     */
-    fun gt(
-        value: T,
-        message: MessageProvider1<T, T> = Message.resource1("kova.number.gt"),
-    ): NumberValidator<T>
+/**
+ * Validates that the number is strictly greater than the specified value.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.int().gt(0)
+ * validator.validate(1)   // Success
+ * validator.validate(0)   // Failure
+ * validator.validate(-1)  // Failure
+ * ```
+ *
+ * @param value The value to compare against (exclusive)
+ * @param message Custom error message provider
+ * @return A new validator with the greater-than constraint
+ */
+fun <T : Comparable<T>> IdentityValidator<T>.gt(
+    value: T,
+    message: MessageProvider1<T, T> = Message.resource1("kova.number.gt"),
+): IdentityValidator<T> = constrain(message.id, Constraints.gt(value, message))
 
-    /**
-     * Validates that the number is greater than or equal to [value] (inclusive).
-     *
-     * Alias for [min].
-     *
-     * @param value The minimum value (inclusive)
-     * @param message Custom error message provider
-     */
-    fun gte(
-        value: T,
-        message: MessageProvider1<T, T> = Message.resource1("kova.number.gte"),
-    ): NumberValidator<T>
+/**
+ * Validates that the number is greater than or equal to the specified value.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.int().gte(0)
+ * validator.validate(1)   // Success
+ * validator.validate(0)   // Success
+ * validator.validate(-1)  // Failure
+ * ```
+ *
+ * @param value The value to compare against (inclusive)
+ * @param message Custom error message provider
+ * @return A new validator with the greater-than-or-equal constraint
+ */
+fun <T : Comparable<T>> IdentityValidator<T>.gte(
+    value: T,
+    message: MessageProvider1<T, T> = Message.resource1("kova.number.gte"),
+): IdentityValidator<T> = constrain(message.id, Constraints.gte(value, message))
 
-    /**
-     * Validates that the number is strictly less than [value] (exclusive).
-     *
-     * @param value The value that the input must be less than
-     * @param message Custom error message provider
-     */
-    fun lt(
-        value: T,
-        message: MessageProvider1<T, T> = Message.resource1("kova.number.lt"),
-    ): NumberValidator<T>
+/**
+ * Validates that the number is strictly less than the specified value.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.int().lt(100)
+ * validator.validate(50)   // Success
+ * validator.validate(100)  // Failure
+ * validator.validate(150)  // Failure
+ * ```
+ *
+ * @param value The value to compare against (exclusive)
+ * @param message Custom error message provider
+ * @return A new validator with the less-than constraint
+ */
+fun <T : Comparable<T>> IdentityValidator<T>.lt(
+    value: T,
+    message: MessageProvider1<T, T> = Message.resource1("kova.number.lt"),
+): IdentityValidator<T> = constrain(message.id, Constraints.lt(value, message))
 
-    /**
-     * Validates that the number is less than or equal to [value] (inclusive).
-     *
-     * Alias for [max].
-     *
-     * @param value The maximum value (inclusive)
-     * @param message Custom error message provider
-     */
-    fun lte(
-        value: T,
-        message: MessageProvider1<T, T> = Message.resource1("kova.number.lte"),
-    ): NumberValidator<T>
+/**
+ * Validates that the number is less than or equal to the specified value.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.int().lte(100)
+ * validator.validate(50)   // Success
+ * validator.validate(100)  // Success
+ * validator.validate(150)  // Failure
+ * ```
+ *
+ * @param value The value to compare against (inclusive)
+ * @param message Custom error message provider
+ * @return A new validator with the less-than-or-equal constraint
+ */
+fun <T : Comparable<T>> IdentityValidator<T>.lte(
+    value: T,
+    message: MessageProvider1<T, T> = Message.resource1("kova.number.lte"),
+): IdentityValidator<T> = constrain(message.id, Constraints.lte(value, message))
 
-    fun positive(message: MessageProvider0<T> = Message.resource0("kova.number.positive")): NumberValidator<T>
-
-    fun negative(message: MessageProvider0<T> = Message.resource0("kova.number.negative")): NumberValidator<T>
-
-    fun notPositive(message: MessageProvider0<T> = Message.resource0("kova.number.notPositive")): NumberValidator<T>
-
-    fun notNegative(message: MessageProvider0<T> = Message.resource0("kova.number.notNegative")): NumberValidator<T>
-
-    operator fun plus(other: Validator<T, T>): NumberValidator<T>
-
-    infix fun and(other: Validator<T, T>): NumberValidator<T>
-
-    infix fun or(other: Validator<T, T>): NumberValidator<T>
-
-    fun chain(other: Validator<T, T>): NumberValidator<T>
-}
-
-fun <T> NumberValidator(
-    name: String = "empty",
-    prev: Validator<T, T> = EmptyValidator(),
-    constraint: Constraint<T> = Constraint.satisfied(),
-): NumberValidator<T> where T : Number, T : Comparable<T> = NumberValidatorImpl(name, prev, constraint)
-
-private class NumberValidatorImpl<T>(
-    private val name: String,
-    private val prev: Validator<T, T>,
-    private val constraint: Constraint<T> = Constraint.satisfied(),
-) : NumberValidator<T>
-    where T : Number, T : Comparable<T> {
-    private val next: ConstraintValidator<T> = ConstraintValidator(constraint)
-
-    override fun execute(
-        input: T,
-        context: ValidationContext,
-    ): ValidationResult<T> {
-        val context = context.addLog(toString())
-        return prev.chain(next).execute(input, context)
+/**
+ * Validates that the number is positive (greater than zero).
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.int().positive()
+ * validator.validate(1)   // Success
+ * validator.validate(0)   // Failure
+ * validator.validate(-1)  // Failure
+ * ```
+ *
+ * @param message Custom error message provider
+ * @return A new validator with the positive constraint
+ */
+fun <T : Number> IdentityValidator<T>.positive(
+    message: MessageProvider0<T> = Message.resource0("kova.number.positive"),
+): IdentityValidator<T> =
+    constrain(message.id) {
+        satisfies(it.input.toDouble() > 0.0, message(it))
     }
 
-    override fun constrain(
-        id: String,
-        check: ConstraintScope.(ConstraintContext<T>) -> ConstraintResult,
-    ): NumberValidator<T> = NumberValidatorImpl(name = id, prev = this, constraint = Constraint(id, check))
-
-    override fun min(
-        value: T,
-        message: MessageProvider1<T, T>,
-    ): NumberValidator<T> = constrain(message.id, Constraints.min(value, message))
-
-    override fun max(
-        value: T,
-        message: MessageProvider1<T, T>,
-    ): NumberValidator<T> = constrain(message.id, Constraints.max(value, message))
-
-    override fun gt(
-        value: T,
-        message: MessageProvider1<T, T>,
-    ): NumberValidator<T> = constrain(message.id, Constraints.gt(value, message))
-
-    override fun gte(
-        value: T,
-        message: MessageProvider1<T, T>,
-    ): NumberValidator<T> = constrain(message.id, Constraints.gte(value, message))
-
-    override fun lt(
-        value: T,
-        message: MessageProvider1<T, T>,
-    ): NumberValidator<T> = constrain(message.id, Constraints.lt(value, message))
-
-    override fun lte(
-        value: T,
-        message: MessageProvider1<T, T>,
-    ): NumberValidator<T> = constrain(message.id, Constraints.lte(value, message))
-
-    override fun positive(message: MessageProvider0<T>): NumberValidator<T> =
-        constrain(message.id) {
-            satisfies(it.input.toDouble() > 0.0, message(it))
-        }
-
-    override fun negative(message: MessageProvider0<T>): NumberValidator<T> =
-        constrain(message.id) {
-            satisfies(it.input.toDouble() < 0.0, message(it))
-        }
-
-    override fun notPositive(message: MessageProvider0<T>): NumberValidator<T> =
-        constrain(message.id) {
-            satisfies(it.input.toDouble() <= 0.0, message(it))
-        }
-
-    override fun notNegative(message: MessageProvider0<T>): NumberValidator<T> =
-        constrain(message.id) {
-            satisfies(it.input.toDouble() >= 0.0, message(it))
-        }
-
-    override operator fun plus(other: Validator<T, T>): NumberValidator<T> = and(other)
-
-    override fun and(other: Validator<T, T>): NumberValidator<T> {
-        val combined = (this as Validator<T, T>).and(other)
-        return NumberValidatorImpl("and", prev = combined)
+/**
+ * Validates that the number is negative (less than zero).
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.int().negative()
+ * validator.validate(-1)  // Success
+ * validator.validate(0)   // Failure
+ * validator.validate(1)   // Failure
+ * ```
+ *
+ * @param message Custom error message provider
+ * @return A new validator with the negative constraint
+ */
+fun <T: Number> IdentityValidator<T>.negative(
+    message: MessageProvider0<T> = Message.resource0("kova.number.negative"),
+): IdentityValidator<T> =
+    constrain(message.id) {
+        satisfies(it.input.toDouble() < 0.0, message(it))
     }
 
-    override fun or(other: Validator<T, T>): NumberValidator<T> {
-        val combined = (this as Validator<T, T>).or(other)
-        return NumberValidatorImpl("or", prev = combined)
+/**
+ * Validates that the number is not positive (less than or equal to zero).
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.int().notPositive()
+ * validator.validate(-1)  // Success
+ * validator.validate(0)   // Success
+ * validator.validate(1)   // Failure
+ * ```
+ *
+ * @param message Custom error message provider
+ * @return A new validator with the not-positive constraint
+ */
+fun <T : Number> IdentityValidator<T>.notPositive(
+    message: MessageProvider0<T> = Message.resource0("kova.number.notPositive"),
+): IdentityValidator<T> =
+    constrain(message.id) {
+        satisfies(it.input.toDouble() <= 0.0, message(it))
     }
 
-    override fun chain(other: Validator<T, T>): NumberValidator<T> {
-        val combined = (this as Validator<T, T>).chain(other)
-        return NumberValidatorImpl("chain", prev = combined)
+/**
+ * Validates that the number is not negative (greater than or equal to zero).
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.int().notNegative()
+ * validator.validate(0)   // Success
+ * validator.validate(1)   // Success
+ * validator.validate(-1)  // Failure
+ * ```
+ *
+ * @param message Custom error message provider
+ * @return A new validator with the not-negative constraint
+ */
+fun <T : Number> IdentityValidator<T>.notNegative(
+    message: MessageProvider0<T> = Message.resource0("kova.number.notNegative"),
+): IdentityValidator<T> =
+    constrain(message.id) {
+        satisfies(it.input.toDouble() >= 0.0, message(it))
     }
-
-    override fun toString(): String = "${NumberValidator::class.simpleName}(name=$name)"
-}
