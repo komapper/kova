@@ -179,8 +179,7 @@ interface Kova {
      * @param withDefault A function that provides the default value when the input is null
      * @return A validator that replaces null with the result of withDefault()
      */
-    fun <T : Any> nullable(withDefault: () -> T): WithDefaultNullableValidator<T, T> =
-        generic<T>().asNullable(withDefault)
+    fun <T : Any> nullable(withDefault: () -> T): WithDefaultNullableValidator<T, T> = generic<T>().asNullable(withDefault)
 
     /**
      * Creates a validator that only accepts a specific literal value.
@@ -191,7 +190,7 @@ interface Kova {
      */
     fun <T : Any> literal(
         value: T,
-        message: MessageProvider1<T, T>? = null,
+        message: MessageProvider<T>? = null,
     ): IdentityValidator<T> = if (message == null) generic<T>().literal(value) else generic<T>().literal(value, message)
 
     /**
@@ -203,7 +202,7 @@ interface Kova {
      */
     fun <T : Any> literal(
         values: List<T>,
-        message: MessageProvider1<T, List<T>>? = null,
+        message: MessageProvider<T>? = null,
     ): IdentityValidator<T> = if (message == null) generic<T>().literal(values) else generic<T>().literal(values, message)
 
     /**
@@ -215,7 +214,7 @@ interface Kova {
      */
     fun <T : Any> literal(
         vararg values: T,
-        message: MessageProvider1<T, List<T>>? = null,
+        message: MessageProvider<T>? = null,
     ): IdentityValidator<T> = literal(values.toList(), message)
 
     /**

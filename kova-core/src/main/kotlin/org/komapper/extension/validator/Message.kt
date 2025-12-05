@@ -100,7 +100,7 @@ sealed interface Message {
         override val content: String get() = details.toString()
     }
 
-    companion object : MessageProvider0Factory, MessageProvider1Factory, MessageProvider2Factory
+    companion object : MessageProviderFactory
 }
 
 private const val RESOURCE_BUNDLE_BASE_NAME = "kova"

@@ -1,5 +1,30 @@
 package org.komapper.extension.validator
 
+interface MessageProvider<T> {
+    operator fun invoke(
+        context: ConstraintContext<T>,
+        vararg args: Any?,
+    ): Message
+}
+
+interface MessageProviderFactory {
+    fun <T> text(get: (ConstraintContext<T>, List<Any?>) -> String): MessageProvider<T> =
+        object : MessageProvider<T> {
+            override fun invoke(
+                context: ConstraintContext<T>,
+                vararg args: Any?,
+            ): Message = Message.Text(context.constraintId, get(context, args.toList()))
+        }
+
+    fun <T> resource(): MessageProvider<T> =
+        object : MessageProvider<T> {
+            override fun invoke(
+                context: ConstraintContext<T>,
+                vararg args: Any?,
+            ): Message = Message.Resource(context.constraintId, *args)
+        }
+}
+
 /**
  * Provides error messages for validation failures with no additional arguments.
  *

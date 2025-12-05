@@ -56,7 +56,7 @@ fun <T> TemporalValidator<T>.constrain(
         name = id,
         validator = chain(ConstraintValidator(Constraint(id, check))),
         clock = clock,
-        temporalNow = temporalNow
+        temporalNow = temporalNow,
     )
 
 /**
@@ -67,8 +67,8 @@ fun <T> TemporalValidator<T>.constrain(
  */
 fun <T> TemporalValidator<T>.min(
     value: T,
-    message: MessageProvider1<T, T> = Message.resource1("kova.temporal.min"),
-): TemporalValidator<T> where T : Temporal, T : Comparable<T> = constrain(message.id, Constraints.min(value, message))
+    message: MessageProvider<T> = Message.resource(),
+): TemporalValidator<T> where T : Temporal, T : Comparable<T> = constrain("kova.temporal.min", Constraints.min(value, message))
 
 /**
  * Validates that the temporal value is less than or equal to [value] (inclusive).
@@ -78,8 +78,8 @@ fun <T> TemporalValidator<T>.min(
  */
 fun <T> TemporalValidator<T>.max(
     value: T,
-    message: MessageProvider1<T, T> = Message.resource1("kova.temporal.max"),
-): TemporalValidator<T> where T : Temporal, T : Comparable<T> = constrain(message.id, Constraints.max(value, message))
+    message: MessageProvider<T> = Message.resource(),
+): TemporalValidator<T> where T : Temporal, T : Comparable<T> = constrain("kova.temporal.max", Constraints.max(value, message))
 
 /**
  * Validates that the temporal value is strictly greater than [value] (exclusive).
@@ -89,8 +89,8 @@ fun <T> TemporalValidator<T>.max(
  */
 fun <T> TemporalValidator<T>.gt(
     value: T,
-    message: MessageProvider1<T, T> = Message.resource1("kova.temporal.gt"),
-): TemporalValidator<T> where T : Temporal, T : Comparable<T> = constrain(message.id, Constraints.gt(value, message))
+    message: MessageProvider<T> = Message.resource(),
+): TemporalValidator<T> where T : Temporal, T : Comparable<T> = constrain("kova.temporal.gt", Constraints.gt(value, message))
 
 /**
  * Validates that the temporal value is greater than or equal to [value] (inclusive).
@@ -102,8 +102,8 @@ fun <T> TemporalValidator<T>.gt(
  */
 fun <T> TemporalValidator<T>.gte(
     value: T,
-    message: MessageProvider1<T, T> = Message.resource1("kova.temporal.gte"),
-): TemporalValidator<T> where T : Temporal, T : Comparable<T> = constrain(message.id, Constraints.gte(value, message))
+    message: MessageProvider<T> = Message.resource(),
+): TemporalValidator<T> where T : Temporal, T : Comparable<T> = constrain("kova.temporal.gte", Constraints.gte(value, message))
 
 /**
  * Validates that the temporal value is strictly less than [value] (exclusive).
@@ -113,8 +113,8 @@ fun <T> TemporalValidator<T>.gte(
  */
 fun <T> TemporalValidator<T>.lt(
     value: T,
-    message: MessageProvider1<T, T> = Message.resource1("kova.temporal.lt"),
-): TemporalValidator<T> where T : Temporal, T : Comparable<T> = constrain(message.id, Constraints.lt(value, message))
+    message: MessageProvider<T> = Message.resource(),
+): TemporalValidator<T> where T : Temporal, T : Comparable<T> = constrain("kova.temporal.lt", Constraints.lt(value, message))
 
 /**
  * Validates that the temporal value is less than or equal to [value] (inclusive).
@@ -126,8 +126,8 @@ fun <T> TemporalValidator<T>.lt(
  */
 fun <T> TemporalValidator<T>.lte(
     value: T,
-    message: MessageProvider1<T, T> = Message.resource1("kova.temporal.lte"),
-): TemporalValidator<T> where T : Temporal, T : Comparable<T> = constrain(message.id, Constraints.lte(value, message))
+    message: MessageProvider<T> = Message.resource(),
+): TemporalValidator<T> where T : Temporal, T : Comparable<T> = constrain("kova.temporal.lte", Constraints.lte(value, message))
 
 /**
  * Validates that the temporal value is in the future (strictly greater than now).
@@ -135,10 +135,10 @@ fun <T> TemporalValidator<T>.lte(
  * @param message Custom error message provider
  */
 fun <T> TemporalValidator<T>.future(
-    message: MessageProvider0<T> = Message.resource0("kova.temporal.future"),
+    message: MessageProvider<T> = Message.resource(),
 ): TemporalValidator<T> where T : Temporal, T : Comparable<T> =
-    constrain(message.id) {
-        satisfies(it.input > temporalNow.now(clock), message(it))
+    constrain("kova.temporal.future") {
+        satisfies(it.input > temporalNow.now(clock), message(it, it.input))
     }
 
 /**
@@ -147,10 +147,10 @@ fun <T> TemporalValidator<T>.future(
  * @param message Custom error message provider
  */
 fun <T> TemporalValidator<T>.futureOrPresent(
-    message: MessageProvider0<T> = Message.resource0("kova.temporal.futureOrPresent"),
+    message: MessageProvider<T> = Message.resource(),
 ): TemporalValidator<T> where T : Temporal, T : Comparable<T> =
-    constrain(message.id) {
-        satisfies(it.input >= temporalNow.now(clock), message(it))
+    constrain("kova.temporal.futureOrPresent") {
+        satisfies(it.input >= temporalNow.now(clock), message(it, it.input))
     }
 
 /**
@@ -159,10 +159,10 @@ fun <T> TemporalValidator<T>.futureOrPresent(
  * @param message Custom error message provider
  */
 fun <T> TemporalValidator<T>.past(
-    message: MessageProvider0<T> = Message.resource0("kova.temporal.past"),
+    message: MessageProvider<T> = Message.resource(),
 ): TemporalValidator<T> where T : Temporal, T : Comparable<T> =
-    constrain(message.id) {
-        satisfies(it.input < temporalNow.now(clock), message(it))
+    constrain("kova.temporal.past") {
+        satisfies(it.input < temporalNow.now(clock), message(it, it.input))
     }
 
 /**
@@ -171,10 +171,10 @@ fun <T> TemporalValidator<T>.past(
  * @param message Custom error message provider
  */
 fun <T> TemporalValidator<T>.pastOrPresent(
-    message: MessageProvider0<T> = Message.resource0("kova.temporal.pastOrPresent"),
+    message: MessageProvider<T> = Message.resource(),
 ): TemporalValidator<T> where T : Temporal, T : Comparable<T> =
-    constrain(message.id) {
-        satisfies(it.input <= temporalNow.now(clock), message(it))
+    constrain("kova.temporal.pastOrPresent") {
+        satisfies(it.input <= temporalNow.now(clock), message(it, it.input))
     }
 
 /**
@@ -185,7 +185,8 @@ fun <T> TemporalValidator<T>.pastOrPresent(
  * @param other The validator to combine with
  */
 operator fun <T> TemporalValidator<T>.plus(other: IdentityValidator<T>): TemporalValidator<T>
-    where T : Temporal, T : Comparable<T> = and(other)
+    where T : Temporal, T : Comparable<T> =
+    and(other)
 
 /**
  * Combines this validator with another validator using logical AND.
@@ -195,12 +196,13 @@ operator fun <T> TemporalValidator<T>.plus(other: IdentityValidator<T>): Tempora
  * @param other The validator to combine with
  */
 infix fun <T> TemporalValidator<T>.and(other: IdentityValidator<T>): TemporalValidator<T>
-    where T : Temporal, T : Comparable<T> = TemporalValidator(
-    name = "and",
-    validator = (this as IdentityValidator<T>).and(other),
-    clock = clock,
-    temporalNow = temporalNow,
-)
+    where T : Temporal, T : Comparable<T> =
+    TemporalValidator(
+        name = "and",
+        validator = (this as IdentityValidator<T>).and(other),
+        clock = clock,
+        temporalNow = temporalNow,
+    )
 
 /**
  * Combines this validator with another validator using logical OR.
@@ -210,7 +212,8 @@ infix fun <T> TemporalValidator<T>.and(other: IdentityValidator<T>): TemporalVal
  * @param other The validator to combine with
  */
 infix fun <T> TemporalValidator<T>.or(other: IdentityValidator<T>): TemporalValidator<T>
-    where T : Temporal, T : Comparable<T> = TemporalValidator(
+    where T : Temporal, T : Comparable<T> =
+    TemporalValidator(
         name = "or",
         validator = (this as IdentityValidator<T>).or(other),
         clock = clock,
@@ -225,9 +228,10 @@ infix fun <T> TemporalValidator<T>.or(other: IdentityValidator<T>): TemporalVali
  * @param other The validator to chain after this one
  */
 fun <T> TemporalValidator<T>.chain(other: IdentityValidator<T>): TemporalValidator<T>
-    where T : Temporal, T : Comparable<T> = TemporalValidator(
-    name = "chain",
-    validator = (this as IdentityValidator<T>).chain(other),
-    clock = clock,
-    temporalNow = temporalNow,
-)
+    where T : Temporal, T : Comparable<T> =
+    TemporalValidator(
+        name = "chain",
+        validator = (this as IdentityValidator<T>).chain(other),
+        clock = clock,
+        temporalNow = temporalNow,
+    )
