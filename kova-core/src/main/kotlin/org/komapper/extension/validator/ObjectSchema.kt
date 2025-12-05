@@ -250,8 +250,8 @@ internal data class Rule(
 
 class ObjectSchemaScope<T : Any> internal constructor(
     private val constraints: MutableList<Constraint<T>>,
-) : Constrainable<T, Unit> {
-    override fun constrain(
+) {
+    fun constrain(
         id: String,
         check: ConstraintScope.(ConstraintContext<T>) -> ConstraintResult,
     ) {
