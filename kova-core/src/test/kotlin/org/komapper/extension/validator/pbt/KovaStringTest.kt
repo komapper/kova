@@ -12,7 +12,13 @@ import io.kotest.property.arbitrary.map
 import io.kotest.property.arbitrary.string
 import io.kotest.property.checkAll
 import org.komapper.extension.validator.Kova
+import org.komapper.extension.validator.endsWith
 import org.komapper.extension.validator.isSuccess
+import org.komapper.extension.validator.length
+import org.komapper.extension.validator.max
+import org.komapper.extension.validator.min
+import org.komapper.extension.validator.notBlank
+import org.komapper.extension.validator.startsWith
 import org.komapper.extension.validator.tryValidate
 
 class KovaStringTest :

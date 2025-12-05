@@ -37,43 +37,43 @@ interface Kova {
     fun boolean(): Validator<Boolean, Boolean> = generic()
 
     /** Creates a validator for String values with string-specific constraints. */
-    fun string(): StringValidator = StringValidator()
+    fun string(): Validator<String, String> = generic()
 
     /** Creates a validator for Int values with numeric constraints. */
-    fun int(): NumberValidator<Int> = NumberValidator()
+    fun int(): Validator<Int, Int> = generic()
 
     /** Creates a validator for Long values with numeric constraints. */
-    fun long(): NumberValidator<Long> = NumberValidator()
+    fun long(): Validator<Long, Long> = generic()
 
     /** Creates a validator for Double values with numeric constraints. */
-    fun double(): NumberValidator<Double> = NumberValidator()
+    fun double(): Validator<Double, Double> = generic()
 
     /** Creates a validator for Float values with numeric constraints. */
-    fun float(): NumberValidator<Float> = NumberValidator()
+    fun float(): Validator<Float, Float> = generic()
 
     /** Creates a validator for Byte values with numeric constraints. */
-    fun byte(): NumberValidator<Byte> = NumberValidator()
+    fun byte(): Validator<Byte, Byte> = generic()
 
     /** Creates a validator for Short values with numeric constraints. */
-    fun short(): NumberValidator<Short> = NumberValidator()
+    fun short(): Validator<Short, Short> = generic()
 
     /** Creates a validator for BigDecimal values with numeric constraints. */
-    fun bigDecimal(): NumberValidator<BigDecimal> = NumberValidator()
+    fun bigDecimal(): Validator<BigDecimal, BigDecimal> = generic()
 
     /** Creates a validator for BigInteger values with numeric constraints. */
-    fun bigInteger(): NumberValidator<BigInteger> = NumberValidator()
+    fun bigInteger(): Validator<BigInteger, BigInteger> = generic()
 
     /** Creates a validator for UInt values with unsigned integer constraints. */
-    fun uInt(): UIntValidator = UIntValidator()
+    fun uInt(): Validator<UInt, UInt> = generic()
 
     /** Creates a validator for ULong values with unsigned integer constraints. */
-    fun uLong(): ULongValidator = ULongValidator()
+    fun uLong(): Validator<ULong, ULong> = generic()
 
     /** Creates a validator for UByte values with unsigned integer constraints. */
-    fun uByte(): UByteValidator = UByteValidator()
+    fun uByte(): Validator<UByte, UByte> = generic()
 
     /** Creates a validator for UShort values with unsigned integer constraints. */
-    fun uShort(): UShortValidator = UShortValidator()
+    fun uShort(): Validator<UShort, UShort> = generic()
 
     /**
      * Creates a validator for temporal values with temporal constraints.
@@ -123,26 +123,26 @@ interface Kova {
         temporal(clock = clock, temporalNow = LocalDateTimeNow)
 
     /** Creates a validator for Collection values with size and element validation. */
-    fun <E> collection(): CollectionValidator<E, Collection<E>> = CollectionValidator()
+    fun <E> collection(): Validator<Collection<E>, Collection<E>> = generic()
 
     /** Creates a validator for List values with size and element validation. */
-    fun <E> list(): CollectionValidator<E, List<E>> = CollectionValidator()
+    fun <E> list(): Validator<List<E>, List<E>> = generic()
 
     /** Creates a validator for Set values with size and element validation. */
-    fun <E> set(): CollectionValidator<E, Set<E>> = CollectionValidator()
+    fun <E> set(): Validator<Set<E>, Set<E>> = generic()
 
     /** Creates a validator for Map values with size, key, and value validation. */
-    fun <K, V> map(): MapValidator<K, V> = MapValidator()
+    fun <K, V> map(): Validator<Map<K, V>, Map<K, V>> = generic()
 
     /** Creates a validator for Map.Entry values with key and value validation. */
-    fun <K, V> mapEntry(): MapEntryValidator<K, V> = MapEntryValidator()
+    fun <K, V> mapEntry(): Validator<Map.Entry<K, V>, Map.Entry<K, V>> = generic()
 
     /**
      * Creates a generic validator that accepts any value of type T.
      *
      * This is useful as a starting point for custom validators or when no specific validation is needed.
      */
-    fun <T> generic(): Validator<T, T> = EmptyValidator()
+    fun <T> generic(): Validator<T, T> = Validator.success()
 
     /**
      * Creates a nullable validator that accepts null values.
@@ -156,7 +156,7 @@ interface Kova {
      * validator.tryValidate("hello") // Success
      * ```
      */
-    fun <T : Any> nullable(): NullableValidator<T, T> = NullableValidator("nullable", generic())
+    fun <T : Any> nullable(): Validator<T?, T?> = NullableValidator("nullable", generic())
 
     /**
      * Creates a nullable validator with a default value for null inputs.
@@ -191,8 +191,8 @@ interface Kova {
      */
     fun <T : Any> literal(
         value: T,
-        message: MessageProvider1<T, T> = Message.resource1("kova.literal.single"),
-    ): Validator<T, T> = LiteralValidator<T>().single(value, message)
+        message: MessageProvider1<T, T>? = null,
+    ): Validator<T, T> = if (message == null) generic<T>().literal(value) else generic<T>().literal(value, message)
 
     /**
      * Creates a validator that only accepts values from a specified list.
@@ -203,8 +203,8 @@ interface Kova {
      */
     fun <T : Any> literal(
         values: List<T>,
-        message: MessageProvider1<T, List<T>> = Message.resource1("kova.literal.list"),
-    ): Validator<T, T> = LiteralValidator<T>().list(values.toList(), message)
+        message: MessageProvider1<T, List<T>>? = null,
+    ): Validator<T, T> = if (message == null) generic<T>().literal(values) else generic<T>().literal(values, message)
 
     /**
      * Creates a validator that only accepts values from a specified vararg list.
@@ -215,7 +215,7 @@ interface Kova {
      */
     fun <T : Any> literal(
         vararg values: T,
-        message: MessageProvider1<T, List<T>> = Message.resource1("kova.literal.list"),
+        message: MessageProvider1<T, List<T>>? = null,
     ): Validator<T, T> = literal(values.toList(), message)
 
     /**

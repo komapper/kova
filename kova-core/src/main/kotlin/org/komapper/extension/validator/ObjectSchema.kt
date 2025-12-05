@@ -129,7 +129,7 @@ open class ObjectSchema<T : Any> private constructor(
         val validator =
             constraints
                 .map { ConstraintValidator(it) }
-                .fold(EmptyValidator<T>() as Validator<T, T>) { acc, v -> acc + v }
+                .fold(Validator.success<T>() as Validator<T, T>) { acc, v -> acc + v }
         return validator.execute(input, context)
     }
 

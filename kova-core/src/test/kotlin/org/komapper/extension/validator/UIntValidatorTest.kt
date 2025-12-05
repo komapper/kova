@@ -2,6 +2,8 @@ package org.komapper.extension.validator
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import org.komapper.extension.validator.gt
+import org.komapper.extension.validator.gte
 
 class UIntValidatorTest :
     FunSpec({

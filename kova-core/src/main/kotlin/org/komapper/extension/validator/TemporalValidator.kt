@@ -4,6 +4,36 @@ import java.time.Clock
 import java.time.temporal.Temporal
 
 /**
+ * Creates a new temporal validator.
+ *
+ * @param T The temporal type being validated
+ * @param name Debug name for the validator
+ * @param prev Previous validator in the chain
+ * @param constraint Constraint to apply
+ * @param clock Clock used for temporal comparisons (past, future, etc.)
+ * @param temporalNow Strategy for obtaining the current temporal value
+ */
+fun <T> TemporalValidator(
+    name: String = "empty",
+    prev: Validator<T, T> = Validator.success(),
+    constraint: Constraint<T> = Constraint.satisfied(),
+    clock: Clock = Clock.systemDefaultZone(),
+    temporalNow: TemporalNow<T>,
+): TemporalValidator<T> where T : Temporal, T : Comparable<T> =
+    object : TemporalValidator<T> {
+        override val clock: Clock = clock
+        override val temporalNow: TemporalNow<T> = temporalNow
+
+        override fun execute(
+            input: T,
+            context: ValidationContext,
+        ): ValidationResult<T> {
+            val next = ConstraintValidator(constraint)
+            return prev.chain(next).execute(input, context)
+        }
+    }
+
+/**
  * Validator for temporal values (LocalDate, LocalTime, LocalDateTime) with comparison constraints.
  *
  * Supports validation for all temporal types that implement [Temporal] and [Comparable].
@@ -17,231 +47,200 @@ import java.time.temporal.Temporal
  *
  * @param T The temporal type being validated
  */
-interface TemporalValidator<T> :
-    Validator<T, T>,
-    Constrainable<T, TemporalValidator<T>>
+interface TemporalValidator<T> : Validator<T, T>
     where T : Temporal, T : Comparable<T> {
-    /**
-     * Validates that the temporal value is greater than or equal to [value] (inclusive).
-     *
-     * @param value Minimum allowed value
-     * @param message Custom error message provider
-     */
-    fun min(
-        value: T,
-        message: MessageProvider1<T, T> = Message.resource1("kova.temporal.min"),
-    ): TemporalValidator<T>
+    val clock: Clock
+    val temporalNow: TemporalNow<T>
+}
 
-    /**
-     * Validates that the temporal value is less than or equal to [value] (inclusive).
-     *
-     * @param value Maximum allowed value
-     * @param message Custom error message provider
-     */
-    fun max(
-        value: T,
-        message: MessageProvider1<T, T> = Message.resource1("kova.temporal.max"),
-    ): TemporalValidator<T>
+fun <T> TemporalValidator<T>.constrain(
+    id: String,
+    check: ConstraintScope.(ConstraintContext<T>) -> ConstraintResult,
+): TemporalValidator<T> where T : Temporal, T : Comparable<T> =
+    TemporalValidator(name = id, prev = this, constraint = Constraint(id, check), clock = clock, temporalNow = temporalNow)
 
-    /**
-     * Validates that the temporal value is strictly greater than [value] (exclusive).
-     *
-     * @param value The value that the input must be greater than
-     * @param message Custom error message provider
-     */
-    fun gt(
-        value: T,
-        message: MessageProvider1<T, T> = Message.resource1("kova.temporal.gt"),
-    ): TemporalValidator<T>
+/**
+ * Validates that the temporal value is greater than or equal to [value] (inclusive).
+ *
+ * @param value Minimum allowed value
+ * @param message Custom error message provider
+ */
+fun <T> TemporalValidator<T>.min(
+    value: T,
+    message: MessageProvider1<T, T> = Message.resource1("kova.temporal.min"),
+): TemporalValidator<T> where T : Temporal, T : Comparable<T> = constrain(message.id, Constraints.min(value, message))
 
-    /**
-     * Validates that the temporal value is greater than or equal to [value] (inclusive).
-     *
-     * Alias for [min].
-     *
-     * @param value The minimum value (inclusive)
-     * @param message Custom error message provider
-     */
-    fun gte(
-        value: T,
-        message: MessageProvider1<T, T> = Message.resource1("kova.temporal.gte"),
-    ): TemporalValidator<T>
+/**
+ * Validates that the temporal value is less than or equal to [value] (inclusive).
+ *
+ * @param value Maximum allowed value
+ * @param message Custom error message provider
+ */
+fun <T> TemporalValidator<T>.max(
+    value: T,
+    message: MessageProvider1<T, T> = Message.resource1("kova.temporal.max"),
+): TemporalValidator<T> where T : Temporal, T : Comparable<T> = constrain(message.id, Constraints.max(value, message))
 
-    /**
-     * Validates that the temporal value is strictly less than [value] (exclusive).
-     *
-     * @param value The value that the input must be less than
-     * @param message Custom error message provider
-     */
-    fun lt(
-        value: T,
-        message: MessageProvider1<T, T> = Message.resource1("kova.temporal.lt"),
-    ): TemporalValidator<T>
+/**
+ * Validates that the temporal value is strictly greater than [value] (exclusive).
+ *
+ * @param value The value that the input must be greater than
+ * @param message Custom error message provider
+ */
+fun <T> TemporalValidator<T>.gt(
+    value: T,
+    message: MessageProvider1<T, T> = Message.resource1("kova.temporal.gt"),
+): TemporalValidator<T> where T : Temporal, T : Comparable<T> = constrain(message.id, Constraints.gt(value, message))
 
-    /**
-     * Validates that the temporal value is less than or equal to [value] (inclusive).
-     *
-     * Alias for [max].
-     *
-     * @param value The maximum value (inclusive)
-     * @param message Custom error message provider
-     */
-    fun lte(
-        value: T,
-        message: MessageProvider1<T, T> = Message.resource1("kova.temporal.lte"),
-    ): TemporalValidator<T>
+/**
+ * Validates that the temporal value is greater than or equal to [value] (inclusive).
+ *
+ * Alias for [min].
+ *
+ * @param value The minimum value (inclusive)
+ * @param message Custom error message provider
+ */
+fun <T> TemporalValidator<T>.gte(
+    value: T,
+    message: MessageProvider1<T, T> = Message.resource1("kova.temporal.gte"),
+): TemporalValidator<T> where T : Temporal, T : Comparable<T> = constrain(message.id, Constraints.gte(value, message))
 
-    /**
-     * Validates that the temporal value is in the future (strictly greater than now).
-     *
-     * @param message Custom error message provider
-     */
-    fun future(message: MessageProvider0<T> = Message.resource0("kova.temporal.future")): TemporalValidator<T>
+/**
+ * Validates that the temporal value is strictly less than [value] (exclusive).
+ *
+ * @param value The value that the input must be less than
+ * @param message Custom error message provider
+ */
+fun <T> TemporalValidator<T>.lt(
+    value: T,
+    message: MessageProvider1<T, T> = Message.resource1("kova.temporal.lt"),
+): TemporalValidator<T> where T : Temporal, T : Comparable<T> = constrain(message.id, Constraints.lt(value, message))
 
-    /**
-     * Validates that the temporal value is in the future or present (greater than or equal to now).
-     *
-     * @param message Custom error message provider
-     */
-    fun futureOrPresent(message: MessageProvider0<T> = Message.resource0("kova.temporal.futureOrPresent")): TemporalValidator<T>
+/**
+ * Validates that the temporal value is less than or equal to [value] (inclusive).
+ *
+ * Alias for [max].
+ *
+ * @param value The maximum value (inclusive)
+ * @param message Custom error message provider
+ */
+fun <T> TemporalValidator<T>.lte(
+    value: T,
+    message: MessageProvider1<T, T> = Message.resource1("kova.temporal.lte"),
+): TemporalValidator<T> where T : Temporal, T : Comparable<T> = constrain(message.id, Constraints.lte(value, message))
 
-    /**
-     * Validates that the temporal value is in the past (strictly less than now).
-     *
-     * @param message Custom error message provider
-     */
-    fun past(message: MessageProvider0<T> = Message.resource0("kova.temporal.past")): TemporalValidator<T>
+/**
+ * Validates that the temporal value is in the future (strictly greater than now).
+ *
+ * @param message Custom error message provider
+ */
+fun <T> TemporalValidator<T>.future(
+    message: MessageProvider0<T> = Message.resource0("kova.temporal.future"),
+): TemporalValidator<T> where T : Temporal, T : Comparable<T> =
+    constrain(message.id) {
+        satisfies(it.input > temporalNow.now(clock), message(it))
+    }
 
-    /**
-     * Validates that the temporal value is in the past or present (less than or equal to now).
-     *
-     * @param message Custom error message provider
-     */
-    fun pastOrPresent(message: MessageProvider0<T> = Message.resource0("kova.temporal.pastOrPresent")): TemporalValidator<T>
+/**
+ * Validates that the temporal value is in the future or present (greater than or equal to now).
+ *
+ * @param message Custom error message provider
+ */
+fun <T> TemporalValidator<T>.futureOrPresent(
+    message: MessageProvider0<T> = Message.resource0("kova.temporal.futureOrPresent"),
+): TemporalValidator<T> where T : Temporal, T : Comparable<T> =
+    constrain(message.id) {
+        satisfies(it.input >= temporalNow.now(clock), message(it))
+    }
 
-    operator fun plus(other: Validator<T, T>): TemporalValidator<T>
+/**
+ * Validates that the temporal value is in the past (strictly less than now).
+ *
+ * @param message Custom error message provider
+ */
+fun <T> TemporalValidator<T>.past(
+    message: MessageProvider0<T> = Message.resource0("kova.temporal.past"),
+): TemporalValidator<T> where T : Temporal, T : Comparable<T> =
+    constrain(message.id) {
+        satisfies(it.input < temporalNow.now(clock), message(it))
+    }
 
-    infix fun and(other: Validator<T, T>): TemporalValidator<T>
+/**
+ * Validates that the temporal value is in the past or present (less than or equal to now).
+ *
+ * @param message Custom error message provider
+ */
+fun <T> TemporalValidator<T>.pastOrPresent(
+    message: MessageProvider0<T> = Message.resource0("kova.temporal.pastOrPresent"),
+): TemporalValidator<T> where T : Temporal, T : Comparable<T> =
+    constrain(message.id) {
+        satisfies(it.input <= temporalNow.now(clock), message(it))
+    }
 
-    infix fun or(other: Validator<T, T>): TemporalValidator<T>
+/**
+ * Combines this validator with another validator using logical AND.
+ *
+ * Alias for [and].
+ *
+ * @param other The validator to combine with
+ */
+operator fun <T> TemporalValidator<T>.plus(other: Validator<T, T>): TemporalValidator<T>
+    where T : Temporal, T : Comparable<T> =
+    and(other)
 
-    fun chain(other: Validator<T, T>): TemporalValidator<T>
+/**
+ * Combines this validator with another validator using logical AND.
+ *
+ * Both validators must pass for the combined validator to pass.
+ *
+ * @param other The validator to combine with
+ */
+infix fun <T> TemporalValidator<T>.and(other: Validator<T, T>): TemporalValidator<T>
+    where T : Temporal, T : Comparable<T> {
+    val combined = (this as Validator<T, T>).and(other)
+    return TemporalValidator(
+        name = "and",
+        prev = combined,
+        constraint = Constraint.satisfied(),
+        clock = clock,
+        temporalNow = temporalNow,
+    )
 }
 
 /**
- * Creates a new temporal validator.
+ * Combines this validator with another validator using logical OR.
  *
- * @param T The temporal type being validated
- * @param name Debug name for the validator
- * @param prev Previous validator in the chain
- * @param constraint Constraint to apply
- * @param clock Clock used for temporal comparisons (past, future, etc.)
- * @param temporalNow Strategy for obtaining the current temporal value
+ * Either validator can pass for the combined validator to pass.
+ *
+ * @param other The validator to combine with
  */
-fun <T> TemporalValidator(
-    name: String = "empty",
-    prev: Validator<T, T> = EmptyValidator(),
-    constraint: Constraint<T> = Constraint.satisfied(),
-    clock: Clock = Clock.systemDefaultZone(),
-    temporalNow: TemporalNow<T>,
-): TemporalValidator<T> where T : Temporal, T : Comparable<T> = TemporalValidatorImpl(name, prev, constraint, clock, temporalNow)
-
-private class TemporalValidatorImpl<T>(
-    private val name: String,
-    private val prev: Validator<T, T>,
-    private val constraint: Constraint<T>,
-    private val clock: Clock,
-    private val temporalNow: TemporalNow<T>,
-) : TemporalValidator<T>
+infix fun <T> TemporalValidator<T>.or(other: Validator<T, T>): TemporalValidator<T>
     where T : Temporal, T : Comparable<T> {
-    private val next: ConstraintValidator<T> = ConstraintValidator(constraint)
+    val combined = (this as Validator<T, T>).or(other)
+    return TemporalValidator(
+        name = "or",
+        prev = combined,
+        constraint = Constraint.satisfied(),
+        clock = clock,
+        temporalNow = temporalNow,
+    )
+}
 
-    override fun execute(
-        input: T,
-        context: ValidationContext,
-    ): ValidationResult<T> {
-        val context = context.addLog(toString())
-        return prev.chain(next).execute(input, context)
-    }
-
-    override fun constrain(
-        id: String,
-        check: ConstraintScope.(ConstraintContext<T>) -> ConstraintResult,
-    ): TemporalValidator<T> =
-        TemporalValidatorImpl(name = id, prev = this, constraint = Constraint(id, check), clock = clock, temporalNow = temporalNow)
-
-    override fun min(
-        value: T,
-        message: MessageProvider1<T, T>,
-    ): TemporalValidator<T> = constrain(message.id, Constraints.min(value, message))
-
-    override fun max(
-        value: T,
-        message: MessageProvider1<T, T>,
-    ): TemporalValidator<T> = constrain(message.id, Constraints.max(value, message))
-
-    override fun gt(
-        value: T,
-        message: MessageProvider1<T, T>,
-    ): TemporalValidator<T> = constrain(message.id, Constraints.gt(value, message))
-
-    override fun gte(
-        value: T,
-        message: MessageProvider1<T, T>,
-    ): TemporalValidator<T> = constrain(message.id, Constraints.gte(value, message))
-
-    override fun lt(
-        value: T,
-        message: MessageProvider1<T, T>,
-    ): TemporalValidator<T> = constrain(message.id, Constraints.lt(value, message))
-
-    override fun lte(
-        value: T,
-        message: MessageProvider1<T, T>,
-    ): TemporalValidator<T> = constrain(message.id, Constraints.lte(value, message))
-
-    override fun future(message: MessageProvider0<T>): TemporalValidator<T> =
-        constrain(message.id) {
-            satisfies(it.input > temporalNow.now(clock), message(it))
-        }
-
-    override fun futureOrPresent(message: MessageProvider0<T>): TemporalValidator<T> =
-        constrain(message.id) {
-            satisfies(it.input >= temporalNow.now(clock), message(it))
-        }
-
-    override fun past(message: MessageProvider0<T>): TemporalValidator<T> =
-        constrain(message.id) {
-            satisfies(it.input < temporalNow.now(clock), message(it))
-        }
-
-    override fun pastOrPresent(message: MessageProvider0<T>): TemporalValidator<T> =
-        constrain(message.id) {
-            satisfies(it.input <= temporalNow.now(clock), message(it))
-        }
-
-    override operator fun plus(other: Validator<T, T>): TemporalValidator<T> = and(other)
-
-    override fun and(other: Validator<T, T>): TemporalValidator<T> {
-        val combined = (this as Validator<T, T>).and(other)
-        return TemporalValidatorImpl("and", prev = combined, constraint = Constraint.satisfied(), clock = clock, temporalNow = temporalNow)
-    }
-
-    override fun or(other: Validator<T, T>): TemporalValidator<T> {
-        val combined = (this as Validator<T, T>).or(other)
-        return TemporalValidatorImpl("or", prev = combined, constraint = Constraint.satisfied(), clock = clock, temporalNow = temporalNow)
-    }
-
-    override fun chain(other: Validator<T, T>): TemporalValidator<T> {
-        val combined = (this as Validator<T, T>).chain(other)
-        return TemporalValidatorImpl(
-            "chain",
-            prev = combined,
-            constraint = Constraint.satisfied(),
-            clock = clock,
-            temporalNow = temporalNow,
-        )
-    }
-
-    override fun toString(): String = "${TemporalValidator::class.simpleName}(name=$name)"
+/**
+ * Chains this validator with another validator.
+ *
+ * The second validator is applied after this validator passes.
+ *
+ * @param other The validator to chain after this one
+ */
+fun <T> TemporalValidator<T>.chain(other: Validator<T, T>): TemporalValidator<T>
+    where T : Temporal, T : Comparable<T> {
+    val combined = (this as Validator<T, T>).chain(other)
+    return TemporalValidator(
+        name = "chain",
+        prev = combined,
+        constraint = Constraint.satisfied(),
+        clock = clock,
+        temporalNow = temporalNow,
+    )
 }

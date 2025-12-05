@@ -2,181 +2,131 @@ package org.komapper.extension.validator
 
 import kotlin.reflect.KClass
 
-/**
- * Validator for String values with string-specific validation constraints.
- *
- * Provides methods for validating string length, content, format, and patterns.
- * All validators are immutable and can be composed using operators.
- *
- * Example:
- * ```kotlin
- * val validator = Kova.string()
- *     .min(3)
- *     .max(20)
- *     .notBlank()
- *     .matches(Regex("[a-zA-Z0-9]+"))
- * ```
- */
-interface StringValidator :
-    Validator<String, String>,
-    Constrainable<String, StringValidator>,
-    Modifiable<String, StringValidator> {
-    /**
-     * Validates that the string has at least [length] characters.
-     *
-     * @param length Minimum number of characters required
-     * @param message Custom error message provider
-     */
-    fun min(
-        length: Int,
-        message: MessageProvider1<String, Int> = Message.resource1("kova.string.min"),
-    ): StringValidator
+typealias StringValidator = Validator<String, String>
 
-    /**
-     * Validates that the string has at most [length] characters.
-     *
-     * @param length Maximum number of characters allowed
-     * @param message Custom error message provider
-     */
-    fun max(
-        length: Int,
-        message: MessageProvider1<String, Int> = Message.resource1("kova.string.max"),
-    ): StringValidator
+fun StringValidator.min(
+    length: Int,
+    message: MessageProvider1<String, Int> = Message.resource1("kova.string.min"),
+) = constrain(message.id) {
+    satisfies(it.input.length >= length, message(it, length))
+}
 
-    /**
-     * Validates that the string is not blank (not empty and contains non-whitespace characters).
-     *
-     * @param message Custom error message provider
-     */
-    fun notBlank(message: MessageProvider0<String> = Message.resource0("kova.string.notBlank")): StringValidator
+fun StringValidator.max(
+    length: Int,
+    message: MessageProvider1<String, Int> = Message.resource1("kova.string.max"),
+) = constrain(message.id) {
+    satisfies(it.input.length <= length, message(it, length))
+}
 
-    /**
-     * Validates that the string is not empty (length > 0).
-     *
-     * @param message Custom error message provider
-     */
-    fun notEmpty(message: MessageProvider0<String> = Message.resource0("kova.string.notEmpty")): StringValidator
+fun StringValidator.notBlank(message: MessageProvider0<String> = Message.resource0("kova.string.notBlank")) =
+    constrain(message.id) {
+        satisfies(it.input.isNotBlank(), message(it))
+    }
 
-    /**
-     * Validates that the string has exactly [length] characters.
-     *
-     * @param length Exact number of characters required
-     * @param message Custom error message provider
-     */
-    fun length(
-        length: Int,
-        message: MessageProvider1<String, Int> = Message.resource1("kova.string.length"),
-    ): StringValidator
+fun StringValidator.notEmpty(message: MessageProvider0<String> = Message.resource0("kova.string.notEmpty")) =
+    constrain(message.id) {
+        satisfies(it.input.isNotEmpty(), message(it))
+    }
 
-    /**
-     * Validates that the string starts with the specified prefix.
-     *
-     * @param prefix The required prefix
-     * @param message Custom error message provider
-     */
-    fun startsWith(
-        prefix: CharSequence,
-        message: MessageProvider1<String, CharSequence> = Message.resource1("kova.string.startsWith"),
-    ): StringValidator
+fun StringValidator.length(
+    length: Int,
+    message: MessageProvider1<String, Int> = Message.resource1("kova.string.length"),
+) = constrain(message.id) {
+    satisfies(it.input.length == length, message(it, length))
+}
 
-    /**
-     * Validates that the string ends with the specified suffix.
-     *
-     * @param suffix The required suffix
-     * @param message Custom error message provider
-     */
-    fun endsWith(
-        suffix: CharSequence,
-        message: MessageProvider1<String, CharSequence> = Message.resource1("kova.string.endsWith"),
-    ): StringValidator
+fun StringValidator.startsWith(
+    prefix: CharSequence,
+    message: MessageProvider1<String, CharSequence> = Message.resource1("kova.string.startsWith"),
+) = constrain(message.id) {
+    satisfies(it.input.startsWith(prefix), message(it, prefix))
+}
 
-    /**
-     * Validates that the string contains the specified substring.
-     *
-     * @param infix The required substring
-     * @param message Custom error message provider
-     */
-    fun contains(
-        infix: CharSequence,
-        message: MessageProvider1<String, CharSequence> = Message.resource1("kova.string.contains"),
-    ): StringValidator
+fun StringValidator.endsWith(
+    suffix: CharSequence,
+    message: MessageProvider1<String, CharSequence> = Message.resource1("kova.string.endsWith"),
+) = constrain(message.id) {
+    satisfies(it.input.endsWith(suffix), message(it, suffix))
+}
 
-    /**
-     * Validates that the string matches the specified regular expression pattern.
-     *
-     * @param pattern The regex pattern to match
-     * @param message Custom error message provider
-     */
-    fun matches(
-        pattern: Regex,
-        message: MessageProvider1<String, Regex> = Message.resource1("kova.string.matches"),
-    ): StringValidator
+fun StringValidator.contains(
+    infix: CharSequence,
+    message: MessageProvider1<String, CharSequence> = Message.resource1("kova.string.contains"),
+) = constrain(message.id) {
+    satisfies(it.input.contains(infix), message(it, infix))
+}
 
-    /**
-     * Validates that the string is a valid email address format.
-     *
-     * @param message Custom error message provider
-     */
-    fun email(message: MessageProvider0<String> = Message.resource0("kova.string.email")): StringValidator
+fun StringValidator.matches(
+    pattern: Regex,
+    message: MessageProvider1<String, Regex> = Message.resource1("kova.string.matches"),
+) = constrain(message.id) {
+    satisfies(pattern.matches(it.input), message(it, pattern))
+}
 
-    fun isInt(message: MessageProvider0<String> = Message.resource0("kova.string.isInt")): StringValidator
+fun StringValidator.email(message: MessageProvider0<String> = Message.resource0("kova.string.email")) =
+    constrain(message.id) {
+        val emailPattern =
+            Regex(
+                "^(?!\\.)(?!.*\\.\\.)([a-z0-9_'+\\-\\.]*)[a-z0-9_+-]@([a-z0-9][a-z0-9\\-]*\\.)+[a-z]{2,}\$",
+                RegexOption.IGNORE_CASE,
+            )
+        satisfies(emailPattern.matches(it.input), message(it))
+    }
 
-    fun isLong(message: MessageProvider0<String> = Message.resource0("kova.string.isLong")): StringValidator
+fun StringValidator.isInt(message: MessageProvider0<String> = Message.resource0("kova.string.isInt")) =
+    constrain(message.id) {
+        satisfies(it.input.toIntOrNull() != null, message(it))
+    }
 
-    fun isShort(message: MessageProvider0<String> = Message.resource0("kova.string.isShort")): StringValidator
+fun StringValidator.isLong(message: MessageProvider0<String> = Message.resource0("kova.string.isLong")) =
+    constrain(message.id) {
+        satisfies(it.input.toLongOrNull() != null, message(it))
+    }
 
-    fun isByte(message: MessageProvider0<String> = Message.resource0("kova.string.isByte")): StringValidator
+fun StringValidator.isShort(message: MessageProvider0<String> = Message.resource0("kova.string.isShort")) =
+    constrain(message.id) {
+        satisfies(it.input.toShortOrNull() != null, message(it))
+    }
 
-    fun isDouble(message: MessageProvider0<String> = Message.resource0("kova.string.isDouble")): StringValidator
+fun StringValidator.isByte(message: MessageProvider0<String> = Message.resource0("kova.string.isByte")) =
+    constrain(message.id) {
+        satisfies(it.input.toByteOrNull() != null, message(it))
+    }
 
-    fun isFloat(message: MessageProvider0<String> = Message.resource0("kova.string.isFloat")): StringValidator
+fun StringValidator.isDouble(message: MessageProvider0<String> = Message.resource0("kova.string.isDouble")) =
+    constrain(message.id) {
+        satisfies(it.input.toDoubleOrNull() != null, message(it))
+    }
 
-    fun isBigDecimal(message: MessageProvider0<String> = Message.resource0("kova.string.isBigDecimal")): StringValidator
+fun StringValidator.isFloat(message: MessageProvider0<String> = Message.resource0("kova.string.isFloat")) =
+    constrain(message.id) {
+        satisfies(it.input.toFloatOrNull() != null, message(it))
+    }
 
-    fun isBigInteger(message: MessageProvider0<String> = Message.resource0("kova.string.isBigInteger")): StringValidator
+fun StringValidator.isBigDecimal(message: MessageProvider0<String> = Message.resource0("kova.string.isBigDecimal")) =
+    constrain(message.id) {
+        satisfies(it.input.toBigDecimalOrNull() != null, message(it))
+    }
 
-    fun isBoolean(message: MessageProvider0<String> = Message.resource0("kova.string.isBoolean")): StringValidator
+fun StringValidator.isBigInteger(message: MessageProvider0<String> = Message.resource0("kova.string.isBigInteger")) =
+    constrain(message.id) {
+        satisfies(it.input.toBigIntegerOrNull() != null, message(it))
+    }
 
-    fun <E : Enum<E>> isEnum(
-        klass: KClass<E>,
-        message: MessageProvider1<String, List<String>> = Message.resource1("kova.string.isEnum"),
-    ): StringValidator
+fun StringValidator.isBoolean(message: MessageProvider0<String> = Message.resource0("kova.string.isBoolean")) =
+    constrain(message.id) {
+        satisfies(it.input.toBooleanStrictOrNull() != null, message(it))
+    }
 
-    fun uppercase(message: MessageProvider0<String> = Message.resource0("kova.string.uppercase")): StringValidator
-
-    fun lowercase(message: MessageProvider0<String> = Message.resource0("kova.string.lowercase")): StringValidator
-
-    fun trim(): StringValidator
-
-    fun toUpperCase(): StringValidator
-
-    fun toLowerCase(): StringValidator
-
-    fun toInt(): Validator<String, Int>
-
-    fun toLong(): Validator<String, Long>
-
-    fun toShort(): Validator<String, Short>
-
-    fun toByte(): Validator<String, Byte>
-
-    fun toDouble(): Validator<String, Double>
-
-    fun toFloat(): Validator<String, Float>
-
-    fun toBigDecimal(): Validator<String, java.math.BigDecimal>
-
-    fun toBigInteger(): Validator<String, java.math.BigInteger>
-
-    fun toBoolean(): Validator<String, Boolean>
-
-    operator fun plus(other: Validator<String, String>): StringValidator
-
-    infix fun and(other: Validator<String, String>): StringValidator
-
-    infix fun or(other: Validator<String, String>): StringValidator
-
-    fun chain(other: Validator<String, String>): StringValidator
+fun <E : Enum<E>> StringValidator.isEnum(
+    klass: KClass<E>,
+    message: MessageProvider1<String, List<String>> = Message.resource1("kova.string.isEnum"),
+): StringValidator {
+    val enumValues = klass.java.enumConstants
+    val validNames = enumValues.map { it.name }
+    return this.constrain(message.id) { ctx ->
+        satisfies(validNames.contains(ctx.input), message(ctx, validNames))
+    }
 }
 
 inline fun <reified E : Enum<E>> StringValidator.isEnum(): StringValidator {
@@ -189,220 +139,36 @@ inline fun <reified E : Enum<E>> StringValidator.isEnum(): StringValidator {
 
 inline fun <reified E : Enum<E>> StringValidator.toEnum(): Validator<String, E> = isEnum<E>().map { enumValueOf<E>(it) }
 
-fun StringValidator(
-    name: String = "empty",
-    prev: Validator<String, String> = EmptyValidator(),
-    transform: (String) -> String = { it },
-    constraint: Constraint<String> = Constraint.satisfied(),
-): StringValidator = StringValidatorImpl(name, prev, transform, constraint)
-
-private class StringValidatorImpl(
-    private val name: String,
-    private val prev: Validator<String, String>,
-    private val transform: (String) -> String = { it },
-    private val constraint: Constraint<String> = Constraint.satisfied(),
-) : StringValidator {
-    private val next: ConstraintValidator<String> = ConstraintValidator(constraint)
-
-    override fun execute(
-        input: String,
-        context: ValidationContext,
-    ): ValidationResult<String> {
-        val context = context.addLog(toString())
-        return prev.map(transform).chain(next).execute(input, context)
+fun StringValidator.uppercase(message: MessageProvider0<String> = Message.resource0("kova.string.uppercase")) =
+    constrain(message.id) {
+        satisfies(it.input == it.input.uppercase(), message(it))
     }
 
-    override fun constrain(
-        id: String,
-        check: ConstraintScope.(ConstraintContext<String>) -> ConstraintResult,
-    ): StringValidator = StringValidatorImpl(name = id, prev = this, constraint = Constraint(id, check))
-
-    override fun modify(
-        name: String,
-        transform: (String) -> String,
-    ): StringValidator = StringValidatorImpl(name = name, prev = this, transform = transform)
-
-    override fun min(
-        length: Int,
-        message: MessageProvider1<String, Int>,
-    ): StringValidator =
-        constrain(message.id) {
-            satisfies(it.input.length >= length, message(it, length))
-        }
-
-    override fun max(
-        length: Int,
-        message: MessageProvider1<String, Int>,
-    ): StringValidator =
-        constrain(message.id) {
-            satisfies(it.input.length <= length, message(it, length))
-        }
-
-    override fun notBlank(message: MessageProvider0<String>): StringValidator =
-        constrain(message.id) {
-            satisfies(it.input.isNotBlank(), message(it))
-        }
-
-    override fun notEmpty(message: MessageProvider0<String>): StringValidator =
-        constrain(message.id) {
-            satisfies(it.input.isNotEmpty(), message(it))
-        }
-
-    override fun length(
-        length: Int,
-        message: MessageProvider1<String, Int>,
-    ): StringValidator =
-        constrain(message.id) {
-            satisfies(it.input.length == length, message(it, length))
-        }
-
-    override fun startsWith(
-        prefix: CharSequence,
-        message: MessageProvider1<String, CharSequence>,
-    ): StringValidator =
-        constrain(message.id) {
-            satisfies(it.input.startsWith(prefix), message(it, prefix))
-        }
-
-    override fun endsWith(
-        suffix: CharSequence,
-        message: MessageProvider1<String, CharSequence>,
-    ): StringValidator =
-        constrain(message.id) {
-            satisfies(it.input.endsWith(suffix), message(it, suffix))
-        }
-
-    override fun contains(
-        infix: CharSequence,
-        message: MessageProvider1<String, CharSequence>,
-    ) = constrain(message.id) {
-        satisfies(it.input.contains(infix), message(it, infix))
+fun StringValidator.lowercase(message: MessageProvider0<String> = Message.resource0("kova.string.lowercase")) =
+    constrain(message.id) {
+        satisfies(it.input == it.input.lowercase(), message(it))
     }
 
-    override fun matches(
-        pattern: Regex,
-        message: MessageProvider1<String, Regex>,
-    ): StringValidator =
-        constrain(message.id) {
-            satisfies(pattern.matches(it.input), message(it, pattern))
-        }
+fun StringValidator.trim() = map { it.trim() }
 
-    override fun email(message: MessageProvider0<String>): StringValidator =
-        constrain(message.id) {
-            val emailPattern =
-                Regex(
-                    "^(?!\\.)(?!.*\\.\\.)([a-z0-9_'+\\-\\.]*)[a-z0-9_+-]@([a-z0-9][a-z0-9\\-]*\\.)+[a-z]{2,}\$",
-                    RegexOption.IGNORE_CASE,
-                )
-            satisfies(emailPattern.matches(it.input), message(it))
-        }
+fun StringValidator.toUpperCase() = map { it.uppercase() }
 
-    override fun isInt(message: MessageProvider0<String>): StringValidator =
-        constrain(message.id) {
-            satisfies(it.input.toIntOrNull() != null, message(it))
-        }
+fun StringValidator.toLowerCase() = map { it.lowercase() }
 
-    override fun isLong(message: MessageProvider0<String>): StringValidator =
-        constrain(message.id) {
-            satisfies(it.input.toLongOrNull() != null, message(it))
-        }
+fun StringValidator.toInt(): Validator<String, Int> = isInt().map { it.toInt() }
 
-    override fun isShort(message: MessageProvider0<String>): StringValidator =
-        constrain(message.id) {
-            satisfies(it.input.toShortOrNull() != null, message(it))
-        }
+fun StringValidator.toLong(): Validator<String, Long> = isLong().map { it.toLong() }
 
-    override fun isByte(message: MessageProvider0<String>): StringValidator =
-        constrain(message.id) {
-            satisfies(it.input.toByteOrNull() != null, message(it))
-        }
+fun StringValidator.toShort(): Validator<String, Short> = isShort().map { it.toShort() }
 
-    override fun isDouble(message: MessageProvider0<String>): StringValidator =
-        constrain(message.id) {
-            satisfies(it.input.toDoubleOrNull() != null, message(it))
-        }
+fun StringValidator.toByte(): Validator<String, Byte> = isByte().map { it.toByte() }
 
-    override fun isFloat(message: MessageProvider0<String>): StringValidator =
-        constrain(message.id) {
-            satisfies(it.input.toFloatOrNull() != null, message(it))
-        }
+fun StringValidator.toDouble(): Validator<String, Double> = isDouble().map { it.toDouble() }
 
-    override fun isBigDecimal(message: MessageProvider0<String>): StringValidator =
-        constrain(message.id) {
-            satisfies(it.input.toBigDecimalOrNull() != null, message(it))
-        }
+fun StringValidator.toFloat(): Validator<String, Float> = isFloat().map { it.toFloat() }
 
-    override fun isBigInteger(message: MessageProvider0<String>): StringValidator =
-        constrain(message.id) {
-            satisfies(it.input.toBigIntegerOrNull() != null, message(it))
-        }
+fun StringValidator.toBigDecimal(): Validator<String, java.math.BigDecimal> = isBigDecimal().map { it.toBigDecimal() }
 
-    override fun isBoolean(message: MessageProvider0<String>): StringValidator =
-        constrain(message.id) {
-            satisfies(it.input.toBooleanStrictOrNull() != null, message(it))
-        }
+fun StringValidator.toBigInteger(): Validator<String, java.math.BigInteger> = isBigInteger().map { it.toBigInteger() }
 
-    override fun <E : Enum<E>> isEnum(
-        klass: KClass<E>,
-        message: MessageProvider1<String, List<String>>,
-    ): StringValidator {
-        val enumValues = klass.java.enumConstants
-        val validNames = enumValues.map { it.name }
-        return this.constrain(message.id) { ctx ->
-            satisfies(validNames.contains(ctx.input), message(ctx, validNames))
-        }
-    }
-
-    override fun uppercase(message: MessageProvider0<String>): StringValidator =
-        constrain(message.id) {
-            satisfies(it.input == it.input.uppercase(), message(it))
-        }
-
-    override fun lowercase(message: MessageProvider0<String>): StringValidator =
-        constrain(message.id) {
-            satisfies(it.input == it.input.lowercase(), message(it))
-        }
-
-    override fun trim() = modify("trim") { it.trim() }
-
-    override fun toUpperCase() = modify("toUpperCase") { it.uppercase() }
-
-    override fun toLowerCase() = modify("toLowerCase") { it.lowercase() }
-
-    override fun toInt(): Validator<String, Int> = isInt().map { it.toInt() }
-
-    override fun toLong(): Validator<String, Long> = isLong().map { it.toLong() }
-
-    override fun toShort(): Validator<String, Short> = isShort().map { it.toShort() }
-
-    override fun toByte(): Validator<String, Byte> = isByte().map { it.toByte() }
-
-    override fun toDouble(): Validator<String, Double> = isDouble().map { it.toDouble() }
-
-    override fun toFloat(): Validator<String, Float> = isFloat().map { it.toFloat() }
-
-    override fun toBigDecimal(): Validator<String, java.math.BigDecimal> = isBigDecimal().map { it.toBigDecimal() }
-
-    override fun toBigInteger(): Validator<String, java.math.BigInteger> = isBigInteger().map { it.toBigInteger() }
-
-    override fun toBoolean(): Validator<String, Boolean> = isBoolean().map { it.toBoolean() }
-
-    override operator fun plus(other: Validator<String, String>): StringValidator = and(other)
-
-    override fun and(other: Validator<String, String>): StringValidator {
-        val combined = (this as Validator<String, String>).and(other)
-        return StringValidatorImpl("and", prev = combined)
-    }
-
-    override fun or(other: Validator<String, String>): StringValidator {
-        val combined = (this as Validator<String, String>).or(other)
-        return StringValidatorImpl("or", prev = combined)
-    }
-
-    override fun chain(other: Validator<String, String>): StringValidator {
-        val combined = (this as Validator<String, String>).chain(other)
-        return StringValidatorImpl("chain", prev = combined)
-    }
-
-    override fun toString(): String = "${StringValidator::class.simpleName}(name=$name)"
-}
+fun StringValidator.toBoolean(): Validator<String, Boolean> = isBoolean().map { it.toBoolean() }

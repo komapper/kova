@@ -27,6 +27,10 @@ fun interface Validator<IN, OUT> {
         input: IN,
         context: ValidationContext,
     ): ValidationResult<OUT>
+
+    companion object {
+        fun <T> success() = Validator<T, T> { input, context -> Success(input, context) }
+    }
 }
 
 /**

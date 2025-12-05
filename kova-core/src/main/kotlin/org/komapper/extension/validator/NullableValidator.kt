@@ -2,33 +2,21 @@ package org.komapper.extension.validator
 
 import org.komapper.extension.validator.ValidationResult.Success
 
-interface NullableValidator<T : Any, S : Any> :
-    Validator<T?, S?>,
-    Constrainable<T?, NullableValidator<T, S>> {
-    fun isNull(message: MessageProvider0<T?> = Message.resource0("kova.nullable.isNull")): NullableValidator<T, S>
+typealias NullableValidator<T, S> = Validator<T?, S?>
 
-    fun notNull(message: MessageProvider0<T?> = Message.resource0("kova.nullable.notNull")): NullableValidator<T, S>
-
-    operator fun plus(other: Validator<T, S>): NullableValidator<T, S>
-
-    infix fun and(other: Validator<T, S>): NullableValidator<T, S>
-
-    infix fun or(other: Validator<T, S>): NullableValidator<T, S>
-
-    fun <U : Any> compose(other: Validator<U, T>): NullableValidator<U, S>
-
-    fun <U : Any> then(other: Validator<S, U>): NullableValidator<T, U>
-
-    fun toNonNullable(): Validator<T?, S>
-
-    fun withDefault(defaultValue: S): WithDefaultNullableValidator<T, S> = withDefault { defaultValue }
-
-    fun withDefault(provide: () -> S): WithDefaultNullableValidator<T, S>
-}
+internal fun <T : Any, S : Any> NullableValidator(
+    name: String,
+    after: NullableValidator<T, S>,
+    constraint: Constraint<T?> = Constraint.satisfied(),
+): NullableValidator<T, S> =
+    Validator { input, context ->
+        val before = ConstraintValidator(constraint)
+        before.then(after).execute(input, context)
+    }
 
 fun <T : Any, S : Any> Validator<T, S>.asNullable(): NullableValidator<T, S> {
     val self = this
-    // convert Validator<T, S> to Validator<T?, S?>
+    // convert Validator<T, S> to NullableValidator<T, S>
     val wrapped =
         Validator<T?, S?> { input, context ->
             val context = context.addLog("Validator.asNullable")
@@ -37,60 +25,37 @@ fun <T : Any, S : Any> Validator<T, S>.asNullable(): NullableValidator<T, S> {
     return NullableValidator("asNullable", wrapped)
 }
 
-fun <T : Any, S : Any> NullableValidator(
-    name: String,
-    after: Validator<T?, S?>,
-    constraint: Constraint<T?> = Constraint.satisfied(),
-): NullableValidator<T, S> = NullableValidatorImpl(name, after, constraint)
+fun <T : Any, S : Any> NullableValidator<T, S>.constrain(
+    id: String,
+    check: ConstraintScope.(ConstraintContext<T?>) -> ConstraintResult,
+): NullableValidator<T, S> = NullableValidator("constrain", after = this, constraint = Constraint(id, check))
 
-private class NullableValidatorImpl<T : Any, S : Any>(
-    private val name: String,
-    private val after: Validator<T?, S?>,
-    constraint: Constraint<T?> = Constraint.satisfied(),
-) : NullableValidator<T, S> {
-    private val before: ConstraintValidator<T?> = ConstraintValidator(constraint)
+fun <T : Any, S : Any> NullableValidator<T, S>.isNull(
+    message: MessageProvider0<T?> = Message.resource0("kova.nullable.isNull"),
+): NullableValidator<T, S> = constrain(message.id, Constraints.isNull(message))
 
-    override fun execute(
-        input: T?,
-        context: ValidationContext,
-    ): ValidationResult<S?> {
-        val context = context.addLog(toString())
-        return before.then(after).execute(input, context)
-    }
+fun <T : Any, S : Any> NullableValidator<T, S>.notNull(
+    message: MessageProvider0<T?> = Message.resource0("kova.nullable.notNull"),
+): NullableValidator<T, S> = constrain(message.id, Constraints.notNull(message))
 
-    override fun constrain(
-        id: String,
-        check: ConstraintScope.(ConstraintContext<T?>) -> ConstraintResult,
-    ): NullableValidator<T, S> = NullableValidatorImpl(id, after, Constraint(id, check))
+fun <T : Any, S : Any> NullableValidator<T, S>.toNonNullable(): Validator<T?, S> = notNull().map { it!! }
 
-    override fun isNull(message: MessageProvider0<T?>): NullableValidator<T, S> = constrain(message.id, Constraints.isNull(message))
+fun <T : Any, S : Any> NullableValidator<T, S>.withDefault(defaultValue: S): WithDefaultNullableValidator<T, S> =
+    withDefault { defaultValue }
 
-    override fun notNull(message: MessageProvider0<T?>): NullableValidator<T, S> = constrain(message.id, Constraints.notNull(message))
+fun <T : Any, S : Any> NullableValidator<T, S>.withDefault(provide: () -> S): WithDefaultNullableValidator<T, S> =
+    WithDefaultNullableValidator(
+        "withDefault",
+        map { it ?: provide() },
+    )
 
-    override operator fun plus(other: Validator<T, S>): NullableValidator<T, S> = and(other)
+operator fun <T : Any, S : Any> NullableValidator<T, S>.plus(other: Validator<T, S>): NullableValidator<T, S> = and(other)
 
-    override fun and(other: Validator<T, S>): NullableValidator<T, S> =
-        this.and(other.asNullable()).let { NullableValidatorImpl("and", it) }
+fun <T : Any, S : Any> NullableValidator<T, S>.and(other: Validator<T, S>): NullableValidator<T, S> = and(other.asNullable())
 
-    override fun or(other: Validator<T, S>): NullableValidator<T, S> = this.or(other.asNullable()).let { NullableValidatorImpl("or", it) }
+fun <T : Any, S : Any> NullableValidator<T, S>.or(other: Validator<T, S>): NullableValidator<T, S> = or(other.asNullable())
 
-    override fun <U : Any> compose(other: Validator<U, T>): NullableValidator<U, S> =
-        this.compose(other.asNullable()).let {
-            NullableValidatorImpl("compose", it)
-        }
+fun <T : Any, S : Any, U : Any> NullableValidator<T, S>.compose(other: Validator<U, T>): NullableValidator<U, S> =
+    compose(other.asNullable())
 
-    override fun <U : Any> then(other: Validator<S, U>): NullableValidator<T, U> =
-        this.then(other.asNullable()).let {
-            NullableValidatorImpl("then", it)
-        }
-
-    override fun toNonNullable(): Validator<T?, S> = notNull().map { it!! }
-
-    override fun withDefault(provide: () -> S): WithDefaultNullableValidator<T, S> =
-        WithDefaultNullableValidator(
-            "withDefault",
-            map { it ?: provide() },
-        )
-
-    override fun toString(): String = "${NullableValidator::class.simpleName}(name=$name)"
-}
+fun <T : Any, S : Any, U : Any> NullableValidator<T, S>.then(other: Validator<S, U>): NullableValidator<T, U> = then(other.asNullable())

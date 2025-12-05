@@ -28,3 +28,12 @@ private class ConstraintValidatorImpl<T>(
 
     override fun toString(): String = "${ConstraintValidator::class.simpleName}(name=${constraint.id})"
 }
+
+fun <T> Validator<T, T>.constrain(
+    id: String,
+    check: ConstraintScope.(ConstraintContext<T>) -> ConstraintResult,
+) = Validator<T, T> { input, context ->
+    val constraint = Constraint(id, check)
+    val next = ConstraintValidator(constraint)
+    chain(next).execute(input, context)
+}
