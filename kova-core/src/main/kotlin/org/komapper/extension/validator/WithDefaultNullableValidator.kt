@@ -23,16 +23,6 @@ import org.komapper.extension.validator.ValidationResult.Success
  */
 typealias WithDefaultNullableValidator<T, S> = Validator<T?, S>
 
-internal fun <T : Any, S : Any> WithDefaultNullableValidator(
-    name: String,
-    after: WithDefaultNullableValidator<T, S>,
-    constraint: Constraint<T?> = Constraint.satisfied(),
-): WithDefaultNullableValidator<T, S> =
-    Validator { input, context ->
-        val before = ConstraintValidator(constraint)
-        before.then(after).execute(input, context)
-    }
-
 /**
  * Converts a non-nullable validator to a nullable validator with a default value.
  *
@@ -68,17 +58,12 @@ fun <T : Any, S : Any> Validator<T, S>.asNullable(defaultValue: S): WithDefaultN
  * @param withDefault Function that generates the default value when input is null
  * @return A new validator that accepts null input but produces non-nullable output
  */
-fun <T : Any, S : Any> Validator<T, S>.asNullable(withDefault: () -> S): WithDefaultNullableValidator<T, S> {
-    val self = this
-    // convert Validator<T, S> to WithDefaultNullableValidator<T, S>
-    val wrapped =
-        WithDefaultNullableValidator<T, S> { input, context ->
-            val defaultValue = withDefault()
-            val context = context.addLog("Validator.asNullable(defaultValue=$defaultValue)")
-            if (input == null) Success(defaultValue, context) else self.execute(input, context)
-        }
-    return WithDefaultNullableValidator("asNullable", wrapped)
-}
+fun <T : Any, S : Any> Validator<T, S>.asNullable(withDefault: () -> S): WithDefaultNullableValidator<T, S> =
+    Validator { input, context ->
+        val defaultValue = withDefault()
+        val context = context.addLog("Validator.asNullable(defaultValue=$defaultValue)")
+        if (input == null) Success(defaultValue, context) else execute(input, context)
+    }
 
 /**
  * Adds a custom constraint to this validator.
@@ -103,7 +88,7 @@ fun <T : Any, S : Any> Validator<T, S>.asNullable(withDefault: () -> S): WithDef
 fun <T : Any, S : Any> WithDefaultNullableValidator<T, S>.constrain(
     id: String,
     check: ConstraintScope.(ConstraintContext<T?>) -> ConstraintResult,
-): WithDefaultNullableValidator<T, S> = WithDefaultNullableValidator("constrain", after = this, constraint = Constraint(id, check))
+): WithDefaultNullableValidator<T, S> = compose(ConstraintValidator(Constraint(id, check)))
 
 /**
  * Validates that the input is null.

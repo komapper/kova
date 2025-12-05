@@ -156,7 +156,7 @@ interface Kova {
      * validator.tryValidate("hello") // Success
      * ```
      */
-    fun <T : Any> nullable(): NullableValidator<T, T> = NullableValidator("nullable", generic())
+    fun <T : Any> nullable(): NullableValidator<T, T> = generic()
 
     /**
      * Creates a nullable validator with a default value for null inputs.
@@ -180,7 +180,7 @@ interface Kova {
      * @return A validator that replaces null with the result of withDefault()
      */
     fun <T : Any> nullable(withDefault: () -> T): WithDefaultNullableValidator<T, T> =
-        WithDefaultNullableValidator("nullable", generic<T>().asNullable(withDefault))
+        generic<T>().asNullable(withDefault)
 
     /**
      * Creates a validator that only accepts a specific literal value.

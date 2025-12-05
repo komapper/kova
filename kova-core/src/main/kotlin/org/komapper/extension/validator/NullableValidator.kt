@@ -20,16 +20,6 @@ import org.komapper.extension.validator.ValidationResult.Success
  */
 typealias NullableValidator<T, S> = Validator<T?, S?>
 
-internal fun <T : Any, S : Any> NullableValidator(
-    name: String,
-    after: NullableValidator<T, S>,
-    constraint: Constraint<T?> = Constraint.satisfied(),
-): NullableValidator<T, S> =
-    Validator { input, context ->
-        val before = ConstraintValidator(constraint)
-        before.then(after).execute(input, context)
-    }
-
 /**
  * Converts a non-nullable validator to a nullable validator.
  *
@@ -48,15 +38,9 @@ internal fun <T : Any, S : Any> NullableValidator(
  *
  * @return A new nullable validator that accepts null input
  */
-fun <T : Any, S : Any> Validator<T, S>.asNullable(): NullableValidator<T, S> {
-    val self = this
-    // convert Validator<T, S> to NullableValidator<T, S>
-    val wrapped =
-        Validator<T?, S?> { input, context ->
-            val context = context.addLog("Validator.asNullable")
-            if (input == null) Success(null, context) else self.execute(input, context)
-        }
-    return NullableValidator("asNullable", wrapped)
+fun <T : Any, S : Any> Validator<T, S>.asNullable(): NullableValidator<T, S> = Validator { input, context ->
+    val context = context.addLog("Validator.asNullable")
+    if (input == null) Success(null, context) else this.execute(input, context)
 }
 
 /**
@@ -79,7 +63,7 @@ fun <T : Any, S : Any> Validator<T, S>.asNullable(): NullableValidator<T, S> {
 fun <T : Any, S : Any> NullableValidator<T, S>.constrain(
     id: String,
     check: ConstraintScope.(ConstraintContext<T?>) -> ConstraintResult,
-): NullableValidator<T, S> = NullableValidator("constrain", after = this, constraint = Constraint(id, check))
+): NullableValidator<T, S> = compose(ConstraintValidator(Constraint(id, check)))
 
 /**
  * Validates that the input is null.
@@ -176,10 +160,7 @@ fun <T : Any, S : Any> NullableValidator<T, S>.withDefault(defaultValue: S): Wit
  * @return A new validator with non-nullable output that uses the provided default for null inputs
  */
 fun <T : Any, S : Any> NullableValidator<T, S>.withDefault(provide: () -> S): WithDefaultNullableValidator<T, S> =
-    WithDefaultNullableValidator(
-        "withDefault",
-        map { it ?: provide() },
-    )
+    map { it ?: provide() }
 
 /**
  * Operator overload for [and]. Combines this nullable validator with a non-nullable validator.
