@@ -1,6 +1,6 @@
 package org.komapper.extension.validator
 
-typealias UIntValidator = Validator<UInt, UInt>
+typealias UIntValidator = IdentityValidator<UInt>
 
 fun UIntValidator.min(
     value: UInt,

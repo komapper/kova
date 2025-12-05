@@ -1,6 +1,6 @@
 package org.komapper.extension.validator
 
-typealias CollectionValidator<C> = Validator<C, C>
+typealias CollectionValidator<C> = IdentityValidator<C>
 
 fun <E, C : Collection<E>> CollectionValidator<C>.min(
     size: Int,

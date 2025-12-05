@@ -1,6 +1,6 @@
 package org.komapper.extension.validator
 
-typealias UShortValidator = Validator<UShort, UShort>
+typealias UShortValidator = IdentityValidator<UShort>
 
 fun UShortValidator.min(
     value: UShort,

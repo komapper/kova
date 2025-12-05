@@ -1,6 +1,6 @@
 package org.komapper.extension.validator
 
-typealias UByteValidator = Validator<UByte, UByte>
+typealias UByteValidator = IdentityValidator<UByte>
 
 fun UByteValidator.min(
     value: UByte,

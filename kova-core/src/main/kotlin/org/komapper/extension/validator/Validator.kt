@@ -29,7 +29,7 @@ fun interface Validator<IN, OUT> {
     ): ValidationResult<OUT>
 
     companion object {
-        fun <T> success() = Validator<T, T> { input, context -> Success(input, context) }
+        fun <T> success() = IdentityValidator<T> { input, context -> Success(input, context) }
     }
 }
 
@@ -263,46 +263,6 @@ fun <IN, OUT, NEW> Validator<IN, OUT>.then(after: Validator<OUT, NEW>): Validato
         }
     }
 }
-
-/**
- * Chains two validators where the second validator receives the output of the first if it succeeds.
- *
- * **Key characteristic**: Both input and output must be the same type (T).
- * This is designed for validators that don't transform the type.
- *
- * Unlike [then]:
- * - Requires IN == OUT (same type)
- * - If the first validator fails and failFast is disabled, both validators
- *   are executed and their failures are combined
- *
- * Example with same type:
- * ```kotlin
- * val normalizeValidator = Kova.string().map { it.trim() }
- * val validateValidator = Kova.string().min(1).max(10)
- * val validator = normalizeValidator.chain(validateValidator)
- * // Input: String, Output: String (same type)
- * ```
- *
- * @param next The validator to apply next
- * @return A new validator that chains both validators
- */
-fun <T> Validator<T, T>.chain(next: Validator<T, T>): Validator<T, T> =
-    Validator { input, context ->
-        val context = context.addLog("Validator.chain")
-        when (val result = this.execute(input, context)) {
-            is Success -> {
-                next.execute(result.value, result.context)
-            }
-
-            is Failure -> {
-                if (context.failFast) {
-                    result
-                } else {
-                    result + next.execute(input, context)
-                }
-            }
-        }
-    }
 
 internal fun <R> tryRun(
     context: ValidationContext,

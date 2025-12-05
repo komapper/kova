@@ -1,6 +1,6 @@
 package org.komapper.extension.validator
 
-typealias ULongValidator = Validator<ULong, ULong>
+typealias ULongValidator = IdentityValidator<ULong>
 
 fun ULongValidator.min(
     value: ULong,

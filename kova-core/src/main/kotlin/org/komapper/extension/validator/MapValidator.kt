@@ -1,6 +1,6 @@
 package org.komapper.extension.validator
 
-typealias MapValidator<K, V> = Validator<Map<K, V>, Map<K, V>>
+typealias MapValidator<K, V> = IdentityValidator<Map<K, V>>
 
 fun <K, V> MapValidator<K, V>.min(
     size: Int,

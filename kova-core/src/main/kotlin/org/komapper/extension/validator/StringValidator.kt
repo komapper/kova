@@ -2,7 +2,7 @@ package org.komapper.extension.validator
 
 import kotlin.reflect.KClass
 
-typealias StringValidator = Validator<String, String>
+typealias StringValidator = IdentityValidator<String>
 
 fun StringValidator.min(
     length: Int,

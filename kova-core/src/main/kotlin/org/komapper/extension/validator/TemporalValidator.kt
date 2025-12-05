@@ -15,7 +15,7 @@ import java.time.temporal.Temporal
  */
 fun <T> TemporalValidator(
     name: String = "empty",
-    prev: Validator<T, T> = Validator.success(),
+    prev: IdentityValidator<T> = Validator.success(),
     constraint: Constraint<T> = Constraint.satisfied(),
     clock: Clock = Clock.systemDefaultZone(),
     temporalNow: TemporalNow<T>,
@@ -47,7 +47,7 @@ fun <T> TemporalValidator(
  *
  * @param T The temporal type being validated
  */
-interface TemporalValidator<T> : Validator<T, T>
+interface TemporalValidator<T> : IdentityValidator<T>
     where T : Temporal, T : Comparable<T> {
     val clock: Clock
     val temporalNow: TemporalNow<T>
@@ -184,7 +184,7 @@ fun <T> TemporalValidator<T>.pastOrPresent(
  *
  * @param other The validator to combine with
  */
-operator fun <T> TemporalValidator<T>.plus(other: Validator<T, T>): TemporalValidator<T>
+operator fun <T> TemporalValidator<T>.plus(other: IdentityValidator<T>): TemporalValidator<T>
     where T : Temporal, T : Comparable<T> =
     and(other)
 
@@ -195,9 +195,9 @@ operator fun <T> TemporalValidator<T>.plus(other: Validator<T, T>): TemporalVali
  *
  * @param other The validator to combine with
  */
-infix fun <T> TemporalValidator<T>.and(other: Validator<T, T>): TemporalValidator<T>
+infix fun <T> TemporalValidator<T>.and(other: IdentityValidator<T>): TemporalValidator<T>
     where T : Temporal, T : Comparable<T> {
-    val combined = (this as Validator<T, T>).and(other)
+    val combined = (this as IdentityValidator<T>).and(other)
     return TemporalValidator(
         name = "and",
         prev = combined,
@@ -214,9 +214,9 @@ infix fun <T> TemporalValidator<T>.and(other: Validator<T, T>): TemporalValidato
  *
  * @param other The validator to combine with
  */
-infix fun <T> TemporalValidator<T>.or(other: Validator<T, T>): TemporalValidator<T>
+infix fun <T> TemporalValidator<T>.or(other: IdentityValidator<T>): TemporalValidator<T>
     where T : Temporal, T : Comparable<T> {
-    val combined = (this as Validator<T, T>).or(other)
+    val combined = (this as IdentityValidator<T>).or(other)
     return TemporalValidator(
         name = "or",
         prev = combined,
@@ -233,9 +233,9 @@ infix fun <T> TemporalValidator<T>.or(other: Validator<T, T>): TemporalValidator
  *
  * @param other The validator to chain after this one
  */
-fun <T> TemporalValidator<T>.chain(other: Validator<T, T>): TemporalValidator<T>
+fun <T> TemporalValidator<T>.chain(other: IdentityValidator<T>): TemporalValidator<T>
     where T : Temporal, T : Comparable<T> {
-    val combined = (this as Validator<T, T>).chain(other)
+    val combined = (this as IdentityValidator<T>).chain(other)
     return TemporalValidator(
         name = "chain",
         prev = combined,

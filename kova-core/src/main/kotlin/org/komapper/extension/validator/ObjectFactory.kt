@@ -7,7 +7,7 @@ private fun <T> ValidationContext.shouldReturnEarly(validationResult: Validation
 
 private fun <T> tryConstruct(
     context: ValidationContext,
-    validator: Validator<T, T>,
+    validator: IdentityValidator<T>,
     block: () -> T,
 ): ValidationResult<T> {
     val instance = block()
@@ -157,7 +157,7 @@ private fun introspectFunction(ctor: Any): FunctionDesc =
     }
 
 internal fun <T0, R> createObjectFactory(
-    validator: Validator<R, R>,
+    validator: IdentityValidator<R>,
     ctor: (T0) -> R,
     arg0: ObjectFactory<T0>,
 ): ObjectFactory<R> {
@@ -179,7 +179,7 @@ internal fun <T0, R> createObjectFactory(
 }
 
 internal fun <T0, T1, R> createObjectFactory(
-    validator: Validator<R, R>,
+    validator: IdentityValidator<R>,
     ctor: (T0, T1) -> R,
     arg0: ObjectFactory<T0>,
     arg1: ObjectFactory<T1>,
@@ -206,7 +206,7 @@ internal fun <T0, T1, R> createObjectFactory(
 }
 
 internal fun <T0, T1, T2, R> createObjectFactory(
-    validator: Validator<R, R>,
+    validator: IdentityValidator<R>,
     ctor: (T0, T1, T2) -> R,
     arg0: ObjectFactory<T0>,
     arg1: ObjectFactory<T1>,
@@ -238,7 +238,7 @@ internal fun <T0, T1, T2, R> createObjectFactory(
 }
 
 internal fun <T0, T1, T2, T3, R> createObjectFactory(
-    validator: Validator<R, R>,
+    validator: IdentityValidator<R>,
     ctor: (T0, T1, T2, T3) -> R,
     arg0: ObjectFactory<T0>,
     arg1: ObjectFactory<T1>,
@@ -275,7 +275,7 @@ internal fun <T0, T1, T2, T3, R> createObjectFactory(
 }
 
 internal fun <T0, T1, T2, T3, T4, R> createObjectFactory(
-    validator: Validator<R, R>,
+    validator: IdentityValidator<R>,
     ctor: (T0, T1, T2, T3, T4) -> R,
     arg0: ObjectFactory<T0>,
     arg1: ObjectFactory<T1>,
@@ -317,7 +317,7 @@ internal fun <T0, T1, T2, T3, T4, R> createObjectFactory(
 }
 
 internal fun <T0, T1, T2, T3, T4, T5, R> createObjectFactory(
-    validator: Validator<R, R>,
+    validator: IdentityValidator<R>,
     ctor: (T0, T1, T2, T3, T4, T5) -> R,
     arg0: ObjectFactory<T0>,
     arg1: ObjectFactory<T1>,
@@ -370,7 +370,7 @@ internal fun <T0, T1, T2, T3, T4, T5, R> createObjectFactory(
 }
 
 internal fun <T0, T1, T2, T3, T4, T5, T6, R> createObjectFactory(
-    validator: Validator<R, R>,
+    validator: IdentityValidator<R>,
     ctor: (T0, T1, T2, T3, T4, T5, T6) -> R,
     arg0: ObjectFactory<T0>,
     arg1: ObjectFactory<T1>,
@@ -437,7 +437,7 @@ internal fun <T0, T1, T2, T3, T4, T5, T6, R> createObjectFactory(
 }
 
 internal fun <T0, T1, T2, T3, T4, T5, T6, T7, R> createObjectFactory(
-    validator: Validator<R, R>,
+    validator: IdentityValidator<R>,
     ctor: (T0, T1, T2, T3, T4, T5, T6, T7) -> R,
     arg0: ObjectFactory<T0>,
     arg1: ObjectFactory<T1>,
@@ -511,7 +511,7 @@ internal fun <T0, T1, T2, T3, T4, T5, T6, T7, R> createObjectFactory(
 }
 
 internal fun <T0, T1, T2, T3, T4, T5, T6, T7, T8, R> createObjectFactory(
-    validator: Validator<R, R>,
+    validator: IdentityValidator<R>,
     ctor: (T0, T1, T2, T3, T4, T5, T6, T7, T8) -> R,
     arg0: ObjectFactory<T0>,
     arg1: ObjectFactory<T1>,
@@ -592,7 +592,7 @@ internal fun <T0, T1, T2, T3, T4, T5, T6, T7, T8, R> createObjectFactory(
 }
 
 internal fun <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, R> createObjectFactory(
-    validator: Validator<R, R>,
+    validator: IdentityValidator<R>,
     ctor: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9) -> R,
     arg0: ObjectFactory<T0>,
     arg1: ObjectFactory<T1>,
