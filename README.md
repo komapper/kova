@@ -47,7 +47,7 @@ if (result.isSuccess()) {
     println("Valid: ${result.value}")
 } else {
     result.messages.forEach { message ->
-        println("Error: ${message.content}")
+        println("Error: ${message.text}")
     }
 }
 
@@ -545,7 +545,7 @@ val result = validator.tryValidate("ab")
 if (result.isFailure()) {
     // Get all error messages
     result.messages.forEach { message ->
-        println(message.content)
+        println(message.text)
     }
     // Output:
     // "ab" must be at least 3 characters
@@ -576,7 +576,7 @@ val result = validator.tryValidate(3)
 if (result.isFailure()) {
     // Composite OR error message showing both branches
     // "at least one constraint must be satisfied: [[Value 3 must be null], [Number 3 must be greater than or equal to 5]]"
-    println(result.messages[0].content)
+    println(result.messages[0].text)
 }
 ```
 
@@ -589,7 +589,7 @@ if (result.isFailure()) {
     result.details.forEach { detail ->
         println("Root: ${detail.root}")      // e.g., "User"
         println("Path: ${detail.path}")      // e.g., "name"
-        println("Message: ${detail.message.content}")
+        println("Message: ${detail.message.text}")
     }
 }
 ```
@@ -614,7 +614,7 @@ val result = validator.tryValidate(input)
 if (result.isFailure()) {
     result.details.forEach { detail ->
         println("Path: ${detail.path}")
-        println("Message: ${detail.message.content}")
+        println("Message: ${detail.message.text}")
     }
 }
 ```
@@ -681,7 +681,7 @@ val userPasswordValidator = Kova.string()
 
 ## Internationalization
 
-Error messages are internationalized using resource bundles. All error messages are represented by `Message` objects with a `content` property containing the actual message string.
+Error messages are internationalized using resource bundles. All error messages are represented by `Message` objects with a `text` property containing the actual message string.
 
 The default messages are in `kova.properties`:
 
@@ -707,7 +707,7 @@ To access error messages:
 val result = validator.tryValidate("ab")
 if (result.isFailure()) {
     result.messages.forEach { message ->
-        println(message.content)  // Prints the actual error message string
+        println(message.text)  // Prints the actual error message string
     }
 }
 ```
