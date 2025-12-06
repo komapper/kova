@@ -9,13 +9,13 @@ class MessageProviderTest :
             val input = "abc"
 
             test("text") {
-                val provider = Message.text<String> { "input=${it.input}" }
+                val provider = Message.text { "input=${it.input}" }
                 val message = provider(ConstraintContext(input = input))
                 message.text shouldBe "input=abc"
             }
 
             test("resource") {
-                val provider = Message.resource<String>()
+                val provider = Message.resource()
                 val message = provider(ConstraintContext(input = input, constraintId = "kova.nullable.notNull"))
                 message.text shouldBe "Value must not be null"
             }
@@ -25,13 +25,13 @@ class MessageProviderTest :
             val input = "abc"
 
             test("text") {
-                val provider = Message.text<String> { "input=${it.input}, a0=${it[0]}" }
+                val provider = Message.text { "input=${it.input}, a0=${it[0]}" }
                 val message = provider(ConstraintContext(input = input), 10)
                 message.text shouldBe "input=abc, a0=10"
             }
 
             test("resource") {
-                val provider = Message.resource<String>()
+                val provider = Message.resource()
                 val message = provider(ConstraintContext(input = input, constraintId = "kova.string.email"), input)
                 message.text shouldBe "\"abc\" must be a valid email address"
             }
@@ -41,13 +41,13 @@ class MessageProviderTest :
             val input = "abc"
 
             test("text") {
-                val provider = Message.text<String> { "input=${it.input}, a0=${it[0]}, a1=${it[1]}" }
+                val provider = Message.text { "input=${it.input}, a0=${it[0]}, a1=${it[1]}" }
                 val message = provider(ConstraintContext(input = "abc"), 10, true)
                 message.text shouldBe "input=abc, a0=10, a1=true"
             }
 
             test("resource") {
-                val provider = Message.resource<String>()
+                val provider = Message.resource()
                 val message = provider(ConstraintContext(input = input, constraintId = "kova.string.length"), input, 1)
                 message.text shouldBe "\"abc\" must be exactly 1 characters"
             }

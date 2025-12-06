@@ -15,7 +15,7 @@ package org.komapper.extension.validator
  * // Using default resource-based message provider
  * fun StringValidator.min(
  *     length: Int,
- *     message: MessageProvider<String> = Message.resource()
+ *     message: MessageProvider = Message.resource()
  * ) = constrain("kova.string.min") {
  *     satisfies(it.input.length >= length, message(it, it.input, length))
  * }
@@ -23,7 +23,7 @@ package org.komapper.extension.validator
  * // Using custom text message provider
  * fun StringValidator.customMin(
  *     length: Int,
- *     message: MessageProvider<String> = Message.text { ctx ->
+ *     message: MessageProvider = Message.text { ctx ->
  *         "String '${ctx.input}' is too short. Minimum length is ${ctx[0]}"
  *     }
  * ) = constrain("custom.min") {
@@ -31,9 +31,8 @@ package org.komapper.extension.validator
  * }
  * ```
  *
- * @param T The type of value being validated
  */
-interface MessageProvider<T> {
+interface MessageProvider {
     /**
      * Creates a message for a constraint violation.
      *
@@ -46,7 +45,7 @@ interface MessageProvider<T> {
      * @return A Message object representing the error
      */
     operator fun invoke(
-        constraintContext: ConstraintContext<T>,
+        constraintContext: ConstraintContext<*>,
         vararg args: Any?,
     ): Message
 }
@@ -60,12 +59,12 @@ interface MessageProvider<T> {
  * Example usage:
  * ```kotlin
  * // Create a text message provider with custom logic
- * val customProvider = Message.text<String> { ctx ->
+ * val customProvider = Message.text { ctx ->
  *     "Value ${ctx.input} failed validation at path ${ctx.path.fullName}"
  * }
  *
  * // Create a resource bundle message provider
- * val resourceProvider = Message.resource<String>()
+ * val resourceProvider = Message.resource()
  * ```
  */
 interface MessageProviderFactory {
@@ -78,7 +77,7 @@ interface MessageProviderFactory {
      *
      * Example:
      * ```kotlin
-     * val provider = Message.text<Int> { ctx ->
+     * val provider = Message.text { ctx ->
      *     "Value ${ctx.input} must be at least ${ctx[0]}"
      * }
      * ```
@@ -86,10 +85,10 @@ interface MessageProviderFactory {
      * @param format Lambda that formats the message text from the context
      * @return A MessageProvider that creates Text messages
      */
-    fun <T> text(format: (MessageContext<T>) -> String): MessageProvider<T> =
-        object : MessageProvider<T> {
+    fun text(format: (MessageContext<*>) -> String): MessageProvider =
+        object : MessageProvider {
             override fun invoke(
-                constraintContext: ConstraintContext<T>,
+                constraintContext: ConstraintContext<*>,
                 vararg args: Any?,
             ): Message {
                 val messageContext = constraintContext.createMessageContext(args.toList())
@@ -114,7 +113,7 @@ interface MessageProviderFactory {
      * // The resource provider uses the constraint ID from the context
      * fun StringValidator.min(
      *     length: Int,
-     *     message: MessageProvider<String> = Message.resource()
+     *     message: MessageProvider = Message.resource()
      * ) = constrain("kova.string.min") { ctx ->
      *     satisfies(ctx.input.length >= length, message(ctx, ctx.input, length))
      * }
@@ -122,10 +121,10 @@ interface MessageProviderFactory {
      *
      * @return A MessageProvider that creates Resource messages
      */
-    fun <T> resource(): MessageProvider<T> =
-        object : MessageProvider<T> {
+    fun resource(): MessageProvider =
+        object : MessageProvider {
             override fun invoke(
-                constraintContext: ConstraintContext<T>,
+                constraintContext: ConstraintContext<*>,
                 vararg args: Any?,
             ): Message {
                 val messageContext = constraintContext.createMessageContext(args.toList())
@@ -143,7 +142,7 @@ interface MessageProviderFactory {
  *
  * Example usage:
  * ```kotlin
- * val provider = Message.text<String> { ctx ->
+ * val provider = Message.text { ctx ->
  *     // Access input value
  *     val value = ctx.input
  *

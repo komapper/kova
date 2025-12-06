@@ -190,7 +190,7 @@ interface Kova {
      */
     fun <T : Any> literal(
         value: T,
-        message: MessageProvider<T>? = null,
+        message: MessageProvider? = null,
     ): IdentityValidator<T> = if (message == null) generic<T>().literal(value) else generic<T>().literal(value, message)
 
     /**
@@ -202,7 +202,7 @@ interface Kova {
      */
     fun <T : Any> literal(
         values: List<T>,
-        message: MessageProvider<T>? = null,
+        message: MessageProvider? = null,
     ): IdentityValidator<T> = if (message == null) generic<T>().literal(values) else generic<T>().literal(values, message)
 
     /**
@@ -214,7 +214,7 @@ interface Kova {
      */
     fun <T : Any> literal(
         vararg values: T,
-        message: MessageProvider<T>? = null,
+        message: MessageProvider? = null,
     ): IdentityValidator<T> = literal(values.toList(), message)
 
     /**

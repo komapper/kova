@@ -25,7 +25,7 @@ typealias CollectionValidator<C> = IdentityValidator<C>
  */
 fun <C : Collection<*>> CollectionValidator<C>.min(
     size: Int,
-    message: MessageProvider<C> = Message.resource(),
+    message: MessageProvider = Message.resource(),
 ) = constrain("kova.collection.min") {
     satisfies(it.input.size >= size, message(it, it.input, it.input.size, size))
 }
@@ -46,7 +46,7 @@ fun <C : Collection<*>> CollectionValidator<C>.min(
  */
 fun <C : Collection<*>> CollectionValidator<C>.max(
     size: Int,
-    message: MessageProvider<C> = Message.resource(),
+    message: MessageProvider = Message.resource(),
 ) = constrain("kova.collection.max") {
     satisfies(it.input.size <= size, message(it, it.input, it.input.size, size))
 }
@@ -64,7 +64,7 @@ fun <C : Collection<*>> CollectionValidator<C>.max(
  * @param message Custom error message provider
  * @return A new validator with the not-empty constraint
  */
-fun <C : Collection<*>> CollectionValidator<C>.notEmpty(message: MessageProvider<C> = Message.resource()) =
+fun <C : Collection<*>> CollectionValidator<C>.notEmpty(message: MessageProvider = Message.resource()) =
     constrain("kova.collection.notEmpty") {
         satisfies(it.input.isNotEmpty(), message(it, it.input))
     }
@@ -85,7 +85,7 @@ fun <C : Collection<*>> CollectionValidator<C>.notEmpty(message: MessageProvider
  */
 fun <C : Collection<*>> CollectionValidator<C>.length(
     size: Int,
-    message: MessageProvider<C> = Message.resource(),
+    message: MessageProvider = Message.resource(),
 ) = constrain("kova.collection.length") {
     satisfies(it.input.size == size, message(it, it.input, size))
 }
