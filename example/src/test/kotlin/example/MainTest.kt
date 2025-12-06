@@ -74,7 +74,7 @@ class MainTest :
 
                 result.shouldBeInstanceOf<ValidationResult.Failure>()
                 val messages = result.messages.map { it.text }
-                messages.any { it.contains("must be an int") } shouldBe true
+                messages.any { it.contains("must be a valid integer") } shouldBe true
             }
 
             test("failure - age out of range") {
@@ -102,7 +102,7 @@ class MainTest :
                 messages.size shouldBe 3
                 messages.any { it.contains("at least 1 characters") } shouldBe true
                 messages.any { it.contains("must not be blank") } shouldBe true
-                messages.any { it.contains("must be an int") } shouldBe true
+                messages.any { it.contains("must be a valid integer") } shouldBe true
             }
 
             test("failure - blank name") {

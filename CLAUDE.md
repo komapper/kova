@@ -126,14 +126,16 @@ Properties must be object properties (not in constructor lambda) since the `invo
 - **No type parameter**: `MessageProvider` (not `MessageProvider<T>`)
 - **Signature**: `invoke(vararg args: Any?): (ConstraintContext<*>) -> Message`
 - **Factory methods**: `Message.text { ctx -> "..." }` for custom text, `Message.resource()` for i18n
-- **Usage in validators**: Pass arguments to `message()`, access via `ctx[0]`, `ctx[1]`, etc. in message lambda
+- **Usage in validators**: Pass constraint parameters (not input value) to `message()`, access via `ctx[0]`, `ctx[1]`, etc. in message lambda
+- **Input access**: Input value can be accessed via `ctx.input` in the message lambda if needed
+- **Constraint IDs**: Comparison validators (min, max, gt, gte, lt, lte) use consolidated `kova.comparable.*` constraint IDs regardless of type (instead of type-specific kova.number.*, kova.temporal.*, etc.)
 - **Example**:
 ```kotlin
 fun StringValidator.min(
     length: Int,
     message: MessageProvider = Message.resource()
 ) = constrain("kova.string.min") {
-    satisfies(it.input.length >= length, message(it.input, length))
+    satisfies(it.input.length >= length, message(length))
 }
 ```
 

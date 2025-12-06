@@ -548,8 +548,8 @@ if (result.isFailure()) {
         println(message.text)
     }
     // Output:
-    // "ab" must be at least 3 characters
-    // "ab" must be exactly 4 characters
+    // must be at least 3 characters
+    // must be exactly 4 characters
 }
 ```
 
@@ -575,7 +575,7 @@ val result = validator.tryValidate(3)
 
 if (result.isFailure()) {
     // Composite OR error message showing both branches
-    // "at least one constraint must be satisfied: [[Value 3 must be null], [Number 3 must be greater than or equal to 5]]"
+    // "at least one constraint must be satisfied: [[must be null], [must be greater than or equal to 5]]"
     println(result.messages[0].text)
 }
 ```
@@ -648,7 +648,7 @@ fun StringValidator.isPhoneNumber(
         val phonePattern = Regex("""^\+?[1-9]\d{1,14}$""")
         satisfies(
             phonePattern.matches(ctx.input),
-            message(ctx.input)
+            message()
         )
     }
 
@@ -689,9 +689,10 @@ Error messages are internationalized using resource bundles. All error messages 
 The default messages are in `kova.properties`:
 
 ```properties
-kova.charSequence.min="{0}" must be at least {1} characters
-kova.charSequence.max="{0}" must be at most {1} characters
-kova.number.min=Number {0} must be greater than or equal to {1}
+kova.string.min=must be at least {0} characters
+kova.string.max=must be at most {0} characters
+kova.comparable.min=must be greater than or equal to {0}
+kova.comparable.max=must be less than or equal to {0}
 # ... more messages
 ```
 
@@ -703,6 +704,8 @@ val validator = Kova.string().min(
     message = Message.text { ctx -> "String '${ctx.input}' is too short (min: ${ctx[0]})" }
 )
 ```
+
+**Note**: When using `MessageProvider`, you only pass the constraint parameters (not the input value) to the `message()` function. The input value can be accessed via `ctx.input` in the message lambda if needed.
 
 To access error messages:
 

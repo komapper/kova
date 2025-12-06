@@ -121,7 +121,7 @@ fun main() {
     when (val result = PersonSchema.bind("", "not number").tryCreate()) {
         is ValidationResult.Success -> error("never happens")
         is ValidationResult.Failure -> {
-            // Failure: ["" must be at least 1 characters, "" must not be blank, "not number" must be an int]
+            // Failure: ["" must be at least 1 characters, "" must not be blank, "not number" must be a valid integer]
             println("Failure: ${result.messages.map { it.text }}")
         }
     }

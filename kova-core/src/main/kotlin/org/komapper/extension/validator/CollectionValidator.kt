@@ -27,7 +27,7 @@ fun <C : Collection<*>> CollectionValidator<C>.min(
     size: Int,
     message: MessageProvider = Message.resource(),
 ) = constrain("kova.collection.min") {
-    satisfies(it.input.size >= size, message(it.input, it.input.size, size))
+    satisfies(it.input.size >= size, message(it.input.size, size))
 }
 
 /**
@@ -48,7 +48,7 @@ fun <C : Collection<*>> CollectionValidator<C>.max(
     size: Int,
     message: MessageProvider = Message.resource(),
 ) = constrain("kova.collection.max") {
-    satisfies(it.input.size <= size, message(it.input, it.input.size, size))
+    satisfies(it.input.size <= size, message(it.input.size, size))
 }
 
 /**
@@ -66,7 +66,7 @@ fun <C : Collection<*>> CollectionValidator<C>.max(
  */
 fun <C : Collection<*>> CollectionValidator<C>.notEmpty(message: MessageProvider = Message.resource()) =
     constrain("kova.collection.notEmpty") {
-        satisfies(it.input.isNotEmpty(), message(it.input))
+        satisfies(it.input.isNotEmpty(), message())
     }
 
 /**
@@ -87,7 +87,7 @@ fun <C : Collection<*>> CollectionValidator<C>.length(
     size: Int,
     message: MessageProvider = Message.resource(),
 ) = constrain("kova.collection.length") {
-    satisfies(it.input.size == size, message(it.input, size))
+    satisfies(it.input.size == size, message(it.input.size, size))
 }
 
 /**
