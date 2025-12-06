@@ -2,6 +2,7 @@ plugins {
     id("java")
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotest)
+    alias(libs.plugins.power.assert)
 }
 
 repositories {
@@ -21,4 +22,9 @@ kotlin {
 
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
+}
+
+@Suppress("OPT_IN_USAGE")
+powerAssert {
+    functions = listOf("io.kotest.matchers.shouldBe")
 }
