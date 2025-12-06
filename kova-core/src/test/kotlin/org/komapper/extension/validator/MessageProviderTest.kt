@@ -9,7 +9,7 @@ class MessageProviderTest :
             val input = "abc"
 
             test("text") {
-                val provider = Message.text<String> { context, _ -> "input=${context.input}" }
+                val provider = Message.text<String> { "input=${it.input}" }
                 val message = provider(ConstraintContext(input = input))
                 message.content shouldBe "input=abc"
             }
@@ -25,7 +25,7 @@ class MessageProviderTest :
             val input = "abc"
 
             test("text") {
-                val provider = Message.text<String> { context, args -> "input=${context.input}, a0=${args[0]}" }
+                val provider = Message.text<String> { "input=${it.input}, a0=${it[0]}" }
                 val message = provider(ConstraintContext(input = input), 10)
                 message.content shouldBe "input=abc, a0=10"
             }
@@ -41,7 +41,7 @@ class MessageProviderTest :
             val input = "abc"
 
             test("text") {
-                val provider = Message.text<String> { context, args -> "input=${context.input}, a0=${args[0]}, a1=${args[1]}" }
+                val provider = Message.text<String> { "input=${it.input}, a0=${it[0]}, a1=${it[1]}" }
                 val message = provider(ConstraintContext(input = "abc"), 10, true)
                 message.content shouldBe "input=abc, a0=10, a1=true"
             }

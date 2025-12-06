@@ -29,7 +29,7 @@ package org.komapper.extension.validator
  */
 data class Constraint<T>(
     val id: String,
-    val check: ConstraintScope.(ConstraintContext<T>) -> ConstraintResult,
+    val check: ConstraintScope<T>.(ConstraintContext<T>) -> ConstraintResult,
 ) {
     /**
      * Applies this constraint to the given context.
@@ -38,7 +38,7 @@ data class Constraint<T>(
      * @return The result of the constraint check
      */
     fun apply(context: ConstraintContext<T>): ConstraintResult {
-        val scope = ConstraintScope()
+        val scope = ConstraintScope(context)
         return scope.check(context)
     }
 
@@ -123,7 +123,9 @@ sealed interface ConstraintResult {
  * }
  * ```
  */
-class ConstraintScope {
+class ConstraintScope<T>(
+    private val context: ConstraintContext<T>,
+) {
     /**
      * Evaluates a condition and returns the appropriate constraint result.
      *
@@ -177,6 +179,7 @@ class ConstraintScope {
         if (condition) {
             ConstraintResult.Satisfied
         } else {
-            ConstraintResult.Violated(Message.Text(content = message))
+            val messageContext = MessageContext(context, emptyList())
+            ConstraintResult.Violated(Message.Text(messageContext, content = message))
         }
 }

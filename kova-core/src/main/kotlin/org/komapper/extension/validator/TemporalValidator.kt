@@ -50,7 +50,7 @@ interface TemporalValidator<T> : IdentityValidator<T>
 
 fun <T> TemporalValidator<T>.constrain(
     id: String,
-    check: ConstraintScope.(ConstraintContext<T>) -> ConstraintResult,
+    check: ConstraintScope<T>.(ConstraintContext<T>) -> ConstraintResult,
 ): TemporalValidator<T> where T : Temporal, T : Comparable<T> =
     TemporalValidator(
         name = id,

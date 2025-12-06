@@ -42,11 +42,9 @@ sealed interface Message {
      * ```
      */
     data class Text(
-        override val id: String? = null,
+        val context: MessageContext<*>,
         override val content: String,
-    ) : Message {
-        constructor(content: String) : this(null, content)
-    }
+    ) : Message
 
     /**
      * A message loaded from a resource bundle for i18n support.
@@ -69,14 +67,11 @@ sealed interface Message {
      * @property args Arguments to substitute into the message pattern
      */
     data class Resource(
-        override val id: String,
-        val args: List<Any?>,
+        val context: MessageContext<*>,
     ) : Message {
-        constructor(id: String, vararg args: Any?) : this(id, args.toList())
-
         override val content: String by lazy {
-            val pattern = getPattern(id)
-            val newArgs = args.map { resolveArg(it) }
+            val pattern = getPattern(context.constraintId)
+            val newArgs = context.args.map { resolveArg(it) }
             MessageFormat.format(pattern, *newArgs.toTypedArray())
         }
 

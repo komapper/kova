@@ -162,7 +162,7 @@ infix fun <IN, OUT> Validator<IN, OUT>.or(other: Validator<IN, OUT>): Validator<
                 when (val otherResult = other.execute(input, context)) {
                     is Success -> otherResult
                     is Failure -> {
-                        val composite = CompositeFailureDetail(context, first = selfResult.details, second = otherResult.details)
+                        val composite = CompositeFailureDetail(input, context, first = selfResult.details, second = otherResult.details)
                         Failure(composite)
                     }
                 }
@@ -191,7 +191,7 @@ fun <IN, OUT, NEW> Validator<IN, OUT>.map(transform: (OUT) -> NEW): Validator<IN
     return Validator { input, context ->
         val context = context.addLog("Validator.map")
         when (val result = self.execute(input, context)) {
-            is Success -> tryRun(result.context) { transform(result.value) }
+            is Success -> tryTransform(result.value, result.context, transform)
             is Failure -> result
         }
     }
@@ -264,19 +264,24 @@ fun <IN, OUT, NEW> Validator<IN, OUT>.then(after: Validator<OUT, NEW>): Validato
     }
 }
 
-internal fun <R> tryRun(
+internal fun <T, R> tryTransform(
+    input: T,
     context: ValidationContext,
-    block: () -> R,
+    transform: (T) -> R,
 ): ValidationResult<R> {
     return try {
-        return Success(block(), context)
+        return Success(transform(input), context)
     } catch (cause: Exception) {
-        val message =
+        val content =
             if (cause is MessageException) {
-                cause.validationMessage
+                cause.message
             } else {
                 throw cause
             }
+        // TODO
+        val constraintContext = context.createConstraintContext(input)
+        val messageContext = MessageContext(constraintContext, emptyList())
+        val message = Message.Text(messageContext, content.toString())
         Failure(SimpleFailureDetail(context, message))
     }
 }

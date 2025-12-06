@@ -78,7 +78,7 @@ fun <T> IdentityValidator<T>.literal(
  */
 fun <T> IdentityValidator<T>.constrain(
     id: String,
-    check: ConstraintScope.(ConstraintContext<T>) -> ConstraintResult,
+    check: ConstraintScope<T>.(ConstraintContext<T>) -> ConstraintResult,
 ): IdentityValidator<T> = chain(ConstraintValidator(Constraint(id, check)))
 
 /**

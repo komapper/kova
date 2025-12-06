@@ -79,25 +79,36 @@ internal data class SimpleFailureDetail(
 ) : FailureDetail
 
 internal data class CompositeFailureDetail(
+    val input: Any?,
     override val context: ValidationContext,
     val first: List<FailureDetail>,
     val second: List<FailureDetail>,
 ) : FailureDetail {
     override val message: Message get() {
-        val firstMessages = composeMessages(first)
-        val secondMessages = composeMessages(second)
-        return Message.Resource("kova.or", firstMessages, secondMessages)
+        val firstMessages = composeMessages(input, context, first)
+        val secondMessages = composeMessages(input, context, second)
+        // TODO
+        val constraintContext = context.createConstraintContext(input).copy(constraintId = "kova.or")
+        val messageContext = MessageContext(constraintContext, listOf(firstMessages, secondMessages))
+        return Message.Resource(messageContext)
     }
 }
 
-private fun composeMessages(details: List<FailureDetail>): List<Message> =
+private fun composeMessages(
+    input: Any?,
+    context: ValidationContext,
+    details: List<FailureDetail>,
+): List<Message> =
     details.map {
         when (it) {
             is SimpleFailureDetail -> it.message
             is CompositeFailureDetail -> {
-                val first = composeMessages(it.first)
-                val second = composeMessages(it.second)
-                Message.Resource("kova.or.nested", first, second)
+                val first = composeMessages(input, context, it.first)
+                val second = composeMessages(input, context, it.second)
+                // TODO
+                val constraintContext = context.createConstraintContext(input).copy(constraintId = "kova.or.nested")
+                val messageContext = MessageContext(constraintContext, listOf(first, second))
+                Message.Resource(messageContext)
             }
         }
     }

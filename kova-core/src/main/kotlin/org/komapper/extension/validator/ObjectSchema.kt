@@ -253,7 +253,7 @@ class ObjectSchemaScope<T : Any> internal constructor(
 ) {
     fun constrain(
         id: String,
-        check: ConstraintScope.(ConstraintContext<T>) -> ConstraintResult,
+        check: ConstraintScope<T>.(ConstraintContext<T>) -> ConstraintResult,
     ) {
         constraints.add(Constraint(id, check))
     }

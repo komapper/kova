@@ -225,15 +225,7 @@ interface Kova {
      * @param content The failure message text
      * @throws MessageException Always throws with the provided message
      */
-    fun fail(content: String): Nothing = fail(Message.Text(content))
-
-    /**
-     * Fails validation with a structured message.
-     *
-     * @param message The failure message
-     * @throws MessageException Always throws with the provided message
-     */
-    fun fail(message: Message): Nothing = throw MessageException(message)
+    fun fail(message: String): Nothing = throw MessageException(message)
 
     companion object : Kova
 }

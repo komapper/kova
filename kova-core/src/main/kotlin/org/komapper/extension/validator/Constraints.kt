@@ -4,7 +4,7 @@ object Constraints {
     fun <T : Comparable<T>> min(
         value: T,
         message: MessageProvider<T>,
-    ): ConstraintScope.(ConstraintContext<T>) -> ConstraintResult =
+    ): ConstraintScope<T>.(ConstraintContext<T>) -> ConstraintResult =
         {
             satisfies(it.input >= value, message(it, it.input, value))
         }
@@ -12,7 +12,7 @@ object Constraints {
     fun <T : Comparable<T>> max(
         value: T,
         message: MessageProvider<T>,
-    ): ConstraintScope.(ConstraintContext<T>) -> ConstraintResult =
+    ): ConstraintScope<T>.(ConstraintContext<T>) -> ConstraintResult =
         {
             satisfies(it.input <= value, message(it, it.input, value))
         }
@@ -20,7 +20,7 @@ object Constraints {
     fun <T : Comparable<T>> gt(
         value: T,
         message: MessageProvider<T>,
-    ): ConstraintScope.(ConstraintContext<T>) -> ConstraintResult =
+    ): ConstraintScope<T>.(ConstraintContext<T>) -> ConstraintResult =
         {
             satisfies(it.input > value, message(it, it.input, value))
         }
@@ -28,7 +28,7 @@ object Constraints {
     fun <T : Comparable<T>> gte(
         value: T,
         message: MessageProvider<T>,
-    ): ConstraintScope.(ConstraintContext<T>) -> ConstraintResult =
+    ): ConstraintScope<T>.(ConstraintContext<T>) -> ConstraintResult =
         {
             satisfies(it.input >= value, message(it, it.input, value))
         }
@@ -36,7 +36,7 @@ object Constraints {
     fun <T : Comparable<T>> lt(
         value: T,
         message: MessageProvider<T>,
-    ): ConstraintScope.(ConstraintContext<T>) -> ConstraintResult =
+    ): ConstraintScope<T>.(ConstraintContext<T>) -> ConstraintResult =
         {
             satisfies(it.input < value, message(it, it.input, value))
         }
@@ -44,17 +44,17 @@ object Constraints {
     fun <T : Comparable<T>> lte(
         value: T,
         message: MessageProvider<T>,
-    ): ConstraintScope.(ConstraintContext<T>) -> ConstraintResult =
+    ): ConstraintScope<T>.(ConstraintContext<T>) -> ConstraintResult =
         {
             satisfies(it.input <= value, message(it, it.input, value))
         }
 
-    fun <T : Any> isNull(message: MessageProvider<T?>): ConstraintScope.(ConstraintContext<T?>) -> ConstraintResult =
+    fun <T : Any> isNull(message: MessageProvider<T?>): ConstraintScope<T?>.(ConstraintContext<T?>) -> ConstraintResult =
         {
             satisfies(it.input == null, message(it, it.input))
         }
 
-    fun <T : Any> notNull(message: MessageProvider<T?>): ConstraintScope.(ConstraintContext<T?>) -> ConstraintResult =
+    fun <T : Any> notNull(message: MessageProvider<T?>): ConstraintScope<T?>.(ConstraintContext<T?>) -> ConstraintResult =
         {
             satisfies(it.input != null, message(it, it.input))
         }

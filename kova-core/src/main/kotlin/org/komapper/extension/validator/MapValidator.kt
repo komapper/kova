@@ -174,7 +174,7 @@ fun <K, V> MapValidator<K, V>.onEachValue(validator: Validator<V, *>) =
         }
     }
 
-private fun <K, V, T> ConstraintScope.validateOnEach(
+private fun <K, V, T> ConstraintScope<Map<K, V>>.validateOnEach(
     context: ConstraintContext<Map<K, V>>,
     validate: (Map.Entry<K, V>, ValidationContext) -> ValidationResult<T>,
 ): ConstraintResult {

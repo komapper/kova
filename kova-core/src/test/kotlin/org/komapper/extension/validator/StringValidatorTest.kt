@@ -166,7 +166,7 @@ class StringValidatorTest :
         }
 
         context("notBlank with message") {
-            val notBlank = Kova.string().notBlank(Message.text { _, _ -> "Must not be blank" })
+            val notBlank = Kova.string().notBlank(Message.text { "Must not be blank" })
 
             test("success") {
                 val result = notBlank.tryValidate("ab")

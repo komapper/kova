@@ -82,10 +82,12 @@ fun <T> ValidationContext.addPathChecked(
     if (obj != null && parent.containsObject(obj)) {
         // Return failure to signal circular reference detection
         // The caller will convert this to success and terminate validation
+        val constraintContext = createConstraintContext(obj)
+        val messageContext = MessageContext(constraintContext)
         return ValidationResult.Failure(
             SimpleFailureDetail(
                 this,
-                Message.Text("Circular reference detected."),
+                Message.Text(messageContext, "Circular reference detected."),
             ),
         )
     }

@@ -63,7 +63,7 @@ fun <T : Any, S : Any> Validator<T, S>.asNullable(): NullableValidator<T, S> =
  */
 fun <T : Any, S : Any> NullableValidator<T, S>.constrain(
     id: String,
-    check: ConstraintScope.(ConstraintContext<T?>) -> ConstraintResult,
+    check: ConstraintScope<T?>.(ConstraintContext<T?>) -> ConstraintResult,
 ): NullableValidator<T, S> = compose(ConstraintValidator(Constraint(id, check)))
 
 /**
