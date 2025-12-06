@@ -90,11 +90,11 @@ class KovaTest :
             test("failure") {
                 val userFactory = userSchema.bind("abc", 10)
                 val result = userFactory.tryCreate()
-                result.isFailure().mustBeTrue(result.messages.toString())
+                result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 2
-                result.messages[0].content shouldBe
+                result.messages[0].text shouldBe
                     "at least one constraint must be satisfied: [[Value abc must be null], [Value abc must be ]]"
-                result.messages[1].content shouldBe
+                result.messages[1].text shouldBe
                     "at least one constraint must be satisfied: [[Value 10 must be null], [Value 10 must be 0]]"
             }
         }
@@ -122,10 +122,10 @@ class KovaTest :
             test("failure - requestKeyIsNotNull") {
                 val result = requestKeyIsNotNull.tryValidate(Request(mapOf()))
                 result.isFailure().mustBeTrue()
-                result.details.size shouldBe 1
-                result.details[0].let {
+                result.messages.size shouldBe 1
+                result.messages[0].let {
                     it.path.fullName shouldBe "Request[key]"
-                    it.message.content shouldBe "Value must not be null"
+                    it.text shouldBe "Value must not be null"
                 }
             }
 
@@ -138,10 +138,10 @@ class KovaTest :
             test("failure - requestKeyIsNotNullAndMin3") {
                 val result = requestKeyIsNotNullAndMin3.tryValidate(Request(mapOf("key" to "ab")))
                 result.isFailure().mustBeTrue()
-                result.details.size shouldBe 1
-                result.details[0].let {
+                result.messages.size shouldBe 1
+                result.messages[0].let {
                     it.path.fullName shouldBe "Request[key]"
-                    it.message.content shouldBe "\"ab\" must be at least 3 characters"
+                    it.text shouldBe "\"ab\" must be at least 3 characters"
                 }
             }
         }

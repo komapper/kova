@@ -19,8 +19,8 @@ class StringValidatorTest :
                 val result = validator.tryValidate("1234")
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 2
-                result.messages[0].content shouldBe "\"1234\" must be at most 2 characters"
-                result.messages[1].content shouldBe "\"1234\" must be at most 3 characters"
+                result.messages[0].text shouldBe "\"1234\" must be at most 2 characters"
+                result.messages[1].text shouldBe "\"1234\" must be at most 3 characters"
             }
         }
 
@@ -37,8 +37,8 @@ class StringValidatorTest :
                 val result = validator.tryValidate("1234")
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 2
-                result.messages[0].content shouldBe "\"1234\" must be at most 2 characters"
-                result.messages[1].content shouldBe "\"1234\" must be at most 3 characters"
+                result.messages[0].text shouldBe "\"1234\" must be at most 2 characters"
+                result.messages[1].text shouldBe "\"1234\" must be at most 3 characters"
             }
         }
 
@@ -61,7 +61,7 @@ class StringValidatorTest :
                 val result = validator.tryValidate("abc")
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].id shouldBe "kova.or"
+                result.messages[0].constraintId shouldBe "kova.or"
             }
         }
 
@@ -84,7 +84,7 @@ class StringValidatorTest :
                 val result = validator.tryValidate(" a ")
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].content shouldBe "\"a\" must be exactly 3 characters"
+                result.messages[0].text shouldBe "\"a\" must be exactly 3 characters"
             }
         }
 
@@ -102,7 +102,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = validator.tryValidate("NG")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "Constraint failed"
+                result.messages.single().text shouldBe "Constraint failed"
             }
         }
 
@@ -117,7 +117,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = min.tryValidate("ab")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"ab\" must be at least 3 characters"
+                result.messages.single().text shouldBe "\"ab\" must be at least 3 characters"
             }
         }
 
@@ -132,7 +132,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = max.tryValidate("ab")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"ab\" must be at most 1 characters"
+                result.messages.single().text shouldBe "\"ab\" must be at most 1 characters"
             }
         }
 
@@ -147,7 +147,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = length.tryValidate("ab")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"ab\" must be exactly 1 characters"
+                result.messages.single().text shouldBe "\"ab\" must be exactly 1 characters"
             }
         }
 
@@ -161,12 +161,12 @@ class StringValidatorTest :
             test("failure") {
                 val result = notBlank.tryValidate("")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"\" must not be blank"
+                result.messages.single().text shouldBe "\"\" must not be blank"
             }
         }
 
         context("notBlank with message") {
-            val notBlank = Kova.string().notBlank(Message.text0 { "Must not be blank" })
+            val notBlank = Kova.string().notBlank(Message.text { "Must not be blank" })
 
             test("success") {
                 val result = notBlank.tryValidate("ab")
@@ -175,7 +175,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = notBlank.tryValidate("")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "Must not be blank"
+                result.messages.single().text shouldBe "Must not be blank"
             }
         }
 
@@ -190,7 +190,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = notEmpty.tryValidate("")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"\" must not be empty"
+                result.messages.single().text shouldBe "\"\" must not be empty"
             }
         }
 
@@ -204,7 +204,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = startsWith.tryValidate("cde")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"cde\" must start with \"ab\""
+                result.messages.single().text shouldBe "\"cde\" must start with \"ab\""
             }
         }
 
@@ -218,7 +218,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = endsWith.tryValidate("ab")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"ab\" must end with \"de\""
+                result.messages.single().text shouldBe "\"ab\" must end with \"de\""
             }
         }
 
@@ -232,7 +232,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = contains.tryValidate("fg")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"fg\" must contain \"cd\""
+                result.messages.single().text shouldBe "\"fg\" must contain \"cd\""
             }
         }
 
@@ -247,7 +247,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = matches.tryValidate("invalid-email")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe
+                result.messages.single().text shouldBe
                     "\"invalid-email\" must match pattern ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}\$"
             }
         }
@@ -290,42 +290,42 @@ class StringValidatorTest :
             test("failure - starts with dot") {
                 val result = email.tryValidate(".user@example.com")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\".user@example.com\" must be a valid email address"
+                result.messages.single().text shouldBe "\".user@example.com\" must be a valid email address"
             }
             test("failure - consecutive dots") {
                 val result = email.tryValidate("user..name@example.com")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"user..name@example.com\" must be a valid email address"
+                result.messages.single().text shouldBe "\"user..name@example.com\" must be a valid email address"
             }
             test("failure - ends with dot before @") {
                 val result = email.tryValidate("user.@example.com")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"user.@example.com\" must be a valid email address"
+                result.messages.single().text shouldBe "\"user.@example.com\" must be a valid email address"
             }
             test("failure - no @") {
                 val result = email.tryValidate("userexample.com")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"userexample.com\" must be a valid email address"
+                result.messages.single().text shouldBe "\"userexample.com\" must be a valid email address"
             }
             test("failure - no domain") {
                 val result = email.tryValidate("user@")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"user@\" must be a valid email address"
+                result.messages.single().text shouldBe "\"user@\" must be a valid email address"
             }
             test("failure - no local part") {
                 val result = email.tryValidate("@example.com")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"@example.com\" must be a valid email address"
+                result.messages.single().text shouldBe "\"@example.com\" must be a valid email address"
             }
             test("failure - no TLD") {
                 val result = email.tryValidate("user@example")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"user@example\" must be a valid email address"
+                result.messages.single().text shouldBe "\"user@example\" must be a valid email address"
             }
             test("failure - spaces") {
                 val result = email.tryValidate("user name@example.com")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"user name@example.com\" must be a valid email address"
+                result.messages.single().text shouldBe "\"user name@example.com\" must be a valid email address"
             }
         }
 
@@ -340,7 +340,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = isInt.tryValidate("123a")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"123a\" must be an int"
+                result.messages.single().text shouldBe "\"123a\" must be an int"
             }
         }
 
@@ -355,7 +355,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = isLong.tryValidate("123.45")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"123.45\" must be a long"
+                result.messages.single().text shouldBe "\"123.45\" must be a long"
             }
         }
 
@@ -370,7 +370,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = isShort.tryValidate("99999")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"99999\" must be a short"
+                result.messages.single().text shouldBe "\"99999\" must be a short"
             }
         }
 
@@ -385,7 +385,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = isByte.tryValidate("256")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"256\" must be a byte"
+                result.messages.single().text shouldBe "\"256\" must be a byte"
             }
         }
 
@@ -400,7 +400,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = isDouble.tryValidate("abc")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"abc\" must be a double"
+                result.messages.single().text shouldBe "\"abc\" must be a double"
             }
         }
 
@@ -415,7 +415,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = isFloat.tryValidate("abc")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"abc\" must be a float"
+                result.messages.single().text shouldBe "\"abc\" must be a float"
             }
         }
 
@@ -430,7 +430,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = isBigDecimal.tryValidate("abc")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"abc\" must be a big decimal"
+                result.messages.single().text shouldBe "\"abc\" must be a big decimal"
             }
         }
 
@@ -445,7 +445,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = isBigInteger.tryValidate("123.45")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"123.45\" must be a big integer"
+                result.messages.single().text shouldBe "\"123.45\" must be a big integer"
             }
         }
 
@@ -465,12 +465,12 @@ class StringValidatorTest :
             test("false - case sensitive") {
                 val result = isBoolean.tryValidate("TRUE")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"TRUE\" must be a boolean"
+                result.messages.single().text shouldBe "\"TRUE\" must be a boolean"
             }
             test("failure") {
                 val result = isBoolean.tryValidate("yes")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"yes\" must be a boolean"
+                result.messages.single().text shouldBe "\"yes\" must be a boolean"
             }
         }
 
@@ -490,7 +490,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = toBoolean.tryValidate("yes")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"yes\" must be a boolean"
+                result.messages.single().text shouldBe "\"yes\" must be a boolean"
             }
         }
 
@@ -505,7 +505,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = toLong.tryValidate("abc")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"abc\" must be a long"
+                result.messages.single().text shouldBe "\"abc\" must be a long"
             }
         }
 
@@ -520,7 +520,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = toShort.tryValidate("99999")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"99999\" must be a short"
+                result.messages.single().text shouldBe "\"99999\" must be a short"
             }
         }
 
@@ -535,7 +535,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = toByte.tryValidate("256")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"256\" must be a byte"
+                result.messages.single().text shouldBe "\"256\" must be a byte"
             }
         }
 
@@ -550,7 +550,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = toDouble.tryValidate("abc")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"abc\" must be a double"
+                result.messages.single().text shouldBe "\"abc\" must be a double"
             }
         }
 
@@ -565,7 +565,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = toFloat.tryValidate("abc")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"abc\" must be a float"
+                result.messages.single().text shouldBe "\"abc\" must be a float"
             }
         }
 
@@ -580,7 +580,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = toBigDecimal.tryValidate("abc")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"abc\" must be a big decimal"
+                result.messages.single().text shouldBe "\"abc\" must be a big decimal"
             }
         }
 
@@ -595,7 +595,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = toBigInteger.tryValidate("123.45")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"123.45\" must be a big integer"
+                result.messages.single().text shouldBe "\"123.45\" must be a big integer"
             }
         }
 
@@ -615,7 +615,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = uppercase.tryValidate("Hello")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"Hello\" must be uppercase"
+                result.messages.single().text shouldBe "\"Hello\" must be uppercase"
             }
         }
 
@@ -635,7 +635,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = lowercase.tryValidate("Hello")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"Hello\" must be lowercase"
+                result.messages.single().text shouldBe "\"Hello\" must be lowercase"
             }
         }
 
@@ -650,7 +650,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = toInt.tryValidate("123a")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"123a\" must be an int"
+                result.messages.single().text shouldBe "\"123a\" must be an int"
             }
         }
 
@@ -673,7 +673,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = max1.tryValidate("12")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"12\" must be at most 1 characters"
+                result.messages.single().text shouldBe "\"12\" must be at most 1 characters"
             }
         }
 
@@ -712,8 +712,8 @@ class StringValidatorTest :
             test("failure") {
                 val result = stringBools.tryValidate("abc")
                 result.isFailure().mustBeTrue()
-                val message = result.details.single().message
-                message.content shouldBe "\"abc\" is not a boolean value"
+                val message = result.messages.single()
+                message.text shouldBe "\"abc\" is not a boolean value"
             }
         }
 
@@ -769,13 +769,13 @@ class StringValidatorTest :
             test("failure - trimmed value violates constraint") {
                 val result = trimMin3.tryValidate("  hi  ")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"hi\" must be at least 3 characters"
+                result.messages.single().text shouldBe "\"hi\" must be at least 3 characters"
             }
 
             test("failure - whitespace only becomes empty after trim") {
                 val result = trimMin3.tryValidate("   ")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"\" must be at least 3 characters"
+                result.messages.single().text shouldBe "\"\" must be at least 3 characters"
             }
         }
 
@@ -825,7 +825,7 @@ class StringValidatorTest :
             test("failure - transformed value violates constraint") {
                 val result = toUpperCaseMin3.tryValidate("hi")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"HI\" must be at least 3 characters"
+                result.messages.single().text shouldBe "\"HI\" must be at least 3 characters"
             }
 
             test("success - combining toUpperCase with startsWith") {
@@ -882,7 +882,7 @@ class StringValidatorTest :
             test("failure - transformed value violates constraint") {
                 val result = toLowerCaseMin3.tryValidate("HI")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"hi\" must be at least 3 characters"
+                result.messages.single().text shouldBe "\"hi\" must be at least 3 characters"
             }
 
             test("success - combining toLowerCase with startsWith") {
@@ -914,12 +914,12 @@ class StringValidatorTest :
             test("failure - invalid value") {
                 val result = isEnum.tryValidate("INVALID")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"INVALID\" must be one of [ACTIVE, INACTIVE, PENDING]"
+                result.messages.single().text shouldBe "\"INVALID\" must be one of [ACTIVE, INACTIVE, PENDING]"
             }
             test("failure - lowercase") {
                 val result = isEnum.tryValidate("active")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"active\" must be one of [ACTIVE, INACTIVE, PENDING]"
+                result.messages.single().text shouldBe "\"active\" must be one of [ACTIVE, INACTIVE, PENDING]"
             }
         }
 
@@ -944,12 +944,12 @@ class StringValidatorTest :
             test("failure - invalid value") {
                 val result = isEnum.tryValidate("INVALID")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"INVALID\" must be one of [ACTIVE, INACTIVE, PENDING]"
+                result.messages.single().text shouldBe "\"INVALID\" must be one of [ACTIVE, INACTIVE, PENDING]"
             }
             test("failure - lowercase") {
                 val result = isEnum.tryValidate("active")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"active\" must be one of [ACTIVE, INACTIVE, PENDING]"
+                result.messages.single().text shouldBe "\"active\" must be one of [ACTIVE, INACTIVE, PENDING]"
             }
         }
 
@@ -974,12 +974,12 @@ class StringValidatorTest :
             test("failure - invalid value") {
                 val result = toEnum.tryValidate("INVALID")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"INVALID\" must be one of [ACTIVE, INACTIVE, PENDING]"
+                result.messages.single().text shouldBe "\"INVALID\" must be one of [ACTIVE, INACTIVE, PENDING]"
             }
             test("failure - lowercase") {
                 val result = toEnum.tryValidate("active")
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"active\" must be one of [ACTIVE, INACTIVE, PENDING]"
+                result.messages.single().text shouldBe "\"active\" must be one of [ACTIVE, INACTIVE, PENDING]"
             }
         }
     }) {

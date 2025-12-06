@@ -33,9 +33,9 @@ typealias IdentityValidator<T> = Validator<T, T>
  */
 fun <T> IdentityValidator<T>.literal(
     value: T,
-    message: MessageProvider1<T, T> = Message.resource1("kova.literal.single"),
-) = constrain(message.id) {
-    satisfies(it.input == value, message(it, value))
+    message: MessageProvider<T> = Message.resource(),
+) = constrain("kova.literal.single") {
+    satisfies(it.input == value, message(it, it.input, value))
 }
 
 /**
@@ -54,9 +54,9 @@ fun <T> IdentityValidator<T>.literal(
  */
 fun <T> IdentityValidator<T>.literal(
     values: List<T>,
-    message: MessageProvider1<T, List<T>> = Message.resource1("kova.literal.list"),
-) = constrain(message.id) {
-    satisfies(it.input in values, message(it, values))
+    message: MessageProvider<T> = Message.resource(),
+) = constrain("kova.literal.list") {
+    satisfies(it.input in values, message(it, it.input, values))
 }
 
 /**
@@ -78,7 +78,7 @@ fun <T> IdentityValidator<T>.literal(
  */
 fun <T> IdentityValidator<T>.constrain(
     id: String,
-    check: ConstraintScope.(ConstraintContext<T>) -> ConstraintResult,
+    check: ConstraintScope<T>.(ConstraintContext<T>) -> ConstraintResult,
 ): IdentityValidator<T> = chain(ConstraintValidator(Constraint(id, check)))
 
 /**

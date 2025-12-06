@@ -4,7 +4,6 @@ import org.komapper.extension.validator.Kova
 import org.komapper.extension.validator.ObjectSchema
 import org.komapper.extension.validator.ValidationResult
 import org.komapper.extension.validator.max
-import org.komapper.extension.validator.messages
 import org.komapper.extension.validator.min
 import org.komapper.extension.validator.notBlank
 import org.komapper.extension.validator.then
@@ -85,7 +84,7 @@ fun main() {
         is ValidationResult.Success -> error("never happens")
         is ValidationResult.Failure -> {
             // Failure: ["" must be at least 1 characters, "" must not be blank, Number -1 must be greater than or equal to 0]
-            println("Failure: ${result.messages.map { it.content }}")
+            println("Failure: ${result.messages.map { it.text }}")
         }
     }
 
@@ -104,7 +103,7 @@ fun main() {
         is ValidationResult.Success -> error("never happens")
         is ValidationResult.Failure -> {
             // Failure: ["" must be at least 1 characters, "" must not be blank, Number -1 must be greater than or equal to 0]
-            println("Failure: ${result.messages.map { it.content }}")
+            println("Failure: ${result.messages.map { it.text }}")
         }
     }
 
@@ -123,7 +122,7 @@ fun main() {
         is ValidationResult.Success -> error("never happens")
         is ValidationResult.Failure -> {
             // Failure: ["" must be at least 1 characters, "" must not be blank, "not number" must be an int]
-            println("Failure: ${result.messages.map { it.content }}")
+            println("Failure: ${result.messages.map { it.text }}")
         }
     }
 }

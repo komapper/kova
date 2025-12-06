@@ -38,10 +38,11 @@ typealias NullableValidator<T, S> = Validator<T?, S?>
  *
  * @return A new nullable validator that accepts null input
  */
-fun <T : Any, S : Any> Validator<T, S>.asNullable(): NullableValidator<T, S> = Validator { input, context ->
-    val context = context.addLog("Validator.asNullable")
-    if (input == null) Success(null, context) else this.execute(input, context)
-}
+fun <T : Any, S : Any> Validator<T, S>.asNullable(): NullableValidator<T, S> =
+    Validator { input, context ->
+        val context = context.addLog("Validator.asNullable")
+        if (input == null) Success(null, context) else this.execute(input, context)
+    }
 
 /**
  * Adds a custom constraint to this nullable validator.
@@ -62,7 +63,7 @@ fun <T : Any, S : Any> Validator<T, S>.asNullable(): NullableValidator<T, S> = V
  */
 fun <T : Any, S : Any> NullableValidator<T, S>.constrain(
     id: String,
-    check: ConstraintScope.(ConstraintContext<T?>) -> ConstraintResult,
+    check: ConstraintScope<T?>.(ConstraintContext<T?>) -> ConstraintResult,
 ): NullableValidator<T, S> = compose(ConstraintValidator(Constraint(id, check)))
 
 /**
@@ -80,9 +81,8 @@ fun <T : Any, S : Any> NullableValidator<T, S>.constrain(
  * @param message Custom error message provider
  * @return A new validator that only accepts null
  */
-fun <T : Any, S : Any> NullableValidator<T, S>.isNull(
-    message: MessageProvider0<T?> = Message.resource0("kova.nullable.isNull"),
-): NullableValidator<T, S> = constrain(message.id, Constraints.isNull(message))
+fun <T : Any, S : Any> NullableValidator<T, S>.isNull(message: MessageProvider<T?> = Message.resource()): NullableValidator<T, S> =
+    constrain("kova.nullable.isNull", Constraints.isNull(message))
 
 /**
  * Validates that the input is not null.
@@ -99,9 +99,8 @@ fun <T : Any, S : Any> NullableValidator<T, S>.isNull(
  * @param message Custom error message provider
  * @return A new validator that rejects null
  */
-fun <T : Any, S : Any> NullableValidator<T, S>.notNull(
-    message: MessageProvider0<T?> = Message.resource0("kova.nullable.notNull"),
-): NullableValidator<T, S> = constrain(message.id, Constraints.notNull(message))
+fun <T : Any, S : Any> NullableValidator<T, S>.notNull(message: MessageProvider<T?> = Message.resource()): NullableValidator<T, S> =
+    constrain("kova.nullable.notNull", Constraints.notNull(message))
 
 /**
  * Converts a nullable validator to a validator with non-nullable output.
@@ -159,8 +158,7 @@ fun <T : Any, S : Any> NullableValidator<T, S>.withDefault(defaultValue: S): Wit
  * @param provide Function that generates the default value
  * @return A new validator with non-nullable output that uses the provided default for null inputs
  */
-fun <T : Any, S : Any> NullableValidator<T, S>.withDefault(provide: () -> S): WithDefaultNullableValidator<T, S> =
-    map { it ?: provide() }
+fun <T : Any, S : Any> NullableValidator<T, S>.withDefault(provide: () -> S): WithDefaultNullableValidator<T, S> = map { it ?: provide() }
 
 /**
  * Operator overload for [and]. Combines this nullable validator with a non-nullable validator.

@@ -18,7 +18,7 @@ class ConditionalValidatorTest :
                 val result = validator.tryValidate(2)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].content shouldBe "Number 2 must be greater than or equal to 3"
+                result.messages[0].text shouldBe "Number 2 must be greater than or equal to 3"
             }
         }
 
@@ -35,8 +35,8 @@ class ConditionalValidatorTest :
                 val result = validator.tryValidate(0)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 2
-                result.messages[0].content shouldBe "Number 0 must be greater than or equal to 3"
-                result.messages[1].content shouldBe "Number 0 must be greater than or equal to 1"
+                result.messages[0].text shouldBe "Number 0 must be greater than or equal to 3"
+                result.messages[1].text shouldBe "Number 0 must be greater than or equal to 1"
             }
         }
     })

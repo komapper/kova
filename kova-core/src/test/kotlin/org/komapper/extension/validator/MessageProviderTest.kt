@@ -5,45 +5,51 @@ import io.kotest.matchers.shouldBe
 
 class MessageProviderTest :
     FunSpec({
-        context("MessageProvider0") {
-            test("text0") {
-                val provider = Message.text0<String> { context -> "input=${context.input}" }
-                val message = provider(ConstraintContext(input = "abc"))
-                message.content shouldBe "input=abc"
+        context("MessageProvider - no argument") {
+            val input = "abc"
+
+            test("text") {
+                val provider = Message.text<String> { "input=${it.input}" }
+                val message = provider(ConstraintContext(input = input))
+                message.text shouldBe "input=abc"
             }
 
-            test("resource0") {
-                val provider = Message.resource0<String>("kova.string.isInt")
-                val message = provider(ConstraintContext(input = "abc"))
-                message.content shouldBe "\"abc\" must be an int"
-            }
-        }
-
-        context("MessageProvider1") {
-            test("text1") {
-                val provider = Message.text1<String, Int> { context, a1 -> "input=${context.input}, a1=$a1" }
-                val message = provider(ConstraintContext(input = "abc"), 10)
-                message.content shouldBe "input=abc, a1=10"
-            }
-
-            test("resource1") {
-                val provider = Message.resource1<String, Int>("kova.string.length")
-                val message = provider(ConstraintContext(input = "abc"), 1)
-                message.content shouldBe "\"abc\" must be exactly 1 characters"
+            test("resource") {
+                val provider = Message.resource<String>()
+                val message = provider(ConstraintContext(input = input, constraintId = "kova.nullable.notNull"))
+                message.text shouldBe "Value must not be null"
             }
         }
 
-        context("MessageProvider2") {
-            test("text2") {
-                val provider = Message.text2<String, Int, Boolean> { context, a1, a2 -> "input=${context.input}, a1=$a1, a2=$a2" }
+        context("MessageProvider - 1 argument") {
+            val input = "abc"
+
+            test("text") {
+                val provider = Message.text<String> { "input=${it.input}, a0=${it[0]}" }
+                val message = provider(ConstraintContext(input = input), 10)
+                message.text shouldBe "input=abc, a0=10"
+            }
+
+            test("resource") {
+                val provider = Message.resource<String>()
+                val message = provider(ConstraintContext(input = input, constraintId = "kova.string.email"), input)
+                message.text shouldBe "\"abc\" must be a valid email address"
+            }
+        }
+
+        context("MessageProvider - 2 arguments") {
+            val input = "abc"
+
+            test("text") {
+                val provider = Message.text<String> { "input=${it.input}, a0=${it[0]}, a1=${it[1]}" }
                 val message = provider(ConstraintContext(input = "abc"), 10, true)
-                message.content shouldBe "input=abc, a1=10, a2=true"
+                message.text shouldBe "input=abc, a0=10, a1=true"
             }
 
-            test("resource2") {
-                val provider = Message.resource2<List<String>, Int, Int>("kova.collection.max")
-                val message = provider(ConstraintContext(input = listOf("abc")), 1, 2)
-                message.content shouldBe "Collection(size=1) must have at most 2 elements"
+            test("resource") {
+                val provider = Message.resource<String>()
+                val message = provider(ConstraintContext(input = input, constraintId = "kova.string.length"), input, 1)
+                message.text shouldBe "\"abc\" must be exactly 1 characters"
             }
         }
     })

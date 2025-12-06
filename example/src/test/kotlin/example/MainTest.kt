@@ -4,7 +4,6 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import org.komapper.extension.validator.ValidationResult
-import org.komapper.extension.validator.messages
 import org.komapper.extension.validator.tryCreate
 import org.komapper.extension.validator.tryValidate
 
@@ -25,7 +24,7 @@ class MainTest :
                 val result = UserSchema.tryValidate(user)
 
                 result.shouldBeInstanceOf<ValidationResult.Failure>()
-                val messages = result.messages.map { it.content }
+                val messages = result.messages.map { it.text }
                 messages.size shouldBe 3
                 messages.any { it.contains("at least 1 characters") } shouldBe true
                 messages.any { it.contains("must not be blank") } shouldBe true
@@ -37,7 +36,7 @@ class MainTest :
                 val result = UserSchema.tryValidate(user)
 
                 result.shouldBeInstanceOf<ValidationResult.Failure>()
-                val messages = result.messages.map { it.content }
+                val messages = result.messages.map { it.text }
                 messages.any { it.contains("less than or equal to 120") } shouldBe true
             }
         }
@@ -54,7 +53,7 @@ class MainTest :
                 val result = UserSchema.bind("", -1).tryCreate()
 
                 result.shouldBeInstanceOf<ValidationResult.Failure>()
-                val messages = result.messages.map { it.content }
+                val messages = result.messages.map { it.text }
                 messages.size shouldBe 3
                 messages.any { it.contains("at least 1 characters") } shouldBe true
                 messages.any { it.contains("must not be blank") } shouldBe true
@@ -74,7 +73,7 @@ class MainTest :
                 val result = AgeSchema.bind("not a number").tryCreate()
 
                 result.shouldBeInstanceOf<ValidationResult.Failure>()
-                val messages = result.messages.map { it.content }
+                val messages = result.messages.map { it.text }
                 messages.any { it.contains("must be an int") } shouldBe true
             }
 
@@ -82,7 +81,7 @@ class MainTest :
                 val result = AgeSchema.bind("150").tryCreate()
 
                 result.shouldBeInstanceOf<ValidationResult.Failure>()
-                val messages = result.messages.map { it.content }
+                val messages = result.messages.map { it.text }
                 messages.any { it.contains("less than or equal to 120") } shouldBe true
             }
         }
@@ -99,7 +98,7 @@ class MainTest :
                 val result = PersonSchema.bind("", "not number").tryCreate()
 
                 result.shouldBeInstanceOf<ValidationResult.Failure>()
-                val messages = result.messages.map { it.content }
+                val messages = result.messages.map { it.text }
                 messages.size shouldBe 3
                 messages.any { it.contains("at least 1 characters") } shouldBe true
                 messages.any { it.contains("must not be blank") } shouldBe true
@@ -110,7 +109,7 @@ class MainTest :
                 val result = PersonSchema.bind("   ", "25").tryCreate()
 
                 result.shouldBeInstanceOf<ValidationResult.Failure>()
-                val messages = result.messages.map { it.content }
+                val messages = result.messages.map { it.text }
                 messages.any { it.contains("must not be blank") } shouldBe true
             }
         }

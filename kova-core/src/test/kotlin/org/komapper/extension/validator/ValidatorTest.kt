@@ -3,6 +3,7 @@ package org.komapper.extension.validator
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 
 class ValidatorTest :
     FunSpec({
@@ -21,7 +22,7 @@ class ValidatorTest :
                         validator.validate(0)
                     }
                 ex.messages.size shouldBe 1
-                ex.messages[0].content shouldBe "Number 0 must be greater than or equal to 1"
+                ex.messages[0].text shouldBe "Number 0 must be greater than or equal to 1"
             }
         }
 
@@ -58,9 +59,12 @@ class ValidatorTest :
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].let {
-                    it.id shouldBe "kova.or"
-                    it.content shouldBe
+                    it.constraintId shouldBe "kova.or"
+                    it.text shouldBe
                         "at least one constraint must be satisfied: [[\"abc\" must be exactly 2 characters], [\"abc\" must be exactly 5 characters]]"
+                    it.shouldBeInstanceOf<Message.Or>()
+                    it.first.messages[0].text shouldBe "\"abc\" must be exactly 2 characters"
+                    it.second.messages[0].text shouldBe "\"abc\" must be exactly 5 characters"
                 }
             }
         }
@@ -76,9 +80,19 @@ class ValidatorTest :
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].let {
-                    it.id shouldBe "kova.or"
-                    it.content shouldBe "at least one constraint must be satisfied: [[[\"abc\" must be exactly 2 characters], " +
-                        "[\"abc\" must be exactly 5 characters]], [\"abc\" must be exactly 7 characters]]"
+                    it.constraintId shouldBe "kova.or"
+                    it.text shouldBe
+                        """at least one constraint must be satisfied: [
+                        |[at least one constraint must be satisfied: [
+                        |["abc" must be exactly 2 characters], ["abc" must be exactly 5 characters]]], 
+                        |["abc" must be exactly 7 characters]]
+                        """.trimMargin()
+                            .replace("\n", "")
+                    it.shouldBeInstanceOf<Message.Or>()
+                    it.first.messages[0].text shouldBe
+                        "at least one constraint must be satisfied: [[\"abc\" must be exactly 2 characters], [\"abc\" must be exactly 5 characters]]"
+                    it.second.messages[0].text shouldBe "\"abc\" must be exactly 7 characters"
+                    println(it)
                 }
             }
         }
@@ -94,7 +108,7 @@ class ValidatorTest :
                 val result = validator.tryValidate(-1)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].content shouldBe "Number -1 must be greater than or equal to 1"
+                result.messages[0].text shouldBe "Number -1 must be greater than or equal to 1"
             }
         }
 
@@ -108,12 +122,12 @@ class ValidatorTest :
             test("failure - first constraint violated") {
                 val result = validator.tryValidate(2)
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "Number 2 must be greater than or equal to 3"
+                result.messages.single().text shouldBe "Number 2 must be greater than or equal to 3"
             }
             test("failure - second constraint violated") {
                 val result = validator.tryValidate(10)
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"10\" must be at most 1 characters"
+                result.messages.single().text shouldBe "\"10\" must be at most 1 characters"
             }
         }
 
@@ -132,12 +146,12 @@ class ValidatorTest :
             test("failure - first constraint violated") {
                 val result = validator.tryValidate(2)
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "Number 2 must be greater than or equal to 3"
+                result.messages.single().text shouldBe "Number 2 must be greater than or equal to 3"
             }
             test("failure - second constraint violated") {
                 val result = validator.tryValidate(10)
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "\"10\" must be at most 1 characters"
+                result.messages.single().text shouldBe "\"10\" must be at most 1 characters"
             }
         }
 

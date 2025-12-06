@@ -104,8 +104,13 @@ Properties must be object properties (not in constructor lambda) since the `invo
 - **ValidationResult.Failure**: Contains a list of `FailureDetail` objects
 - **FailureDetail**: Interface with `context`, `message`, `root`, and `path` properties
 - Internal implementations handle simple and composite (OR) failures
-- **Message Types**: `Message.Text`, `Message.Resource` (i18n from `kova.properties`), `Message.ValidationFailure` (contains nested FailureDetail list)
-- Access message content via `.content` property
+- **Message Types**:
+  - `Message.Text` - Simple hardcoded text messages with `text` property
+  - `Message.Resource` - i18n messages from `kova.properties` with `text` property (lazy-loaded)
+  - `Message.Collection` - Collection/map element validation failures with `elements` property containing nested FailureDetail list
+  - `Message.Or` - OR validator failures with `first` and `second` properties containing FailureDetail from both branches
+- All Message types have `constraintId`, `text`, `root`, `path`, and `context` properties
+- Access message text via `.text` property (renamed from `.content`)
 - OR failures automatically compose messages showing both validation branches
 
 ### ObjectFactory Pattern
@@ -127,5 +132,5 @@ Properties must be object properties (not in constructor lambda) since the `invo
 - `ObjectFactory.kt` - Object construction interface and internal createObjectFactory functions (1-10 args)
 - `ConstraintValidator.kt` - Converts `ConstraintResult` to `ValidationResult`, base for extension functions
 - `Constraints.kt` - Shared constraint utilities (`min`, `max`, `isNull`, `notNull`)
-- `Message.kt` - Message types (Text, Resource, ValidationFailure)
+- `Message.kt` - Message types (Text, Resource, Collection, Or) with `text`, `constraintId`, `root`, `path`, and `context` properties
 - **Validator extension files** - `StringValidator.kt`, `NumberValidator.kt`, `CollectionValidator.kt`, etc. define extension functions on `IdentityValidator<T>`

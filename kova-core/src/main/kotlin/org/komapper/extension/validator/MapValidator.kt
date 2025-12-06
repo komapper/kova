@@ -26,9 +26,9 @@ typealias MapValidator<K, V> = IdentityValidator<Map<K, V>>
  */
 fun <K, V> MapValidator<K, V>.min(
     size: Int,
-    message: MessageProvider2<Map<K, V>, Int, Int> = Message.resource2("kova.map.min"),
-) = constrain(message.id) {
-    satisfies(it.input.size >= size, message(it, it.input.size, size))
+    message: MessageProvider<Map<K, V>> = Message.resource(),
+) = constrain("kova.map.min") {
+    satisfies(it.input.size >= size, message(it, it.input, it.input.size, size))
 }
 
 /**
@@ -47,9 +47,9 @@ fun <K, V> MapValidator<K, V>.min(
  */
 fun <K, V> MapValidator<K, V>.max(
     size: Int,
-    message: MessageProvider2<Map<K, V>, Int, Int> = Message.resource2("kova.map.max"),
-) = constrain(message.id) {
-    satisfies(it.input.size <= size, message(it, it.input.size, size))
+    message: MessageProvider<Map<K, V>> = Message.resource(),
+) = constrain("kova.map.max") {
+    satisfies(it.input.size <= size, message(it, it.input, it.input.size, size))
 }
 
 /**
@@ -65,9 +65,9 @@ fun <K, V> MapValidator<K, V>.max(
  * @param message Custom error message provider
  * @return A new validator with the not-empty constraint
  */
-fun <K, V> MapValidator<K, V>.notEmpty(message: MessageProvider0<Map<K, V>> = Message.resource0("kova.map.notEmpty")) =
-    constrain(message.id) {
-        satisfies(it.input.isNotEmpty(), message(it))
+fun <K, V> MapValidator<K, V>.notEmpty(message: MessageProvider<Map<K, V>> = Message.resource()) =
+    constrain("kova.map.notEmpty") {
+        satisfies(it.input.isNotEmpty(), message(it, it.input))
     }
 
 /**
@@ -86,9 +86,9 @@ fun <K, V> MapValidator<K, V>.notEmpty(message: MessageProvider0<Map<K, V>> = Me
  */
 fun <K, V> MapValidator<K, V>.length(
     size: Int,
-    message: MessageProvider1<Map<K, V>, Int> = Message.resource1("kova.map.length"),
-) = constrain(message.id) {
-    satisfies(it.input.size == size, message(it, size))
+    message: MessageProvider<Map<K, V>> = Message.resource(),
+) = constrain("kova.map.length") {
+    satisfies(it.input.size == size, message(it, it.input, size))
 }
 
 /**
@@ -174,7 +174,7 @@ fun <K, V> MapValidator<K, V>.onEachValue(validator: Validator<V, *>) =
         }
     }
 
-private fun <K, V, T> ConstraintScope.validateOnEach(
+private fun <K, V, T> ConstraintScope<Map<K, V>>.validateOnEach(
     context: ConstraintContext<Map<K, V>>,
     validate: (Map.Entry<K, V>, ValidationContext) -> ValidationResult<T>,
 ): ConstraintResult {
@@ -189,6 +189,7 @@ private fun <K, V, T> ConstraintScope.validateOnEach(
             }
         }
     }
-    val failureDetails = failures.flatMap { it.details }
-    return satisfies(failureDetails.isEmpty(), Message.ValidationFailure(details = failureDetails))
+    val messages = failures.flatMap { it.messages }
+    val messageContext = context.createMessageContext(listOf(messages))
+    return satisfies(messages.isEmpty(), Message.Collection(messageContext, failures))
 }

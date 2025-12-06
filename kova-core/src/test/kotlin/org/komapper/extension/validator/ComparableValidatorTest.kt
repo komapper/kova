@@ -17,9 +17,10 @@ class ComparableValidatorTest :
 
             test("failure") {
                 val result = validator.tryValidate(5u)
+                result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 2
-                result.messages[0].content shouldBe "Number 5 must be less than or equal to 2"
-                result.messages[1].content shouldBe "Number 5 must be less than or equal to 3"
+                result.messages[0].text shouldBe "Number 5 must be less than or equal to 2"
+                result.messages[1].text shouldBe "Number 5 must be less than or equal to 3"
             }
         }
 
@@ -36,7 +37,8 @@ class ComparableValidatorTest :
 
             test("failure") {
                 val result = validator.tryValidate(20u)
-                result.messages.single().content shouldBe "Constraint failed"
+                result.isFailure().mustBeTrue()
+                result.messages.single().text shouldBe "Constraint failed"
             }
         }
     })

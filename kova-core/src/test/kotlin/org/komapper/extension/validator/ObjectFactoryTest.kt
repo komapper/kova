@@ -91,11 +91,11 @@ class ObjectFactoryTest :
                 val factory = userSchema.bind(-1)
                 val result = factory.tryCreate()
                 result.isFailure().mustBeTrue()
-                result.details.size shouldBe 1
-                val detail = result.details.first()
-                detail.root shouldContain "<init>"
-                detail.path.fullName shouldBe "id"
-                detail.message.content shouldBe "Number -1 must be greater than or equal to 1"
+                result.messages.size shouldBe 1
+                val message = result.messages.first()
+                message.root shouldContain "<init>"
+                message.path.fullName shouldBe "id"
+                message.text shouldBe "Number -1 must be greater than or equal to 1"
             }
 
             test("failure - create") {
@@ -104,11 +104,11 @@ class ObjectFactoryTest :
                     shouldThrow<ValidationException> {
                         factory.create()
                     }
-                ex.details.size shouldBe 1
-                val detail = ex.details.first()
-                detail.root shouldContain "<init>"
-                detail.path.fullName shouldBe "id"
-                detail.message.content shouldBe "Number -1 must be greater than or equal to 1"
+                ex.messages.size shouldBe 1
+                val message = ex.messages.first()
+                message.root shouldContain "<init>"
+                message.path.fullName shouldBe "id"
+                message.text shouldBe "Number -1 must be greater than or equal to 1"
             }
         }
 
@@ -145,14 +145,14 @@ class ObjectFactoryTest :
                 val userFactory = userSchema.bind(0, "")
                 val result = userFactory.tryCreate()
                 result.isFailure().mustBeTrue()
-                result.details.size shouldBe 2
+                result.messages.size shouldBe 2
             }
 
             test("failure - failFast is true") {
                 val userFactory = userSchema.bind(0, "")
                 val result = userFactory.tryCreate(ValidationConfig(failFast = true))
                 result.isFailure().mustBeTrue()
-                result.details.size shouldBe 1
+                result.messages.size shouldBe 1
             }
         }
 

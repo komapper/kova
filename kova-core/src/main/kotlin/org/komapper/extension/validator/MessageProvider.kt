@@ -1,296 +1,196 @@
 package org.komapper.extension.validator
 
 /**
- * Provides error messages for validation failures with no additional arguments.
+ * Provides error messages for constraint violations.
  *
- * Use this for validators that don't need to include dynamic values in error messages.
+ * MessageProvider is a functional interface that creates [Message] objects when
+ * constraints are violated. It receives the constraint context and optional arguments
+ * to generate contextual error messages.
  *
- * Example:
+ * Message providers are typically created using the [MessageProviderFactory] methods
+ * available on the [Message] companion object.
+ *
+ * Example usage:
  * ```kotlin
- * val notBlankMessage = Message.text0<String> { context ->
- *     "Value must not be blank"
+ * // Using default resource-based message provider
+ * fun StringValidator.min(
+ *     length: Int,
+ *     message: MessageProvider<String> = Message.resource()
+ * ) = constrain("kova.string.min") {
+ *     satisfies(it.input.length >= length, message(it, it.input, length))
+ * }
+ *
+ * // Using custom text message provider
+ * fun StringValidator.customMin(
+ *     length: Int,
+ *     message: MessageProvider<String> = Message.text { ctx ->
+ *         "String '${ctx.input}' is too short. Minimum length is ${ctx[0]}"
+ *     }
+ * ) = constrain("custom.min") {
+ *     satisfies(it.input.length >= length, message(it, length))
  * }
  * ```
  *
- * @param T The type being validated
+ * @param T The type of value being validated
  */
-interface MessageProvider0<T> {
-    /** The message identifier */
-    val id: String
-
+interface MessageProvider<T> {
     /**
-     * Creates a message for the given constraint context.
+     * Creates a message for a constraint violation.
      *
-     * @param context The constraint context containing the input value
-     * @return The error message
-     */
-    operator fun invoke(context: ConstraintContext<T>): Message
-}
-
-/**
- * Provides error messages for validation failures with one additional argument.
- *
- * Use this for validators that include one dynamic value in error messages,
- * such as a minimum/maximum value.
- *
- * Example:
- * ```kotlin
- * val minMessage = Message.text1<String, Int> { context, min ->
- *     "Value must be at least $min characters, but was ${context.input.length}"
- * }
- * ```
- *
- * @param T The type being validated
- * @param A1 The type of the first argument
- */
-interface MessageProvider1<T, A1> {
-    /** The message identifier */
-    val id: String
-
-    /**
-     * Creates a message for the given constraint context and argument.
+     * This method is called by constraint validators when a constraint is violated.
+     * It receives the constraint context and any additional arguments needed for
+     * message formatting.
      *
-     * @param context The constraint context containing the input value
-     * @param arg1 The first argument to include in the message
-     * @return The error message
+     * @param constraintContext The context containing the input value and validation state
+     * @param args Additional arguments for message formatting (e.g., constraint parameters)
+     * @return A Message object representing the error
      */
     operator fun invoke(
-        context: ConstraintContext<T>,
-        arg1: A1,
+        constraintContext: ConstraintContext<T>,
+        vararg args: Any?,
     ): Message
 }
 
 /**
- * Provides error messages for validation failures with two additional arguments.
+ * Factory for creating [MessageProvider] instances.
  *
- * Use this for validators that include two dynamic values in error messages,
- * such as a range with minimum and maximum values.
+ * This interface is implemented by the [Message] companion object, providing
+ * convenient factory methods for creating message providers.
  *
- * Example:
+ * Example usage:
  * ```kotlin
- * val rangeMessage = Message.text2<Int, Int, Int> { context, min, max ->
- *     "Value must be between $min and $max, but was ${context.input}"
+ * // Create a text message provider with custom logic
+ * val customProvider = Message.text<String> { ctx ->
+ *     "Value ${ctx.input} failed validation at path ${ctx.path.fullName}"
+ * }
+ *
+ * // Create a resource bundle message provider
+ * val resourceProvider = Message.resource<String>()
+ * ```
+ */
+interface MessageProviderFactory {
+    /**
+     * Creates a message provider that generates text messages.
+     *
+     * Text messages are created dynamically using the provided lambda function,
+     * which receives a [MessageContext] with access to the input value, arguments,
+     * and validation state.
+     *
+     * Example:
+     * ```kotlin
+     * val provider = Message.text<Int> { ctx ->
+     *     "Value ${ctx.input} must be at least ${ctx[0]}"
+     * }
+     * ```
+     *
+     * @param format Lambda that formats the message text from the context
+     * @return A MessageProvider that creates Text messages
+     */
+    fun <T> text(format: (MessageContext<T>) -> String): MessageProvider<T> =
+        object : MessageProvider<T> {
+            override fun invoke(
+                constraintContext: ConstraintContext<T>,
+                vararg args: Any?,
+            ): Message {
+                val messageContext = constraintContext.createMessageContext(args.toList())
+                return Message.Text(messageContext, format(messageContext))
+            }
+        }
+
+    /**
+     * Creates a message provider that loads messages from resource bundles.
+     *
+     * Resource messages are loaded from `kova.properties` files using the constraint ID
+     * as the resource key. Arguments are formatted using [java.text.MessageFormat].
+     *
+     * Example resource file (kova.properties):
+     * ```properties
+     * kova.string.min=String {0} must have at least {1} characters
+     * kova.int.range=Value {0} must be between {1} and {2}
+     * ```
+     *
+     * Example usage:
+     * ```kotlin
+     * // The resource provider uses the constraint ID from the context
+     * fun StringValidator.min(
+     *     length: Int,
+     *     message: MessageProvider<String> = Message.resource()
+     * ) = constrain("kova.string.min") { ctx ->
+     *     satisfies(ctx.input.length >= length, message(ctx, ctx.input, length))
+     * }
+     * ```
+     *
+     * @return A MessageProvider that creates Resource messages
+     */
+    fun <T> resource(): MessageProvider<T> =
+        object : MessageProvider<T> {
+            override fun invoke(
+                constraintContext: ConstraintContext<T>,
+                vararg args: Any?,
+            ): Message {
+                val messageContext = constraintContext.createMessageContext(args.toList())
+                return Message.Resource(messageContext)
+            }
+        }
+}
+
+/**
+ * Context information available when generating error messages.
+ *
+ * MessageContext provides access to the input value, arguments, constraint ID,
+ * and validation state. It is passed to message provider lambdas to enable
+ * contextual error message generation.
+ *
+ * Example usage:
+ * ```kotlin
+ * val provider = Message.text<String> { ctx ->
+ *     // Access input value
+ *     val value = ctx.input
+ *
+ *     // Access arguments by index
+ *     val minLength = ctx[0]
+ *
+ *     // Access validation path
+ *     val path = ctx.path.fullName
+ *
+ *     "Value '$value' at path '$path' must be at least $minLength characters"
  * }
  * ```
  *
- * @param T The type being validated
- * @param A1 The type of the first argument
- * @param A2 The type of the second argument
+ * @param T The type of the input value being validated
+ * @property args Arguments passed to the message provider (e.g., constraint parameters)
+ * @property constraintContext The underlying constraint context
  */
-interface MessageProvider2<T, A1, A2> {
-    /** The message identifier */
-    val id: String
+data class MessageContext<T>(
+    val args: List<Any?> = emptyList(),
+    private val constraintContext: ConstraintContext<T>,
+) {
+    /** The input value being validated */
+    val input: T get() = constraintContext.input
+
+    /** The constraint identifier (e.g., "kova.string.min") */
+    val constraintId: String get() = constraintContext.constraintId
+
+    /** The root object's qualified class name */
+    val root: String get() = constraintContext.validationContext.root
+
+    /** The current validation path */
+    val path: Path get() = constraintContext.validationContext.path
 
     /**
-     * Creates a message for the given constraint context and arguments.
+     * Retrieves an argument by index with safe bounds checking.
      *
-     * @param context The constraint context containing the input value
-     * @param arg1 The first argument to include in the message
-     * @param arg2 The second argument to include in the message
-     * @return The error message
+     * If the index is out of bounds, returns a descriptive error string instead
+     * of throwing an exception. This allows message formatting to gracefully
+     * handle missing arguments.
+     *
+     * @param index The zero-based index of the argument
+     * @return The argument value, or an error string if index is out of bounds
      */
-    operator fun invoke(
-        context: ConstraintContext<T>,
-        arg1: A1,
-        arg2: A2,
-    ): Message
-}
-
-/**
- * Factory for creating [MessageProvider0] instances.
- *
- * Available through `Message.text0()` and `Message.resource0()`.
- */
-interface MessageProvider0Factory {
-    /**
-     * Creates a text-based message provider with no arguments.
-     *
-     * Use this for custom hardcoded error messages.
-     *
-     * Example:
-     * ```kotlin
-     * fun positive(message: MessageProvider0<Int> = Message.text0 { context ->
-     *     "Number ${context.input} must be positive"
-     * }): NumberValidator<Int>
-     * ```
-     *
-     * @param id Optional identifier for this message provider
-     * @param get Function that generates the message text
-     * @return A message provider
-     */
-    fun <T> text0(
-        id: String = "",
-        get: (ConstraintContext<T>) -> String,
-    ): MessageProvider0<T> =
-        object : MessageProvider0<T> {
-            override val id: String = id
-
-            override fun invoke(context: ConstraintContext<T>): Message = Message.Text(id, get(context))
-        }
-
-    /**
-     * Creates a resource bundle-based message provider with no arguments.
-     *
-     * Use this for i18n support. The message is loaded from `kova.properties`.
-     *
-     * Example:
-     * ```kotlin
-     * fun notBlank(message: MessageProvider0<String> = Message.resource0("kova.string.notBlank")): StringValidator
-     * ```
-     *
-     * @param id The resource bundle key
-     * @return A message provider that loads messages from resources
-     */
-    fun <T> resource0(id: String): MessageProvider0<T> =
-        object : MessageProvider0<T> {
-            override val id: String = id
-
-            override fun invoke(context: ConstraintContext<T>): Message = Message.Resource(id, context.input)
-        }
-}
-
-/**
- * Factory for creating [MessageProvider1] instances.
- *
- * Available through `Message.text1()` and `Message.resource1()`.
- */
-interface MessageProvider1Factory {
-    /**
-     * Creates a text-based message provider with one argument.
-     *
-     * Use this for custom error messages that include one dynamic value.
-     *
-     * Example:
-     * ```kotlin
-     * fun min(
-     *     minValue: Int,
-     *     message: MessageProvider1<String, Int> = Message.text1 { context, min ->
-     *         "String must be at least $min characters, but was ${context.input.length}"
-     *     }
-     * ): StringValidator
-     * ```
-     *
-     * @param id Optional identifier for this message provider
-     * @param get Function that generates the message text from context and argument
-     * @return A message provider
-     */
-    fun <T, A1> text1(
-        id: String = "",
-        get: (ConstraintContext<T>, A1) -> String,
-    ): MessageProvider1<T, A1> =
-        object : MessageProvider1<T, A1> {
-            override val id: String = id
-
-            override fun invoke(
-                context: ConstraintContext<T>,
-                arg1: A1,
-            ): Message = Message.Text(id, get(context, arg1))
-        }
-
-    /**
-     * Creates a resource bundle-based message provider with one argument.
-     *
-     * Use this for i18n support with one dynamic value.
-     * The message pattern uses `{0}` for the input and `{1}` for the argument.
-     *
-     * Example resource (kova.properties):
-     * ```properties
-     * kova.string.min={0} must be at least {1} characters
-     * ```
-     *
-     * Example usage:
-     * ```kotlin
-     * fun min(
-     *     minLength: Int,
-     *     message: MessageProvider1<String, Int> = Message.resource1("kova.string.min")
-     * ): StringValidator
-     * ```
-     *
-     * @param id The resource bundle key
-     * @return A message provider that loads messages from resources
-     */
-    fun <T, A1> resource1(id: String): MessageProvider1<T, A1> =
-        object : MessageProvider1<T, A1> {
-            override val id: String = id
-
-            override fun invoke(
-                context: ConstraintContext<T>,
-                arg1: A1,
-            ): Message = Message.Resource(id, context.input, arg1)
-        }
-}
-
-/**
- * Factory for creating [MessageProvider2] instances.
- *
- * Available through `Message.text2()` and `Message.resource2()`.
- */
-interface MessageProvider2Factory {
-    /**
-     * Creates a text-based message provider with two arguments.
-     *
-     * Use this for custom error messages that include two dynamic values.
-     *
-     * Example:
-     * ```kotlin
-     * fun range(
-     *     min: Int,
-     *     max: Int,
-     *     message: MessageProvider2<Int, Int, Int> = Message.text2 { context, minVal, maxVal ->
-     *         "Value must be between $minVal and $maxVal, but was ${context.input}"
-     *     }
-     * ): NumberValidator<Int>
-     * ```
-     *
-     * @param id Optional identifier for this message provider
-     * @param get Function that generates the message text from context and arguments
-     * @return A message provider
-     */
-    fun <T, A1, A2> text2(
-        id: String = "",
-        get: (ConstraintContext<T>, A1, A2) -> String,
-    ): MessageProvider2<T, A1, A2> =
-        object : MessageProvider2<T, A1, A2> {
-            override val id: String = id
-
-            override fun invoke(
-                context: ConstraintContext<T>,
-                arg1: A1,
-                arg2: A2,
-            ): Message = Message.Text(id, get(context, arg1, arg2))
-        }
-
-    /**
-     * Creates a resource bundle-based message provider with two arguments.
-     *
-     * Use this for i18n support with two dynamic values.
-     * The message pattern uses `{0}` for the input, `{1}` for the first argument,
-     * and `{2}` for the second argument.
-     *
-     * Example resource (kova.properties):
-     * ```properties
-     * kova.collection.min={0} must have at least {1} elements, but has {2}
-     * ```
-     *
-     * Example usage:
-     * ```kotlin
-     * fun min(
-     *     size: Int,
-     *     message: MessageProvider2<List<*>, Int, Int> = Message.resource2("kova.collection.min")
-     * ): CollectionValidator<E, C>
-     * ```
-     *
-     * @param id The resource bundle key
-     * @return A message provider that loads messages from resources
-     */
-    fun <T, A1, A2> resource2(id: String): MessageProvider2<T, A1, A2> =
-        object : MessageProvider2<T, A1, A2> {
-            override val id: String = id
-
-            override fun invoke(
-                context: ConstraintContext<T>,
-                arg1: A1,
-                arg2: A2,
-            ): Message = Message.Resource(id, context.input, arg1, arg2)
+    operator fun get(index: Int): Any? =
+        if (index < 0 || index >= args.size) {
+            "<index $index is out of range. args.size=${args.size}>"
+        } else {
+            args[index]
         }
 }

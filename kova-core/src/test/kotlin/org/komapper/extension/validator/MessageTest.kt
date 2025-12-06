@@ -14,13 +14,50 @@ class MessageTest :
         }
 
         test("resolve arguments") {
-            val resource =
-                Message.Resource(
-                    "kova.or",
-                    listOf(Message.Resource("kova.string.min", 1)),
-                    Message.Resource("kova.string.max", 5),
-                )
-            resource.content shouldBe
-                "at least one constraint must be satisfied: [[\"1\" must be at least {1} characters], \"5\" must be at most {1} characters]"
+            val input = "abc"
+            val vc = ValidationContext()
+
+            val cc1 = vc.createConstraintContext(input, "kova.string.min")
+            val mc1 = cc1.createMessageContext(listOf(input, 1))
+            val resource1 = Message.Resource(mc1)
+
+            val cc2 = vc.createConstraintContext(input, "kova.string.max")
+            val mc2 = cc2.createMessageContext(listOf(input, 5))
+            val resource2 = Message.Resource(mc2)
+
+            val cc3 = vc.createConstraintContext(input, "kova.or")
+            val mc3 =
+                cc3.createMessageContext(listOf(listOf(resource1), resource2))
+            val resource3 = Message.Resource(mc3)
+
+            resource3.text shouldBe
+                "at least one constraint must be satisfied: [[\"abc\" must be at least 1 characters], \"abc\" must be at most 5 characters]"
+        }
+
+        test("toString: string") {
+            val min = Kova.string().min(5)
+
+            val result = min.tryValidate("abc")
+            result.isFailure().mustBeTrue()
+            result.messages.size shouldBe 1
+            result.messages[0].toString() shouldBe
+                "Message(constraintId=kova.string.min, text='\"abc\" must be at least 5 characters', root=, path=, input=abc)"
+        }
+
+        test("toString: object") {
+            data class Person(
+                val name: String,
+            )
+
+            val personSchema =
+                object : ObjectSchema<Person>() {
+                    val name = Person::name { Kova.string().min(5) }
+                }
+
+            val result = personSchema.tryValidate(Person("abc"))
+            result.isFailure().mustBeTrue()
+            result.messages.size shouldBe 1
+            result.messages[0].toString() shouldBe
+                "Message(constraintId=kova.string.min, text='\"abc\" must be at least 5 characters', root=Person, path=name, input=abc)"
         }
     })

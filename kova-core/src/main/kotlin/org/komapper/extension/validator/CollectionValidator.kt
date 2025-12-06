@@ -25,9 +25,9 @@ typealias CollectionValidator<C> = IdentityValidator<C>
  */
 fun <C : Collection<*>> CollectionValidator<C>.min(
     size: Int,
-    message: MessageProvider2<C, Int, Int> = Message.resource2("kova.collection.min"),
-) = constrain(message.id) {
-    satisfies(it.input.size >= size, message(it, it.input.size, size))
+    message: MessageProvider<C> = Message.resource(),
+) = constrain("kova.collection.min") {
+    satisfies(it.input.size >= size, message(it, it.input, it.input.size, size))
 }
 
 /**
@@ -46,9 +46,9 @@ fun <C : Collection<*>> CollectionValidator<C>.min(
  */
 fun <C : Collection<*>> CollectionValidator<C>.max(
     size: Int,
-    message: MessageProvider2<C, Int, Int> = Message.resource2("kova.collection.max"),
-) = constrain(message.id) {
-    satisfies(it.input.size <= size, message(it, it.input.size, size))
+    message: MessageProvider<C> = Message.resource(),
+) = constrain("kova.collection.max") {
+    satisfies(it.input.size <= size, message(it, it.input, it.input.size, size))
 }
 
 /**
@@ -64,9 +64,9 @@ fun <C : Collection<*>> CollectionValidator<C>.max(
  * @param message Custom error message provider
  * @return A new validator with the not-empty constraint
  */
-fun <C : Collection<*>> CollectionValidator<C>.notEmpty(message: MessageProvider0<C> = Message.resource0("kova.collection.notEmpty")) =
-    constrain(message.id) {
-        satisfies(it.input.isNotEmpty(), message(it))
+fun <C : Collection<*>> CollectionValidator<C>.notEmpty(message: MessageProvider<C> = Message.resource()) =
+    constrain("kova.collection.notEmpty") {
+        satisfies(it.input.isNotEmpty(), message(it, it.input))
     }
 
 /**
@@ -85,9 +85,9 @@ fun <C : Collection<*>> CollectionValidator<C>.notEmpty(message: MessageProvider
  */
 fun <C : Collection<*>> CollectionValidator<C>.length(
     size: Int,
-    message: MessageProvider1<C, Int> = Message.resource1("kova.collection.length"),
-) = constrain(message.id) {
-    satisfies(it.input.size == size, message(it, size))
+    message: MessageProvider<C> = Message.resource(),
+) = constrain("kova.collection.length") {
+    satisfies(it.input.size == size, message(it, it.input, size))
 }
 
 /**
@@ -110,10 +110,10 @@ fun <C : Collection<*>> CollectionValidator<C>.length(
  * @return A new validator with per-element validation
  */
 fun <E, C : Collection<E>> CollectionValidator<C>.onEach(validator: Validator<E, *>) =
-    constrain("kova.collection.onEach") {
-        val validationContext = it.validationContext
+    constrain("kova.collection.onEach") { constraintContext ->
+        val validationContext = constraintContext.validationContext
         val failures = mutableListOf<ValidationResult.Failure>()
-        for ((i, element) in it.input.withIndex()) {
+        for ((i, element) in constraintContext.input.withIndex()) {
             val path = "[$i]<collection element>"
             val result = validator.execute(element, validationContext.appendPath(path))
             if (result.isFailure()) {
@@ -123,6 +123,7 @@ fun <E, C : Collection<E>> CollectionValidator<C>.onEach(validator: Validator<E,
                 }
             }
         }
-        val failureDetails = failures.flatMap { failure -> failure.details }
-        satisfies(failureDetails.isEmpty(), Message.ValidationFailure(details = failureDetails))
+        val messages = failures.flatMap { it.messages }
+        val messageContext = constraintContext.createMessageContext(listOf(messages))
+        satisfies(messages.isEmpty(), Message.Collection(messageContext, failures))
     }

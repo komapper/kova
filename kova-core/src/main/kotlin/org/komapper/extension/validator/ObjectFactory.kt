@@ -32,7 +32,7 @@ private fun <T : Any> createFailure(
 private fun <T> unwrapValidationResult(result: ValidationResult<T>): T =
     when (result) {
         is ValidationResult.Success -> result.value
-        is ValidationResult.Failure -> throw ValidationException(result.details)
+        is ValidationResult.Failure -> throw ValidationException(result.messages)
     }
 
 /**
@@ -61,7 +61,7 @@ private fun <T> unwrapValidationResult(result: ValidationResult<T>): T =
  * val result = PersonSchema.build("Alice", 30).tryCreate()
  * when (result) {
  *     is ValidationResult.Success -> println("Created: ${result.value}")
- *     is ValidationResult.Failure -> println("Errors: ${result.details}")
+ *     is ValidationResult.Failure -> println("Errors: ${result.messages}")
  * }
  * ```
  *
@@ -89,7 +89,7 @@ fun interface ObjectFactory<T> {
  * val result = factory.tryCreate()
  * when (result) {
  *     is ValidationResult.Success -> println("Created: ${result.value}")
- *     is ValidationResult.Failure -> result.details.forEach { println(it.message.content) }
+ *     is ValidationResult.Failure -> result.messages.forEach { println(it.text) }
  * }
  * ```
  *
