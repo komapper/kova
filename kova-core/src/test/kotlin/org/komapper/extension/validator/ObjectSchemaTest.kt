@@ -65,7 +65,7 @@ class ObjectSchemaTest :
                 result.messages.size shouldBe 1
                 result.messages[0].let {
                     it.root shouldBe "User"
-                    it.path?.fullName shouldBe "name"
+                    it.path.fullName shouldBe "name"
                     it.text shouldBe "\"too-long-name\" must be at most 10 characters"
                 }
             }
@@ -78,12 +78,12 @@ class ObjectSchemaTest :
                 result.messages.size shouldBe 2
                 result.messages[0].let {
                     it.root shouldBe "User"
-                    it.path?.fullName shouldBe "name"
+                    it.path.fullName shouldBe "name"
                     it.text shouldBe "\"too-long-name\" must be at most 10 characters"
                 }
                 result.messages[1].let {
                     it.root shouldBe "User"
-                    it.path?.fullName shouldBe "id"
+                    it.path.fullName shouldBe "id"
                     it.text shouldBe "Number 0 must be greater than or equal to 1"
                 }
             }
@@ -136,7 +136,7 @@ class ObjectSchemaTest :
                 result.messages.size shouldBe 1
                 result.messages[0].let {
                     it.root shouldBe "Period"
-                    it.path?.fullName shouldBe ""
+                    it.path.fullName shouldBe ""
                     it.text shouldBe "startDate must be less than or equal to endDate"
                 }
             }
@@ -185,7 +185,7 @@ class ObjectSchemaTest :
                 result.messages.size shouldBe 1
                 result.messages[0].let {
                     it.root shouldBe "User"
-                    it.path?.fullName shouldBe "name"
+                    it.path.fullName shouldBe "name"
                     it.text shouldBe "\"too-long-name\" must be at most 10 characters"
                 }
             }
@@ -198,12 +198,12 @@ class ObjectSchemaTest :
                 result.messages.size shouldBe 2
                 result.messages[0].let {
                     it.root shouldBe "User"
-                    it.path?.fullName shouldBe "id"
+                    it.path.fullName shouldBe "id"
                     it.text shouldBe "Number 0 must be greater than or equal to 1"
                 }
                 result.messages[1].let {
                     it.root shouldBe "User"
-                    it.path?.fullName shouldBe "name"
+                    it.path.fullName shouldBe "name"
                     it.text shouldBe "\"too-long-name\" must be at most 10 characters"
                 }
             }
@@ -241,7 +241,7 @@ class ObjectSchemaTest :
                 result.messages.size shouldBe 1
                 result.messages[0].let {
                     it.root shouldBe "Employee"
-                    it.path?.fullName shouldBe "address.street.name"
+                    it.path.fullName shouldBe "address.street.name"
                     it.text shouldBe "\"too-long-name\" must be at most 5 characters"
                 }
             }
@@ -295,7 +295,7 @@ class ObjectSchemaTest :
                 result.messages.size shouldBe 1
                 result.messages[0].let {
                     it.root shouldBe "Employee"
-                    it.path?.fullName shouldBe "address.postalCode"
+                    it.path.fullName shouldBe "address.postalCode"
                     it.text shouldBe "\"123456789\" must be exactly 8 characters"
                 }
             }
@@ -308,7 +308,7 @@ class ObjectSchemaTest :
                 result.messages.size shouldBe 1
                 result.messages[0].let {
                     it.root shouldBe "Employee"
-                    it.path?.fullName shouldBe "address.postalCode"
+                    it.path.fullName shouldBe "address.postalCode"
                     it.text shouldBe "\"123456789\" must be exactly 5 characters"
                 }
             }
@@ -361,12 +361,12 @@ class ObjectSchemaTest :
                 result.messages.size shouldBe 2
                 result.messages[0].let {
                     it.root shouldBe "Person"
-                    it.path?.fullName shouldBe "firstName"
+                    it.path.fullName shouldBe "firstName"
                     it.text shouldBe "Value must not be null"
                 }
                 result.messages[1].let {
                     it.root shouldBe "Person"
-                    it.path?.fullName shouldBe "lastName"
+                    it.path.fullName shouldBe "lastName"
                     it.text shouldBe "Value must not be null"
                 }
             }
@@ -446,7 +446,7 @@ class ObjectSchemaTest :
                 val result = nodeSchema.tryValidate(node1)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].path?.fullName shouldBe "next.next.value"
+                result.messages[0].path.fullName shouldBe "next.next.value"
                 result.messages[0].text shouldBe "Number 150 must be less than or equal to 100"
             }
 
@@ -457,7 +457,7 @@ class ObjectSchemaTest :
                 val result = nodeSchema.tryValidate(node1)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].path?.fullName shouldBe "value"
+                result.messages[0].path.fullName shouldBe "value"
                 result.messages[0].text shouldBe "Number -5 must be greater than or equal to 0"
             }
 
