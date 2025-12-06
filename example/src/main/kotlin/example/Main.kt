@@ -4,7 +4,6 @@ import org.komapper.extension.validator.Kova
 import org.komapper.extension.validator.ObjectSchema
 import org.komapper.extension.validator.ValidationResult
 import org.komapper.extension.validator.max
-import org.komapper.extension.validator.messages
 import org.komapper.extension.validator.min
 import org.komapper.extension.validator.notBlank
 import org.komapper.extension.validator.then

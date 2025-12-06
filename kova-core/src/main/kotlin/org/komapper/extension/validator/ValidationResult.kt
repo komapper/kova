@@ -16,7 +16,7 @@ import kotlin.contracts.contract
  * val result = validator.tryValidate(input)
  * when (result) {
  *     is ValidationResult.Success -> println("Value: ${result.value}")
- *     is ValidationResult.Failure -> println("Errors: ${result.details}")
+ *     is ValidationResult.Failure -> println("Errors: ${result.messages}")
  * }
  * ```
  *
@@ -37,88 +37,19 @@ sealed interface ValidationResult<out T> {
     /**
      * Represents a failed validation with detailed error information.
      *
-     * @param details List of failure details describing what went wrong
+     * @property messages List of error messages describing what went wrong
      */
     data class Failure(
-        val details: List<FailureDetail>,
-    ) : ValidationResult<Nothing> {
-        /**
-         * Creates a Failure with a single detail.
-         *
-         * @param detail The failure detail
-         */
-        constructor(detail: FailureDetail) : this(listOf(detail))
-    }
+        val messages: List<Message>,
+    ) : ValidationResult<Nothing>
 }
-
-/**
- * Detailed information about a validation failure.
- *
- * Contains the validation context, error message, root object name, and field path
- * where the validation failed.
- *
- * Implementations include simple failures and composite failures (from OR operations).
- */
-sealed interface FailureDetail {
-    /** The validation context at the point of failure */
-    val context: ValidationContext
-
-    /** The error message describing the failure */
-    val message: Message
-
-    /** The root object's qualified class name (e.g., "com.example.User") */
-    val root get() = context.root
-
-    /** The field path where validation failed, excluding the root (e.g., "name" or "address.city") */
-    val path get() = context.path
-}
-
-internal data class SimpleFailureDetail(
-    override val context: ValidationContext,
-    override val message: Message,
-) : FailureDetail
-
-internal data class CompositeFailureDetail(
-    val input: Any?,
-    override val context: ValidationContext,
-    val first: List<FailureDetail>,
-    val second: List<FailureDetail>,
-) : FailureDetail {
-    override val message: Message get() {
-        val firstMessages = composeMessages(input, context, first)
-        val secondMessages = composeMessages(input, context, second)
-        // TODO
-        val constraintContext = context.createConstraintContext(input).copy(constraintId = "kova.or")
-        val messageContext = MessageContext(constraintContext, listOf(firstMessages, secondMessages))
-        return Message.Resource(messageContext)
-    }
-}
-
-private fun composeMessages(
-    input: Any?,
-    context: ValidationContext,
-    details: List<FailureDetail>,
-): List<Message> =
-    details.map {
-        when (it) {
-            is SimpleFailureDetail -> it.message
-            is CompositeFailureDetail -> {
-                val first = composeMessages(input, context, it.first)
-                val second = composeMessages(input, context, it.second)
-                // TODO
-                val constraintContext = context.createConstraintContext(input).copy(constraintId = "kova.or.nested")
-                val messageContext = MessageContext(constraintContext, listOf(first, second))
-                Message.Resource(messageContext)
-            }
-        }
-    }
 
 /**
  * Combines two validation results.
  *
  * - If this is [Success], returns [other]
  * - If this is [Failure] and [other] is [Success], returns this failure
- * - If both are [Failure], combines their failure details
+ * - If both are [Failure], combines their messages
  *
  * This is used internally by the [and] operator to accumulate failures.
  */
@@ -128,7 +59,7 @@ operator fun <T> ValidationResult<T>.plus(other: ValidationResult<T>): Validatio
         is Failure ->
             when (other) {
                 is Success -> this
-                is Failure -> Failure(this.details + other.details)
+                is Failure -> Failure(this.messages + other.messages)
             }
     }
 
@@ -167,7 +98,7 @@ fun <T> ValidationResult<T>.isSuccess(): Boolean {
  * val result = validator.tryValidate(input)
  * if (result.isFailure()) {
  *     // result is automatically cast to Failure here
- *     println("Errors: ${result.details}")
+ *     println("Errors: ${result.messages}")
  * }
  * ```
  */
@@ -179,25 +110,3 @@ fun <T> ValidationResult<T>.isFailure(): Boolean {
     }
     return this is ValidationResult.Failure
 }
-
-/**
- * Extracts all error messages from this validation result.
- *
- * Returns an empty list for successful results, or a list of all error messages
- * for failed results.
- *
- * Example:
- * ```kotlin
- * val result = validator.tryValidate(input)
- * result.messages.forEach { message ->
- *     println(message.content)
- * }
- * ```
- */
-val ValidationResult<*>.messages: List<Message>
-    get() =
-        if (isSuccess()) {
-            emptyList()
-        } else {
-            details.map { it.message }
-        }

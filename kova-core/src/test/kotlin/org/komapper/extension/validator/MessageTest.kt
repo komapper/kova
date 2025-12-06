@@ -16,16 +16,20 @@ class MessageTest :
         test("resolve arguments") {
             val input = "abc"
             val vc = ValidationContext()
-            val mc1 = MessageContext(ConstraintContext(input = input, "kova.string.min", validationContext = vc), args = listOf(input, 1))
+
+            val cc1 = vc.createConstraintContext(input, "kova.string.min")
+            val mc1 = cc1.createMessageContext(listOf(input, 1))
             val resource1 = Message.Resource(mc1)
-            val mc2 = MessageContext(ConstraintContext(input = input, "kova.string.max", validationContext = vc), args = listOf(input, 5))
+
+            val cc2 = vc.createConstraintContext(input, "kova.string.max")
+            val mc2 = cc2.createMessageContext(listOf(input, 5))
             val resource2 = Message.Resource(mc2)
+
+            val cc3 = vc.createConstraintContext(input, "kova.or")
             val mc3 =
-                MessageContext(
-                    ConstraintContext(input = input, "kova.or", validationContext = vc),
-                    args = listOf(listOf(resource1), resource2),
-                )
+                cc3.createMessageContext(listOf(listOf(resource1), resource2))
             val resource3 = Message.Resource(mc3)
+
             resource3.content shouldBe
                 "at least one constraint must be satisfied: [[\"abc\" must be at least 1 characters], \"abc\" must be at most 5 characters]"
         }

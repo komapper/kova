@@ -14,28 +14,17 @@ package org.komapper.extension.validator
  * try {
  *     val result = validator.validate("") // Throws ValidationException
  * } catch (e: ValidationException) {
- *     // Access failure details
- *     e.details.forEach { detail ->
- *         println("Path: ${detail.path.fullName}")
- *         println("Message: ${detail.message.content}")
- *     }
- *     // Or access messages directly
+ *     // Access validation messages
  *     e.messages.forEach { message ->
- *         println(message.content)
+ *         println("Path: ${message.path.fullName}")
+ *         println("Message: ${message.content}")
+ *         println("Constraint ID: ${message.id}")
  *     }
  * }
  * ```
  *
- * @property details List of [FailureDetail] objects describing each validation failure
+ * @property messages List of [Message] objects describing each validation failure
  */
 class ValidationException(
-    val details: List<FailureDetail>,
-) : RuntimeException(details.toString()) {
-    /**
-     * List of error messages extracted from the failure details.
-     *
-     * This is a convenience property for accessing just the messages
-     * without the full failure context.
-     */
-    val messages: List<Message> get() = details.map { it.message }
-}
+    val messages: List<Message>,
+) : RuntimeException(messages.toString())

@@ -90,7 +90,7 @@ class KovaTest :
             test("failure") {
                 val userFactory = userSchema.bind("abc", 10)
                 val result = userFactory.tryCreate()
-                result.isFailure().mustBeTrue(result.messages.toString())
+                result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 2
                 result.messages[0].content shouldBe
                     "at least one constraint must be satisfied: [[Value abc must be null], [Value abc must be ]]"
@@ -122,10 +122,10 @@ class KovaTest :
             test("failure - requestKeyIsNotNull") {
                 val result = requestKeyIsNotNull.tryValidate(Request(mapOf()))
                 result.isFailure().mustBeTrue()
-                result.details.size shouldBe 1
-                result.details[0].let {
+                result.messages.size shouldBe 1
+                result.messages[0].let {
                     it.path.fullName shouldBe "Request[key]"
-                    it.message.content shouldBe "Value must not be null"
+                    it.content shouldBe "Value must not be null"
                 }
             }
 
@@ -138,10 +138,10 @@ class KovaTest :
             test("failure - requestKeyIsNotNullAndMin3") {
                 val result = requestKeyIsNotNullAndMin3.tryValidate(Request(mapOf("key" to "ab")))
                 result.isFailure().mustBeTrue()
-                result.details.size shouldBe 1
-                result.details[0].let {
+                result.messages.size shouldBe 1
+                result.messages[0].let {
                     it.path.fullName shouldBe "Request[key]"
-                    it.message.content shouldBe "\"ab\" must be at least 3 characters"
+                    it.content shouldBe "\"ab\" must be at least 3 characters"
                 }
             }
         }

@@ -179,7 +179,9 @@ class ConstraintScope<T>(
         if (condition) {
             ConstraintResult.Satisfied
         } else {
-            val messageContext = MessageContext(context, emptyList())
+            val messageContext = context.createMessageContext(emptyList())
             ConstraintResult.Violated(Message.Text(messageContext, content = message))
         }
 }
+
+fun <T> ConstraintContext<T>.createMessageContext(args: List<Any?>): MessageContext<T> = MessageContext(args, this)

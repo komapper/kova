@@ -77,8 +77,13 @@ class ValidatorTest :
                 result.messages.size shouldBe 1
                 result.messages[0].let {
                     it.id shouldBe "kova.or"
-                    it.content shouldBe "at least one constraint must be satisfied: [[[\"abc\" must be exactly 2 characters], " +
-                        "[\"abc\" must be exactly 5 characters]], [\"abc\" must be exactly 7 characters]]"
+                    it.content shouldBe
+                        """at least one constraint must be satisfied: [
+                        |[at least one constraint must be satisfied: [
+                        |["abc" must be exactly 2 characters], ["abc" must be exactly 5 characters]]], 
+                        |["abc" must be exactly 7 characters]]
+                        """.trimMargin()
+                            .replace("\n", "")
                 }
             }
         }

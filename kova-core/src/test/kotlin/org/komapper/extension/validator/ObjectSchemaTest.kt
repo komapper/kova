@@ -61,11 +61,11 @@ class ObjectSchemaTest :
                 val user = User(2, "too-long-name")
                 val result = userSchema.tryValidate(user)
                 result.isFailure().mustBeTrue()
-                result.details.size shouldBe 1
-                result.details[0].let {
+                result.messages.size shouldBe 1
+                result.messages[0].let {
                     it.root shouldBe "User"
-                    it.path.fullName shouldBe "name"
-                    it.message.content shouldBe "\"too-long-name\" must be at most 10 characters"
+                    it.path?.fullName shouldBe "name"
+                    it.content shouldBe "\"too-long-name\" must be at most 10 characters"
                 }
             }
 
@@ -74,16 +74,16 @@ class ObjectSchemaTest :
                 val result = userSchema.tryValidate(user)
                 result.isFailure().mustBeTrue()
 
-                result.details.size shouldBe 2
-                result.details[0].let {
+                result.messages.size shouldBe 2
+                result.messages[0].let {
                     it.root shouldBe "User"
-                    it.path.fullName shouldBe "name"
-                    it.message.content shouldBe "\"too-long-name\" must be at most 10 characters"
+                    it.path?.fullName shouldBe "name"
+                    it.content shouldBe "\"too-long-name\" must be at most 10 characters"
                 }
-                result.details[1].let {
+                result.messages[1].let {
                     it.root shouldBe "User"
-                    it.path.fullName shouldBe "id"
-                    it.message.content shouldBe "Number 0 must be greater than or equal to 1"
+                    it.path?.fullName shouldBe "id"
+                    it.content shouldBe "Number 0 must be greater than or equal to 1"
                 }
             }
         }
@@ -132,11 +132,11 @@ class ObjectSchemaTest :
                 val period = Period(LocalDate.of(2020, 1, 1), LocalDate.of(2019, 1, 1))
                 val result = periodSchema.tryValidate(period)
                 result.isFailure().mustBeTrue()
-                result.details.size shouldBe 1
-                result.details[0].let {
+                result.messages.size shouldBe 1
+                result.messages[0].let {
                     it.root shouldBe "Period"
-                    it.path.fullName shouldBe ""
-                    it.message.content shouldBe "startDate must be less than or equal to endDate"
+                    it.path?.fullName shouldBe ""
+                    it.content shouldBe "startDate must be less than or equal to endDate"
                 }
             }
         }
@@ -181,11 +181,11 @@ class ObjectSchemaTest :
                 val user = User(2, "too-long-name")
                 val result = userSchema.tryValidate(user)
                 result.isFailure().mustBeTrue()
-                result.details.size shouldBe 1
-                result.details[0].let {
+                result.messages.size shouldBe 1
+                result.messages[0].let {
                     it.root shouldBe "User"
-                    it.path.fullName shouldBe "name"
-                    it.message.content shouldBe "\"too-long-name\" must be at most 10 characters"
+                    it.path?.fullName shouldBe "name"
+                    it.content shouldBe "\"too-long-name\" must be at most 10 characters"
                 }
             }
 
@@ -194,16 +194,16 @@ class ObjectSchemaTest :
                 val result = userSchema.tryValidate(user)
                 result.isFailure().mustBeTrue()
 
-                result.details.size shouldBe 2
-                result.details[0].let {
+                result.messages.size shouldBe 2
+                result.messages[0].let {
                     it.root shouldBe "User"
-                    it.path.fullName shouldBe "id"
-                    it.message.content shouldBe "Number 0 must be greater than or equal to 1"
+                    it.path?.fullName shouldBe "id"
+                    it.content shouldBe "Number 0 must be greater than or equal to 1"
                 }
-                result.details[1].let {
+                result.messages[1].let {
                     it.root shouldBe "User"
-                    it.path.fullName shouldBe "name"
-                    it.message.content shouldBe "\"too-long-name\" must be at most 10 characters"
+                    it.path?.fullName shouldBe "name"
+                    it.content shouldBe "\"too-long-name\" must be at most 10 characters"
                 }
             }
         }
@@ -237,11 +237,11 @@ class ObjectSchemaTest :
                 val employee = Employee(1, "abc", Address(1, Street(1, "too-long-name")))
                 val result = employeeSchema.tryValidate(employee)
                 result.isFailure().mustBeTrue()
-                result.details.size shouldBe 1
-                result.details[0].let {
+                result.messages.size shouldBe 1
+                result.messages[0].let {
                     it.root shouldBe "Employee"
-                    it.path.fullName shouldBe "address.street.name"
-                    it.message.content shouldBe "\"too-long-name\" must be at most 5 characters"
+                    it.path?.fullName shouldBe "address.street.name"
+                    it.content shouldBe "\"too-long-name\" must be at most 5 characters"
                 }
             }
         }
@@ -291,11 +291,11 @@ class ObjectSchemaTest :
                     Employee(1, "abc", Address(1, Street(1, "def"), country = "US", postalCode = "123456789"))
                 val result = employeeSchema.tryValidate(employee)
                 result.isFailure().mustBeTrue()
-                result.details.size shouldBe 1
-                result.details[0].let {
+                result.messages.size shouldBe 1
+                result.messages[0].let {
                     it.root shouldBe "Employee"
-                    it.path.fullName shouldBe "address.postalCode"
-                    it.message.content shouldBe "\"123456789\" must be exactly 8 characters"
+                    it.path?.fullName shouldBe "address.postalCode"
+                    it.content shouldBe "\"123456789\" must be exactly 8 characters"
                 }
             }
 
@@ -304,11 +304,11 @@ class ObjectSchemaTest :
                     Employee(1, "abc", Address(1, Street(1, "def"), country = "JP", postalCode = "123456789"))
                 val result = employeeSchema.tryValidate(employee)
                 result.isFailure().mustBeTrue()
-                result.details.size shouldBe 1
-                result.details[0].let {
+                result.messages.size shouldBe 1
+                result.messages[0].let {
                     it.root shouldBe "Employee"
-                    it.path.fullName shouldBe "address.postalCode"
-                    it.message.content shouldBe "\"123456789\" must be exactly 5 characters"
+                    it.path?.fullName shouldBe "address.postalCode"
+                    it.content shouldBe "\"123456789\" must be exactly 5 characters"
                 }
             }
         }
@@ -357,16 +357,16 @@ class ObjectSchemaTest :
                 val person = Person(1, null, null, null)
                 val result = personSchema2.tryValidate(person)
                 result.isFailure().mustBeTrue()
-                result.details.size shouldBe 2
-                result.details[0].let {
+                result.messages.size shouldBe 2
+                result.messages[0].let {
                     it.root shouldBe "Person"
-                    it.path.fullName shouldBe "firstName"
-                    it.message.content shouldBe "Value must not be null"
+                    it.path?.fullName shouldBe "firstName"
+                    it.content shouldBe "Value must not be null"
                 }
-                result.details[1].let {
+                result.messages[1].let {
                     it.root shouldBe "Person"
-                    it.path.fullName shouldBe "lastName"
-                    it.message.content shouldBe "Value must not be null"
+                    it.path?.fullName shouldBe "lastName"
+                    it.content shouldBe "Value must not be null"
                 }
             }
         }
@@ -391,20 +391,18 @@ class ObjectSchemaTest :
                 val node = Node(listOf(Node(), Node(), Node(listOf(Node(), Node(), Node(), Node()))))
                 val result = nodeSchema.tryValidate(node)
                 result.isFailure().mustBeTrue()
-                result.details.size shouldBe 1
-                result.details[0].path.fullName shouldBe "children[2]<collection element>.children"
                 result.messages.size shouldBe 1
-                result.messages[0].content shouldBe "Collection(size=4) must have at most 3 elements"
+                result.messages[0].content shouldBe
+                    "Some elements in the collection do not satisfy the constraint: [Collection(size=4) must have at most 3 elements]"
             }
 
             test("failure - grand children size > 3") {
                 val node = Node(listOf(Node(), Node(), Node(listOf(Node(listOf(Node(), Node(), Node(), Node()))))))
                 val result = nodeSchema.tryValidate(node)
                 result.isFailure().mustBeTrue()
-                result.details.size shouldBe 1
-                result.details[0].path.fullName shouldBe "children[2]<collection element>.children[0]<collection element>.children"
                 result.messages.size shouldBe 1
-                result.messages[0].content shouldBe "Collection(size=4) must have at most 3 elements"
+                result.messages[0].content shouldBe
+                    "Some elements in the collection do not satisfy the constraint: [Some elements in the collection do not satisfy the constraint: [Collection(size=4) must have at most 3 elements]]"
             }
         }
 
@@ -446,8 +444,8 @@ class ObjectSchemaTest :
 
                 val result = nodeSchema.tryValidate(node1)
                 result.isFailure().mustBeTrue()
-                result.details.size shouldBe 1
-                result.details[0].path.fullName shouldBe "next.next.value"
+                result.messages.size shouldBe 1
+                result.messages[0].path?.fullName shouldBe "next.next.value"
                 result.messages[0].content shouldBe "Number 150 must be less than or equal to 100"
             }
 
@@ -457,8 +455,8 @@ class ObjectSchemaTest :
 
                 val result = nodeSchema.tryValidate(node1)
                 result.isFailure().mustBeTrue()
-                result.details.size shouldBe 1
-                result.details[0].path.fullName shouldBe "value"
+                result.messages.size shouldBe 1
+                result.messages[0].path?.fullName shouldBe "value"
                 result.messages[0].content shouldBe "Number -5 must be greater than or equal to 0"
             }
 
@@ -469,9 +467,9 @@ class ObjectSchemaTest :
 
                 val result = nodeSchema.tryValidate(node1)
                 result.isFailure().mustBeTrue()
-                result.details.size shouldBe 1
-                result.details[0].path.fullName shouldBe "value"
-                result.details[0].message.content shouldBe "Number 200 must be less than or equal to 100"
+                result.messages.size shouldBe 1
+                result.messages[0].path?.fullName shouldBe "value"
+                result.messages[0].content shouldBe "Number 200 must be less than or equal to 100"
             }
         }
     })

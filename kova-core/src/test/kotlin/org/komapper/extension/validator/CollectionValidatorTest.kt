@@ -2,7 +2,7 @@ package org.komapper.extension.validator
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldEndWith
+import io.kotest.matchers.types.shouldBeInstanceOf
 
 class CollectionValidatorTest :
     FunSpec({
@@ -95,29 +95,26 @@ class CollectionValidatorTest :
             test("failure") {
                 val result = validator.tryValidate(listOf("123", "4567", "8910"))
                 result.isFailure().mustBeTrue()
-                result.details.size shouldBe 2
-                result.details[0].let {
-                    it.root shouldBe ""
-                    it.path.fullName shouldBe "[1]<collection element>"
-                    it.message.id shouldBe "kova.string.length"
-                    it.message.content shouldBe "\"4567\" must be exactly 3 characters"
-                }
-                result.details[1].let {
-                    it.root shouldBe ""
-                    it.path.fullName shouldBe "[2]<collection element>"
-                    it.message.id shouldBe "kova.string.length"
-                    it.message.content shouldBe "\"8910\" must be exactly 3 characters"
+                result.messages.size shouldBe 1
+                result.messages[0].let {
+                    it.id shouldBe "kova.collection.onEach"
+                    it.content shouldBe
+                        "Some elements in the collection do not satisfy the constraint: [\"4567\" must be exactly 3 characters, \"8910\" must be exactly 3 characters]"
                 }
             }
 
             test("failure - failFast is true") {
                 val result = validator.tryValidate(listOf("123", "4567", "8910"), ValidationConfig(failFast = true))
                 result.isFailure().mustBeTrue()
-                result.details.size shouldBe 1
-                result.details[0].let {
-                    it.root shouldBe ""
-                    it.path.fullName shouldBe "[1]<collection element>"
-                    it.message.content shouldBe "\"4567\" must be exactly 3 characters"
+                result.messages.size shouldBe 1
+                val message = result.messages[0]
+                message.shouldBeInstanceOf<Message.OnEach>()
+                message.context.args.size shouldBe 1
+                message.context.args[0].let {
+                    it as List<Message>
+                    it[0].root shouldBe ""
+                    it[0].path.fullName shouldBe "[1]<collection element>"
+                    it[0].content shouldBe "\"4567\" must be exactly 3 characters"
                 }
             }
         }
@@ -144,11 +141,15 @@ class CollectionValidatorTest :
             test("failure") {
                 val result = schema.tryValidate(ListHolder(listOf("123", "4567")))
                 result.isFailure().mustBeTrue()
-                result.details.size shouldBe 1
-                result.details[0].let {
-                    it.root shouldEndWith "ListHolder"
-                    it.path.fullName shouldBe "list[1]<collection element>"
-                    it.message.content shouldBe "\"4567\" must be exactly 3 characters"
+                result.messages.size shouldBe 1
+                val message = result.messages[0]
+                message.shouldBeInstanceOf<Message.OnEach>()
+                message.context.args.size shouldBe 1
+                message.context.args[0].let {
+                    it as List<Message>
+                    it[0].root shouldBe "ListHolder"
+                    it[0].path?.fullName shouldBe "list[1]<collection element>"
+                    it[0].content shouldBe "\"4567\" must be exactly 3 characters"
                 }
             }
         }

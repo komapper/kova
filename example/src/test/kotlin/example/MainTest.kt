@@ -4,7 +4,6 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import org.komapper.extension.validator.ValidationResult
-import org.komapper.extension.validator.messages
 import org.komapper.extension.validator.tryCreate
 import org.komapper.extension.validator.tryValidate
 

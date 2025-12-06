@@ -43,6 +43,25 @@ data class ValidationConfig(
     val logging: Boolean = false,
 )
 
+/**
+ * Initializes the validation root if not already set.
+ *
+ * The root represents the top-level object being validated and is displayed
+ * in error messages. This function is typically called once at the start of
+ * validation by ObjectSchema or ObjectFactory.
+ *
+ * If the root is already initialized, returns the context unchanged.
+ *
+ * Example:
+ * ```kotlin
+ * val context = ValidationContext().addRoot("com.example.User", userInstance)
+ * // context.root == "com.example.User"
+ * ```
+ *
+ * @param name The qualified name of the root object (typically class name)
+ * @param obj The root object instance (used for circular reference detection)
+ * @return A new context with the root initialized, or the same context if already set
+ */
 fun ValidationContext.addRoot(
     name: String,
     obj: Any?,
@@ -54,6 +73,26 @@ fun ValidationContext.addRoot(
         this
     }
 
+/**
+ * Adds a path segment for nested validation.
+ *
+ * This creates a new path node in the validation chain, tracking the progression
+ * through nested objects and properties. The path is displayed in error messages
+ * to indicate exactly where validation failed.
+ *
+ * Example:
+ * ```kotlin
+ * val context = ValidationContext()
+ *     .addRoot("User", user)
+ *     .addPath("address", user.address)
+ *     .addPath("city", user.address.city)
+ * // context.path.fullName == "address.city"
+ * ```
+ *
+ * @param name The name of the property or field being validated
+ * @param obj The object at this path (used for circular reference detection)
+ * @return A new context with the extended path
+ */
 fun ValidationContext.addPath(
     name: String,
     obj: Any?,
@@ -68,11 +107,51 @@ fun ValidationContext.addPath(
     return copy(path = path)
 }
 
+/**
+ * Binds an object reference to the current path node.
+ *
+ * This updates the object reference at the current path level without changing
+ * the path name or structure. It's used in ObjectFactory to bind validated values
+ * to the path for circular reference detection.
+ *
+ * Example:
+ * ```kotlin
+ * val context = validationContext.bindObject(validatedValue)
+ * ```
+ *
+ * @param obj The object to bind to the current path
+ * @return A new context with the updated object reference
+ */
 fun ValidationContext.bindObject(obj: Any?): ValidationContext {
     val path = this.path.copy(obj = obj)
     return copy(path = path)
 }
 
+/**
+ * Adds a path segment with circular reference detection.
+ *
+ * This function combines [addPath] with circular reference checking. If the object
+ * has already appeared in the validation path, it returns a failure to prevent
+ * infinite validation loops.
+ *
+ * The caller (typically ObjectSchema) interprets the failure as a signal to
+ * terminate validation early with success, preventing stack overflow.
+ *
+ * Example:
+ * ```kotlin
+ * data class Node(val value: Int, val next: Node?)
+ * val circular = Node(1, null)
+ * circular.next = circular  // Circular reference
+ *
+ * // When validating, addPathChecked will detect the circle
+ * val result = context.addPathChecked("next", circular.next)
+ * // Returns failure, which ObjectSchema converts to success to stop validation
+ * ```
+ *
+ * @param name The name of the property or field being validated
+ * @param obj The object at this path (checked for circular references)
+ * @return Success with extended path, or Failure if circular reference detected
+ */
 fun <T> ValidationContext.addPathChecked(
     name: String,
     obj: T,
@@ -82,27 +161,73 @@ fun <T> ValidationContext.addPathChecked(
     if (obj != null && parent.containsObject(obj)) {
         // Return failure to signal circular reference detection
         // The caller will convert this to success and terminate validation
-        val constraintContext = createConstraintContext(obj)
-        val messageContext = MessageContext(constraintContext)
-        return ValidationResult.Failure(
-            SimpleFailureDetail(
-                this,
-                Message.Text(messageContext, "Circular reference detected."),
-            ),
-        )
+        val constraintContext = createConstraintContext(obj, "kova.circularReference")
+        val messageContext = constraintContext.createMessageContext(emptyList())
+        val message = Message.Text(messageContext, "Circular reference detected.")
+        return ValidationResult.Failure(listOf(message))
     }
     return ValidationResult.Success(obj, addPath(name, obj))
 }
 
+/**
+ * Adds a debug log entry if logging is enabled.
+ *
+ * When validation is run with logging enabled (via ValidationConfig), this function
+ * records validator operations for debugging. If logging is disabled, returns the
+ * context unchanged for zero overhead.
+ *
+ * Example:
+ * ```kotlin
+ * val context = context.addLog("StringValidator.min(5)")
+ * // If logging is enabled, context.logs will contain the entry
+ * ```
+ *
+ * @param log The log message describing the validation operation
+ * @return A new context with the log appended, or the same context if logging disabled
+ */
 fun ValidationContext.addLog(log: String): ValidationContext = if (logging) copy(logs = this.logs + log) else this
 
+/**
+ * Appends text to the current path name.
+ *
+ * This is used for creating synthetic path segments like array indices or map keys
+ * without creating a new path node in the linked list.
+ *
+ * Example:
+ * ```kotlin
+ * val context = validationContext.appendPath("[0]<collection element>")
+ * // If path was "items", it becomes "items[0]<collection element>"
+ * ```
+ *
+ * @param text The text to append to the current path name
+ * @return A new context with the modified path name
+ */
 fun ValidationContext.appendPath(text: String): ValidationContext {
     val path = this.path.copy(name = this.path.name + text)
     return copy(path = path)
 }
 
-fun <T> ValidationContext.createConstraintContext(input: T): ConstraintContext<T> =
-    ConstraintContext(input = input, validationContext = this)
+/**
+ * Creates a constraint context from the validation context.
+ *
+ * ConstraintContext packages the validation context together with the input value
+ * and constraint ID, providing all the information needed for constraint evaluation
+ * and message generation.
+ *
+ * Example:
+ * ```kotlin
+ * val constraintContext = context.createConstraintContext(value, "kova.string.min")
+ * val result = constraint.apply(constraintContext)
+ * ```
+ *
+ * @param input The value being validated
+ * @param constraintId The identifier for the constraint (used for error messages)
+ * @return A ConstraintContext wrapping the input and validation state
+ */
+fun <T> ValidationContext.createConstraintContext(
+    input: T,
+    constraintId: String,
+): ConstraintContext<T> = ConstraintContext(input = input, constraintId = constraintId, validationContext = this)
 
 /**
  * Represents a path through the object graph during validation.

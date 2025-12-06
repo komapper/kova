@@ -428,7 +428,7 @@ inline fun <reified E : Enum<E>> StringValidator.isEnum(): StringValidator {
     val enumValues = enumValues<E>()
     val validNames = enumValues.map { it.name }
     return this.constrain("kova.string.isEnum") {
-        val messageContext = MessageContext(it, listOf(validNames))
+        val messageContext = it.createMessageContext(listOf(it.input, validNames))
         satisfies(validNames.contains(it.input), Message.Resource(messageContext))
     }
 }

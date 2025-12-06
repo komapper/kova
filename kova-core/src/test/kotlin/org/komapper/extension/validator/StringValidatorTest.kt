@@ -712,7 +712,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = stringBools.tryValidate("abc")
                 result.isFailure().mustBeTrue()
-                val message = result.details.single().message
+                val message = result.messages.single()
                 message.content shouldBe "\"abc\" is not a boolean value"
             }
         }

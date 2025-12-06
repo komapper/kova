@@ -110,10 +110,10 @@ fun <C : Collection<*>> CollectionValidator<C>.length(
  * @return A new validator with per-element validation
  */
 fun <E, C : Collection<E>> CollectionValidator<C>.onEach(validator: Validator<E, *>) =
-    constrain("kova.collection.onEach") {
-        val validationContext = it.validationContext
+    constrain("kova.collection.onEach") { constraintContext ->
+        val validationContext = constraintContext.validationContext
         val failures = mutableListOf<ValidationResult.Failure>()
-        for ((i, element) in it.input.withIndex()) {
+        for ((i, element) in constraintContext.input.withIndex()) {
             val path = "[$i]<collection element>"
             val result = validator.execute(element, validationContext.appendPath(path))
             if (result.isFailure()) {
@@ -123,6 +123,7 @@ fun <E, C : Collection<E>> CollectionValidator<C>.onEach(validator: Validator<E,
                 }
             }
         }
-        val failureDetails = failures.flatMap { failure -> failure.details }
-        satisfies(failureDetails.isEmpty(), Message.ValidationFailure(details = failureDetails))
+        val messages = failures.flatMap { it.messages }
+        val messageContext = constraintContext.createMessageContext(listOf(messages))
+        satisfies(messages.isEmpty(), Message.OnEach(messageContext, failures))
     }

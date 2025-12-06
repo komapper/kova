@@ -85,7 +85,7 @@ fun <IN, OUT> Validator<IN, OUT>.validate(
 ): OUT =
     when (val result = execute(input, ValidationContext(config = config))) {
         is Success<OUT> -> result.value
-        is Failure -> throw ValidationException(result.details)
+        is Failure -> throw ValidationException(result.messages)
     }
 
 /**
@@ -162,8 +162,9 @@ infix fun <IN, OUT> Validator<IN, OUT>.or(other: Validator<IN, OUT>): Validator<
                 when (val otherResult = other.execute(input, context)) {
                     is Success -> otherResult
                     is Failure -> {
-                        val composite = CompositeFailureDetail(input, context, first = selfResult.details, second = otherResult.details)
-                        Failure(composite)
+                        val constraintContext = context.createConstraintContext(input, "kova.or")
+                        val messageContext = constraintContext.createMessageContext(listOf(selfResult.messages, otherResult.messages))
+                        Failure(listOf(Message.Or(messageContext, selfResult, otherResult)))
                     }
                 }
             }
@@ -278,10 +279,9 @@ internal fun <T, R> tryTransform(
             } else {
                 throw cause
             }
-        // TODO
-        val constraintContext = context.createConstraintContext(input)
-        val messageContext = MessageContext(constraintContext, emptyList())
+        val constraintContext = context.createConstraintContext(input, "kova.transform")
+        val messageContext = constraintContext.createMessageContext(emptyList())
         val message = Message.Text(messageContext, content.toString())
-        Failure(SimpleFailureDetail(context, message))
+        Failure(listOf(message))
     }
 }

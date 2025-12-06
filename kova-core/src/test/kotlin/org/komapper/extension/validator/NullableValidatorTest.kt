@@ -211,7 +211,8 @@ class NullableValidatorTest :
                 val result = onEachNullableMin3.tryValidate(listOf(2, null))
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].content shouldBe "Number 2 must be greater than or equal to 3"
+                result.messages[0].content shouldBe
+                    "Some elements in the collection do not satisfy the constraint: [Number 2 must be greater than or equal to 3]"
             }
         }
 

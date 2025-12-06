@@ -119,8 +119,8 @@ class MapValidatorTest :
             test("failure") {
                 val result = validator.tryValidate(mapOf("a" to "a", "b" to "b"))
                 result.isFailure().mustBeTrue()
-                result.messages[0].content shouldBe "Constraint failed: a"
-                result.messages[1].content shouldBe "Constraint failed: b"
+                result.messages[0].content shouldBe
+                    "Some elements in the collection do not satisfy the constraint: [Constraint failed: a, Constraint failed: b]"
             }
         }
 
@@ -136,16 +136,10 @@ class MapValidatorTest :
             test("failure") {
                 val result = validator.tryValidate(mapOf("a" to "1", "bb" to "2", "ccc" to "3"))
                 result.isFailure().mustBeTrue()
-                result.details.size shouldBe 2
-                result.details[0].let {
-                    it.root shouldBe ""
-                    it.path.fullName shouldBe "<map key>"
-                    it.message.content shouldBe "\"bb\" must be exactly 1 characters"
-                }
-                result.details[1].let {
-                    it.root shouldBe ""
-                    it.path.fullName shouldBe "<map key>"
-                    it.message.content shouldBe "\"ccc\" must be exactly 1 characters"
+                result.messages.size shouldBe 1
+                result.messages[0].let {
+                    it.content shouldBe
+                        "Some elements in the collection do not satisfy the constraint: [\"bb\" must be exactly 1 characters, \"ccc\" must be exactly 1 characters]"
                 }
             }
         }
@@ -162,16 +156,10 @@ class MapValidatorTest :
             test("failure") {
                 val result = validator.tryValidate(mapOf("a" to "1", "b" to "22", "c" to "333"))
                 result.isFailure().mustBeTrue()
-                result.details.size shouldBe 2
-                result.details[0].let {
-                    it.root shouldBe ""
-                    it.path.fullName shouldBe "[b]<map value>"
-                    it.message.content shouldBe "\"22\" must be exactly 1 characters"
-                }
-                result.details[1].let {
-                    it.root shouldBe ""
-                    it.path.fullName shouldBe "[c]<map value>"
-                    it.message.content shouldBe "\"333\" must be exactly 1 characters"
+                result.messages.size shouldBe 1
+                result.messages[0].let {
+                    it.content shouldBe
+                        "Some elements in the collection do not satisfy the constraint: [\"22\" must be exactly 1 characters, \"333\" must be exactly 1 characters]"
                 }
             }
         }
