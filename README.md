@@ -627,12 +627,14 @@ You can add custom constraints to any validator using the `constrain` method:
 val validator = Kova.string().constrain("custom.email") { ctx ->
     satisfies(
         ctx.input.contains("@") && ctx.input.contains("."),
-        Message.Text("Must be a valid email format")
+        "Must be a valid email format"
     )
 }
 ```
 
-The first parameter is the constraint ID, and the second is a lambda with `ConstraintScope` receiver that receives a `ConstraintContext<T>` and returns a `ConstraintResult`. Use the `satisfies()` helper within the lambda to simplify constraint creation. The `satisfies()` helper accepts both `Message` objects and plain strings.
+The first parameter is the constraint ID, and the second is a lambda with `ConstraintScope` receiver that receives a `ConstraintContext<T>` and returns a `ConstraintResult`. Use the `satisfies()` helper within the lambda to simplify constraint creation. The `satisfies()` helper accepts either:
+- A message factory function `(ConstraintContext<*>) -> Message` (returned by `MessageProvider.invoke()`)
+- A plain string for simple error messages
 
 ### Creating Custom Extension Methods
 
@@ -641,12 +643,12 @@ You can create reusable validation logic by defining extension methods on valida
 ```kotlin
 // Define a custom extension method for StringValidator
 fun StringValidator.isPhoneNumber(
-    message: (ConstraintContext<String>) -> Message = Message.resource0()
+    message: MessageProvider = Message.resource()
 ): StringValidator = constrain("custom.phoneNumber") { ctx ->
         val phonePattern = Regex("""^\+?[1-9]\d{1,14}$""")
         satisfies(
             phonePattern.matches(ctx.input),
-            message(ctx)
+            message(ctx.input)
         )
     }
 
@@ -654,19 +656,20 @@ fun StringValidator.isPhoneNumber(
 val phoneValidator = Kova.string().isPhoneNumber()
 val result = phoneValidator.tryValidate("+1234567890")  // Success
 
-// Define extension with custom logic
+// Define extension with custom message provider
 fun StringValidator.isStrongPassword(
-    message: (ConstraintContext<String>) -> Message = { ctx ->
-        Message.Text("Password must be at least 8 characters with uppercase, lowercase, and digits")
+    message: MessageProvider = Message.text { ctx ->
+        "Password must be at least ${ctx[0]} characters with uppercase, lowercase, and digits"
     }
 ): StringValidator = constrain("custom.strongPassword") { ctx ->
         val input = ctx.input
+        val minLength = 8
         satisfies(
-            input.length >= 8 &&
+            input.length >= minLength &&
             input.any { it.isUpperCase() } &&
             input.any { it.isLowerCase() } &&
             input.any { it.isDigit() },
-            message(ctx)
+            message(minLength)
         )
     }
 
@@ -697,7 +700,7 @@ You can customize messages per validation:
 ```kotlin
 val validator = Kova.string().min(
     length = 5,
-    message = { ctx, len -> Message.Text("String '${ctx.input}' is too short (min: $len)") }
+    message = Message.text { ctx -> "String '${ctx.input}' is too short (min: ${ctx[0]})" }
 )
 ```
 
@@ -707,7 +710,7 @@ To access error messages:
 val result = validator.tryValidate("ab")
 if (result.isFailure()) {
     result.messages.forEach { message ->
-        println(message.text)  // Prints the actual error message string
+        println(message.text)  // Prints: "String 'ab' is too short (min: 5)"
     }
 }
 ```
