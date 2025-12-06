@@ -146,12 +146,12 @@ class ConstraintScope<T>(
      */
     fun satisfies(
         condition: Boolean,
-        message: Message,
+        message: (ConstraintContext<*>) -> Message,
     ): ConstraintResult =
         if (condition) {
             ConstraintResult.Satisfied
         } else {
-            ConstraintResult.Violated(message)
+            ConstraintResult.Violated(message(context))
         }
 
     /**

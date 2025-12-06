@@ -44,10 +44,7 @@ interface MessageProvider {
      * @param args Additional arguments for message formatting (e.g., constraint parameters)
      * @return A Message object representing the error
      */
-    operator fun invoke(
-        constraintContext: ConstraintContext<*>,
-        vararg args: Any?,
-    ): Message
+    operator fun invoke(vararg args: Any?): (ConstraintContext<*>) -> Message
 }
 
 /**
@@ -87,13 +84,11 @@ interface MessageProviderFactory {
      */
     fun text(format: (MessageContext<*>) -> String): MessageProvider =
         object : MessageProvider {
-            override fun invoke(
-                constraintContext: ConstraintContext<*>,
-                vararg args: Any?,
-            ): Message {
-                val messageContext = constraintContext.createMessageContext(args.toList())
-                return Message.Text(messageContext, format(messageContext))
-            }
+            override fun invoke(vararg args: Any?): (ConstraintContext<*>) -> Message =
+                {
+                    val messageContext = it.createMessageContext(args.toList())
+                    Message.Text(messageContext, format(messageContext))
+                }
         }
 
     /**
@@ -123,13 +118,12 @@ interface MessageProviderFactory {
      */
     fun resource(): MessageProvider =
         object : MessageProvider {
-            override fun invoke(
-                constraintContext: ConstraintContext<*>,
-                vararg args: Any?,
-            ): Message {
-                val messageContext = constraintContext.createMessageContext(args.toList())
-                return Message.Resource(messageContext)
-            }
+            override fun invoke(vararg args: Any?): (ConstraintContext<*>) -> Message =
+                {
+                    it
+                    val messageContext = it.createMessageContext(args.toList())
+                    Message.Resource(messageContext)
+                }
         }
 }
 
