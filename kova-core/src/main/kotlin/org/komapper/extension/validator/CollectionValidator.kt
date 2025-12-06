@@ -25,9 +25,9 @@ typealias CollectionValidator<C> = IdentityValidator<C>
  */
 fun <C : Collection<*>> CollectionValidator<C>.min(
     size: Int,
-    message: MessageProvider<C> = Message.resource(),
+    message: MessageProvider = Message.resource(),
 ) = constrain("kova.collection.min") {
-    satisfies(it.input.size >= size, message(it, it.input, it.input.size, size))
+    satisfies(it.input.size >= size, message(it.input, it.input.size, size))
 }
 
 /**
@@ -46,9 +46,9 @@ fun <C : Collection<*>> CollectionValidator<C>.min(
  */
 fun <C : Collection<*>> CollectionValidator<C>.max(
     size: Int,
-    message: MessageProvider<C> = Message.resource(),
+    message: MessageProvider = Message.resource(),
 ) = constrain("kova.collection.max") {
-    satisfies(it.input.size <= size, message(it, it.input, it.input.size, size))
+    satisfies(it.input.size <= size, message(it.input, it.input.size, size))
 }
 
 /**
@@ -64,9 +64,9 @@ fun <C : Collection<*>> CollectionValidator<C>.max(
  * @param message Custom error message provider
  * @return A new validator with the not-empty constraint
  */
-fun <C : Collection<*>> CollectionValidator<C>.notEmpty(message: MessageProvider<C> = Message.resource()) =
+fun <C : Collection<*>> CollectionValidator<C>.notEmpty(message: MessageProvider = Message.resource()) =
     constrain("kova.collection.notEmpty") {
-        satisfies(it.input.isNotEmpty(), message(it, it.input))
+        satisfies(it.input.isNotEmpty(), message(it.input))
     }
 
 /**
@@ -85,9 +85,9 @@ fun <C : Collection<*>> CollectionValidator<C>.notEmpty(message: MessageProvider
  */
 fun <C : Collection<*>> CollectionValidator<C>.length(
     size: Int,
-    message: MessageProvider<C> = Message.resource(),
+    message: MessageProvider = Message.resource(),
 ) = constrain("kova.collection.length") {
-    satisfies(it.input.size == size, message(it, it.input, size))
+    satisfies(it.input.size == size, message(it.input, size))
 }
 
 /**
@@ -124,6 +124,8 @@ fun <E, C : Collection<E>> CollectionValidator<C>.onEach(validator: Validator<E,
             }
         }
         val messages = failures.flatMap { it.messages }
-        val messageContext = constraintContext.createMessageContext(listOf(messages))
-        satisfies(messages.isEmpty(), Message.Collection(messageContext, failures))
+        satisfies(messages.isEmpty()) {
+            val messageContext = it.createMessageContext(listOf(messages))
+            Message.Collection(messageContext, failures)
+        }
     }

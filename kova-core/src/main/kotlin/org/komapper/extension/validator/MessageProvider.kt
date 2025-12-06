@@ -4,8 +4,8 @@ package org.komapper.extension.validator
  * Provides error messages for constraint violations.
  *
  * MessageProvider is a functional interface that creates [Message] objects when
- * constraints are violated. It receives the constraint context and optional arguments
- * to generate contextual error messages.
+ * constraints are violated. It accepts optional arguments and returns a function
+ * that generates contextual error messages from a [ConstraintContext].
  *
  * Message providers are typically created using the [MessageProviderFactory] methods
  * available on the [Message] companion object.
@@ -15,40 +15,35 @@ package org.komapper.extension.validator
  * // Using default resource-based message provider
  * fun StringValidator.min(
  *     length: Int,
- *     message: MessageProvider<String> = Message.resource()
+ *     message: MessageProvider = Message.resource()
  * ) = constrain("kova.string.min") {
- *     satisfies(it.input.length >= length, message(it, it.input, length))
+ *     satisfies(it.input.length >= length, message(it.input, length))
  * }
  *
  * // Using custom text message provider
  * fun StringValidator.customMin(
  *     length: Int,
- *     message: MessageProvider<String> = Message.text { ctx ->
+ *     message: MessageProvider = Message.text { ctx ->
  *         "String '${ctx.input}' is too short. Minimum length is ${ctx[0]}"
  *     }
  * ) = constrain("custom.min") {
- *     satisfies(it.input.length >= length, message(it, length))
+ *     satisfies(it.input.length >= length, message(length))
  * }
  * ```
  *
- * @param T The type of value being validated
  */
-interface MessageProvider<T> {
+interface MessageProvider {
     /**
-     * Creates a message for a constraint violation.
+     * Creates a message factory for a constraint violation.
      *
-     * This method is called by constraint validators when a constraint is violated.
-     * It receives the constraint context and any additional arguments needed for
-     * message formatting.
+     * This method is called by constraint validators to create a message factory function.
+     * It accepts any additional arguments needed for message formatting and returns a
+     * function that generates a [Message] from a [ConstraintContext].
      *
-     * @param constraintContext The context containing the input value and validation state
-     * @param args Additional arguments for message formatting (e.g., constraint parameters)
-     * @return A Message object representing the error
+     * @param args Additional arguments for message formatting (e.g., constraint parameters, input value)
+     * @return A function that accepts a ConstraintContext and returns a Message object
      */
-    operator fun invoke(
-        constraintContext: ConstraintContext<T>,
-        vararg args: Any?,
-    ): Message
+    operator fun invoke(vararg args: Any?): (ConstraintContext<*>) -> Message
 }
 
 /**
@@ -60,12 +55,12 @@ interface MessageProvider<T> {
  * Example usage:
  * ```kotlin
  * // Create a text message provider with custom logic
- * val customProvider = Message.text<String> { ctx ->
+ * val customProvider = Message.text { ctx ->
  *     "Value ${ctx.input} failed validation at path ${ctx.path.fullName}"
  * }
  *
  * // Create a resource bundle message provider
- * val resourceProvider = Message.resource<String>()
+ * val resourceProvider = Message.resource()
  * ```
  */
 interface MessageProviderFactory {
@@ -78,7 +73,7 @@ interface MessageProviderFactory {
      *
      * Example:
      * ```kotlin
-     * val provider = Message.text<Int> { ctx ->
+     * val provider = Message.text { ctx ->
      *     "Value ${ctx.input} must be at least ${ctx[0]}"
      * }
      * ```
@@ -86,15 +81,13 @@ interface MessageProviderFactory {
      * @param format Lambda that formats the message text from the context
      * @return A MessageProvider that creates Text messages
      */
-    fun <T> text(format: (MessageContext<T>) -> String): MessageProvider<T> =
-        object : MessageProvider<T> {
-            override fun invoke(
-                constraintContext: ConstraintContext<T>,
-                vararg args: Any?,
-            ): Message {
-                val messageContext = constraintContext.createMessageContext(args.toList())
-                return Message.Text(messageContext, format(messageContext))
-            }
+    fun text(format: (MessageContext<*>) -> String): MessageProvider =
+        object : MessageProvider {
+            override fun invoke(vararg args: Any?): (ConstraintContext<*>) -> Message =
+                {
+                    val messageContext = it.createMessageContext(args.toList())
+                    Message.Text(messageContext, format(messageContext))
+                }
         }
 
     /**
@@ -114,23 +107,22 @@ interface MessageProviderFactory {
      * // The resource provider uses the constraint ID from the context
      * fun StringValidator.min(
      *     length: Int,
-     *     message: MessageProvider<String> = Message.resource()
+     *     message: MessageProvider = Message.resource()
      * ) = constrain("kova.string.min") { ctx ->
-     *     satisfies(ctx.input.length >= length, message(ctx, ctx.input, length))
+     *     satisfies(ctx.input.length >= length, message(ctx.input, length))
      * }
      * ```
      *
      * @return A MessageProvider that creates Resource messages
      */
-    fun <T> resource(): MessageProvider<T> =
-        object : MessageProvider<T> {
-            override fun invoke(
-                constraintContext: ConstraintContext<T>,
-                vararg args: Any?,
-            ): Message {
-                val messageContext = constraintContext.createMessageContext(args.toList())
-                return Message.Resource(messageContext)
-            }
+    fun resource(): MessageProvider =
+        object : MessageProvider {
+            override fun invoke(vararg args: Any?): (ConstraintContext<*>) -> Message =
+                {
+                    it
+                    val messageContext = it.createMessageContext(args.toList())
+                    Message.Resource(messageContext)
+                }
         }
 }
 
@@ -143,7 +135,7 @@ interface MessageProviderFactory {
  *
  * Example usage:
  * ```kotlin
- * val provider = Message.text<String> { ctx ->
+ * val provider = Message.text { ctx ->
  *     // Access input value
  *     val value = ctx.input
  *

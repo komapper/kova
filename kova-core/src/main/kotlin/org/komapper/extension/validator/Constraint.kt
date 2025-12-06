@@ -132,26 +132,36 @@ class ConstraintScope<T>(
      * Returns [ConstraintResult.Satisfied] if the condition is true,
      * or [ConstraintResult.Violated] with the given message if false.
      *
-     * Example with Message object:
+     * Example with message factory function:
      * ```kotlin
      * satisfies(
+     *     value > 0
+     * ) { ctx ->
+     *     Message.Resource(ctx.createMessageContext(listOf(value)))
+     * }
+     * ```
+     *
+     * Example with MessageProvider:
+     * ```kotlin
+     * val messageProvider = Message.resource()
+     * satisfies(
      *     value > 0,
-     *     Message.Resource("custom.positive", value)
+     *     messageProvider(value)
      * )
      * ```
      *
      * @param condition The condition to evaluate
-     * @param message The error message to use if the condition is false
+     * @param message A function that accepts a ConstraintContext and returns a Message
      * @return The constraint result
      */
     fun satisfies(
         condition: Boolean,
-        message: Message,
+        message: (ConstraintContext<*>) -> Message,
     ): ConstraintResult =
         if (condition) {
             ConstraintResult.Satisfied
         } else {
-            ConstraintResult.Violated(message)
+            ConstraintResult.Violated(message(context))
         }
 
     /**

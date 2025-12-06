@@ -26,9 +26,9 @@ typealias MapValidator<K, V> = IdentityValidator<Map<K, V>>
  */
 fun <K, V> MapValidator<K, V>.min(
     size: Int,
-    message: MessageProvider<Map<K, V>> = Message.resource(),
+    message: MessageProvider = Message.resource(),
 ) = constrain("kova.map.min") {
-    satisfies(it.input.size >= size, message(it, it.input, it.input.size, size))
+    satisfies(it.input.size >= size, message(it.input, it.input.size, size))
 }
 
 /**
@@ -47,9 +47,9 @@ fun <K, V> MapValidator<K, V>.min(
  */
 fun <K, V> MapValidator<K, V>.max(
     size: Int,
-    message: MessageProvider<Map<K, V>> = Message.resource(),
+    message: MessageProvider = Message.resource(),
 ) = constrain("kova.map.max") {
-    satisfies(it.input.size <= size, message(it, it.input, it.input.size, size))
+    satisfies(it.input.size <= size, message(it.input, it.input.size, size))
 }
 
 /**
@@ -65,9 +65,9 @@ fun <K, V> MapValidator<K, V>.max(
  * @param message Custom error message provider
  * @return A new validator with the not-empty constraint
  */
-fun <K, V> MapValidator<K, V>.notEmpty(message: MessageProvider<Map<K, V>> = Message.resource()) =
+fun <K, V> MapValidator<K, V>.notEmpty(message: MessageProvider = Message.resource()) =
     constrain("kova.map.notEmpty") {
-        satisfies(it.input.isNotEmpty(), message(it, it.input))
+        satisfies(it.input.isNotEmpty(), message(it.input))
     }
 
 /**
@@ -86,9 +86,9 @@ fun <K, V> MapValidator<K, V>.notEmpty(message: MessageProvider<Map<K, V>> = Mes
  */
 fun <K, V> MapValidator<K, V>.length(
     size: Int,
-    message: MessageProvider<Map<K, V>> = Message.resource(),
+    message: MessageProvider = Message.resource(),
 ) = constrain("kova.map.length") {
-    satisfies(it.input.size == size, message(it, it.input, size))
+    satisfies(it.input.size == size, message(it.input, size))
 }
 
 /**
@@ -190,6 +190,8 @@ private fun <K, V, T> ConstraintScope<Map<K, V>>.validateOnEach(
         }
     }
     val messages = failures.flatMap { it.messages }
-    val messageContext = context.createMessageContext(listOf(messages))
-    return satisfies(messages.isEmpty(), Message.Collection(messageContext, failures))
+    return satisfies(messages.isEmpty()) {
+        val messageContext = it.createMessageContext(listOf(messages))
+        Message.Collection(messageContext, failures)
+    }
 }

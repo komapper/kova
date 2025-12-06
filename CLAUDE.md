@@ -121,6 +121,22 @@ Properties must be object properties (not in constructor lambda) since the `invo
 - **`create(config)`**: Execute ObjectFactory, returning object or throwing ValidationException
 - **Note**: The `bind` and `create` methods are only available within the `factory { }` scope (ObjectSchemaFactoryScope)
 
+### MessageProvider Pattern
+- **MessageProvider**: Functional interface for creating error messages in custom validators
+- **No type parameter**: `MessageProvider` (not `MessageProvider<T>`)
+- **Signature**: `invoke(vararg args: Any?): (ConstraintContext<*>) -> Message`
+- **Factory methods**: `Message.text { ctx -> "..." }` for custom text, `Message.resource()` for i18n
+- **Usage in validators**: Pass arguments to `message()`, access via `ctx[0]`, `ctx[1]`, etc. in message lambda
+- **Example**:
+```kotlin
+fun StringValidator.min(
+    length: Int,
+    message: MessageProvider = Message.resource()
+) = constrain("kova.string.min") {
+    satisfies(it.input.length >= length, message(it.input, length))
+}
+```
+
 ## Key Files
 - `Kova.kt` - Main API entry point, factory methods returning `IdentityValidator<T>`
 - `Validator.kt` - Core interface and composition operators (`+`, `and`, `or`, `map`, `then`)
@@ -133,4 +149,5 @@ Properties must be object properties (not in constructor lambda) since the `invo
 - `ConstraintValidator.kt` - Converts `ConstraintResult` to `ValidationResult`, base for extension functions
 - `Constraints.kt` - Shared constraint utilities (`min`, `max`, `isNull`, `notNull`)
 - `Message.kt` - Message types (Text, Resource, Collection, Or) with `text`, `constraintId`, `root`, `path`, and `context` properties
+- `MessageProvider.kt` - MessageProvider interface (no type parameter) and MessageProviderFactory for creating text/resource message providers
 - **Validator extension files** - `StringValidator.kt`, `NumberValidator.kt`, `CollectionValidator.kt`, etc. define extension functions on `IdentityValidator<T>`
