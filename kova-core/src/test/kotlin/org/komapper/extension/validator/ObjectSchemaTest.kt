@@ -469,7 +469,7 @@ class ObjectSchemaTest :
 
                 val result = nodeSchema.tryValidate(node1)
                 result.isFailure().mustBeTrue()
-                result.messages.size == 1
+                result.messages.size shouldBeEqual 1
                 result.messages[0].path.fullName shouldBeEqual "value"
                 result.messages[0].text shouldBeEqual "Number 200 must be less than or equal to 100"
             }
