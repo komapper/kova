@@ -24,8 +24,8 @@ class MapValidatorTest :
                 val result = validator.tryValidate(mapOf("a" to "1"))
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 2
-                result.messages[0].content shouldBe "Map(size=1) must have at least 2 entries"
-                result.messages[1].content shouldBe "Map(size=1) must have at least 3 entries"
+                result.messages[0].text shouldBe "Map(size=1) must have at least 2 entries"
+                result.messages[1].text shouldBe "Map(size=1) must have at least 3 entries"
             }
         }
 
@@ -41,7 +41,7 @@ class MapValidatorTest :
             test("failure") {
                 val result = validator.tryValidate(mapOf("a" to "1", "b" to "2", "c" to "3"))
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "Map(size=3) must have at most 2 entries"
+                result.messages.single().text shouldBe "Map(size=3) must have at most 2 entries"
             }
         }
 
@@ -57,7 +57,7 @@ class MapValidatorTest :
             test("failure") {
                 val result = validator.tryValidate(emptyMap())
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "Map {} must not be empty"
+                result.messages.single().text shouldBe "Map {} must not be empty"
             }
         }
 
@@ -73,13 +73,13 @@ class MapValidatorTest :
             test("failure - too few") {
                 val result = validator.tryValidate(mapOf("a" to "1"))
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "Map {a=1} must have exactly 2 entries"
+                result.messages.single().text shouldBe "Map {a=1} must have exactly 2 entries"
             }
 
             test("failure - too many") {
                 val result = validator.tryValidate(mapOf("a" to "1", "b" to "2", "c" to "3"))
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "Map {a=1, b=2, c=3} must have exactly 2 entries"
+                result.messages.single().text shouldBe "Map {a=1, b=2, c=3} must have exactly 2 entries"
             }
         }
 
@@ -98,7 +98,7 @@ class MapValidatorTest :
             test("failure") {
                 val result = validator.tryValidate(mapOf("a" to "1", "b" to "2"))
                 result.isFailure().mustBeTrue()
-                result.messages.single().content shouldBe "Constraint failed"
+                result.messages.single().text shouldBe "Constraint failed"
             }
         }
 
@@ -119,7 +119,7 @@ class MapValidatorTest :
             test("failure") {
                 val result = validator.tryValidate(mapOf("a" to "a", "b" to "b"))
                 result.isFailure().mustBeTrue()
-                result.messages[0].content shouldBe
+                result.messages[0].text shouldBe
                     "Some elements in the collection do not satisfy the constraint: [Constraint failed: a, Constraint failed: b]"
             }
         }
@@ -138,7 +138,7 @@ class MapValidatorTest :
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].let {
-                    it.content shouldBe
+                    it.text shouldBe
                         "Some elements in the collection do not satisfy the constraint: [\"bb\" must be exactly 1 characters, \"ccc\" must be exactly 1 characters]"
                 }
             }
@@ -158,7 +158,7 @@ class MapValidatorTest :
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].let {
-                    it.content shouldBe
+                    it.text shouldBe
                         "Some elements in the collection do not satisfy the constraint: [\"22\" must be exactly 1 characters, \"333\" must be exactly 1 characters]"
                 }
             }

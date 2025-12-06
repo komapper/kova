@@ -125,5 +125,5 @@ fun <E, C : Collection<E>> CollectionValidator<C>.onEach(validator: Validator<E,
         }
         val messages = failures.flatMap { it.messages }
         val messageContext = constraintContext.createMessageContext(listOf(messages))
-        satisfies(messages.isEmpty(), Message.OnEach(messageContext, failures))
+        satisfies(messages.isEmpty(), Message.Collection(messageContext, failures))
     }

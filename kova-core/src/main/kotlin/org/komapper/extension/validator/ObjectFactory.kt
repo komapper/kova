@@ -89,7 +89,7 @@ fun interface ObjectFactory<T> {
  * val result = factory.tryCreate()
  * when (result) {
  *     is ValidationResult.Success -> println("Created: ${result.value}")
- *     is ValidationResult.Failure -> result.messages.forEach { println(it.content) }
+ *     is ValidationResult.Failure -> result.messages.forEach { println(it.text) }
  * }
  * ```
  *

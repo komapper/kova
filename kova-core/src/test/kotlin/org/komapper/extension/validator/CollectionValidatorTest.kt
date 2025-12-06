@@ -19,7 +19,7 @@ class CollectionValidatorTest :
                 val result = validator.tryValidate(emptyList())
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].content shouldBe "Collection [] must not be empty"
+                result.messages[0].text shouldBe "Collection [] must not be empty"
             }
         }
 
@@ -36,14 +36,14 @@ class CollectionValidatorTest :
                 val result = validator.tryValidate(listOf("1"))
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].content shouldBe "Collection [1] must have exactly 2 elements"
+                result.messages[0].text shouldBe "Collection [1] must have exactly 2 elements"
             }
 
             test("failure - too many elements") {
                 val result = validator.tryValidate(listOf("1", "2", "3"))
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].content shouldBe "Collection [1, 2, 3] must have exactly 2 elements"
+                result.messages[0].text shouldBe "Collection [1, 2, 3] must have exactly 2 elements"
             }
         }
 
@@ -60,8 +60,8 @@ class CollectionValidatorTest :
                 val result = validator.tryValidate(listOf("1"))
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 2
-                result.messages[0].content shouldBe "Collection(size=1) must have at least 2 elements"
-                result.messages[1].content shouldBe "Collection(size=1) must have at least 3 elements"
+                result.messages[0].text shouldBe "Collection(size=1) must have at least 2 elements"
+                result.messages[1].text shouldBe "Collection(size=1) must have at least 3 elements"
             }
         }
 
@@ -80,7 +80,7 @@ class CollectionValidatorTest :
                 val result = validator.tryValidate(listOf("1", "2"))
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].content shouldBe "Constraint failed"
+                result.messages[0].text shouldBe "Constraint failed"
             }
         }
 
@@ -97,24 +97,26 @@ class CollectionValidatorTest :
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].let {
-                    it.id shouldBe "kova.collection.onEach"
-                    it.content shouldBe
+                    it.constraintId shouldBe "kova.collection.onEach"
+                    it.text shouldBe
                         "Some elements in the collection do not satisfy the constraint: [\"4567\" must be exactly 3 characters, \"8910\" must be exactly 3 characters]"
+                    it.shouldBeInstanceOf<Message.Collection>()
+                    it.elements.size shouldBe 2
+                    it.elements[0].messages[0].text shouldBe "\"4567\" must be exactly 3 characters"
+                    it.elements[1].messages[0].text shouldBe "\"8910\" must be exactly 3 characters"
                 }
             }
 
             test("failure - failFast is true") {
                 val result = validator.tryValidate(listOf("123", "4567", "8910"), ValidationConfig(failFast = true))
                 result.isFailure().mustBeTrue()
-                result.messages.size shouldBe 1
-                val message = result.messages[0]
-                message.shouldBeInstanceOf<Message.OnEach>()
-                message.context.args.size shouldBe 1
-                message.context.args[0].let {
-                    it as List<Message>
-                    it[0].root shouldBe ""
-                    it[0].path.fullName shouldBe "[1]<collection element>"
-                    it[0].content shouldBe "\"4567\" must be exactly 3 characters"
+                result.messages[0].let {
+                    it.constraintId shouldBe "kova.collection.onEach"
+                    it.text shouldBe
+                        "Some elements in the collection do not satisfy the constraint: [\"4567\" must be exactly 3 characters]"
+                    it.shouldBeInstanceOf<Message.Collection>()
+                    it.elements.size shouldBe 1
+                    it.elements[0].messages[0].text shouldBe "\"4567\" must be exactly 3 characters"
                 }
             }
         }
@@ -143,13 +145,12 @@ class CollectionValidatorTest :
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 val message = result.messages[0]
-                message.shouldBeInstanceOf<Message.OnEach>()
-                message.context.args.size shouldBe 1
-                message.context.args[0].let {
-                    it as List<Message>
-                    it[0].root shouldBe "ListHolder"
-                    it[0].path?.fullName shouldBe "list[1]<collection element>"
-                    it[0].content shouldBe "\"4567\" must be exactly 3 characters"
+                message.shouldBeInstanceOf<Message.Collection>()
+                message.elements.size shouldBe 1
+                message.elements[0].messages[0].let {
+                    it.root shouldBe "ListHolder"
+                    it.path.fullName shouldBe "list[1]<collection element>"
+                    it.text shouldBe "\"4567\" must be exactly 3 characters"
                 }
             }
         }

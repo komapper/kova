@@ -180,7 +180,7 @@ class ConstraintScope<T>(
             ConstraintResult.Satisfied
         } else {
             val messageContext = context.createMessageContext(emptyList())
-            ConstraintResult.Violated(Message.Text(messageContext, content = message))
+            ConstraintResult.Violated(Message.Text(messageContext, text = message))
         }
 }
 

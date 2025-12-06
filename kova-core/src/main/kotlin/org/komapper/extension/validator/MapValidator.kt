@@ -191,5 +191,5 @@ private fun <K, V, T> ConstraintScope<Map<K, V>>.validateOnEach(
     }
     val messages = failures.flatMap { it.messages }
     val messageContext = context.createMessageContext(listOf(messages))
-    return satisfies(messages.isEmpty(), Message.OnEach(messageContext, failures))
+    return satisfies(messages.isEmpty(), Message.Collection(messageContext, failures))
 }

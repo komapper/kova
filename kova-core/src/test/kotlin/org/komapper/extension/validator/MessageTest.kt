@@ -30,7 +30,34 @@ class MessageTest :
                 cc3.createMessageContext(listOf(listOf(resource1), resource2))
             val resource3 = Message.Resource(mc3)
 
-            resource3.content shouldBe
+            resource3.text shouldBe
                 "at least one constraint must be satisfied: [[\"abc\" must be at least 1 characters], \"abc\" must be at most 5 characters]"
+        }
+
+        test("toString: string") {
+            val min = Kova.string().min(5)
+
+            val result = min.tryValidate("abc")
+            result.isFailure().mustBeTrue()
+            result.messages.size shouldBe 1
+            result.messages[0].toString() shouldBe
+                "Message(constraintId=kova.string.min, text='\"abc\" must be at least 5 characters', root=, path=, input=abc)"
+        }
+
+        test("toString: object") {
+            data class Person(
+                val name: String,
+            )
+
+            val personSchema =
+                object : ObjectSchema<Person>() {
+                    val name = Person::name { Kova.string().min(5) }
+                }
+
+            val result = personSchema.tryValidate(Person("abc"))
+            result.isFailure().mustBeTrue()
+            result.messages.size shouldBe 1
+            result.messages[0].toString() shouldBe
+                "Message(constraintId=kova.string.min, text='\"abc\" must be at least 5 characters', root=Person, path=name, input=abc)"
         }
     })

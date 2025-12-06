@@ -9,18 +9,18 @@ import java.util.ResourceBundle
  * Messages can be simple text, resource bundle entries (i18n), or contain nested validation failures
  * from collection/map element validation or the `or` operator.
  *
- * All message types require a [MessageContext] which provides constraint metadata (id, input, args)
+ * All message types require a [MessageContext] which provides constraint metadata (constraintId, input, args)
  * and validation state (root, path). Messages are typically created internally by the validation framework.
  *
  * There are four message types:
  * - [Text]: Simple hardcoded text messages
  * - [Resource]: I18n messages loaded from `kova.properties` resource bundles
- * - [OnEach]: Composite messages for collection/map element validation failures
+ * - [Collection]: Composite messages for collection/map element validation failures
  * - [Or]: Composite messages for failures from both branches of an `or` validator
  */
 sealed interface Message {
     /** The constraint identifier for this message */
-    val id: String
+    val constraintId: String
 
     /** The root object identifier in the validation hierarchy */
     val root: String
@@ -28,23 +28,27 @@ sealed interface Message {
     /** The path to the validated value in the object graph */
     val path: Path
 
-    /** The formatted message content */
-    val content: String
+    /** The message context containing constraint metadata and validation state */
+    val context: MessageContext<*>
+
+    /** The formatted message text */
+    val text: String
 
     /**
      * A simple text message without i18n support.
      *
      * This message type is used for hardcoded error messages or when i18n is not needed.
-     * The message content is provided directly as a string rather than loaded from a resource bundle.
+     * The message text is provided directly as a string rather than loaded from a resource bundle.
      *
      * @property context The message context containing constraint metadata and validation state
-     * @property content The formatted message text
+     * @property text The formatted message text
      */
     data class Text(
-        val context: MessageContext<*>,
-        override val content: String,
+        /** The message context containing constraint metadata and validation state */
+        override val context: MessageContext<*>,
+        override val text: String,
     ) : Message {
-        override val id: String
+        override val constraintId: String
             get() = context.constraintId
 
         override val root: String
@@ -52,6 +56,8 @@ sealed interface Message {
 
         override val path: Path
             get() = context.path
+
+        override fun toString(): String = toDescription()
     }
 
     /**
@@ -60,7 +66,7 @@ sealed interface Message {
      * Messages are loaded from `kova.properties` files using [MessageFormat] for parameter substitution.
      * The constraint ID from the context is used as the resource bundle key, and arguments from the context
      * are substituted into the message pattern. Arguments that are Message instances are resolved to their
-     * content strings to support nested messages.
+     * text strings to support nested messages.
      *
      * Example resource file (kova.properties):
      * ```properties
@@ -72,14 +78,15 @@ sealed interface Message {
      * @property context The message context containing the constraint ID (used as resource key) and arguments
      */
     data class Resource(
-        val context: MessageContext<*>,
+        /** The message context containing the constraint ID (used as resource key) and arguments for message formatting */
+        override val context: MessageContext<*>,
     ) : Message {
-        override val content: String by lazy {
+        override val text: String by lazy {
             val pattern = getPattern(context.constraintId)
             val newArgs = context.args.map { resolveArg(it) }
             MessageFormat.format(pattern, *newArgs.toTypedArray())
         }
-        override val id: String
+        override val constraintId: String
             get() = context.constraintId
 
         override val root: String
@@ -90,10 +97,12 @@ sealed interface Message {
 
         private fun resolveArg(arg: Any?): Any? =
             when (arg) {
-                is Message -> arg.content
+                is Message -> arg.text
                 is Iterable<*> -> arg.map { resolveArg(it) }
                 else -> arg
             }
+
+        override fun toString(): String = toDescription()
     }
 
     /**
@@ -103,25 +112,26 @@ sealed interface Message {
      * `onEachKey`, or `onEachValue` constraints. It aggregates all individual element validation
      * failures into a single message.
      *
-     * The content is loaded from a resource bundle using the constraint ID from the context,
+     * The text is loaded from a resource bundle using the constraint ID from the context,
      * while the detailed element failures are accessible through the [elements] property.
      *
      * Example:
      * ```kotlin
      * val validator = Kova.collection<String>().onEach(Kova.string().min(3))
      * val result = validator.tryValidate(listOf("ab", "cd", "efg"))
-     * // OnEach message with 2 element failures for "ab" at [0] and "cd" at [1]
+     * // Collection message with 2 element failures for "ab" at [0] and "cd" at [1]
      * ```
      *
      * @property context The message context containing the constraint ID and validation state
      * @property elements List of validation failures for individual elements that failed validation
      */
-    data class OnEach(
-        val context: MessageContext<*>,
+    data class Collection(
+        /** The message context containing the constraint ID and validation state for the collection constraint */
+        override val context: MessageContext<*>,
         val elements: List<ValidationResult.Failure>,
     ) : Message {
-        override val content: String get() = Resource(context).content
-        override val id: String
+        override val text: String get() = Resource(context).text
+        override val constraintId: String
             get() = context.constraintId
 
         override val root: String
@@ -129,6 +139,8 @@ sealed interface Message {
 
         override val path: Path
             get() = context.path
+
+        override fun toString(): String = toDescription()
     }
 
     /**
@@ -137,7 +149,7 @@ sealed interface Message {
      * This message type is created when both branches of an `or` validator fail validation.
      * It contains references to the failures from both the first and second validators that were tried.
      *
-     * The content is loaded from a resource bundle using the constraint ID from the context
+     * The text is loaded from a resource bundle using the constraint ID from the context
      * (typically "kova.or"), while the detailed branch failures are accessible through the
      * [first] and [second] properties.
      *
@@ -153,12 +165,13 @@ sealed interface Message {
      * @property second The validation failure from the second branch of the `or` validator
      */
     data class Or(
-        val context: MessageContext<*>,
+        /** The message context containing the constraint ID (typically "kova.or") and validation state */
+        override val context: MessageContext<*>,
         val first: ValidationResult.Failure,
         val second: ValidationResult.Failure,
     ) : Message {
-        override val content: String get() = Resource(context).content
-        override val id: String
+        override val text: String get() = Resource(context).text
+        override val constraintId: String
             get() = context.constraintId
 
         override val root: String
@@ -166,10 +179,15 @@ sealed interface Message {
 
         override val path: Path
             get() = context.path
+
+        override fun toString(): String = toDescription()
     }
 
     companion object : MessageProviderFactory
 }
+
+private fun Message.toDescription() =
+    "Message(constraintId=$constraintId, text='$text', root=$root, path=${path.fullName}, input=${context.input})"
 
 private const val RESOURCE_BUNDLE_BASE_NAME = "kova"
 

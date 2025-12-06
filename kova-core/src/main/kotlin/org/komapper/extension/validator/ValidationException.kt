@@ -17,8 +17,8 @@ package org.komapper.extension.validator
  *     // Access validation messages
  *     e.messages.forEach { message ->
  *         println("Path: ${message.path.fullName}")
- *         println("Message: ${message.content}")
- *         println("Constraint ID: ${message.id}")
+ *         println("Message: ${message.text}")
+ *         println("Constraint ID: ${message.constraintId}")
  *     }
  * }
  * ```

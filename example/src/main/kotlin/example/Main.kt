@@ -84,7 +84,7 @@ fun main() {
         is ValidationResult.Success -> error("never happens")
         is ValidationResult.Failure -> {
             // Failure: ["" must be at least 1 characters, "" must not be blank, Number -1 must be greater than or equal to 0]
-            println("Failure: ${result.messages.map { it.content }}")
+            println("Failure: ${result.messages.map { it.text }}")
         }
     }
 
@@ -103,7 +103,7 @@ fun main() {
         is ValidationResult.Success -> error("never happens")
         is ValidationResult.Failure -> {
             // Failure: ["" must be at least 1 characters, "" must not be blank, Number -1 must be greater than or equal to 0]
-            println("Failure: ${result.messages.map { it.content }}")
+            println("Failure: ${result.messages.map { it.text }}")
         }
     }
 
@@ -122,7 +122,7 @@ fun main() {
         is ValidationResult.Success -> error("never happens")
         is ValidationResult.Failure -> {
             // Failure: ["" must be at least 1 characters, "" must not be blank, "not number" must be an int]
-            println("Failure: ${result.messages.map { it.content }}")
+            println("Failure: ${result.messages.map { it.text }}")
         }
     }
 }
