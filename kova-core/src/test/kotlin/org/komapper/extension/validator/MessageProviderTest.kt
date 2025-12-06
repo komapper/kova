@@ -17,7 +17,7 @@ class MessageProviderTest :
             test("resource") {
                 val provider = Message.resource()
                 val message = provider()(ConstraintContext(input = input, constraintId = "kova.nullable.notNull"))
-                message.text shouldBe "Value must not be null"
+                message.text shouldBe "must not be null"
             }
         }
 
@@ -33,7 +33,7 @@ class MessageProviderTest :
             test("resource") {
                 val provider = Message.resource()
                 val message = provider(input)(ConstraintContext(input = input, constraintId = "kova.string.email"))
-                message.text shouldBe "\"abc\" must be a valid email address"
+                message.text shouldBe "must be a valid email address"
             }
         }
 
@@ -48,8 +48,8 @@ class MessageProviderTest :
 
             test("resource") {
                 val provider = Message.resource()
-                val message = provider(input, 1)(ConstraintContext(input = input, constraintId = "kova.string.length"))
-                message.text shouldBe "\"abc\" must be exactly 1 characters"
+                val message = provider(1)(ConstraintContext(input = input, constraintId = "kova.string.length"))
+                message.text shouldBe "must be exactly 1 characters"
             }
         }
     })

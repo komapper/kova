@@ -66,14 +66,14 @@ class NullableValidatorTest :
                 val result = isNull.tryValidate(4)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].text shouldBe "Value 4 must be null"
+                result.messages[0].text shouldBe "must be null"
             }
 
             test("failure - min constraint violated") {
                 val result = isNull.tryValidate(2)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].text shouldBe "Value 2 must be null"
+                result.messages[0].text shouldBe "must be null"
             }
         }
 
@@ -105,7 +105,7 @@ class NullableValidatorTest :
                 result.messages[0].let {
                     it.constraintId shouldBe "kova.or"
                     it.text shouldBe
-                        "at least one constraint must be satisfied: [[Value 5 must be null], [Number 5 must be less than or equal to 3]]"
+                        "at least one constraint must be satisfied: [[must be null], [must be less than or equal to 3]]"
                 }
             }
         }
@@ -159,7 +159,7 @@ class NullableValidatorTest :
                 val result = isNullOrMin3OrMin5AndThenMax4.tryValidate(5)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].text shouldBe "Number 5 must be less than or equal to 4"
+                result.messages[0].text shouldBe "must be less than or equal to 4"
             }
 
             test("failure - all constraints violated") {
@@ -188,7 +188,7 @@ class NullableValidatorTest :
                 val result = whenNotNullMin3.tryValidate(2)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].text shouldBe "Number 2 must be greater than or equal to 3"
+                result.messages[0].text shouldBe "must be greater than or equal to 3"
             }
         }
 
@@ -212,7 +212,7 @@ class NullableValidatorTest :
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].text shouldBe
-                    "Some elements in the collection do not satisfy the constraint: [Number 2 must be greater than or equal to 3]"
+                    "Some elements do not satisfy the constraint: [must be greater than or equal to 3]"
             }
         }
 
@@ -231,14 +231,14 @@ class NullableValidatorTest :
                 val result = nullableMin3.tryValidate(null)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].text shouldBe "Value must not be null"
+                result.messages[0].text shouldBe "must not be null"
             }
 
             test("failure - min3 constraint is violated") {
                 val result = nullableMin3.tryValidate(2)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].text shouldBe "Number 2 must be greater than or equal to 3"
+                result.messages[0].text shouldBe "must be greater than or equal to 3"
             }
         }
 
@@ -256,21 +256,21 @@ class NullableValidatorTest :
                 val result = notNullAndMin3AndMax3.tryValidate(null)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].text shouldBe "Value must not be null"
+                result.messages[0].text shouldBe "must not be null"
             }
 
             test("failure - min3 constraint is violated") {
                 val result = notNullAndMin3AndMax3.tryValidate(2)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].text shouldBe "Number 2 must be greater than or equal to 3"
+                result.messages[0].text shouldBe "must be greater than or equal to 3"
             }
 
             test("failure - max5 constraint violated") {
                 val result = notNullAndMin3AndMax3.tryValidate(6)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].text shouldBe "Number 6 must be less than or equal to 5"
+                result.messages[0].text shouldBe "must be less than or equal to 5"
             }
         }
 

@@ -66,7 +66,7 @@ class ObjectSchemaTest :
                 result.messages[0].let {
                     it.root shouldBe "User"
                     it.path.fullName shouldBe "name"
-                    it.text shouldBe "\"too-long-name\" must be at most 10 characters"
+                    it.text shouldBe "must be at most 10 characters"
                 }
             }
 
@@ -79,12 +79,12 @@ class ObjectSchemaTest :
                 result.messages[0].let {
                     it.root shouldBe "User"
                     it.path.fullName shouldBe "name"
-                    it.text shouldBe "\"too-long-name\" must be at most 10 characters"
+                    it.text shouldBe "must be at most 10 characters"
                 }
                 result.messages[1].let {
                     it.root shouldBe "User"
                     it.path.fullName shouldBe "id"
-                    it.text shouldBe "Number 0 must be greater than or equal to 1"
+                    it.text shouldBe "must be greater than or equal to 1"
                 }
             }
         }
@@ -186,7 +186,7 @@ class ObjectSchemaTest :
                 result.messages[0].let {
                     it.root shouldBe "User"
                     it.path.fullName shouldBe "name"
-                    it.text shouldBe "\"too-long-name\" must be at most 10 characters"
+                    it.text shouldBe "must be at most 10 characters"
                 }
             }
 
@@ -199,12 +199,12 @@ class ObjectSchemaTest :
                 result.messages[0].let {
                     it.root shouldBe "User"
                     it.path.fullName shouldBe "id"
-                    it.text shouldBe "Number 0 must be greater than or equal to 1"
+                    it.text shouldBe "must be greater than or equal to 1"
                 }
                 result.messages[1].let {
                     it.root shouldBe "User"
                     it.path.fullName shouldBe "name"
-                    it.text shouldBe "\"too-long-name\" must be at most 10 characters"
+                    it.text shouldBe "must be at most 10 characters"
                 }
             }
         }
@@ -242,7 +242,7 @@ class ObjectSchemaTest :
                 result.messages[0].let {
                     it.root shouldBe "Employee"
                     it.path.fullName shouldBe "address.street.name"
-                    it.text shouldBe "\"too-long-name\" must be at most 5 characters"
+                    it.text shouldBe "must be at most 5 characters"
                 }
             }
         }
@@ -296,7 +296,7 @@ class ObjectSchemaTest :
                 result.messages[0].let {
                     it.root shouldBe "Employee"
                     it.path.fullName shouldBe "address.postalCode"
-                    it.text shouldBe "\"123456789\" must be exactly 8 characters"
+                    it.text shouldBe "must be exactly 8 characters"
                 }
             }
 
@@ -309,7 +309,7 @@ class ObjectSchemaTest :
                 result.messages[0].let {
                     it.root shouldBe "Employee"
                     it.path.fullName shouldBe "address.postalCode"
-                    it.text shouldBe "\"123456789\" must be exactly 5 characters"
+                    it.text shouldBe "must be exactly 5 characters"
                 }
             }
         }
@@ -362,12 +362,12 @@ class ObjectSchemaTest :
                 result.messages[0].let {
                     it.root shouldBe "Person"
                     it.path.fullName shouldBe "firstName"
-                    it.text shouldBe "Value must not be null"
+                    it.text shouldBe "must not be null"
                 }
                 result.messages[1].let {
                     it.root shouldBe "Person"
                     it.path.fullName shouldBe "lastName"
-                    it.text shouldBe "Value must not be null"
+                    it.text shouldBe "must not be null"
                 }
             }
         }
@@ -394,7 +394,7 @@ class ObjectSchemaTest :
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].text shouldBe
-                    "Some elements in the collection do not satisfy the constraint: [Collection(size=4) must have at most 3 elements]"
+                    "Some elements do not satisfy the constraint: [Collection (size 4) must have at most 3 elements]"
             }
 
             test("failure - grand children size > 3") {
@@ -403,7 +403,7 @@ class ObjectSchemaTest :
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].text shouldBe
-                    "Some elements in the collection do not satisfy the constraint: [Some elements in the collection do not satisfy the constraint: [Collection(size=4) must have at most 3 elements]]"
+                    "Some elements do not satisfy the constraint: [Some elements do not satisfy the constraint: [Collection (size 4) must have at most 3 elements]]"
             }
         }
 
@@ -447,7 +447,7 @@ class ObjectSchemaTest :
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].path.fullName shouldBe "next.next.value"
-                result.messages[0].text shouldBe "Number 150 must be less than or equal to 100"
+                result.messages[0].text shouldBe "must be less than or equal to 100"
             }
 
             test("constraint violation in root object") {
@@ -458,7 +458,7 @@ class ObjectSchemaTest :
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].path.fullName shouldBe "value"
-                result.messages[0].text shouldBe "Number -5 must be greater than or equal to 0"
+                result.messages[0].text shouldBe "must be greater than or equal to 0"
             }
 
             // To avoid StackOverflowError, use 'shouldBeEqual' instead of 'shouldBe'
@@ -471,7 +471,7 @@ class ObjectSchemaTest :
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBeEqual 1
                 result.messages[0].path.fullName shouldBeEqual "value"
-                result.messages[0].text shouldBeEqual "Number 200 must be less than or equal to 100"
+                result.messages[0].text shouldBeEqual "must be less than or equal to 100"
             }
         }
     })

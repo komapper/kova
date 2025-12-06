@@ -8,9 +8,9 @@ class MessageTest :
     FunSpec({
 
         test("getPattern") {
-            val pattern = getPattern("kova.number.min")
-            val formatted = MessageFormat.format(pattern, 10, 0)
-            formatted shouldBe "Number 10 must be greater than or equal to 0"
+            val pattern = getPattern("kova.comparable.min")
+            val formatted = MessageFormat.format(pattern, 0)
+            formatted shouldBe "must be greater than or equal to 0"
         }
 
         test("resolve arguments") {
@@ -18,11 +18,11 @@ class MessageTest :
             val vc = ValidationContext()
 
             val cc1 = vc.createConstraintContext(input, "kova.string.min")
-            val mc1 = cc1.createMessageContext(listOf(input, 1))
+            val mc1 = cc1.createMessageContext(listOf(1))
             val resource1 = Message.Resource(mc1)
 
             val cc2 = vc.createConstraintContext(input, "kova.string.max")
-            val mc2 = cc2.createMessageContext(listOf(input, 5))
+            val mc2 = cc2.createMessageContext(listOf(5))
             val resource2 = Message.Resource(mc2)
 
             val cc3 = vc.createConstraintContext(input, "kova.or")
@@ -31,7 +31,7 @@ class MessageTest :
             val resource3 = Message.Resource(mc3)
 
             resource3.text shouldBe
-                "at least one constraint must be satisfied: [[\"abc\" must be at least 1 characters], \"abc\" must be at most 5 characters]"
+                "at least one constraint must be satisfied: [[must be at least 1 characters], must be at most 5 characters]"
         }
 
         test("toString: string") {
@@ -41,7 +41,7 @@ class MessageTest :
             result.isFailure().mustBeTrue()
             result.messages.size shouldBe 1
             result.messages[0].toString() shouldBe
-                "Message(constraintId=kova.string.min, text='\"abc\" must be at least 5 characters', root=, path=, input=abc)"
+                "Message(constraintId=kova.string.min, text='must be at least 5 characters', root=, path=, input=abc)"
         }
 
         test("toString: object") {
@@ -58,6 +58,6 @@ class MessageTest :
             result.isFailure().mustBeTrue()
             result.messages.size shouldBe 1
             result.messages[0].toString() shouldBe
-                "Message(constraintId=kova.string.min, text='\"abc\" must be at least 5 characters', root=Person, path=name, input=abc)"
+                "Message(constraintId=kova.string.min, text='must be at least 5 characters', root=Person, path=name, input=abc)"
         }
     })

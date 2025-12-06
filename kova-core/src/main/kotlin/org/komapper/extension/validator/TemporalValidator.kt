@@ -68,7 +68,7 @@ fun <T> TemporalValidator<T>.constrain(
 fun <T> TemporalValidator<T>.min(
     value: T,
     message: MessageProvider = Message.resource(),
-): TemporalValidator<T> where T : Temporal, T : Comparable<T> = constrain("kova.temporal.min", Constraints.min(value, message))
+): TemporalValidator<T> where T : Temporal, T : Comparable<T> = constrain("kova.comparable.min", Constraints.min(value, message))
 
 /**
  * Validates that the temporal value is less than or equal to [value] (inclusive).
@@ -79,7 +79,7 @@ fun <T> TemporalValidator<T>.min(
 fun <T> TemporalValidator<T>.max(
     value: T,
     message: MessageProvider = Message.resource(),
-): TemporalValidator<T> where T : Temporal, T : Comparable<T> = constrain("kova.temporal.max", Constraints.max(value, message))
+): TemporalValidator<T> where T : Temporal, T : Comparable<T> = constrain("kova.comparable.max", Constraints.max(value, message))
 
 /**
  * Validates that the temporal value is strictly greater than [value] (exclusive).
@@ -90,7 +90,7 @@ fun <T> TemporalValidator<T>.max(
 fun <T> TemporalValidator<T>.gt(
     value: T,
     message: MessageProvider = Message.resource(),
-): TemporalValidator<T> where T : Temporal, T : Comparable<T> = constrain("kova.temporal.gt", Constraints.gt(value, message))
+): TemporalValidator<T> where T : Temporal, T : Comparable<T> = constrain("kova.comparable.gt", Constraints.gt(value, message))
 
 /**
  * Validates that the temporal value is greater than or equal to [value] (inclusive).
@@ -103,7 +103,7 @@ fun <T> TemporalValidator<T>.gt(
 fun <T> TemporalValidator<T>.gte(
     value: T,
     message: MessageProvider = Message.resource(),
-): TemporalValidator<T> where T : Temporal, T : Comparable<T> = constrain("kova.temporal.gte", Constraints.gte(value, message))
+): TemporalValidator<T> where T : Temporal, T : Comparable<T> = constrain("kova.comparable.gte", Constraints.gte(value, message))
 
 /**
  * Validates that the temporal value is strictly less than [value] (exclusive).
@@ -114,7 +114,7 @@ fun <T> TemporalValidator<T>.gte(
 fun <T> TemporalValidator<T>.lt(
     value: T,
     message: MessageProvider = Message.resource(),
-): TemporalValidator<T> where T : Temporal, T : Comparable<T> = constrain("kova.temporal.lt", Constraints.lt(value, message))
+): TemporalValidator<T> where T : Temporal, T : Comparable<T> = constrain("kova.comparable.lt", Constraints.lt(value, message))
 
 /**
  * Validates that the temporal value is less than or equal to [value] (inclusive).
@@ -127,7 +127,7 @@ fun <T> TemporalValidator<T>.lt(
 fun <T> TemporalValidator<T>.lte(
     value: T,
     message: MessageProvider = Message.resource(),
-): TemporalValidator<T> where T : Temporal, T : Comparable<T> = constrain("kova.temporal.lte", Constraints.lte(value, message))
+): TemporalValidator<T> where T : Temporal, T : Comparable<T> = constrain("kova.comparable.lte", Constraints.lte(value, message))
 
 /**
  * Validates that the temporal value is in the future (strictly greater than now).
@@ -138,7 +138,7 @@ fun <T> TemporalValidator<T>.future(
     message: MessageProvider = Message.resource(),
 ): TemporalValidator<T> where T : Temporal, T : Comparable<T> =
     constrain("kova.temporal.future") {
-        satisfies(it.input > temporalNow.now(clock), message(it.input))
+        satisfies(it.input > temporalNow.now(clock), message())
     }
 
 /**
@@ -150,7 +150,7 @@ fun <T> TemporalValidator<T>.futureOrPresent(
     message: MessageProvider = Message.resource(),
 ): TemporalValidator<T> where T : Temporal, T : Comparable<T> =
     constrain("kova.temporal.futureOrPresent") {
-        satisfies(it.input >= temporalNow.now(clock), message(it.input))
+        satisfies(it.input >= temporalNow.now(clock), message())
     }
 
 /**
@@ -162,7 +162,7 @@ fun <T> TemporalValidator<T>.past(
     message: MessageProvider = Message.resource(),
 ): TemporalValidator<T> where T : Temporal, T : Comparable<T> =
     constrain("kova.temporal.past") {
-        satisfies(it.input < temporalNow.now(clock), message(it.input))
+        satisfies(it.input < temporalNow.now(clock), message())
     }
 
 /**
@@ -174,7 +174,7 @@ fun <T> TemporalValidator<T>.pastOrPresent(
     message: MessageProvider = Message.resource(),
 ): TemporalValidator<T> where T : Temporal, T : Comparable<T> =
     constrain("kova.temporal.pastOrPresent") {
-        satisfies(it.input <= temporalNow.now(clock), message(it.input))
+        satisfies(it.input <= temporalNow.now(clock), message())
     }
 
 /**

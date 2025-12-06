@@ -72,7 +72,7 @@ sealed interface Message {
      * ```properties
      * kova.string.min="{0}" must be at least {1} characters
      * kova.number.positive=Number {0} must be positive
-     * kova.collection.onEach=Some elements in the collection do not satisfy the constraint: {0}
+     * kova.collection.onEach=Some elements do not satisfy the constraint: {0}
      * ```
      *
      * @property context The message context containing the constraint ID (used as resource key) and arguments
