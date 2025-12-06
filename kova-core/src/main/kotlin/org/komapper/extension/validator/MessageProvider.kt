@@ -4,8 +4,8 @@ package org.komapper.extension.validator
  * Provides error messages for constraint violations.
  *
  * MessageProvider is a functional interface that creates [Message] objects when
- * constraints are violated. It receives the constraint context and optional arguments
- * to generate contextual error messages.
+ * constraints are violated. It accepts optional arguments and returns a function
+ * that generates contextual error messages from a [ConstraintContext].
  *
  * Message providers are typically created using the [MessageProviderFactory] methods
  * available on the [Message] companion object.
@@ -17,7 +17,7 @@ package org.komapper.extension.validator
  *     length: Int,
  *     message: MessageProvider = Message.resource()
  * ) = constrain("kova.string.min") {
- *     satisfies(it.input.length >= length, message(it, it.input, length))
+ *     satisfies(it.input.length >= length, message(it.input, length))
  * }
  *
  * // Using custom text message provider
@@ -27,22 +27,21 @@ package org.komapper.extension.validator
  *         "String '${ctx.input}' is too short. Minimum length is ${ctx[0]}"
  *     }
  * ) = constrain("custom.min") {
- *     satisfies(it.input.length >= length, message(it, length))
+ *     satisfies(it.input.length >= length, message(length))
  * }
  * ```
  *
  */
 interface MessageProvider {
     /**
-     * Creates a message for a constraint violation.
+     * Creates a message factory for a constraint violation.
      *
-     * This method is called by constraint validators when a constraint is violated.
-     * It receives the constraint context and any additional arguments needed for
-     * message formatting.
+     * This method is called by constraint validators to create a message factory function.
+     * It accepts any additional arguments needed for message formatting and returns a
+     * function that generates a [Message] from a [ConstraintContext].
      *
-     * @param constraintContext The context containing the input value and validation state
-     * @param args Additional arguments for message formatting (e.g., constraint parameters)
-     * @return A Message object representing the error
+     * @param args Additional arguments for message formatting (e.g., constraint parameters, input value)
+     * @return A function that accepts a ConstraintContext and returns a Message object
      */
     operator fun invoke(vararg args: Any?): (ConstraintContext<*>) -> Message
 }
@@ -110,7 +109,7 @@ interface MessageProviderFactory {
      *     length: Int,
      *     message: MessageProvider = Message.resource()
      * ) = constrain("kova.string.min") { ctx ->
-     *     satisfies(ctx.input.length >= length, message(ctx, ctx.input, length))
+     *     satisfies(ctx.input.length >= length, message(ctx.input, length))
      * }
      * ```
      *
