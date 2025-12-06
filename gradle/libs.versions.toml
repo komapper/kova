@@ -25,4 +25,5 @@ kotest = { id = "io.kotest", version.ref = "kotest" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 publish = { id = "io.github.gradle-nexus.publish-plugin", version = "2.0.0" }
 release = { id = "net.researchgate.release", version = "3.1.0" }
+power-assert = { id = "org.jetbrains.kotlin.plugin.power-assert", version.ref = "kotlin" }
 

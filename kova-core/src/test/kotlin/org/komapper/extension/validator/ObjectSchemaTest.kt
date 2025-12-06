@@ -1,6 +1,7 @@
 package org.komapper.extension.validator
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.equals.shouldBeEqual
 import io.kotest.matchers.shouldBe
 import java.time.LocalDate
 
@@ -460,6 +461,7 @@ class ObjectSchemaTest :
                 result.messages[0].text shouldBe "Number -5 must be greater than or equal to 0"
             }
 
+            // To avoid StackOverflowError, use 'shouldBeEqual' instead of 'shouldBe'
             test("circular reference with constraint violation - stops before revisiting") {
                 val node1 = NodeWithValue(200, null) // Invalid: > 100
                 val node2 = NodeWithValue(20, node1)
@@ -467,9 +469,9 @@ class ObjectSchemaTest :
 
                 val result = nodeSchema.tryValidate(node1)
                 result.isFailure().mustBeTrue()
-                result.messages.size shouldBe 1
-                result.messages[0].path?.fullName shouldBe "value"
-                result.messages[0].text shouldBe "Number 200 must be less than or equal to 100"
+                result.messages.size shouldBeEqual 1
+                result.messages[0].path.fullName shouldBeEqual "value"
+                result.messages[0].text shouldBeEqual "Number 200 must be less than or equal to 100"
             }
         }
     })
