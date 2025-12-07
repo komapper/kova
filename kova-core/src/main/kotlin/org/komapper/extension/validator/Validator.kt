@@ -117,7 +117,6 @@ operator fun <IN, OUT> Validator<IN, OUT>.plus(other: Validator<IN, OUT>): Valid
 infix fun <IN, OUT> Validator<IN, OUT>.and(other: Validator<IN, OUT>): Validator<IN, OUT> {
     val self = this
     return Validator { input, context ->
-        val context = context.addLog("Validator.and")
         when (val selfResult = self.execute(input, context)) {
             is Success -> {
                 val otherResult = other.execute(input, context)
@@ -155,7 +154,6 @@ infix fun <IN, OUT> Validator<IN, OUT>.and(other: Validator<IN, OUT>): Validator
 infix fun <IN, OUT> Validator<IN, OUT>.or(other: Validator<IN, OUT>): Validator<IN, OUT> {
     val self = this
     return Validator { input, context ->
-        val context = context.addLog("Validator.or")
         when (val selfResult = self.execute(input, context)) {
             is Success -> selfResult
             is Failure -> {
@@ -190,7 +188,6 @@ infix fun <IN, OUT> Validator<IN, OUT>.or(other: Validator<IN, OUT>): Validator<
 fun <IN, OUT, NEW> Validator<IN, OUT>.map(transform: (OUT) -> NEW): Validator<IN, NEW> {
     val self = this
     return Validator { input, context ->
-        val context = context.addLog("Validator.map")
         when (val result = self.execute(input, context)) {
             is Success -> tryTransform(result.value, result.context, transform)
             is Failure -> result
@@ -215,7 +212,7 @@ fun <IN, OUT, NEW> Validator<IN, OUT>.map(transform: (OUT) -> NEW): Validator<IN
 fun <IN, OUT> Validator<IN, OUT>.name(name: String): Validator<IN, OUT> {
     val self = this
     return Validator { input, context ->
-        val context = context.addPath(name, input).addLog("Validator.name(name=$name)")
+        val context = context.addPath(name, input)
         when (val result = self.execute(input, context)) {
             is Success -> Success(result.value, result.context)
             is Failure -> result
@@ -257,7 +254,6 @@ fun <IN, OUT, NEW> Validator<OUT, NEW>.compose(before: Validator<IN, OUT>): Vali
 fun <IN, OUT, NEW> Validator<IN, OUT>.then(after: Validator<OUT, NEW>): Validator<IN, NEW> {
     val before = this
     return Validator { input, context ->
-        val context = context.addLog("Validator.then")
         when (val result = before.execute(input, context)) {
             is Success -> after.execute(result.value, result.context)
             is Failure -> result

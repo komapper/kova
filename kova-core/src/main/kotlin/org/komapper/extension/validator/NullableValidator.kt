@@ -40,7 +40,6 @@ typealias NullableValidator<T, S> = Validator<T?, S?>
  */
 fun <T : Any, S : Any> Validator<T, S>.asNullable(): NullableValidator<T, S> =
     Validator { input, context ->
-        val context = context.addLog("Validator.asNullable")
         if (input == null) Success(null, context) else this.execute(input, context)
     }
 

@@ -9,20 +9,15 @@ package org.komapper.extension.validator
  *
  * @property root The root object's qualified name (e.g., "com.example.User")
  * @property path The current validation path, tracking nested objects and circular references
- * @property logs Debug logs of validator operations (only populated when logging is enabled)
  * @property config Validation configuration settings
  */
 data class ValidationContext(
     val root: String = "",
     val path: Path = Path(name = "", obj = null, parent = null),
-    val logs: List<String> = emptyList(),
     val config: ValidationConfig = ValidationConfig(),
 ) {
     /** Whether validation should stop at the first failure. */
     val failFast: Boolean get() = config.failFast
-
-    /** Whether debug logging of validator operations is enabled. */
-    val logging: Boolean get() = config.logging
 }
 
 /**
@@ -30,17 +25,22 @@ data class ValidationContext(
  *
  * @property failFast If true, validation stops at the first failure instead of collecting all errors.
  *                    Default is false (collect all errors).
- * @property logging If true, enables debug logging of validator operations. Default is false.
+ * @property logger Optional callback function for receiving debug log messages during validation.
+ *                  If null (default), no logging is performed. Each log message contains information
+ *                  about constraint satisfaction/violation, including constraint ID, root, path, and input value.
  *
  * Example:
  * ```kotlin
- * val config = ValidationConfig(failFast = true)
+ * val config = ValidationConfig(
+ *     failFast = true,
+ *     logger = { message -> println(message) }
+ * )
  * val result = validator.tryValidate(input, config)
  * ```
  */
 data class ValidationConfig(
     val failFast: Boolean = false,
-    val logging: Boolean = false,
+    val logger: ((String) -> Unit)? = null,
 )
 
 /**
@@ -170,24 +170,6 @@ fun <T> ValidationContext.addPathChecked(
 }
 
 /**
- * Adds a debug log entry if logging is enabled.
- *
- * When validation is run with logging enabled (via ValidationConfig), this function
- * records validator operations for debugging. If logging is disabled, returns the
- * context unchanged for zero overhead.
- *
- * Example:
- * ```kotlin
- * val context = context.addLog("StringValidator.min(5)")
- * // If logging is enabled, context.logs will contain the entry
- * ```
- *
- * @param log The log message describing the validation operation
- * @return A new context with the log appended, or the same context if logging disabled
- */
-fun ValidationContext.addLog(log: String): ValidationContext = if (logging) copy(logs = this.logs + log) else this
-
-/**
  * Appends text to the current path name.
  *
  * This is used for creating synthetic path segments like array indices or map keys
@@ -228,6 +210,27 @@ fun <T> ValidationContext.createConstraintContext(
     input: T,
     constraintId: String,
 ): ConstraintContext<T> = ConstraintContext(input = input, constraintId = constraintId, validationContext = this)
+
+/**
+ * Logs a debug message if logging is enabled.
+ *
+ * This function uses lazy evaluation - the message block is only executed if a logger
+ * is configured in [ValidationConfig]. This ensures zero overhead when logging is disabled.
+ *
+ * The log message typically includes information about constraint validation results,
+ * such as constraint ID, root object, validation path, and input value.
+ *
+ * Example:
+ * ```kotlin
+ * context.log { "Satisfied(constraintId=kova.string.min, root=User, path=name, input=Alice)" }
+ * // The lambda is only evaluated if config.logger is non-null
+ * ```
+ *
+ * @param block Lambda that generates the log message (only called if logger is configured)
+ */
+fun ValidationContext.log(block: () -> String) {
+    config.logger?.invoke(block())
+}
 
 /**
  * Represents a path through the object graph during validation.

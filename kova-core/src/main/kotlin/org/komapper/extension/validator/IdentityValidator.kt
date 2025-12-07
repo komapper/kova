@@ -136,7 +136,6 @@ fun <T> IdentityValidator<T>.onlyIf(condition: (T) -> Boolean) =
  */
 fun <T> IdentityValidator<T>.chain(next: IdentityValidator<T>): IdentityValidator<T> =
     IdentityValidator { input, context ->
-        val context = context.addLog("Validator.chain")
         when (val result = this.execute(input, context)) {
             is Success -> {
                 next.execute(result.value, result.context)

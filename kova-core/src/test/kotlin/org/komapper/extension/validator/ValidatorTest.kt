@@ -155,38 +155,32 @@ class ValidatorTest :
             }
         }
 
-        // TODO
-        xcontext("logs") {
+        context("logs") {
             val validator =
-                Kova
-                    .string()
-                    .trim()
-                    .min(3)
-                    .max(5)
+                Kova.string().trim().then(Kova.string().min(3).max(5))
 
             test("success") {
-                val result = validator.tryValidate(" abcde ", ValidationConfig(logging = true))
+                val logs = mutableListOf<String>()
+                val result = validator.tryValidate(" abcde ", ValidationConfig(logger = { logs.add(it) }))
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe "abcde"
-                result.context.logs shouldBe
+
+                logs shouldBe
                     listOf(
-                        "StringValidator(name=kova.string.max)",
-                        "Validator.chain",
-                        "Validator.map",
-                        "StringValidator(name=kova.string.min)",
-                        "Validator.chain",
-                        "Validator.map",
-                        "StringValidator(name=trim)",
-                        "Validator.chain",
-                        "Validator.map",
-                        "StringValidator(name=empty)",
-                        "Validator.chain",
-                        "Validator.map",
-                        "EmptyValidator",
-                        "ConstraintValidator(name=kova.satisfied)",
-                        "ConstraintValidator(name=kova.satisfied)",
-                        "ConstraintValidator(name=kova.string.min)",
-                        "ConstraintValidator(name=kova.string.max)",
+                        "Satisfied(constraintId=kova.string.min, root=, path=, input=abcde)",
+                        "Satisfied(constraintId=kova.string.max, root=, path=, input=abcde)",
+                    )
+            }
+
+            test("failure") {
+                val logs = mutableListOf<String>()
+                val result = validator.tryValidate(" ab ", ValidationConfig(logger = { logs.add(it) }))
+                result.isFailure().mustBeTrue()
+
+                logs shouldBe
+                    listOf(
+                        "Violated(constraintId=kova.string.min, root=, path=, input=ab)",
+                        "Satisfied(constraintId=kova.string.max, root=, path=, input=ab)",
                     )
             }
         }

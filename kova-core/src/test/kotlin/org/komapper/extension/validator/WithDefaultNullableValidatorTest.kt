@@ -172,9 +172,11 @@ class WithDefaultNullableValidatorTest :
             }
 
             test("success - null") {
-                val result = whenNotNullMin3.tryValidate(null)
+                val logs = mutableListOf<String>()
+                val result = whenNotNullMin3.tryValidate(null, config = ValidationConfig(logger = { logs.add(it) }))
                 result.isSuccess().mustBeTrue(result)
-                println(result.context.logs.joinToString("\n"))
+                result.value shouldBe 0
+                logs shouldBe listOf()
             }
 
             test("failure - min 3constraint violated") {
@@ -270,17 +272,28 @@ class WithDefaultNullableValidatorTest :
             val isNullOrMin3Max3 = Kova.nullable(0).isNull().or(min3.asNullable(0))
 
             test("success: 3") {
-                val result = isNullOrMin3Max3.tryValidate(3)
+                val logs = mutableListOf<String>()
+                val config = ValidationConfig(logger = { logs.add(it) })
+                val result = isNullOrMin3Max3.tryValidate(3, config = config)
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe 3
-                println(result.context.logs.joinToString("\n"))
+                logs shouldBe
+                    listOf(
+                        "Violated(constraintId=kova.nullable.isNull, root=, path=, input=3)",
+                        "Satisfied(constraintId=kova.comparable.min, root=, path=, input=3)",
+                    )
             }
 
             test("success: null") {
-                val result = isNullOrMin3Max3.tryValidate(null)
+                val logs = mutableListOf<String>()
+                val config = ValidationConfig(logger = { logs.add(it) })
+                val result = isNullOrMin3Max3.tryValidate(null, config = config)
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe 0
-                println(result.context.logs.joinToString("\n"))
+                logs shouldBe
+                    listOf(
+                        "Satisfied(constraintId=kova.nullable.isNull, root=, path=, input=null)",
+                    )
             }
         }
     })
