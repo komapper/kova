@@ -61,7 +61,6 @@ fun <T : Any, S : Any> Validator<T, S>.asNullable(defaultValue: S): WithDefaultN
 fun <T : Any, S : Any> Validator<T, S>.asNullable(withDefault: () -> S): WithDefaultNullableValidator<T, S> =
     Validator { input, context ->
         val defaultValue = withDefault()
-        val context = context.addLog("Validator.asNullable(defaultValue=$defaultValue)")
         if (input == null) Success(defaultValue, context) else execute(input, context)
     }
 

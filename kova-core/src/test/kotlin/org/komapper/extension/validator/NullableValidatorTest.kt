@@ -279,15 +279,23 @@ class NullableValidatorTest :
             val isNullOrMin3Max3 = Kova.nullable<Int>().isNull().or(min3)
 
             test("success: 3") {
-                val result = isNullOrMin3Max3.tryValidate(3)
+                val logs = mutableListOf<String>()
+                val config = ValidationConfig(logger = { logs.add(it) })
+                val result = isNullOrMin3Max3.tryValidate(3, config = config)
                 result.isSuccess().mustBeTrue()
-                println(result.context.logs.joinToString("\n"))
+                logs shouldBe
+                    listOf(
+                        "Violated(constraintId=kova.nullable.isNull, root=, path=, input=3)",
+                        "Satisfied(constraintId=kova.comparable.min, root=, path=, input=3)",
+                    )
             }
 
             test("success: null") {
-                val result = isNullOrMin3Max3.tryValidate(null)
+                val logs = mutableListOf<String>()
+                val config = ValidationConfig(logger = { logs.add(it) })
+                val result = isNullOrMin3Max3.tryValidate(null, config = config)
                 result.isSuccess().mustBeTrue()
-                println(result.context.logs.joinToString("\n"))
+                logs shouldBe listOf("Satisfied(constraintId=kova.nullable.isNull, root=, path=, input=null)")
             }
         }
     })
