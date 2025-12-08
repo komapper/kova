@@ -35,14 +35,24 @@ fun <T> ConstraintValidator(constraint: Constraint<T>): ConstraintValidator<T> =
         when (val result = constraint.apply(constraintContext)) {
             is ConstraintResult.Satisfied -> {
                 context.log {
-                    "Satisfied(constraintId=${constraint.id}, root=${context.root}, path=${context.path.fullName}, input=$input)"
+                    LogEntry.Satisfied(
+                        constraintId = constraint.id,
+                        root = context.root,
+                        path = context.path.fullName,
+                        input = input,
+                    )
                 }
                 ValidationResult.Success(input, context)
             }
 
             is ConstraintResult.Violated -> {
                 context.log {
-                    "Violated(constraintId=${constraint.id}, root=${context.root}, path=${context.path.fullName}, input=$input)"
+                    LogEntry.Violated(
+                        constraintId = constraint.id,
+                        root = context.root,
+                        path = context.path.fullName,
+                        input = input,
+                    )
                 }
                 ValidationResult.Failure(listOf(result.message))
             }

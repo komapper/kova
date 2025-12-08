@@ -160,27 +160,27 @@ class ValidatorTest :
                 Kova.string().trim().then(Kova.string().min(3).max(5))
 
             test("success") {
-                val logs = mutableListOf<String>()
+                val logs = mutableListOf<LogEntry>()
                 val result = validator.tryValidate(" abcde ", ValidationConfig(logger = { logs.add(it) }))
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe "abcde"
 
                 logs shouldBe
                     listOf(
-                        "Satisfied(constraintId=kova.string.min, root=, path=, input=abcde)",
-                        "Satisfied(constraintId=kova.string.max, root=, path=, input=abcde)",
+                        LogEntry.Satisfied(constraintId = "kova.string.min", root = "", path = "", input = "abcde"),
+                        LogEntry.Satisfied(constraintId = "kova.string.max", root = "", path = "", input = "abcde"),
                     )
             }
 
             test("failure") {
-                val logs = mutableListOf<String>()
+                val logs = mutableListOf<LogEntry>()
                 val result = validator.tryValidate(" ab ", ValidationConfig(logger = { logs.add(it) }))
                 result.isFailure().mustBeTrue()
 
                 logs shouldBe
                     listOf(
-                        "Violated(constraintId=kova.string.min, root=, path=, input=ab)",
-                        "Satisfied(constraintId=kova.string.max, root=, path=, input=ab)",
+                        LogEntry.Violated(constraintId = "kova.string.min", root = "", path = "", input = "ab"),
+                        LogEntry.Satisfied(constraintId = "kova.string.max", root = "", path = "", input = "ab"),
                     )
             }
         }

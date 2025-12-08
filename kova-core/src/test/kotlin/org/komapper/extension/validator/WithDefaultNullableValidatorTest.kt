@@ -49,7 +49,7 @@ class WithDefaultNullableValidatorTest :
             }
 
             test("success - null") {
-                val logs = mutableListOf<String>()
+                val logs = mutableListOf<LogEntry>()
                 val result = whenNotNullMin3.tryValidate(null, config = ValidationConfig(logger = { logs.add(it) }))
                 result.isSuccess().mustBeTrue(result)
                 result.value shouldBe 3
@@ -154,38 +154,54 @@ class WithDefaultNullableValidatorTest :
                     .or(min3)
 
             test("success: 3") {
-                val logs = mutableListOf<String>()
+                val logs = mutableListOf<LogEntry>()
                 val config = ValidationConfig(logger = { logs.add(it) })
                 val result = isNullOrMin3Max3.tryValidate(3, config = config)
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe 3
-                logs shouldBe listOf("Satisfied(constraintId=kova.comparable.max, root=, path=, input=3)")
+                logs shouldBe
+                    listOf(
+                        LogEntry.Satisfied(
+                            constraintId = "kova.comparable.max",
+                            root = "",
+                            path = "",
+                            input = 3,
+                        ),
+                    )
             }
 
             test("success: 2") {
-                val logs = mutableListOf<String>()
+                val logs = mutableListOf<LogEntry>()
                 val config = ValidationConfig(logger = { logs.add(it) })
                 val result = isNullOrMin3Max3.tryValidate(2, config = config)
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe 2
-                logs shouldBe listOf("Satisfied(constraintId=kova.comparable.max, root=, path=, input=2)")
+                logs shouldBe
+                    listOf(
+                        LogEntry.Satisfied(
+                            constraintId = "kova.comparable.max",
+                            root = "",
+                            path = "",
+                            input = 2,
+                        ),
+                    )
             }
 
             test("success: 6") {
-                val logs = mutableListOf<String>()
+                val logs = mutableListOf<LogEntry>()
                 val config = ValidationConfig(logger = { logs.add(it) })
                 val result = isNullOrMin3Max3.tryValidate(6, config = config)
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe 6
                 logs shouldBe
                     listOf(
-                        "Violated(constraintId=kova.comparable.max, root=, path=, input=6)",
-                        "Satisfied(constraintId=kova.comparable.min, root=, path=, input=6)",
+                        LogEntry.Violated(constraintId = "kova.comparable.max", root = "", path = "", input = 6),
+                        LogEntry.Satisfied(constraintId = "kova.comparable.min", root = "", path = "", input = 6),
                     )
             }
 
             test("success: null") {
-                val logs = mutableListOf<String>()
+                val logs = mutableListOf<LogEntry>()
                 val config = ValidationConfig(logger = { logs.add(it) })
                 val result = isNullOrMin3Max3.tryValidate(null, config = config)
                 result.isSuccess().mustBeTrue()
