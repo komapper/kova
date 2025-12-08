@@ -40,7 +40,7 @@ data class ValidationContext(
  */
 data class ValidationConfig(
     val failFast: Boolean = false,
-    val logger: ((String) -> Unit)? = null,
+    val logger: ((LogEntry) -> Unit)? = null,
 )
 
 /**
@@ -228,7 +228,7 @@ fun <T> ValidationContext.createConstraintContext(
  *
  * @param block Lambda that generates the log message (only called if logger is configured)
  */
-fun ValidationContext.log(block: () -> String) {
+fun ValidationContext.log(block: () -> LogEntry) {
     config.logger?.invoke(block())
 }
 
@@ -271,4 +271,20 @@ data class Path(
         if (obj === target) return true
         return parent?.containsObject(target) ?: false
     }
+}
+
+sealed interface LogEntry {
+    data class Satisfied(
+        val constraintId: String,
+        val root: String,
+        val path: String,
+        val input: Any?,
+    ) : LogEntry
+
+    data class Violated(
+        val constraintId: String,
+        val root: String,
+        val path: String,
+        val input: Any?,
+    ) : LogEntry
 }
