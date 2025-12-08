@@ -157,7 +157,8 @@ fun <T : Any, S : Any> NullableValidator<T, S>.withDefault(defaultValue: S): Wit
  * @param provide Function that generates the default value
  * @return A new validator with non-nullable output that uses the provided default for null inputs
  */
-fun <T : Any, S : Any> NullableValidator<T, S>.withDefault(provide: () -> S): WithDefaultNullableValidator<T, S> = map { it ?: provide() }
+fun <T : Any, S : Any> NullableValidator<T, S>.withDefault(provide: () -> S): WithDefaultNullableValidator<T, S> =
+    WithDefaultNullableValidator(map { it ?: provide() }, provide)
 
 /**
  * Operator overload for [and]. Combines this nullable validator with a non-nullable validator.
