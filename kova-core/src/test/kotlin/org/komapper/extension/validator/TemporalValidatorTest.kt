@@ -11,12 +11,14 @@ class TemporalValidatorTest :
     FunSpec({
 
         context("LocalDate") {
+            val date = LocalDate.of(2025, 1, 1)
+            val zone = ZoneOffset.UTC
+            val instant = date.atStartOfDay(zone).toInstant()
+            val clock = Clock.fixed(instant, zone)
+            val kova = Kova(clock)
+
             context("future") {
-                val date = LocalDate.of(2025, 1, 1)
-                val zone = ZoneOffset.UTC
-                val instant = date.atStartOfDay(zone).toInstant()
-                val clock = Clock.fixed(instant, zone)
-                val validator = Kova.localDate(clock).future()
+                val validator = kova.localDate().future()
 
                 test("success") {
                     val result = validator.tryValidate(date.plusDays(1))
@@ -35,11 +37,7 @@ class TemporalValidatorTest :
             }
 
             context("futureOrPresent") {
-                val date = LocalDate.of(2025, 1, 1)
-                val zone = ZoneOffset.UTC
-                val instant = date.atStartOfDay(zone).toInstant()
-                val clock = Clock.fixed(instant, zone)
-                val validator = Kova.localDate(clock).futureOrPresent()
+                val validator = kova.localDate().futureOrPresent()
 
                 test("success - future") {
                     val result = validator.tryValidate(date.plusDays(1))
@@ -58,11 +56,7 @@ class TemporalValidatorTest :
             }
 
             context("past") {
-                val date = LocalDate.of(2025, 1, 1)
-                val zone = ZoneOffset.UTC
-                val instant = date.atStartOfDay(zone).toInstant()
-                val clock = Clock.fixed(instant, zone)
-                val validator = Kova.localDate(clock).past()
+                val validator = kova.localDate().past()
 
                 test("success") {
                     val result = validator.tryValidate(date.minusDays(1))
@@ -81,11 +75,7 @@ class TemporalValidatorTest :
             }
 
             context("pastOrPresent") {
-                val date = LocalDate.of(2025, 1, 1)
-                val zone = ZoneOffset.UTC
-                val instant = date.atStartOfDay(zone).toInstant()
-                val clock = Clock.fixed(instant, zone)
-                val validator = Kova.localDate(clock).pastOrPresent()
+                val validator = kova.localDate().pastOrPresent()
 
                 test("success - past") {
                     val result = validator.tryValidate(date.minusDays(1))
@@ -225,13 +215,15 @@ class TemporalValidatorTest :
         }
 
         context("LocalTime") {
+            val date = LocalDate.of(2025, 1, 1)
+            val time = LocalTime.of(12, 0, 0)
+            val zone = ZoneOffset.UTC
+            val instant = date.atTime(time).toInstant(zone)
+            val clock = Clock.fixed(instant, zone)
+            val kova = Kova(clock)
+
             context("future") {
-                val date = LocalDate.of(2025, 1, 1)
-                val time = LocalTime.of(12, 0, 0)
-                val zone = ZoneOffset.UTC
-                val instant = date.atTime(time).toInstant(zone)
-                val clock = Clock.fixed(instant, zone)
-                val validator = Kova.localTime(clock).future()
+                val validator = kova.localTime().future()
 
                 test("success") {
                     val result = validator.tryValidate(time.plusHours(1))
@@ -250,12 +242,7 @@ class TemporalValidatorTest :
             }
 
             context("futureOrPresent") {
-                val date = LocalDate.of(2025, 1, 1)
-                val time = LocalTime.of(12, 0, 0)
-                val zone = ZoneOffset.UTC
-                val instant = date.atTime(time).toInstant(zone)
-                val clock = Clock.fixed(instant, zone)
-                val validator = Kova.localTime(clock).futureOrPresent()
+                val validator = kova.localTime().futureOrPresent()
 
                 test("success - future") {
                     val result = validator.tryValidate(time.plusHours(1))
@@ -274,12 +261,7 @@ class TemporalValidatorTest :
             }
 
             context("past") {
-                val date = LocalDate.of(2025, 1, 1)
-                val time = LocalTime.of(12, 0, 0)
-                val zone = ZoneOffset.UTC
-                val instant = date.atTime(time).toInstant(zone)
-                val clock = Clock.fixed(instant, zone)
-                val validator = Kova.localTime(clock).past()
+                val validator = kova.localTime().past()
 
                 test("success") {
                     val result = validator.tryValidate(time.minusHours(1))
@@ -298,12 +280,7 @@ class TemporalValidatorTest :
             }
 
             context("pastOrPresent") {
-                val date = LocalDate.of(2025, 1, 1)
-                val time = LocalTime.of(12, 0, 0)
-                val zone = ZoneOffset.UTC
-                val instant = date.atTime(time).toInstant(zone)
-                val clock = Clock.fixed(instant, zone)
-                val validator = Kova.localTime(clock).pastOrPresent()
+                val validator = kova.localTime().pastOrPresent()
 
                 test("success - past") {
                     val result = validator.tryValidate(time.minusHours(1))
@@ -443,12 +420,14 @@ class TemporalValidatorTest :
         }
 
         context("LocalDateTime") {
+            val dateTime = LocalDateTime.of(2025, 1, 1, 12, 0, 0)
+            val zone = ZoneOffset.UTC
+            val instant = dateTime.toInstant(zone)
+            val clock = Clock.fixed(instant, zone)
+            val kova = Kova(clock)
+
             context("future") {
-                val dateTime = LocalDateTime.of(2025, 1, 1, 12, 0, 0)
-                val zone = ZoneOffset.UTC
-                val instant = dateTime.toInstant(zone)
-                val clock = Clock.fixed(instant, zone)
-                val validator = Kova.localDateTime(clock).future()
+                val validator = kova.localDateTime().future()
 
                 test("success") {
                     val result = validator.tryValidate(dateTime.plusHours(1))
@@ -467,11 +446,7 @@ class TemporalValidatorTest :
             }
 
             context("futureOrPresent") {
-                val dateTime = LocalDateTime.of(2025, 1, 1, 12, 0, 0)
-                val zone = ZoneOffset.UTC
-                val instant = dateTime.toInstant(zone)
-                val clock = Clock.fixed(instant, zone)
-                val validator = Kova.localDateTime(clock).futureOrPresent()
+                val validator = kova.localDateTime().futureOrPresent()
 
                 test("success - future") {
                     val result = validator.tryValidate(dateTime.plusHours(1))
@@ -490,11 +465,7 @@ class TemporalValidatorTest :
             }
 
             context("past") {
-                val dateTime = LocalDateTime.of(2025, 1, 1, 12, 0, 0)
-                val zone = ZoneOffset.UTC
-                val instant = dateTime.toInstant(zone)
-                val clock = Clock.fixed(instant, zone)
-                val validator = Kova.localDateTime(clock).past()
+                val validator = kova.localDateTime().past()
 
                 test("success") {
                     val result = validator.tryValidate(dateTime.minusHours(1))
@@ -513,11 +484,7 @@ class TemporalValidatorTest :
             }
 
             context("pastOrPresent") {
-                val dateTime = LocalDateTime.of(2025, 1, 1, 12, 0, 0)
-                val zone = ZoneOffset.UTC
-                val instant = dateTime.toInstant(zone)
-                val clock = Clock.fixed(instant, zone)
-                val validator = Kova.localDateTime(clock).pastOrPresent()
+                val validator = kova.localDateTime().pastOrPresent()
 
                 test("success - past") {
                     val result = validator.tryValidate(dateTime.minusHours(1))
