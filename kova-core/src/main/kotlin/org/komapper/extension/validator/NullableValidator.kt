@@ -83,6 +83,26 @@ fun <T : Any, S : Any> NullableValidator<T, S>.constrain(
 fun <T : Any, S : Any> NullableValidator<T, S>.isNull(message: MessageProvider = Message.resource()): NullableValidator<T, S> =
     constrain("kova.nullable.isNull", Constraints.isNull(message))
 
+/**
+ * Validates that the input is null OR satisfies a custom validator.
+ *
+ * This is a convenience method equivalent to `isNull().or(validator.asNullable())`.
+ * Either the input must be null, or it must satisfy the validator built by the block.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.string().asNullable()
+ *     .isNullOr { it.min(3).max(10) }
+ *
+ * validator.validate(null)    // Success: null (first branch passes)
+ * validator.validate("hello") // Success: "hello" (second branch passes)
+ * validator.validate("ab")    // Failure: not null and too short
+ * ```
+ *
+ * @param block A function that builds a validator from a success validator
+ * @param message Custom error message provider for the null check
+ * @return A new validator that accepts null or values satisfying the block validator
+ */
 fun <T : Any, S : Any> NullableValidator<T, S>.isNullOr(
     block: (Validator<T, T>) -> Validator<T, S>,
     message: MessageProvider? = null,
@@ -109,6 +129,26 @@ fun <T : Any, S : Any> NullableValidator<T, S>.isNullOr(
 fun <T : Any, S : Any> NullableValidator<T, S>.notNull(message: MessageProvider = Message.resource()): NullableValidator<T, S> =
     constrain("kova.nullable.notNull", Constraints.notNull(message))
 
+/**
+ * Validates that the input is not null AND satisfies a custom validator.
+ *
+ * This is a convenience method equivalent to `notNull().and(validator.asNullable())`.
+ * The input must be non-null and must satisfy the validator built by the block.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.string().asNullable()
+ *     .notNullAnd { it.min(3).max(10) }
+ *
+ * validator.validate("hello") // Success: "hello" (both constraints pass)
+ * validator.validate(null)    // Failure: is null
+ * validator.validate("ab")    // Failure: not null but too short
+ * ```
+ *
+ * @param block A function that builds a validator from a success validator
+ * @param message Custom error message provider for the null check
+ * @return A new validator that rejects null and validates non-null values with the block validator
+ */
 fun <T : Any, S : Any> NullableValidator<T, S>.notNullAnd(
     block: (Validator<T, T>) -> Validator<T, S>,
     message: MessageProvider? = null,

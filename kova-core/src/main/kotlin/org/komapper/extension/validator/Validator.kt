@@ -29,6 +29,20 @@ fun interface Validator<IN, OUT> {
     ): ValidationResult<OUT>
 
     companion object {
+        /**
+         * Creates a validator that always succeeds and returns the input unchanged.
+         *
+         * This is primarily used as a starting point for lambda-based composition methods
+         * like `and { }`, `or { }`, `then { }`, and `compose { }`.
+         *
+         * Example:
+         * ```kotlin
+         * val validator = Kova.string().and { it.min(3).max(10) }
+         * // Internally uses Validator.success() as the starting point
+         * ```
+         *
+         * @return An identity validator that always succeeds
+         */
         fun <T> success() = IdentityValidator<T> { input, context -> Success(input, context) }
     }
 }
@@ -135,6 +149,21 @@ infix fun <IN, OUT> Validator<IN, OUT>.and(other: Validator<IN, OUT>): Validator
     }
 }
 
+/**
+ * Lambda-based overload of [and] for more fluent composition.
+ *
+ * This allows building a validator using a lambda function instead of providing
+ * a pre-built validator instance.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.string().min(1).and { it.max(10).startsWith("A") }
+ * // Equivalent to: Kova.string().min(1) and Kova.string().max(10).startsWith("A")
+ * ```
+ *
+ * @param block A function that builds a validator from a success validator
+ * @return A new validator combining both with AND logic
+ */
 fun <IN, OUT> Validator<IN, OUT>.and(block: (Validator<IN, IN>) -> Validator<IN, OUT>): Validator<IN, OUT> = and(block(Validator.success()))
 
 /**
@@ -172,6 +201,21 @@ infix fun <IN, OUT> Validator<IN, OUT>.or(other: Validator<IN, OUT>): Validator<
     }
 }
 
+/**
+ * Lambda-based overload of [or] for more fluent composition.
+ *
+ * This allows building an alternative validator using a lambda function instead
+ * of providing a pre-built validator instance.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.string().max(10).or { it.startsWith("LONG:") }
+ * // Equivalent to: Kova.string().max(10) or Kova.string().startsWith("LONG:")
+ * ```
+ *
+ * @param block A function that builds a validator from a success validator
+ * @return A new validator combining both with OR logic
+ */
 fun <IN, OUT> Validator<IN, OUT>.or(block: (Validator<IN, IN>) -> Validator<IN, OUT>): Validator<IN, OUT> = or(block(Validator.success()))
 
 /**
@@ -197,7 +241,7 @@ inline fun <reified IN, reified OUT, reified NEW> Validator<IN, OUT>.map(noinlin
         when (val result = self.execute(input, context)) {
             is Success -> tryTransform(result.value, result.context, transform)
             is Failure -> {
-                // TODO
+                // TODO refactoring
                 val failureInput =
                     when (val v = result.value) {
                         is Input.Unknown -> Input.Unknown(v.value)
@@ -219,7 +263,8 @@ inline fun <reified IN, reified OUT, reified NEW> Validator<IN, OUT>.map(noinlin
     }
 }
 
-fun <T, R> tryTransform(
+@PublishedApi
+internal fun <T, R> tryTransform(
     input: T,
     context: ValidationContext,
     transform: (T) -> R,
@@ -275,6 +320,22 @@ fun <IN, OUT> Validator<IN, OUT>.name(name: String): Validator<IN, OUT> {
  */
 fun <IN, OUT, NEW> Validator<OUT, NEW>.compose(before: Validator<IN, OUT>): Validator<IN, NEW> = before.then(this)
 
+/**
+ * Lambda-based overload of [compose] for more fluent composition.
+ *
+ * This allows building the preceding validator using a lambda function instead
+ * of providing a pre-built validator instance.
+ *
+ * Example:
+ * ```kotlin
+ * val intValidator = Kova.int().min(0).max(100)
+ * val parseAndValidate = intValidator.compose { Kova.string().isInt().map { it.toInt() } }
+ * // Equivalent to: Kova.string().isInt().map { it.toInt() }.then(Kova.int().min(0).max(100))
+ * ```
+ *
+ * @param block A function that builds the validator to apply first
+ * @return A new validator that applies both validators in sequence (block first, then this)
+ */
 fun <IN, OUT, NEW> Validator<OUT, NEW>.compose(block: (Validator<IN, IN>) -> Validator<IN, OUT>): Validator<IN, NEW> =
     compose(block(Validator.success()))
 
@@ -316,5 +377,23 @@ fun <IN, OUT, NEW> Validator<IN, OUT>.then(after: Validator<OUT, NEW>): Validato
     }
 }
 
+/**
+ * Lambda-based overload of [then] for more fluent composition.
+ *
+ * This allows building the subsequent validator using a lambda function instead
+ * of providing a pre-built validator instance.
+ *
+ * Example:
+ * ```kotlin
+ * val parseAndValidate = Kova.string()
+ *     .isInt()
+ *     .map { it.toInt() }
+ *     .then { it.min(0).max(100) }
+ * // Equivalent to: Kova.string().isInt().map { it.toInt() }.then(Kova.int().min(0).max(100))
+ * ```
+ *
+ * @param block A function that builds the validator to apply after this one
+ * @return A new validator that applies both validators in sequence (this first, then block)
+ */
 fun <IN, OUT, NEW> Validator<IN, OUT>.then(block: (Validator<OUT, OUT>) -> Validator<OUT, NEW>): Validator<IN, NEW> =
     then(block(Validator.success()))

@@ -12,7 +12,7 @@ class StringValidatorTest :
                     .string()
                     .trim()
                     .min(3)
-                    .toUpperCase()
+                    .toUppercase()
                     .max(3)
 
             test("failure") {
@@ -64,7 +64,7 @@ class StringValidatorTest :
         }
 
         context("or") {
-            val validator = (Kova.string().isInt() or Kova.literal("zero")).toUpperCase()
+            val validator = (Kova.string().isInt() or Kova.literal("zero")).toUppercase()
 
             test("success - int") {
                 val result = validator.tryValidate("1")
@@ -93,7 +93,7 @@ class StringValidatorTest :
                     .string()
                     .trim()
                     .chain(length)
-                    .toUpperCase()
+                    .toUppercase()
 
             test("success") {
                 val result = validator.tryValidate(" abc ")
@@ -186,6 +186,24 @@ class StringValidatorTest :
             }
         }
 
+        context("blank") {
+            val blank = Kova.string().blank()
+
+            test("success - empty string") {
+                val result = blank.tryValidate("")
+                result.isSuccess().mustBeTrue()
+            }
+            test("success - whitespace only") {
+                val result = blank.tryValidate("   ")
+                result.isSuccess().mustBeTrue()
+            }
+            test("failure") {
+                val result = blank.tryValidate("ab")
+                result.isFailure().mustBeTrue()
+                result.messages.single().text shouldBe "must be blank"
+            }
+        }
+
         context("notBlank with message") {
             val notBlank = Kova.string().notBlank(Message.text { "Must not be blank" })
 
@@ -215,6 +233,25 @@ class StringValidatorTest :
             }
         }
 
+        context("empty") {
+            val empty = Kova.string().empty()
+
+            test("success") {
+                val result = empty.tryValidate("")
+                result.isSuccess().mustBeTrue()
+            }
+            test("failure - with content") {
+                val result = empty.tryValidate("ab")
+                result.isFailure().mustBeTrue()
+                result.messages.single().text shouldBe "must be empty"
+            }
+            test("failure - whitespace only") {
+                val result = empty.tryValidate("   ")
+                result.isFailure().mustBeTrue()
+                result.messages.single().text shouldBe "must be empty"
+            }
+        }
+
         context("startsWith") {
             val startsWith = Kova.string().startsWith("ab")
 
@@ -226,6 +263,20 @@ class StringValidatorTest :
                 val result = startsWith.tryValidate("cde")
                 result.isFailure().mustBeTrue()
                 result.messages.single().text shouldBe "must start with \"ab\""
+            }
+        }
+
+        context("notStartsWith") {
+            val notStartsWith = Kova.string().notStartsWith("ab")
+
+            test("success") {
+                val result = notStartsWith.tryValidate("cde")
+                result.isSuccess().mustBeTrue()
+            }
+            test("failure") {
+                val result = notStartsWith.tryValidate("abcde")
+                result.isFailure().mustBeTrue()
+                result.messages.single().text shouldBe "must not start with \"ab\""
             }
         }
 
@@ -243,6 +294,20 @@ class StringValidatorTest :
             }
         }
 
+        context("notEndsWith") {
+            val notEndsWith = Kova.string().notEndsWith("de")
+
+            test("success") {
+                val result = notEndsWith.tryValidate("ab")
+                result.isSuccess().mustBeTrue()
+            }
+            test("failure") {
+                val result = notEndsWith.tryValidate("abcde")
+                result.isFailure().mustBeTrue()
+                result.messages.single().text shouldBe "must not end with \"de\""
+            }
+        }
+
         context("contains") {
             val contains = Kova.string().contains("cd")
 
@@ -254,6 +319,20 @@ class StringValidatorTest :
                 val result = contains.tryValidate("fg")
                 result.isFailure().mustBeTrue()
                 result.messages.single().text shouldBe "must contain \"cd\""
+            }
+        }
+
+        context("notContains") {
+            val notContains = Kova.string().notContains("cd")
+
+            test("success") {
+                val result = notContains.tryValidate("fg")
+                result.isSuccess().mustBeTrue()
+            }
+            test("failure") {
+                val result = notContains.tryValidate("abcde")
+                result.isFailure().mustBeTrue()
+                result.messages.single().text shouldBe "must not contain \"cd\""
             }
         }
 
@@ -270,6 +349,21 @@ class StringValidatorTest :
                 result.isFailure().mustBeTrue()
                 result.messages.single().text shouldBe
                     "must match pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}\$"
+            }
+        }
+
+        context("notMatches") {
+            val digitPattern = Regex("^\\d+\$")
+            val notMatches = Kova.string().notMatches(digitPattern)
+
+            test("success") {
+                val result = notMatches.tryValidate("hello")
+                result.isSuccess().mustBeTrue()
+            }
+            test("failure") {
+                val result = notMatches.tryValidate("12345")
+                result.isFailure().mustBeTrue()
+                result.messages.single().text shouldBe "must not match pattern: ^\\d+\$"
             }
         }
 
@@ -801,7 +895,7 @@ class StringValidatorTest :
         }
 
         context("toUpperCase") {
-            val toUpperCase = Kova.string().toUpperCase()
+            val toUpperCase = Kova.string().toUppercase()
 
             test("success - lowercase to uppercase") {
                 val result = toUpperCase.tryValidate("hello")
@@ -835,7 +929,7 @@ class StringValidatorTest :
         }
 
         context("toUpperCase with constraints") {
-            val toUpperCaseMin3 = Kova.string().toUpperCase().min(3)
+            val toUpperCaseMin3 = Kova.string().toUppercase().min(3)
 
             test("success - transformed value meets constraint") {
                 val result = toUpperCaseMin3.tryValidate("hello")
@@ -850,7 +944,7 @@ class StringValidatorTest :
             }
 
             test("success - combining toUpperCase with startsWith") {
-                val toUpperCaseStartsWithH = Kova.string().toUpperCase().startsWith("H")
+                val toUpperCaseStartsWithH = Kova.string().toUppercase().startsWith("H")
                 val result = toUpperCaseStartsWithH.tryValidate("hello")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe "HELLO"
@@ -858,7 +952,7 @@ class StringValidatorTest :
         }
 
         context("toLowerCase") {
-            val toLowerCase = Kova.string().toLowerCase()
+            val toLowerCase = Kova.string().toLowercase()
 
             test("success - uppercase to lowercase") {
                 val result = toLowerCase.tryValidate("HELLO")
@@ -892,7 +986,7 @@ class StringValidatorTest :
         }
 
         context("toLowerCase with constraints") {
-            val toLowerCaseMin3 = Kova.string().toLowerCase().min(3)
+            val toLowerCaseMin3 = Kova.string().toLowercase().min(3)
 
             test("success - transformed value meets constraint") {
                 val result = toLowerCaseMin3.tryValidate("HELLO")
@@ -907,7 +1001,7 @@ class StringValidatorTest :
             }
 
             test("success - combining toLowerCase with startsWith") {
-                val toLowerCaseStartsWithH = Kova.string().toLowerCase().startsWith("h")
+                val toLowerCaseStartsWithH = Kova.string().toLowercase().startsWith("h")
                 val result = toLowerCaseStartsWithH.tryValidate("HELLO")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe "hello"

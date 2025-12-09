@@ -60,7 +60,7 @@ operator fun <T> ValidationResult<T>.plus(other: ValidationResult<T>): Validatio
         is Failure ->
             when (other) {
                 is Success -> Failure(value = Input.Some(other.value), messages = this.messages)
-                is Failure -> Failure<T>(other.value, messages = this.messages + other.messages) // TODO
+                is Failure -> Failure(other.value, messages = this.messages + other.messages)
             }
     }
 

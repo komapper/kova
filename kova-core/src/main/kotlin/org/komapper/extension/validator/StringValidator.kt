@@ -71,6 +71,25 @@ fun StringValidator.notBlank(message: MessageProvider = Message.resource()) =
     }
 
 /**
+ * Validates that the string is blank (empty or only whitespace).
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.string().blank()
+ * validator.validate("   ")   // Success
+ * validator.validate("")      // Success
+ * validator.validate("hello") // Failure
+ * ```
+ *
+ * @param message Custom error message provider
+ * @return A new validator with the blank constraint
+ */
+fun StringValidator.blank(message: MessageProvider = Message.resource()) =
+    constrain("kova.string.blank") {
+        satisfies(it.input.isBlank(), message())
+    }
+
+/**
  * Validates that the string is not empty.
  *
  * Example:
@@ -87,6 +106,25 @@ fun StringValidator.notBlank(message: MessageProvider = Message.resource()) =
 fun StringValidator.notEmpty(message: MessageProvider = Message.resource()) =
     constrain("kova.string.notEmpty") {
         satisfies(it.input.isNotEmpty(), message())
+    }
+
+/**
+ * Validates that the string is empty.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.string().empty()
+ * validator.validate("")      // Success
+ * validator.validate("   ")   // Failure (contains whitespace)
+ * validator.validate("hello") // Failure
+ * ```
+ *
+ * @param message Custom error message provider
+ * @return A new validator with the empty constraint
+ */
+fun StringValidator.empty(message: MessageProvider = Message.resource()) =
+    constrain("kova.string.empty") {
+        satisfies(it.input.isEmpty(), message())
     }
 
 /**
@@ -132,6 +170,27 @@ fun StringValidator.startsWith(
 }
 
 /**
+ * Validates that the string does not start with the specified prefix.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.string().notStartsWith("Hello")
+ * validator.validate("Goodbye")     // Success
+ * validator.validate("Hello World") // Failure
+ * ```
+ *
+ * @param prefix The prefix that must not be present
+ * @param message Custom error message provider
+ * @return A new validator with the not-starts-with constraint
+ */
+fun StringValidator.notStartsWith(
+    prefix: CharSequence,
+    message: MessageProvider = Message.resource(),
+) = constrain("kova.string.notStartsWith") {
+    satisfies(!it.input.startsWith(prefix), message(prefix))
+}
+
+/**
  * Validates that the string ends with the specified suffix.
  *
  * Example:
@@ -150,6 +209,27 @@ fun StringValidator.endsWith(
     message: MessageProvider = Message.resource(),
 ) = constrain("kova.string.endsWith") {
     satisfies(it.input.endsWith(suffix), message(suffix))
+}
+
+/**
+ * Validates that the string does not end with the specified suffix.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.string().notEndsWith(".txt")
+ * validator.validate("document.pdf") // Success
+ * validator.validate("document.txt") // Failure
+ * ```
+ *
+ * @param suffix The suffix that must not be present
+ * @param message Custom error message provider
+ * @return A new validator with the not-ends-with constraint
+ */
+fun StringValidator.notEndsWith(
+    suffix: CharSequence,
+    message: MessageProvider = Message.resource(),
+) = constrain("kova.string.notEndsWith") {
+    satisfies(!it.input.endsWith(suffix), message(suffix))
 }
 
 /**
@@ -174,6 +254,27 @@ fun StringValidator.contains(
 }
 
 /**
+ * Validates that the string does not contain the specified substring.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.string().notContains("world")
+ * validator.validate("hello")       // Success
+ * validator.validate("hello world") // Failure
+ * ```
+ *
+ * @param infix The substring that must not be present
+ * @param message Custom error message provider
+ * @return A new validator with the not-contains constraint
+ */
+fun StringValidator.notContains(
+    infix: CharSequence,
+    message: MessageProvider = Message.resource(),
+) = constrain("kova.string.notContains") {
+    satisfies(!it.input.contains(infix), message(infix))
+}
+
+/**
  * Validates that the string matches the specified regular expression pattern.
  *
  * Example:
@@ -192,6 +293,27 @@ fun StringValidator.matches(
     message: MessageProvider = Message.resource(),
 ) = constrain("kova.string.matches") {
     satisfies(pattern.matches(it.input), message(pattern))
+}
+
+/**
+ * Validates that the string does not match the specified regular expression pattern.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.string().notMatches(Regex("\\d+"))
+ * validator.validate("hello") // Success
+ * validator.validate("123")   // Failure
+ * ```
+ *
+ * @param pattern The regex pattern that must not match
+ * @param message Custom error message provider
+ * @return A new validator with the not-matches constraint
+ */
+fun StringValidator.notMatches(
+    pattern: Regex,
+    message: MessageProvider = Message.resource(),
+) = constrain("kova.string.notMatches") {
+    satisfies(!pattern.matches(it.input), message(pattern))
 }
 
 /**
@@ -506,26 +628,26 @@ fun StringValidator.trim() = map { it.trim() }
  *
  * Example:
  * ```kotlin
- * val validator = Kova.string().toUpperCase()
+ * val validator = Kova.string().toUppercase()
  * validator.validate("hello") // Success: "HELLO"
  * ```
  *
  * @return A new validator that transforms to uppercase
  */
-fun StringValidator.toUpperCase() = map { it.uppercase() } // TODO rename
+fun StringValidator.toUppercase() = map { it.uppercase() }
 
 /**
  * Transforms the string to lowercase.
  *
  * Example:
  * ```kotlin
- * val validator = Kova.string().toLowerCase()
+ * val validator = Kova.string().toLowercase()
  * validator.validate("HELLO") // Success: "hello"
  * ```
  *
  * @return A new validator that transforms to lowercase
  */
-fun StringValidator.toLowerCase() = map { it.lowercase() } // TODO rename
+fun StringValidator.toLowercase() = map { it.lowercase() }
 
 /**
  * Validates that the string can be parsed as an Int and converts it.

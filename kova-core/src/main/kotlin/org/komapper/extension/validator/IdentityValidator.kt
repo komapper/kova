@@ -146,6 +146,7 @@ fun <T> IdentityValidator<T>.chain(next: IdentityValidator<T>): IdentityValidato
                     result
                 } else {
                     when (val v = result.value) {
+                        // TODO refactoring
                         is Input.Unknown -> {
                             val value = v.value as? T
                             if (value != null) result + next.execute(value, context) else result

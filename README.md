@@ -36,11 +36,11 @@ dependencies {
 ```kotlin
 import org.komapper.extension.validator.Kova
 
-// Create a validator
-val nameValidator = Kova.string().min(1).max(50).notBlank()
+// Create a validator for product name
+val productNameValidator = Kova.string().min(1).max(100).notBlank()
 
 // Validate a value
-val result = nameValidator.tryValidate("John")
+val result = productNameValidator.tryValidate("Wireless Mouse")
 
 // Check the result
 if (result.isSuccess()) {
@@ -52,44 +52,78 @@ if (result.isSuccess()) {
 }
 
 // Or use validate() which throws ValidationException on failure
-val name = nameValidator.validate("John")
+val productName = productNameValidator.validate("Wireless Mouse")
 ```
 
 ### Validator Composition
 
+Kova validators are composable - you can combine existing validators to create new, reusable validators:
+
 ```kotlin
 // Combine validators with + operator (or 'and')
-val emailValidator = Kova.string().notBlank() + Kova.string().contains("@")
+val emailValidator = Kova.string().notBlank() + Kova.string().email()
 
 // Use 'or' for alternative validations (succeeds if either passes)
-val validator = Kova.string().uppercase() or Kova.string().min(5)
+// Accept either an email or a phone number format
+val contactValidator = Kova.string().email() or Kova.string().matches(Regex("""^\+?[1-9]\d{1,14}$"""))
 
 // Transform output with map
-val intValidator = Kova.string().toInt()  // Validates and converts to Int
+val priceValidator = Kova.string().toDouble()  // Validates and converts to Double
 
 // Type-specific validators return the same type when composed
-val stringValidator: StringValidator = Kova.string().min(1) + Kova.string().max(10)
-val numberValidator: NumberValidator<Int> = Kova.int().min(0) or Kova.int().max(100)
+val usernameValidator: StringValidator = Kova.string().min(3).max(20).matches(Regex("^[a-zA-Z0-9_]+$"))
+val stockValidator: NumberValidator<Int> = Kova.int().min(0).max(10000)
+```
+
+**Creating Reusable Validators by Composition**:
+
+Once created, validators can be reused across your application:
+
+```kotlin
+// Create a reusable password validator
+val passwordValidator = Kova.string()
+    .min(8)
+    .max(100)
+    .matches(Regex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$"))
+
+// Create a reusable email validator with specific rules
+val businessEmailValidator = Kova.string()
+    .notBlank()
+    .email()
+    .notEndsWith("@gmail.com")
+    .notEndsWith("@yahoo.com")
+
+// Compose validators to create more specific validators
+val adminEmailValidator = businessEmailValidator + Kova.string().endsWith("@company.com")
+
+// Use these validators across your application
+val signupPassword = passwordValidator.validate("SecurePass123")
+val adminEmail = adminEmailValidator.validate("admin@company.com")
+
+// Compose with nullable handling
+val optionalEmailValidator = emailValidator.asNullable()
+val emailWithDefault = emailValidator.asNullable("default@example.com")
 ```
 
 ### Object Validation
 
 ```kotlin
-data class User(val id: Int, val name: String, val email: String)
+data class Product(val id: Int, val name: String, val price: Double, val stock: Int)
 
-// Define a schema for the User class
-object UserSchema : ObjectSchema<User>() {
-    val id = User::id { Kova.int().min(1) }
-    val name = User::name { Kova.string().min(1).max(50) }
-    val email = User::email { Kova.string().notBlank().contains("@") }
+// Define a schema for the Product class
+object ProductSchema : ObjectSchema<Product>() {
+    val id = Product::id { Kova.int().min(1) }
+    val name = Product::name { Kova.string().min(1).max(100).notBlank() }
+    val price = Product::price { Kova.double().min(0.0) }
+    val stock = Product::stock { Kova.int().min(0) }
 }
 
-// Validate a user instance
-val user = User(1, "Alice", "alice@example.com")
-val result = UserSchema.tryValidate(user)
+// Validate a product instance
+val product = Product(1, "Wireless Mouse", 29.99, 150)
+val result = ProductSchema.tryValidate(product)
 ```
 
-**Note**: Properties must be defined as object properties (outside the constructor lambda), as the `invoke` operator for property definitions is only available on the `ObjectSchema` class itself, not within the lambda scope.
+**Note**: Properties must be defined as object properties, as the `invoke` operator for property definitions is only available on the `ObjectSchema` class itself.
 
 ### Object-Level Constraints
 
@@ -129,49 +163,55 @@ The ObjectFactory pattern allows you to validate inputs and construct objects in
 import org.komapper.extension.validator.Kova
 import org.komapper.extension.validator.ObjectSchema
 
-data class Person(val name: String, val age: Int)
+data class UserRegistration(val username: String, val email: String, val password: String)
 
-object PersonSchema : ObjectSchema<Person>() {
-    private val nameV = Person::name { Kova.string().min(1).max(50) }
-    private val ageV = Person::age { Kova.int().min(0).max(150) }
+object UserRegistrationSchema : ObjectSchema<UserRegistration>() {
+    private val usernameV = UserRegistration::username {
+        Kova.string().min(3).max(20).matches(Regex("^[a-zA-Z0-9_]+$"))
+    }
+    private val emailV = UserRegistration::email { Kova.string().email() }
+    private val passwordV = UserRegistration::password { Kova.string().min(8).max(100) }
 
     // Create a factory method that builds an ObjectFactory
-    fun bind(name: String, age: Int) = factory {
-        create(::Person, nameV.bind(name), ageV.bind(age))
+    fun bind(username: String, email: String, password: String) = factory {
+        create(::UserRegistration, usernameV.bind(username), emailV.bind(email), passwordV.bind(password))
     }
 }
 
 // Use the factory to validate and construct
-val factory = PersonSchema.bind("Alice", 30)
-val result = factory.tryCreate()  // Returns ValidationResult<Person>
+val factory = UserRegistrationSchema.bind("john_doe", "john@example.com", "SecurePass123")
+val result = factory.tryCreate()  // Returns ValidationResult<UserRegistration>
 // or
-val person = factory.create()     // Returns Person or throws ValidationException
+val registration = factory.create()     // Returns UserRegistration or throws ValidationException
 ```
 
 **Nested Object Validation**:
 ```kotlin
-data class Age(val value: Int)
-data class Person(val name: String, val age: Age)
+data class Address(val street: String, val city: String, val zipCode: String)
+data class Customer(val name: String, val email: String, val address: Address)
 
-object AgeSchema : ObjectSchema<Age>() {
-    private val valueV = Age::value { Kova.int().min(0).max(120) }
+object AddressSchema : ObjectSchema<Address>() {
+    private val streetV = Address::street { Kova.string().min(1).max(100) }
+    private val cityV = Address::city { Kova.string().min(1).max(50) }
+    private val zipCodeV = Address::zipCode { Kova.string().matches(Regex("^\\d{5}(-\\d{4})?$")) }
 
-    fun bind(age: String) = factory {
-        create(::Age, Kova.string().toInt().then(valueV).bind(age))
+    fun bind(street: String, city: String, zipCode: String) = factory {
+        create(::Address, streetV.bind(street), cityV.bind(city), zipCodeV.bind(zipCode))
     }
 }
 
-object PersonSchema : ObjectSchema<Person>() {
-    private val nameV = Person::name { Kova.string().min(1) }
-    private val ageV = Person::age { AgeSchema }
+object CustomerSchema : ObjectSchema<Customer>() {
+    private val nameV = Customer::name { Kova.string().min(1).max(100) }
+    private val emailV = Customer::email { Kova.string().email() }
+    private val addressV = Customer::address { AddressSchema }
 
-    fun bind(name: String, age: String) = factory {
-        create(::Person, nameV.bind(name), ageV.bind(age))
+    fun bind(name: String, email: String, street: String, city: String, zipCode: String) = factory {
+        create(::Customer, nameV.bind(name), emailV.bind(email), addressV.bind(street, city, zipCode))
     }
 }
 
-val factory = PersonSchema.bind("Bob", "25")
-val person = factory.create()  // Validates and constructs nested objects
+val factory = CustomerSchema.bind("Bob Smith", "bob@example.com", "123 Main St", "Springfield", "12345")
+val customer = factory.create()  // Validates and constructs nested objects
 ```
 
 **Key Components**:
@@ -209,17 +249,29 @@ val result1 = nullOrMinValidator.tryValidate(null)           // Success(null)
 val result2 = nullOrMinValidator.tryValidate(10)             // Success(10)
 val result3 = nullOrMinValidator.tryValidate(3)              // Failure (min(5) violated)
 
-// Accept null OR a specific literal value
-val nullOrDefaultValidator = Kova.nullable<String>().isNull().or(Kova.literal("default"))
-val result1 = nullOrDefaultValidator.tryValidate(null)       // Success(null)
-val result2 = nullOrDefaultValidator.tryValidate("default")  // Success("default")
-val result3 = nullOrDefaultValidator.tryValidate("other")    // Failure
+// Accept null OR validate with a lambda-based validator (convenience method)
+val isNullOrMinValidator = Kova.nullable<Int>().isNullOr { it.min(5) }
+val result1 = isNullOrMinValidator.tryValidate(null)         // Success(null)
+val result2 = isNullOrMinValidator.tryValidate(10)           // Success(10)
+val result3 = isNullOrMinValidator.tryValidate(3)            // Failure (min(5) violated)
+
+// Accept null OR a non-blank string
+val nullOrNonBlankValidator = Kova.nullable<String>().isNull().or(Kova.string().notBlank())
+val result1 = nullOrNonBlankValidator.tryValidate(null)      // Success(null)
+val result2 = nullOrNonBlankValidator.tryValidate("value")   // Success("value")
+val result3 = nullOrNonBlankValidator.tryValidate("")        // Failure
 
 // Require non-null AND validate the value
 val notNullAndMinValidator = Kova.nullable<String>().notNull().and(Kova.string().min(5))
 val result1 = notNullAndMinValidator.tryValidate(null)       // Failure (null not allowed)
 val result2 = notNullAndMinValidator.tryValidate("hello")    // Success("hello")
 val result3 = notNullAndMinValidator.tryValidate("hi")       // Failure (min(5) violated)
+
+// Require non-null AND validate with a lambda-based validator (convenience method)
+val notNullAndMin = Kova.nullable<String>().notNullAnd { it.min(5) }
+val result1 = notNullAndMin.tryValidate(null)                // Failure (null not allowed)
+val result2 = notNullAndMin.tryValidate("hello")             // Success("hello")
+val result3 = notNullAndMin.tryValidate("hi")                // Failure (min(5) violated)
 
 // Convert with default value for null inputs using asNullable(defaultValue)
 val withDefault = Kova.int().min(0).asNullable(10)
@@ -255,6 +307,8 @@ val nullableWithLazyDefault = Kova.nullable { 10 }
 **Methods on NullableValidator**:
 - `.isNull()` - Accept only null values
 - `.notNull()` - Reject null values
+- `.isNullOr { validator }` - Accept null OR validate non-null values using a lambda-based validator
+- `.notNullAnd { validator }` - Require non-null AND validate using a lambda-based validator
 - `.withDefault(value)` - Replace null values with a default
 - `.withDefault { value }` - Replace null values with a lazy-evaluated default
 - `.toNonNullable()` - Convert to non-nullable validator
@@ -268,12 +322,18 @@ Kova.string()
     .min(1)                    // Minimum length
     .max(100)                  // Maximum length
     .length(10)                // Exact length
-    .notBlank()                // Must not be blank
+    .blank()                   // Must be blank (empty or only whitespace)
+    .notBlank()                // Must not be blank (not empty and not only whitespace)
+    .empty()                   // Must be empty
     .notEmpty()                // Must not be empty
     .startsWith("prefix")      // Must start with prefix
+    .notStartsWith("prefix")   // Must not start with prefix
     .endsWith("suffix")        // Must end with suffix
+    .notEndsWith("suffix")     // Must not end with suffix
     .contains("substring")     // Must contain substring
+    .notContains("substring")  // Must not contain substring
     .matches(Regex("\\d+"))    // Must match regex pattern
+    .notMatches(Regex("\\d+")) // Must not match regex pattern
     .email()                   // Must be a valid email address
     .isInt()                   // Must be a valid integer string
     .isLong()                  // Must be a valid long string
@@ -288,8 +348,8 @@ Kova.string()
     .uppercase()               // Must be uppercase
     .lowercase()               // Must be lowercase
     .trim()                    // Transform: trim whitespace
-    .toUpperCase()             // Transform: convert to uppercase
-    .toLowerCase()             // Transform: convert to lowercase
+    .toUppercase()             // Transform: convert to uppercase
+    .toLowercase()             // Transform: convert to lowercase
     .toInt()                   // Transform: validate and convert to Int
     .toLong()                  // Transform: validate and convert to Long
     .toShort()                 // Transform: validate and convert to Short
@@ -335,9 +395,11 @@ Kova.boolean()     // Returns generic validator for boolean values
 
 ### Temporal Types
 
+Kova provides validators for Java Time API types with temporal constraints:
+
 ```kotlin
 // LocalDate validation
-Kova.localDate()           // Optional clock parameter (defaults to Clock.systemDefaultZone())
+Kova.localDate()
     .min(LocalDate.of(2024, 1, 1))     // Minimum date (>=)
     .max(LocalDate.of(2024, 12, 31))   // Maximum date (<=)
     .gt(LocalDate.of(2024, 6, 1))      // Greater than (>)
@@ -350,7 +412,7 @@ Kova.localDate()           // Optional clock parameter (defaults to Clock.system
     .pastOrPresent()                    // Must be in the past or present
 
 // LocalTime validation
-Kova.localTime()           // Optional clock parameter (defaults to Clock.systemDefaultZone())
+Kova.localTime()
     .min(LocalTime.of(9, 0))           // Minimum time (>=)
     .max(LocalTime.of(17, 0))          // Maximum time (<=)
     .gt(LocalTime.of(8, 30))           // Greater than (>)
@@ -363,7 +425,7 @@ Kova.localTime()           // Optional clock parameter (defaults to Clock.system
     .pastOrPresent()                    // Must be in the past or present
 
 // LocalDateTime validation
-Kova.localDateTime()       // Optional clock parameter (defaults to Clock.systemDefaultZone())
+Kova.localDateTime()
     .min(LocalDateTime.of(2024, 1, 1, 0, 0))     // Minimum datetime (>=)
     .max(LocalDateTime.of(2024, 12, 31, 23, 59)) // Maximum datetime (<=)
     .gt(startDateTime)                            // Greater than (>)
@@ -375,10 +437,70 @@ Kova.localDateTime()       // Optional clock parameter (defaults to Clock.system
     .past()                                       // Must be in the past
     .pastOrPresent()                              // Must be in the past or present
 
+// Instant validation
+Kova.instant()
+    .min(Instant.parse("2024-01-01T00:00:00Z"))  // Minimum instant (>=)
+    .max(Instant.parse("2024-12-31T23:59:59Z"))  // Maximum instant (<=)
+    .gt(startInstant)                             // Greater than (>)
+    .gte(startInstant)                            // Greater than or equal (>=)
+    .lt(endInstant)                               // Less than (<)
+    .lte(endInstant)                              // Less than or equal (<=)
+    .future()                                     // Must be in the future
+    .futureOrPresent()                            // Must be in the future or present
+    .past()                                       // Must be in the past
+    .pastOrPresent()                              // Must be in the past or present
+
+// OffsetDateTime validation
+Kova.offsetDateTime()
+    .min(OffsetDateTime.parse("2024-01-01T00:00:00Z"))  // Minimum offset datetime (>=)
+    .max(OffsetDateTime.parse("2024-12-31T23:59:59Z"))  // Maximum offset datetime (<=)
+    .future()                                            // Must be in the future
+    .past()                                              // Must be in the past
+    // ... supports all temporal constraints (gt, gte, lt, lte, futureOrPresent, pastOrPresent)
+
+// OffsetTime validation
+Kova.offsetTime()
+    .min(OffsetTime.parse("09:00:00Z"))    // Minimum offset time (>=)
+    .max(OffsetTime.parse("17:00:00Z"))    // Maximum offset time (<=)
+    .future()                               // Must be in the future
+    .past()                                 // Must be in the past
+    // ... supports all temporal constraints
+
+// ZonedDateTime validation
+Kova.zonedDateTime()
+    .min(ZonedDateTime.parse("2024-01-01T00:00:00Z"))  // Minimum zoned datetime (>=)
+    .max(ZonedDateTime.parse("2024-12-31T23:59:59Z"))  // Maximum zoned datetime (<=)
+    .future()                                           // Must be in the future
+    .past()                                             // Must be in the past
+    // ... supports all temporal constraints
+
+// Year validation
+Kova.year()
+    .min(Year.of(2024))    // Minimum year (>=)
+    .max(Year.of(2030))    // Maximum year (<=)
+    .future()               // Must be in the future
+    .past()                 // Must be in the past
+    // ... supports all temporal constraints
+
+// YearMonth validation
+Kova.yearMonth()
+    .min(YearMonth.of(2024, 1))    // Minimum year-month (>=)
+    .max(YearMonth.of(2024, 12))   // Maximum year-month (<=)
+    .future()                       // Must be in the future
+    .past()                         // Must be in the past
+    // ... supports all temporal constraints
+
+// MonthDay validation (no temporal constraints)
+Kova.monthDay()  // Returns generic validator (MonthDay doesn't implement Comparable)
+
+// Custom clock for testing
+val kova = Kova(clock = Clock.fixed(Instant.parse("2024-01-01T00:00:00Z"), ZoneId.systemDefault()))
+val validator = kova.localDate().future()
+
 // All temporal validators support composition operators
-val dateValidator: LocalDateValidator = Kova.localDate().past() + Kova.localDate().min(LocalDate.of(2020, 1, 1))
-val timeValidator: LocalTimeValidator = Kova.localTime().gte(LocalTime.of(9, 0)) or Kova.localTime().lte(LocalTime.of(17, 0))
-val dateTimeValidator: LocalDateTimeValidator = Kova.localDateTime().min(start).max(end)
+val dateValidator = Kova.localDate().past() + Kova.localDate().min(LocalDate.of(2020, 1, 1))
+val timeValidator = Kova.localTime().gte(LocalTime.of(9, 0)) or Kova.localTime().lte(LocalTime.of(17, 0))
+val dateTimeValidator = Kova.localDateTime().min(start).max(end)
 ```
 
 ### Collections
@@ -472,14 +594,14 @@ Kova.map<String, Int>()
 Validate that a value matches a specific literal value or one of a set of allowed values:
 
 ```kotlin
-// Single literal value
-val activeValidator = Kova.literal("active")
-val result1 = activeValidator.tryValidate("active")   // Success("active")
-val result2 = activeValidator.tryValidate("inactive") // Failure
+// Single literal value - validate order status
+val completedValidator = Kova.literal("completed")
+val result1 = completedValidator.tryValidate("completed")   // Success("completed")
+val result2 = completedValidator.tryValidate("pending")     // Failure
 
-// Multiple allowed values (vararg)
-val statusValidator = Kova.literal("active", "inactive", "pending")
-val result = statusValidator.tryValidate("active")    // Success("active")
+// Multiple allowed values (vararg) - validate order status
+val orderStatusValidator = Kova.literal("pending", "processing", "shipped", "delivered")
+val result = orderStatusValidator.tryValidate("shipped")    // Success("shipped")
 
 // Multiple allowed values (list)
 val allowedValues = listOf(1, 2, 3, 5, 8, 13)
@@ -539,8 +661,8 @@ Kova.generic<T>()  // No-op validator that always succeeds
 ### Collecting All Errors
 
 ```kotlin
-val validator = Kova.string().min(3).length(4)
-val result = validator.tryValidate("ab")
+val passwordValidator = Kova.string().min(8).max(20)
+val result = passwordValidator.tryValidate("pass")
 
 if (result.isFailure()) {
     // Get all error messages
@@ -548,16 +670,15 @@ if (result.isFailure()) {
         println(message.text)
     }
     // Output:
-    // must be at least 3 characters
-    // must be exactly 4 characters
+    // must be at least 8 characters
 }
 ```
 
 ### Fail-Fast Mode
 
 ```kotlin
-val validator = Kova.string().min(3).length(4)
-val result = validator.tryValidate("ab", failFast = true)
+val passwordValidator = Kova.string().min(8).max(20)
+val result = passwordValidator.tryValidate("pass", failFast = true)
 
 if (result.isFailure()) {
     // Only the first error is reported
@@ -583,38 +704,30 @@ if (result.isFailure()) {
 ### Path Tracking for Nested Objects
 
 ```kotlin
-val result = userValidator.tryValidate(User(-1, "", "invalid"))
+val result = ProductSchema.tryValidate(Product(-1, "", -10.0, -5))
 
 if (result.isFailure()) {
-    result.details.forEach { detail ->
-        println("Root: ${detail.root}")      // e.g., "User"
-        println("Path: ${detail.path}")      // e.g., "name"
-        println("Message: ${detail.message.text}")
+    result.messages.forEach { message ->
+        println("Root: ${message.root}")      // e.g., "Product"
+        println("Path: ${message.path}")      // e.g., "price"
+        println("Message: ${message.text}")   // e.g., "must be greater than or equal to 0.0"
     }
 }
 ```
 
-### Failure Details Structure
+### Error Message Structure
 
-Validation failures provide detailed information through the `FailureDetail` interface:
-
-```kotlin
-sealed interface FailureDetail {
-    val context: ValidationContext
-    val message: Message
-    val root: Any?       // The root object being validated
-    val path: Path       // The path to the failed property
-}
-```
-
-Access failure details:
+Validation failures provide detailed information through the `Message` interface:
 
 ```kotlin
 val result = validator.tryValidate(input)
 if (result.isFailure()) {
-    result.details.forEach { detail ->
-        println("Path: ${detail.path}")
-        println("Message: ${detail.message.text}")
+    result.messages.forEach { message ->
+        println("Constraint ID: ${message.constraintId}")
+        println("Path: ${message.path}")
+        println("Root: ${message.root}")
+        println("Message: ${message.text}")
+        println("Context: ${message.context}")
     }
 }
 ```
@@ -624,10 +737,10 @@ if (result.isFailure()) {
 You can add custom constraints to any validator using the `constrain` method:
 
 ```kotlin
-val validator = Kova.string().constrain("custom.email") { ctx ->
+val validator = Kova.string().constrain("custom.urlPath") { ctx ->
     satisfies(
-        ctx.input.contains("@") && ctx.input.contains("."),
-        "Must be a valid email format"
+        ctx.input.startsWith("/") && !ctx.input.contains(".."),
+        "Must be a valid URL path starting with / and not contain .."
     )
 }
 ```
@@ -714,6 +827,8 @@ val result = validator.tryValidate("ab")
 if (result.isFailure()) {
     result.messages.forEach { message ->
         println(message.text)  // Prints: "String 'ab' is too short (min: 5)"
+        println(message)        // Detailed output with all information
+        // Prints: "Message(constraintId=kova.string.min, text=String 'ab' is too short (min: 5), root=, path=, input=ab)"
     }
 }
 ```
