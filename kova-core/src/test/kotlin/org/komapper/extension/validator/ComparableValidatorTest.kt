@@ -19,8 +19,8 @@ class ComparableValidatorTest :
                 val result = validator.tryValidate(5u)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 2
-                result.messages[0].text shouldBe "must be less than or equal to 2"
-                result.messages[1].text shouldBe "must be less than or equal to 3"
+                result.messages[0].constraintId shouldBe "kova.comparable.max"
+                result.messages[1].constraintId shouldBe "kova.comparable.max"
             }
         }
 

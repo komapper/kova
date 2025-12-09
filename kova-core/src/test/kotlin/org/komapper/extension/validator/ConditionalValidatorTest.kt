@@ -18,7 +18,7 @@ class ConditionalValidatorTest :
                 val result = validator.tryValidate(2)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].text shouldBe "must be greater than or equal to 3"
+                result.messages[0].constraintId shouldBe "kova.comparable.min"
             }
         }
 
@@ -35,8 +35,8 @@ class ConditionalValidatorTest :
                 val result = validator.tryValidate(0)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 2
-                result.messages[0].text shouldBe "must be greater than or equal to 3"
-                result.messages[1].text shouldBe "must be greater than or equal to 1"
+                result.messages[0].constraintId shouldBe "kova.comparable.min"
+                result.messages[1].constraintId shouldBe "kova.comparable.min"
             }
         }
     })

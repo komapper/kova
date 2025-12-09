@@ -19,7 +19,7 @@ class LiteralValidatorTest :
                 val result = validator.tryValidate(false)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].text shouldBe "must be true"
+                result.messages[0].constraintId shouldBe "kova.literal.single"
             }
         }
 
@@ -36,7 +36,7 @@ class LiteralValidatorTest :
                 val result = validator.tryValidate(456)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].text shouldBe "must be 123"
+                result.messages[0].constraintId shouldBe "kova.literal.single"
             }
         }
 
@@ -53,7 +53,7 @@ class LiteralValidatorTest :
                 val result = validator.tryValidate("de")
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].text shouldBe "must be abc"
+                result.messages[0].constraintId shouldBe "kova.literal.single"
             }
         }
 
@@ -70,7 +70,7 @@ class LiteralValidatorTest :
                 val result = validator.tryValidate("ddd")
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].text shouldBe "must be one of: [aaa, bbb, ccc]"
+                result.messages[0].constraintId shouldBe "kova.literal.list"
             }
         }
 
@@ -87,7 +87,7 @@ class LiteralValidatorTest :
                 val result = validator.tryValidate("ddd")
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].text shouldBe "must be one of: [aaa, bbb, ccc]"
+                result.messages[0].constraintId shouldBe "kova.literal.list"
             }
         }
     })

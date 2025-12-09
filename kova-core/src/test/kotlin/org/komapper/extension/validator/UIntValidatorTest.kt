@@ -19,7 +19,7 @@ class UIntValidatorTest :
                 val result = validator.tryValidate(15u)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].text shouldBe "must be less than or equal to 10"
+                result.messages[0].constraintId shouldBe "kova.comparable.max"
             }
         }
 
@@ -82,7 +82,7 @@ class UIntValidatorTest :
             test("failure with value less than threshold") {
                 val result = validator.tryValidate(4u)
                 result.isFailure().mustBeTrue()
-                result.messages[0].text shouldBe "must be greater than or equal to 5"
+                result.messages[0].constraintId shouldBe "kova.comparable.min"
             }
         }
 
@@ -104,7 +104,7 @@ class UIntValidatorTest :
             test("failure with value greater than threshold") {
                 val result = validator.tryValidate(11u)
                 result.isFailure().mustBeTrue()
-                result.messages[0].text shouldBe "must be less than or equal to 10"
+                result.messages[0].constraintId shouldBe "kova.comparable.max"
             }
         }
 
@@ -126,13 +126,13 @@ class UIntValidatorTest :
             test("failure with equal value") {
                 val result = validator.tryValidate(5u)
                 result.isFailure().mustBeTrue()
-                result.messages[0].text shouldBe "must be greater than 5"
+                result.messages[0].constraintId shouldBe "kova.comparable.gt"
             }
 
             test("failure with value less than threshold") {
                 val result = validator.tryValidate(4u)
                 result.isFailure().mustBeTrue()
-                result.messages[0].text shouldBe "must be greater than 5"
+                result.messages[0].constraintId shouldBe "kova.comparable.gt"
             }
         }
 
@@ -154,7 +154,7 @@ class UIntValidatorTest :
             test("failure with value less than threshold") {
                 val result = validator.tryValidate(4u)
                 result.isFailure().mustBeTrue()
-                result.messages[0].text shouldBe "must be greater than or equal to 5"
+                result.messages[0].constraintId shouldBe "kova.comparable.gte"
             }
         }
 
@@ -176,13 +176,13 @@ class UIntValidatorTest :
             test("failure with equal value") {
                 val result = validator.tryValidate(5u)
                 result.isFailure().mustBeTrue()
-                result.messages[0].text shouldBe "must be less than 5"
+                result.messages[0].constraintId shouldBe "kova.comparable.lt"
             }
 
             test("failure with value greater than threshold") {
                 val result = validator.tryValidate(6u)
                 result.isFailure().mustBeTrue()
-                result.messages[0].text shouldBe "must be less than 5"
+                result.messages[0].constraintId shouldBe "kova.comparable.lt"
             }
         }
 
@@ -204,7 +204,7 @@ class UIntValidatorTest :
             test("failure with value greater than threshold") {
                 val result = validator.tryValidate(6u)
                 result.isFailure().mustBeTrue()
-                result.messages[0].text shouldBe "must be less than or equal to 5"
+                result.messages[0].constraintId shouldBe "kova.comparable.lte"
             }
         }
 
@@ -221,7 +221,7 @@ class UIntValidatorTest :
                 test("failure") {
                     val result = validator.tryValidate(4uL)
                     result.isFailure().mustBeTrue()
-                    result.messages[0].text shouldBe "must be greater than or equal to 5"
+                    result.messages[0].constraintId shouldBe "kova.comparable.min"
                 }
             }
 
@@ -237,7 +237,7 @@ class UIntValidatorTest :
                 test("failure") {
                     val result = validator.tryValidate(11uL)
                     result.isFailure().mustBeTrue()
-                    result.messages[0].text shouldBe "must be less than or equal to 10"
+                    result.messages[0].constraintId shouldBe "kova.comparable.max"
                 }
             }
         }
@@ -255,7 +255,7 @@ class UIntValidatorTest :
                 test("failure") {
                     val result = validator.tryValidate(4u)
                     result.isFailure().mustBeTrue()
-                    result.messages[0].text shouldBe "must be greater than or equal to 5"
+                    result.messages[0].constraintId shouldBe "kova.comparable.min"
                 }
             }
 
@@ -271,7 +271,7 @@ class UIntValidatorTest :
                 test("failure") {
                     val result = validator.tryValidate(11u)
                     result.isFailure().mustBeTrue()
-                    result.messages[0].text shouldBe "must be less than or equal to 10"
+                    result.messages[0].constraintId shouldBe "kova.comparable.max"
                 }
             }
         }
@@ -289,7 +289,7 @@ class UIntValidatorTest :
                 test("failure") {
                     val result = validator.tryValidate(4u)
                     result.isFailure().mustBeTrue()
-                    result.messages[0].text shouldBe "must be greater than or equal to 5"
+                    result.messages[0].constraintId shouldBe "kova.comparable.min"
                 }
             }
 
@@ -305,7 +305,7 @@ class UIntValidatorTest :
                 test("failure") {
                     val result = validator.tryValidate(11u)
                     result.isFailure().mustBeTrue()
-                    result.messages[0].text shouldBe "must be less than or equal to 10"
+                    result.messages[0].constraintId shouldBe "kova.comparable.max"
                 }
             }
         }
@@ -334,13 +334,13 @@ class UIntValidatorTest :
             test("failure with value 5") {
                 val result = validator.tryValidate(5u)
                 result.isFailure().mustBeTrue()
-                result.messages[0].text shouldBe "must be greater than 6"
+                result.messages[0].constraintId shouldBe "kova.comparable.gt"
             }
 
             test("failure with value 10") {
                 val result = validator.tryValidate(10u)
                 result.isFailure().mustBeTrue()
-                result.messages[0].text shouldBe "must be less than or equal to 9"
+                result.messages[0].constraintId shouldBe "kova.comparable.lte"
             }
         }
     })

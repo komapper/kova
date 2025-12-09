@@ -19,7 +19,7 @@ class CollectionValidatorTest :
                 val result = validator.tryValidate(emptyList())
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].text shouldBe "must not be empty"
+                result.messages[0].constraintId shouldBe "kova.collection.notEmpty"
             }
         }
 
@@ -36,14 +36,14 @@ class CollectionValidatorTest :
                 val result = validator.tryValidate(listOf("1"))
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].text shouldBe "Collection (size 1) must have exactly 2 elements"
+                result.messages[0].constraintId shouldBe "kova.collection.length"
             }
 
             test("failure - too many elements") {
                 val result = validator.tryValidate(listOf("1", "2", "3"))
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].text shouldBe "Collection (size 3) must have exactly 2 elements"
+                result.messages[0].constraintId shouldBe "kova.collection.length"
             }
         }
 
@@ -60,8 +60,8 @@ class CollectionValidatorTest :
                 val result = validator.tryValidate(listOf("1"))
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 2
-                result.messages[0].text shouldBe "Collection (size 1) must have at least 2 elements"
-                result.messages[1].text shouldBe "Collection (size 1) must have at least 3 elements"
+                result.messages[0].constraintId shouldBe "kova.collection.min"
+                result.messages[1].constraintId shouldBe "kova.collection.min"
             }
         }
 
@@ -102,11 +102,11 @@ class CollectionValidatorTest :
                         "Some elements do not satisfy the constraint: [must be exactly 3 characters, must be exactly 3 characters]"
                     it.shouldBeInstanceOf<Message.Collection>()
                     it.elements.size shouldBe 2
-                    it.elements[0].messages[0].text shouldBe "must be exactly 3 characters"
+                    it.elements[0].messages[0].constraintId shouldBe "kova.string.length"
                     it.elements[0]
                         .messages[0]
                         .context.input shouldBe "4567"
-                    it.elements[1].messages[0].text shouldBe "must be exactly 3 characters"
+                    it.elements[1].messages[0].constraintId shouldBe "kova.string.length"
                     it.elements[1]
                         .messages[0]
                         .context.input shouldBe "8910"
@@ -122,7 +122,7 @@ class CollectionValidatorTest :
                         "Some elements do not satisfy the constraint: [must be exactly 3 characters]"
                     it.shouldBeInstanceOf<Message.Collection>()
                     it.elements.size shouldBe 1
-                    it.elements[0].messages[0].text shouldBe "must be exactly 3 characters"
+                    it.elements[0].messages[0].constraintId shouldBe "kova.string.length"
                 }
             }
         }
@@ -156,7 +156,7 @@ class CollectionValidatorTest :
                 message.elements[0].messages[0].let {
                     it.root shouldBe "ListHolder"
                     it.path.fullName shouldBe "list[1]<collection element>"
-                    it.text shouldBe "must be exactly 3 characters"
+                    it.constraintId shouldBe "kova.string.length"
                 }
             }
         }
