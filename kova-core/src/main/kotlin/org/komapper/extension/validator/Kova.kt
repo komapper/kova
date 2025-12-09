@@ -6,6 +6,7 @@ import java.time.Clock
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.temporal.Temporal
 
 /**
  * Main entry point for creating validators in Kova.
@@ -82,7 +83,6 @@ interface Kova {
      * type that implements both Temporal and Comparable.
      *
      * @param T The temporal type to validate
-     * @param clock The clock used for temporal comparisons like past() and future(). Defaults to system default zone.
      * @param temporalNow Strategy for obtaining the current temporal value
      * @return A temporal validator for type T
      *
@@ -92,35 +92,22 @@ interface Kova {
      * val timeValidator = Kova.temporal<LocalTime>(temporalNow = LocalTimeNow)
      * ```
      */
-    fun <T> temporal(
-        clock: Clock = Clock.systemDefaultZone(),
-        temporalNow: TemporalNow<T>,
-    ): TemporalValidator<T> where T : java.time.temporal.Temporal, T : Comparable<T> =
-        TemporalValidator(clock = clock, temporalNow = temporalNow)
+    fun <T> temporal(temporalNow: TemporalNow<T>): TemporalValidator<T> where T : java.time.temporal.Temporal, T : Comparable<T>
 
     /**
      * Creates a validator for LocalDate values with temporal constraints.
-     *
-     * @param clock The clock used for temporal comparisons like past() and future(). Defaults to system default zone.
      */
-    fun localDate(clock: Clock = Clock.systemDefaultZone()): TemporalValidator<LocalDate> =
-        temporal(clock = clock, temporalNow = LocalDateNow)
+    fun localDate(): TemporalValidator<LocalDate> = temporal(temporalNow = LocalDateNow)
 
     /**
      * Creates a validator for LocalTime values with temporal constraints.
-     *
-     * @param clock The clock used for temporal comparisons like past() and future(). Defaults to system default zone.
      */
-    fun localTime(clock: Clock = Clock.systemDefaultZone()): TemporalValidator<LocalTime> =
-        temporal(clock = clock, temporalNow = LocalTimeNow)
+    fun localTime(): TemporalValidator<LocalTime> = temporal(temporalNow = LocalTimeNow)
 
     /**
      * Creates a validator for LocalDateTime values with temporal constraints.
-     *
-     * @param clock The clock used for temporal comparisons like past() and future(). Defaults to system default zone.
      */
-    fun localDateTime(clock: Clock = Clock.systemDefaultZone()): TemporalValidator<LocalDateTime> =
-        temporal(clock = clock, temporalNow = LocalDateTimeNow)
+    fun localDateTime(): TemporalValidator<LocalDateTime> = temporal(temporalNow = LocalDateTimeNow)
 
     /** Creates a validator for Collection values with size and element validation. */
     fun <E> collection(): IdentityValidator<Collection<E>> = generic()
@@ -227,5 +214,14 @@ interface Kova {
      */
     fun fail(message: String): Nothing = throw MessageException(message)
 
-    companion object : Kova
+    companion object : Kova by Kova()
+}
+
+fun Kova(clock: Clock = Clock.systemDefaultZone()): Kova = KovaImpl(clock)
+
+internal class KovaImpl(
+    private val clock: Clock,
+) : Kova {
+    override fun <T> temporal(temporalNow: TemporalNow<T>): TemporalValidator<T> where T : Temporal, T : Comparable<T> =
+        TemporalValidator(clock = clock, temporalNow = temporalNow)
 }
