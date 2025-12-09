@@ -95,7 +95,7 @@ class ObjectFactoryTest :
                 val message = result.messages.first()
                 message.root shouldContain "<init>"
                 message.path.fullName shouldBe "id"
-                message.text shouldBe "must be greater than or equal to 1"
+                message.constraintId shouldBe "kova.comparable.min"
             }
 
             test("failure - create") {
@@ -108,7 +108,7 @@ class ObjectFactoryTest :
                 val message = ex.messages.first()
                 message.root shouldContain "<init>"
                 message.path.fullName shouldBe "id"
-                message.text shouldBe "must be greater than or equal to 1"
+                message.constraintId shouldBe "kova.comparable.min"
             }
         }
 

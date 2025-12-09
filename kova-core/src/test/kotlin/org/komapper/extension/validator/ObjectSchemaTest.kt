@@ -66,7 +66,7 @@ class ObjectSchemaTest :
                 result.messages[0].let {
                     it.root shouldBe "User"
                     it.path.fullName shouldBe "name"
-                    it.text shouldBe "must be at most 10 characters"
+                    it.constraintId shouldBe "kova.string.max"
                 }
             }
 
@@ -79,12 +79,12 @@ class ObjectSchemaTest :
                 result.messages[0].let {
                     it.root shouldBe "User"
                     it.path.fullName shouldBe "name"
-                    it.text shouldBe "must be at most 10 characters"
+                    it.constraintId shouldBe "kova.string.max"
                 }
                 result.messages[1].let {
                     it.root shouldBe "User"
                     it.path.fullName shouldBe "id"
-                    it.text shouldBe "must be greater than or equal to 1"
+                    it.constraintId shouldBe "kova.comparable.min"
                 }
             }
         }
@@ -186,7 +186,7 @@ class ObjectSchemaTest :
                 result.messages[0].let {
                     it.root shouldBe "User"
                     it.path.fullName shouldBe "name"
-                    it.text shouldBe "must be at most 10 characters"
+                    it.constraintId shouldBe "kova.string.max"
                 }
             }
 
@@ -199,12 +199,12 @@ class ObjectSchemaTest :
                 result.messages[0].let {
                     it.root shouldBe "User"
                     it.path.fullName shouldBe "id"
-                    it.text shouldBe "must be greater than or equal to 1"
+                    it.constraintId shouldBe "kova.comparable.min"
                 }
                 result.messages[1].let {
                     it.root shouldBe "User"
                     it.path.fullName shouldBe "name"
-                    it.text shouldBe "must be at most 10 characters"
+                    it.constraintId shouldBe "kova.string.max"
                 }
             }
         }
@@ -242,7 +242,7 @@ class ObjectSchemaTest :
                 result.messages[0].let {
                     it.root shouldBe "Employee"
                     it.path.fullName shouldBe "address.street.name"
-                    it.text shouldBe "must be at most 5 characters"
+                    it.constraintId shouldBe "kova.string.max"
                 }
             }
         }
@@ -296,7 +296,7 @@ class ObjectSchemaTest :
                 result.messages[0].let {
                     it.root shouldBe "Employee"
                     it.path.fullName shouldBe "address.postalCode"
-                    it.text shouldBe "must be exactly 8 characters"
+                    it.constraintId shouldBe "kova.string.length"
                 }
             }
 
@@ -309,7 +309,7 @@ class ObjectSchemaTest :
                 result.messages[0].let {
                     it.root shouldBe "Employee"
                     it.path.fullName shouldBe "address.postalCode"
-                    it.text shouldBe "must be exactly 5 characters"
+                    it.constraintId shouldBe "kova.string.length"
                 }
             }
         }
@@ -362,12 +362,12 @@ class ObjectSchemaTest :
                 result.messages[0].let {
                     it.root shouldBe "Person"
                     it.path.fullName shouldBe "firstName"
-                    it.text shouldBe "must not be null"
+                    it.constraintId shouldBe "kova.nullable.notNull"
                 }
                 result.messages[1].let {
                     it.root shouldBe "Person"
                     it.path.fullName shouldBe "lastName"
-                    it.text shouldBe "must not be null"
+                    it.constraintId shouldBe "kova.nullable.notNull"
                 }
             }
         }
@@ -447,7 +447,7 @@ class ObjectSchemaTest :
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].path.fullName shouldBe "next.next.value"
-                result.messages[0].text shouldBe "must be less than or equal to 100"
+                result.messages[0].constraintId shouldBe "kova.comparable.max"
             }
 
             test("constraint violation in root object") {
@@ -458,7 +458,7 @@ class ObjectSchemaTest :
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].path.fullName shouldBe "value"
-                result.messages[0].text shouldBe "must be greater than or equal to 0"
+                result.messages[0].constraintId shouldBe "kova.comparable.min"
             }
 
             // To avoid StackOverflowError, use 'shouldBeEqual' instead of 'shouldBe'
@@ -471,7 +471,7 @@ class ObjectSchemaTest :
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBeEqual 1
                 result.messages[0].path.fullName shouldBeEqual "value"
-                result.messages[0].text shouldBeEqual "must be less than or equal to 100"
+                result.messages[0].constraintId shouldBeEqual "kova.comparable.max"
             }
         }
     })
