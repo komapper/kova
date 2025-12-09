@@ -42,11 +42,11 @@ class ObjectSchemaTest :
 
             val a =
                 object : ObjectSchema<User>() {
-                    val name = User::name { Kova.string().min(1).max(10) }
+                    val name = User::name { it.min(1).max(10) }
                 }
             val b =
                 object : ObjectSchema<User>() {
-                    val id = User::id { Kova.int().min(1) }
+                    val id = User::id { it.min(1) }
                 }
 
             val userSchema = a + b
@@ -93,8 +93,8 @@ class ObjectSchemaTest :
 
             val userSchema =
                 object : ObjectSchema<User>() {
-                    val id = User::id { Kova.int().min(1) }
-                    val name = User::name { Kova.string().min(1).max(10) }
+                    val id = User::id { it.min(1) }
+                    val name = User::name { it.min(1).max(10) }
                 }
 
             test("success") {
@@ -145,8 +145,8 @@ class ObjectSchemaTest :
         context("nullable") {
             val validator =
                 object : ObjectSchema<User>() {
-                    val id = User::id { Kova.int().min(1) }
-                    val name = User::name { Kova.string().min(1).max(10) }
+                    val id = User::id { it.min(1) }
+                    val name = User::name { it.min(1).max(10) }
                 }.asNullable()
 
             test("success - non null") {
@@ -167,8 +167,8 @@ class ObjectSchemaTest :
 
             val userSchema =
                 object : ObjectSchema<User>() {
-                    val id = User::id { Kova.int().min(1) }
-                    val name = User::name { Kova.string().min(1).max(10) }
+                    val id = User::id { it.min(1) }
+                    val name = User::name { it.min(1).max(10) }
                 }
 
             test("success") {
@@ -213,8 +213,8 @@ class ObjectSchemaTest :
 
             val streetSchema =
                 object : ObjectSchema<Street>() {
-                    val id = Street::id { Kova.int().min(1) }
-                    val name = Street::name { Kova.string().min(3).max(5) }
+                    val id = Street::id { it.min(1) }
+                    val name = Street::name { it.min(3).max(5) }
                 }
 
             val addressSchema =
@@ -251,8 +251,8 @@ class ObjectSchemaTest :
 
             val streetSchema =
                 object : ObjectSchema<Street>() {
-                    val id = Street::id { Kova.int().min(1) }
-                    val name = Street::name { Kova.string().min(3).max(5) }
+                    val id = Street::id { it.min(1) }
+                    val name = Street::name { it.min(3).max(5) }
                 }
 
             val addressSchema =
@@ -260,10 +260,9 @@ class ObjectSchemaTest :
                     val street = Address::street { streetSchema }
                     val postalCode =
                         Address::postalCode choose { address ->
-                            val base = Kova.string()
                             when (address.country) {
-                                "US" -> base.length(8)
-                                else -> base.length(5)
+                                "US" -> Kova.string().length(8)
+                                else -> Kova.string().length(5)
                             }
                         }
                 }
@@ -317,8 +316,8 @@ class ObjectSchemaTest :
         context("prop - nullable") {
             val streetSchema =
                 object : ObjectSchema<Street>() {
-                    val id = Street::id { Kova.int().min(1) }
-                    val name = Street::name { Kova.string().min(3).max(5) }
+                    val id = Street::id { it.min(1) }
+                    val name = Street::name { it.min(3).max(5) }
                 }
 
             val addressSchema =
@@ -328,15 +327,15 @@ class ObjectSchemaTest :
 
             val personSchema =
                 object : ObjectSchema<Person>() {
-                    val firstName = Person::firstName { Kova.string().asNullable() }
-                    val lastName = Person::lastName { Kova.nullable() }
+                    val firstName = Person::firstName { it }
+                    val lastName = Person::lastName { it }
                     val address = Person::address { addressSchema.asNullable() }
                 }
 
             val personSchema2 =
                 object : ObjectSchema<Person>() {
-                    val firstName = Person::firstName { Kova.nullable<String>().notNull() }
-                    val lastName = Person::lastName { Kova.nullable<String>().notNull() }
+                    val firstName = Person::firstName { it.notNull() }
+                    val lastName = Person::lastName { it.notNull() }
                     val address = Person::address { addressSchema.asNullable() }
                 }
 
@@ -379,7 +378,7 @@ class ObjectSchemaTest :
 
             val nodeSchema =
                 object : ObjectSchema<Node>() {
-                    val children = Node::children { Kova.list<Node>().max(3).onEach(this) }
+                    val children = Node::children { it.max(3).onEach(this) }
                 }
 
             test("success") {
@@ -415,8 +414,8 @@ class ObjectSchemaTest :
 
             val nodeSchema =
                 object : ObjectSchema<NodeWithValue>() {
-                    val value = NodeWithValue::value { Kova.int().min(0).max(100) }
-                    val next = NodeWithValue::next { Kova.nullable<NodeWithValue>().and(this) }
+                    val value = NodeWithValue::value { it.min(0).max(100) }
+                    val next = NodeWithValue::next { it.and(this) }
                 }
 
             test("circular reference detected - validation succeeds without error") {

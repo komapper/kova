@@ -1,7 +1,5 @@
 package org.komapper.extension.validator
 
-import org.komapper.extension.validator.ValidationResult.Success
-
 /**
  * Type alias for validators that accept nullable input and produce nullable output.
  *
@@ -19,29 +17,6 @@ import org.komapper.extension.validator.ValidationResult.Success
  * @param S The non-null output type
  */
 typealias NullableValidator<T, S> = Validator<T?, S?>
-
-/**
- * Converts a non-nullable validator to a nullable validator.
- *
- * The resulting validator accepts null values and passes them through unchanged.
- * Non-null values are validated using the original validator.
- *
- * Example:
- * ```kotlin
- * val nonNullValidator = Kova.string().min(3).max(10)
- * val nullableValidator = nonNullValidator.asNullable()
- *
- * nullableValidator.validate(null)    // Success: null
- * nullableValidator.validate("hello") // Success: "hello"
- * nullableValidator.validate("ab")    // Failure: too short
- * ```
- *
- * @return A new nullable validator that accepts null input
- */
-fun <T : Any, S : Any> Validator<T, S>.asNullable(): NullableValidator<T, S> =
-    Validator { input, context ->
-        if (input == null) Success(null, context) else this.execute(input, context)
-    }
 
 /**
  * Adds a custom constraint to this nullable validator.

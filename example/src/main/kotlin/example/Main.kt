@@ -26,8 +26,8 @@ data class Person(
 )
 
 object UserSchema : ObjectSchema<User>() {
-    private val nameV = User::name { Kova.string().min(1).notBlank() }
-    private val ageV = User::age { Kova.int().min(0).max(120) }
+    private val nameV = User::name { it.min(1).notBlank() }
+    private val ageV = User::age { it.min(0).max(120) }
 
     fun bind(
         name: String,
@@ -40,7 +40,7 @@ object UserSchema : ObjectSchema<User>() {
 }
 
 object AgeSchema : ObjectSchema<Age>() {
-    private val valueV = Age::value { Kova.int().min(0).max(120) }
+    private val valueV = Age::value { it.min(0).max(120) }
 
     fun bind(age: String) =
         factory {
@@ -55,7 +55,7 @@ object AgeSchema : ObjectSchema<Age>() {
 }
 
 object PersonSchema : ObjectSchema<Person>() {
-    private val nameV = Person::name { Kova.string().min(1).notBlank() }
+    private val nameV = Person::name { it.min(1).notBlank() }
     private val ageV = Person::age { AgeSchema }
 
     fun bind(

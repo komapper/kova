@@ -397,3 +397,69 @@ fun <IN, OUT, NEW> Validator<IN, OUT>.then(after: Validator<OUT, NEW>): Validato
  */
 fun <IN, OUT, NEW> Validator<IN, OUT>.then(block: (Validator<OUT, OUT>) -> Validator<OUT, NEW>): Validator<IN, NEW> =
     then(block(Validator.success()))
+
+/**
+ * Converts a non-nullable validator to a nullable validator.
+ *
+ * The resulting validator accepts null values and passes them through unchanged.
+ * Non-null values are validated using the original validator.
+ *
+ * Example:
+ * ```kotlin
+ * val nonNullValidator = Kova.string().min(3).max(10)
+ * val nullableValidator = nonNullValidator.asNullable()
+ *
+ * nullableValidator.validate(null)    // Success: null
+ * nullableValidator.validate("hello") // Success: "hello"
+ * nullableValidator.validate("ab")    // Failure: too short
+ * ```
+ *
+ * @return A new nullable validator that accepts null input
+ */
+fun <T : Any, S : Any> Validator<T, S>.asNullable(): NullableValidator<T, S> =
+    Validator { input, context ->
+        if (input == null) Success(null, context) else this.execute(input, context)
+    }
+
+/**
+ * Converts a non-nullable validator to a nullable validator with a default value.
+ *
+ * When the input is null, the validator returns the provided default value.
+ * This ensures the output is always non-null.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.string().min(3).asNullable("default")
+ * validator.validate(null)    // Success: "default"
+ * validator.validate("hello") // Success: "hello"
+ * validator.validate("ab")    // Failure: too short
+ * ```
+ *
+ * @param defaultValue The value to use when input is null
+ * @return A new validator that accepts null input but produces non-nullable output
+ */
+fun <T : Any, S : Any> Validator<T, S>.asNullable(defaultValue: S): WithDefaultNullableValidator<T, S> = asNullable { defaultValue }
+
+/**
+ * Converts a non-nullable validator to a nullable validator with a lazily-evaluated default value.
+ *
+ * When the input is null, the provider function is called to generate the default value.
+ * This is useful when the default value is expensive to compute or needs to be fresh each time.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.string().asNullable { UUID.randomUUID().toString() }
+ * validator.validate(null)    // Success: newly generated UUID
+ * validator.validate("hello") // Success: "hello"
+ * ```
+ *
+ * @param withDefault Function that generates the default value when input is null
+ * @return A new validator that accepts null input but produces non-nullable output
+ */
+fun <T : Any, S : Any> Validator<T, S>.asNullable(withDefault: () -> S): WithDefaultNullableValidator<T, S> {
+    val validator =
+        Validator<T?, S> { input, context ->
+            if (input == null) Success(withDefault(), context) else execute(input, context)
+        }
+    return WithDefaultNullableValidator(validator, withDefault)
+}

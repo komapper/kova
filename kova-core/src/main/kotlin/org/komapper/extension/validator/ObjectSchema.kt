@@ -174,8 +174,8 @@ open class ObjectSchema<T : Any> private constructor(
      * @param block Lambda that creates the validator for this property
      * @return The validator created by the block
      */
-    operator fun <V, VALIDATOR : Validator<V, V>> KProperty1<T, V>.invoke(block: () -> VALIDATOR): VALIDATOR {
-        val validator = block()
+    operator fun <V, VALIDATOR : Validator<V, V>> KProperty1<T, V>.invoke(block: (Validator<V, V>) -> VALIDATOR): VALIDATOR {
+        val validator = block(Validator.success())
         addRule(this) { _ -> validator }
         return validator
     }

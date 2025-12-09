@@ -157,3 +157,8 @@ fun <T> IdentityValidator<T>.onlyIf(condition: (T) -> Boolean) =
             Success(input, context)
         }
     }
+
+fun <T : Any> IdentityValidator<T>.asNullable(): NullableValidator<T, T> =
+    Validator { input, context ->
+        if (input == null) Success(null, context) else this.execute(input, context)
+    }
