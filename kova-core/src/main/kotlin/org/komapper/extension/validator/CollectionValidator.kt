@@ -112,7 +112,7 @@ fun <C : Collection<*>> CollectionValidator<C>.length(
 fun <E, C : Collection<E>> CollectionValidator<C>.onEach(validator: Validator<E, *>) =
     constrain("kova.collection.onEach") { constraintContext ->
         val validationContext = constraintContext.validationContext
-        val failures = mutableListOf<ValidationResult.Failure>()
+        val failures = mutableListOf<ValidationResult.Failure<*>>()
         for ((i, element) in constraintContext.input.withIndex()) {
             val path = "[$i]<collection element>"
             val result = validator.execute(element, validationContext.appendPath(path))

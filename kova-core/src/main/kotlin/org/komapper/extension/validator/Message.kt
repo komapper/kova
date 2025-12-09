@@ -128,7 +128,7 @@ sealed interface Message {
     data class Collection(
         /** The message context containing the constraint ID and validation state for the collection constraint */
         override val context: MessageContext<*>,
-        val elements: List<ValidationResult.Failure>,
+        val elements: List<ValidationResult.Failure<*>>,
     ) : Message {
         override val text: String get() = Resource(context).text
         override val constraintId: String
@@ -167,8 +167,8 @@ sealed interface Message {
     data class Or(
         /** The message context containing the constraint ID (typically "kova.or") and validation state */
         override val context: MessageContext<*>,
-        val first: ValidationResult.Failure,
-        val second: ValidationResult.Failure,
+        val first: ValidationResult.Failure<*>,
+        val second: ValidationResult.Failure<*>,
     ) : Message {
         override val text: String get() = Resource(context).text
         override val constraintId: String

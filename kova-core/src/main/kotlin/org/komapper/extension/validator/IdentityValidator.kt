@@ -145,7 +145,13 @@ fun <T> IdentityValidator<T>.chain(next: IdentityValidator<T>): IdentityValidato
                 if (context.failFast) {
                     result
                 } else {
-                    result + next.execute(input, context)
+                    when (val v = result.value) {
+                        is Input.Unknown -> {
+                            val value = v.value as? T
+                            if (value != null) result + next.execute(value, context) else result
+                        }
+                        is Input.Some -> result + next.execute(v.value, context)
+                    }
                 }
             }
         }

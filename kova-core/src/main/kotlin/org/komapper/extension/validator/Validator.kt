@@ -85,7 +85,7 @@ fun <IN, OUT> Validator<IN, OUT>.validate(
 ): OUT =
     when (val result = execute(input, ValidationContext(config = config))) {
         is Success<OUT> -> result.value
-        is Failure -> throw ValidationException(result.messages)
+        is Failure<*> -> throw ValidationException(result.messages)
     }
 
 /**
@@ -162,7 +162,7 @@ infix fun <IN, OUT> Validator<IN, OUT>.or(other: Validator<IN, OUT>): Validator<
                     is Failure -> {
                         val constraintContext = context.createConstraintContext(input, "kova.or")
                         val messageContext = constraintContext.createMessageContext(listOf(selfResult.messages, otherResult.messages))
-                        Failure(listOf(Message.Or(messageContext, selfResult, otherResult)))
+                        Failure(otherResult.value, listOf(Message.Or(messageContext, selfResult, otherResult)))
                     }
                 }
             }
@@ -185,12 +185,32 @@ infix fun <IN, OUT> Validator<IN, OUT>.or(other: Validator<IN, OUT>): Validator<
  * @param transform Function to transform the validated value
  * @return A new validator with the transformed output type
  */
-fun <IN, OUT, NEW> Validator<IN, OUT>.map(transform: (OUT) -> NEW): Validator<IN, NEW> {
+inline fun <reified IN, reified OUT, reified NEW> Validator<IN, OUT>.map(noinline transform: (OUT) -> NEW): Validator<IN, NEW> {
     val self = this
+    val outClass = OUT::class
+    val newClass = NEW::class
     return Validator { input, context ->
         when (val result = self.execute(input, context)) {
             is Success -> tryTransform(result.value, result.context, transform)
-            is Failure -> result
+            is Failure -> {
+                // TODO
+                val failureInput =
+                    when (val v = result.value) {
+                        is Input.Unknown -> Input.Unknown(v.value)
+                        is Input.Some -> {
+                            val value = v.value
+                            if (outClass == newClass && outClass.isInstance(value)) {
+                                when (val r = tryTransform(value, context, transform)) {
+                                    is Success -> Input.Some(r.value)
+                                    is Failure -> Input.Unknown(value)
+                                }
+                            } else {
+                                Input.Unknown(value)
+                            }
+                        }
+                    }
+                Failure(failureInput, result.messages)
+            }
         }
     }
 }
@@ -256,12 +276,19 @@ fun <IN, OUT, NEW> Validator<IN, OUT>.then(after: Validator<OUT, NEW>): Validato
     return Validator { input, context ->
         when (val result = before.execute(input, context)) {
             is Success -> after.execute(result.value, result.context)
-            is Failure -> result
+            is Failure -> {
+                val value =
+                    when (val v = result.value) {
+                        is Input.Unknown -> Input.Unknown(v.value)
+                        is Input.Some -> Input.Unknown(v.value)
+                    }
+                Failure(value, result.messages)
+            }
         }
     }
 }
 
-internal fun <T, R> tryTransform(
+fun <T, R> tryTransform(
     input: T,
     context: ValidationContext,
     transform: (T) -> R,
@@ -278,6 +305,6 @@ internal fun <T, R> tryTransform(
         val constraintContext = context.createConstraintContext(input, "kova.transform")
         val messageContext = constraintContext.createMessageContext(emptyList())
         val message = Message.Text(messageContext, content.toString())
-        Failure(listOf(message))
+        Failure(Input.Unknown(input), listOf(message))
     }
 }

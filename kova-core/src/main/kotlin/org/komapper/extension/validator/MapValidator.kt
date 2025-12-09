@@ -179,7 +179,7 @@ private fun <K, V, T> ConstraintScope<Map<K, V>>.validateOnEach(
     validate: (Map.Entry<K, V>, ValidationContext) -> ValidationResult<T>,
 ): ConstraintResult {
     val validationContext = context.validationContext
-    val failures = mutableListOf<ValidationResult.Failure>()
+    val failures = mutableListOf<ValidationResult.Failure<*>>()
     for (entry in context.input.entries) {
         val result = validate(entry, validationContext)
         if (result.isFailure()) {
