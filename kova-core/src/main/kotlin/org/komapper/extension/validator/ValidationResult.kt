@@ -39,9 +39,10 @@ sealed interface ValidationResult<out T> {
      *
      * @property messages List of error messages describing what went wrong
      */
-    data class Failure(
+    data class Failure<T>(
+        val value: Input<T>,
         val messages: List<Message>,
-    ) : ValidationResult<Nothing>
+    ) : ValidationResult<T>
 }
 
 /**
@@ -58,8 +59,8 @@ operator fun <T> ValidationResult<T>.plus(other: ValidationResult<T>): Validatio
         is Success -> other
         is Failure ->
             when (other) {
-                is Success -> this
-                is Failure -> Failure(this.messages + other.messages)
+                is Success -> Failure(value = Input.Some(other.value), messages = this.messages)
+                is Failure -> Failure<T>(other.value, messages = this.messages + other.messages) // TODO
             }
     }
 
@@ -109,4 +110,14 @@ fun <T> ValidationResult<T>.isFailure(): Boolean {
         returns(false) implies (this@isFailure is ValidationResult.Success)
     }
     return this is ValidationResult.Failure
+}
+
+sealed interface Input<out T> {
+    data class Unknown(
+        val value: Any?,
+    ) : Input<Nothing>
+
+    data class Some<T>(
+        val value: T,
+    ) : Input<T>
 }

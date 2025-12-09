@@ -29,6 +29,7 @@ interface WithDefaultNullableValidator<T : Any, S : Any> : Validator<T?, S> {
     infix fun or(other: Validator<T, S>): WithDefaultNullableValidator<T, S>
 }
 
+@PublishedApi
 internal fun <T : Any, S : Any> WithDefaultNullableValidator(
     validator: Validator<T?, S>,
     provide: () -> S,

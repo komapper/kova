@@ -117,7 +117,7 @@ fun <T : Any, S : Any> NullableValidator<T, S>.notNull(message: MessageProvider 
  *
  * @return A validator that rejects null and produces non-nullable output
  */
-fun <T : Any, S : Any> NullableValidator<T, S>.toNonNullable(): Validator<T?, S> = notNull().map { it!! }
+inline fun <reified T : Any, reified S : Any> NullableValidator<T, S>.toNonNullable(): Validator<T?, S> = notNull().map { it!! }
 
 /**
  * Provides a default value for null inputs.
@@ -136,7 +136,7 @@ fun <T : Any, S : Any> NullableValidator<T, S>.toNonNullable(): Validator<T?, S>
  * @param defaultValue The value to use when input is null
  * @return A new validator with non-nullable output that uses the default for null inputs
  */
-fun <T : Any, S : Any> NullableValidator<T, S>.withDefault(defaultValue: S): WithDefaultNullableValidator<T, S> =
+inline fun <reified T : Any, reified S : Any> NullableValidator<T, S>.withDefault(defaultValue: S): WithDefaultNullableValidator<T, S> =
     withDefault { defaultValue }
 
 /**
@@ -157,8 +157,9 @@ fun <T : Any, S : Any> NullableValidator<T, S>.withDefault(defaultValue: S): Wit
  * @param provide Function that generates the default value
  * @return A new validator with non-nullable output that uses the provided default for null inputs
  */
-fun <T : Any, S : Any> NullableValidator<T, S>.withDefault(provide: () -> S): WithDefaultNullableValidator<T, S> =
-    WithDefaultNullableValidator(map { it ?: provide() }, provide)
+inline fun <reified T : Any, reified S : Any> NullableValidator<T, S>.withDefault(
+    noinline provide: () -> S,
+): WithDefaultNullableValidator<T, S> = WithDefaultNullableValidator(map { it ?: provide() }, provide)
 
 /**
  * Operator overload for [and]. Combines this nullable validator with a non-nullable validator.

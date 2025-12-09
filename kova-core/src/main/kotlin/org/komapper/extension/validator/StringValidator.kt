@@ -512,7 +512,7 @@ fun StringValidator.trim() = map { it.trim() }
  *
  * @return A new validator that transforms to uppercase
  */
-fun StringValidator.toUpperCase() = map { it.uppercase() }
+fun StringValidator.toUpperCase() = map { it.uppercase() } // TODO rename
 
 /**
  * Transforms the string to lowercase.
@@ -525,7 +525,7 @@ fun StringValidator.toUpperCase() = map { it.uppercase() }
  *
  * @return A new validator that transforms to lowercase
  */
-fun StringValidator.toLowerCase() = map { it.lowercase() }
+fun StringValidator.toLowerCase() = map { it.lowercase() } // TODO rename
 
 /**
  * Validates that the string can be parsed as an Int and converts it.

@@ -23,7 +23,7 @@ class MainTest :
                 val user = User("", -1)
                 val result = UserSchema.tryValidate(user)
 
-                result.shouldBeInstanceOf<ValidationResult.Failure>()
+                result.shouldBeInstanceOf<ValidationResult.Failure<*>>()
                 val messages = result.messages.map { it.text }
                 messages.size shouldBe 3
                 messages.any { it.contains("at least 1 characters") } shouldBe true
@@ -35,7 +35,7 @@ class MainTest :
                 val user = User("Bob", 150)
                 val result = UserSchema.tryValidate(user)
 
-                result.shouldBeInstanceOf<ValidationResult.Failure>()
+                result.shouldBeInstanceOf<ValidationResult.Failure<*>>()
                 val messages = result.messages.map { it.text }
                 messages.any { it.contains("less than or equal to 120") } shouldBe true
             }
@@ -52,7 +52,7 @@ class MainTest :
             test("failure - invalid inputs") {
                 val result = UserSchema.bind("", -1).tryCreate()
 
-                result.shouldBeInstanceOf<ValidationResult.Failure>()
+                result.shouldBeInstanceOf<ValidationResult.Failure<*>>()
                 val messages = result.messages.map { it.text }
                 messages.size shouldBe 3
                 messages.any { it.contains("at least 1 characters") } shouldBe true
@@ -72,7 +72,7 @@ class MainTest :
             test("failure - non-numeric string") {
                 val result = AgeSchema.bind("not a number").tryCreate()
 
-                result.shouldBeInstanceOf<ValidationResult.Failure>()
+                result.shouldBeInstanceOf<ValidationResult.Failure<*>>()
                 val messages = result.messages.map { it.text }
                 messages.any { it.contains("must be a valid integer") } shouldBe true
             }
@@ -80,7 +80,7 @@ class MainTest :
             test("failure - age out of range") {
                 val result = AgeSchema.bind("150").tryCreate()
 
-                result.shouldBeInstanceOf<ValidationResult.Failure>()
+                result.shouldBeInstanceOf<ValidationResult.Failure<*>>()
                 val messages = result.messages.map { it.text }
                 messages.any { it.contains("less than or equal to 120") } shouldBe true
             }
@@ -97,7 +97,7 @@ class MainTest :
             test("failure - invalid name and non-numeric age") {
                 val result = PersonSchema.bind("", "not number").tryCreate()
 
-                result.shouldBeInstanceOf<ValidationResult.Failure>()
+                result.shouldBeInstanceOf<ValidationResult.Failure<*>>()
                 val messages = result.messages.map { it.text }
                 messages.size shouldBe 3
                 messages.any { it.contains("at least 1 characters") } shouldBe true
@@ -108,7 +108,7 @@ class MainTest :
             test("failure - blank name") {
                 val result = PersonSchema.bind("   ", "25").tryCreate()
 
-                result.shouldBeInstanceOf<ValidationResult.Failure>()
+                result.shouldBeInstanceOf<ValidationResult.Failure<*>>()
                 val messages = result.messages.map { it.text }
                 messages.any { it.contains("must not be blank") } shouldBe true
             }

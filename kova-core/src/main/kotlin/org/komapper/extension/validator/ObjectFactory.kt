@@ -20,12 +20,12 @@ private fun <T : Any> createFailure(
 ): ValidationResult<T> {
     val result =
         (listOf(arg) + args)
-            .filterIsInstance<ValidationResult.Failure>()
+            .filterIsInstance<ValidationResult.Failure<*>>()
             .map { it as ValidationResult<Any?> }
             .reduce { a, b -> a + b }
     return when (result) {
         is ValidationResult.Success -> error("This should never happen.")
-        is ValidationResult.Failure -> result
+        is ValidationResult.Failure -> ValidationResult.Failure(Input.Unknown(null), result.messages)
     }
 }
 
