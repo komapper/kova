@@ -136,7 +136,7 @@ class CollectionValidatorTest :
                 object : ObjectSchema<ListHolder>() {
                     val list =
                         ListHolder::list {
-                            Kova.list<String>().onEach(Kova.string().length(3))
+                            it.onEach(Kova.string().length(3))
                         }
                 }
 

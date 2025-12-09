@@ -78,18 +78,16 @@ private fun <T> unwrapValidationResult(result: ValidationResult<T>): T =
  * data class Person(val name: String, val age: Int)
  *
  * object PersonSchema : ObjectSchema<Person>() {
- *     private val name = Person::name { Kova.string().min(1).max(50) }
- *     private val age = Person::age { Kova.int().min(0).max(120) }
+ *     private val nameV = Person::name { it.min(1).max(50) }
+ *     private val ageV = Person::age { it.min(0).max(120) }
  *
- *     fun build(nameInput: String, ageInput: Int) =
- *         arguments(
- *             arg(nameInput, name),
- *             arg(ageInput, age)
- *         ).build(::Person)
+ *     fun bind(name: String, age: Int) = factory {
+ *         create(::Person, nameV.bind(name), ageV.bind(age))
+ *     }
  * }
  *
  * // Usage
- * val result = PersonSchema.build("Alice", 30).tryCreate()
+ * val result = PersonSchema.bind("Alice", 30).tryCreate()
  * when (result) {
  *     is ValidationResult.Success -> println("Created: ${result.value}")
  *     is ValidationResult.Failure -> println("Errors: ${result.messages}")
@@ -116,7 +114,7 @@ fun interface ObjectFactory<T> {
  *
  * Example:
  * ```kotlin
- * val factory = PersonSchema.build("Alice", 30)
+ * val factory = PersonSchema.bind("Alice", 30)
  * val result = factory.tryCreate()
  * when (result) {
  *     is ValidationResult.Success -> println("Created: ${result.value}")
@@ -139,7 +137,7 @@ fun <T> ObjectFactory<T>.tryCreate(config: ValidationConfig = ValidationConfig()
  * Example:
  * ```kotlin
  * try {
- *     val person = PersonSchema.build("Alice", 30).create()
+ *     val person = PersonSchema.bind("Alice", 30).create()
  *     println("Created: $person")
  * } catch (e: ValidationException) {
  *     println("Validation failed: ${e.messages}")

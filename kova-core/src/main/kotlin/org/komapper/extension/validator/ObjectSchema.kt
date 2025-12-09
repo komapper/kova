@@ -13,8 +13,8 @@ import kotlin.reflect.KProperty1
  * data class User(val name: String, val age: Int)
  *
  * object UserSchema : ObjectSchema<User>() {
- *     val name = User::name { Kova.string().min(1).max(50) }
- *     val age = User::age { Kova.int().min(0).max(120) }
+ *     val name = User::name { it.min(1).max(50) }
+ *     val age = User::age { it.min(0).max(120) }
  * }
  *
  * // Validate an object
@@ -30,16 +30,16 @@ import kotlin.reflect.KProperty1
  *         satisfies(it.input.startDate <= it.input.endDate, "Start date must be before end date")
  *     }
  * }) {
- *     val startDate = Period::startDate { Kova.localDate() }
- *     val endDate = Period::endDate { Kova.localDate() }
+ *     val startDate = Period::startDate { it }
+ *     val endDate = Period::endDate { it }
  * }
  * ```
  *
  * Object construction with validation:
  * ```kotlin
  * object PersonSchema : ObjectSchema<Person>() {
- *     private val nameV = Person::name { Kova.string().min(1) }
- *     private val ageV = Person::age { Kova.int().min(0) }
+ *     private val nameV = Person::name { it.min(1) }
+ *     private val ageV = Person::age { it.min(0) }
  *
  *     fun bind(name: String, age: Int) = factory {
  *         create(::Person, nameV.bind(name), ageV.bind(age))
@@ -160,22 +160,23 @@ open class ObjectSchema<T : Any> private constructor(
      * Defines a validation rule for a property.
      *
      * This operator function allows you to use the invoke syntax to define validators
-     * for object properties. The property must be defined as a member of the ObjectSchema
-     * subclass (not in the constructor lambda).
+     * for object properties. The lambda receives a base validator as a parameter (`it`),
+     * which can be used to build the validator chain.
      *
      * Example:
      * ```kotlin
      * object UserSchema : ObjectSchema<User>() {
-     *     val name = User::name { Kova.string().min(1).max(50) }
-     *     // The property 'name' gets the returned StringValidator
+     *     val name = User::name { it.min(1).max(50) }
+     *     // The lambda parameter 'it' is a base validator for the property type
+     *     // The property 'name' gets the returned validator
      * }
      * ```
      *
-     * @param block Lambda that creates the validator for this property
+     * @param block Lambda that receives a base validator and creates the validator for this property
      * @return The validator created by the block
      */
-    operator fun <V, VALIDATOR : Validator<V, V>> KProperty1<T, V>.invoke(block: () -> VALIDATOR): VALIDATOR {
-        val validator = block()
+    operator fun <V, VALIDATOR : Validator<V, V>> KProperty1<T, V>.invoke(block: (Validator<V, V>) -> VALIDATOR): VALIDATOR {
+        val validator = block(Validator.success())
         addRule(this) { _ -> validator }
         return validator
     }
@@ -184,27 +185,32 @@ open class ObjectSchema<T : Any> private constructor(
      * Defines a conditional validation rule for a property based on the object's state.
      *
      * This allows you to choose different validators based on the value of other properties.
+     * The lambda receives the object instance and a base validator as parameters, enabling
+     * you to build different validator chains based on the object's state.
      *
      * Example:
      * ```kotlin
-     * object UserSchema : ObjectSchema<User>() {
-     *     val type = User::type { Kova.string() }
-     *     val identifier = User::identifier choose { user ->
-     *         when (user.type) {
-     *             "email" -> Kova.string().email()
-     *             "phone" -> Kova.string().matches(phoneRegex)
-     *             else -> Kova.string().min(1)
+     * data class Address(val country: String, val postalCode: String)
+     *
+     * object AddressSchema : ObjectSchema<Address>() {
+     *     val country = Address::country { it }
+     *     val postalCode = Address::postalCode choose { address, v ->
+     *         when (address.country) {
+     *             "US" -> v.length(5)
+     *             "CA" -> v.length(6)
+     *             else -> v.min(1)
      *         }
      *     }
      * }
      * ```
      *
-     * @param block Lambda that chooses a validator based on the object
+     * @param block Lambda that receives the object and a base validator, and chooses a validator
      * @return The block function for further use
      */
-    infix fun <V, VALIDATOR : IdentityValidator<V>> KProperty1<T, V>.choose(block: (T) -> VALIDATOR): (T) -> VALIDATOR {
-        addRule(this, block)
-        return block
+    infix fun <V, VALIDATOR : IdentityValidator<V>> KProperty1<T, V>.choose(block: (T, Validator<V, V>) -> VALIDATOR): (T) -> VALIDATOR {
+        val choose = { receiver: T -> block(receiver, Validator.success()) }
+        addRule(this, choose)
+        return choose
     }
 
     private fun <T, V> addRule(
@@ -226,8 +232,8 @@ open class ObjectSchema<T : Any> private constructor(
      * Example:
      * ```kotlin
      * object PersonSchema : ObjectSchema<Person>() {
-     *     private val nameV = Person::name { Kova.string().min(1) }
-     *     private val ageV = Person::age { Kova.int().min(0) }
+     *     private val nameV = Person::name { it.min(1) }
+     *     private val ageV = Person::age { it.min(0) }
      *
      *     fun bind(name: String, age: Int) = factory {
      *         create(::Person, nameV.bind(name), ageV.bind(age))
@@ -264,8 +270,8 @@ internal data class Rule(
  *         satisfies(it.input.startDate <= it.input.endDate, "Start date must be before or equal to end date")
  *     }
  * }) {
- *     val startDate = Period::startDate { Kova.localDate() }
- *     val endDate = Period::endDate { Kova.localDate() }
+ *     val startDate = Period::startDate { it }
+ *     val endDate = Period::endDate { it }
  * }
  * ```
  *
@@ -303,16 +309,16 @@ class ObjectSchemaScope<T : Any> internal constructor(
  * data class Person(val name: String, val age: Int)
  *
  * object PersonSchema : ObjectSchema<Person>() {
- *     private val nameV = Person::name { Kova.string().min(1).max(50) }
- *     private val ageV = Person::age { Kova.int().min(0).max(120) }
+ *     private val nameV = Person::name { it.min(1).max(50) }
+ *     private val ageV = Person::age { it.min(0).max(120) }
  *
- *     fun build(name: String, age: Int) = factory {
+ *     fun bind(name: String, age: Int) = factory {
  *         create(::Person, nameV.bind(name), ageV.bind(age))
  *     }
  * }
  *
  * // Usage
- * val result = PersonSchema.build("Alice", 30).tryCreate()
+ * val result = PersonSchema.bind("Alice", 30).tryCreate()
  * ```
  *
  * @param T The type of object being constructed and validated
@@ -330,8 +336,8 @@ class ObjectSchemaFactoryScope<T : Any>(
      * Example:
      * ```kotlin
      * object PersonSchema : ObjectSchema<Person>() {
-     *     private val nameV = Person::name { Kova.string().min(1) }
-     *     private val ageV = Person::age { Kova.int().min(0) }
+     *     private val nameV = Person::name { it.min(1) }
+     *     private val ageV = Person::age { it.min(0) }
      *
      *     fun bind(name: String, age: Int) = factory {
      *         create(::Person, nameV.bind(name), ageV.bind(age))
@@ -358,7 +364,7 @@ class ObjectSchemaFactoryScope<T : Any>(
      * Example:
      * ```kotlin
      * object PersonSchema : ObjectSchema<Person>() {
-     *     private val nameV = Person::name { Kova.string().min(1) }
+     *     private val nameV = Person::name { it.min(1) }
      *
      *     fun bind(name: String) = factory {
      *         create(::Person, nameV.bind(name))

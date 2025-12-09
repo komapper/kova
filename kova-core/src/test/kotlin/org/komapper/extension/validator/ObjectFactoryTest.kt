@@ -30,8 +30,8 @@ class ObjectFactoryTest :
 
             val userSchema =
                 object : ObjectSchema<User>() {
-                    private val nameV = User::name { Kova.nullable() }
-                    private val ageV = User::age { Kova.int().asNullable() }
+                    private val nameV = User::name { it }
+                    private val ageV = User::age { it }
 
                     fun bind(
                         name: String?,
@@ -65,7 +65,7 @@ class ObjectFactoryTest :
 
             val userSchema =
                 object : ObjectSchema<User>() {
-                    private val idV = User::id { Kova.int().min(1) }
+                    private val idV = User::id { it.min(1) }
 
                     fun bind(id: Int) =
                         factory {
@@ -121,8 +121,8 @@ class ObjectFactoryTest :
 
             val userSchema =
                 object : ObjectSchema<User>() {
-                    private val idV = User::id { Kova.int().min(1) }
-                    private val nameV = User::name { Kova.string().min(1).max(10) }
+                    private val idV = User::id { it.min(1) }
+                    private val nameV = User::name { it.min(1).max(10) }
 
                     fun bind(
                         id: Int,
@@ -198,7 +198,7 @@ class ObjectFactoryTest :
 
             val ageSchema =
                 object : ObjectSchema<Age>() {
-                    private val valueV = Age::value { Kova.int().min(0) }
+                    private val valueV = Age::value { it.min(0) }
 
                     fun bind(age: Int) =
                         factory {
@@ -209,7 +209,7 @@ class ObjectFactoryTest :
 
             val nameSchema =
                 object : ObjectSchema<Name>() {
-                    private val valueV = Name::value { Kova.string().notBlank() }
+                    private val valueV = Name::value { it.notBlank() }
 
                     fun bind(name: String) =
                         factory {
