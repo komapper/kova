@@ -12,7 +12,7 @@ class StringValidatorTest :
                     .string()
                     .trim()
                     .min(3)
-                    .toUpperCase()
+                    .toUppercase()
                     .max(3)
 
             test("failure") {
@@ -64,7 +64,7 @@ class StringValidatorTest :
         }
 
         context("or") {
-            val validator = (Kova.string().isInt() or Kova.literal("zero")).toUpperCase()
+            val validator = (Kova.string().isInt() or Kova.literal("zero")).toUppercase()
 
             test("success - int") {
                 val result = validator.tryValidate("1")
@@ -93,7 +93,7 @@ class StringValidatorTest :
                     .string()
                     .trim()
                     .chain(length)
-                    .toUpperCase()
+                    .toUppercase()
 
             test("success") {
                 val result = validator.tryValidate(" abc ")
@@ -801,7 +801,7 @@ class StringValidatorTest :
         }
 
         context("toUpperCase") {
-            val toUpperCase = Kova.string().toUpperCase()
+            val toUpperCase = Kova.string().toUppercase()
 
             test("success - lowercase to uppercase") {
                 val result = toUpperCase.tryValidate("hello")
@@ -835,7 +835,7 @@ class StringValidatorTest :
         }
 
         context("toUpperCase with constraints") {
-            val toUpperCaseMin3 = Kova.string().toUpperCase().min(3)
+            val toUpperCaseMin3 = Kova.string().toUppercase().min(3)
 
             test("success - transformed value meets constraint") {
                 val result = toUpperCaseMin3.tryValidate("hello")
@@ -850,7 +850,7 @@ class StringValidatorTest :
             }
 
             test("success - combining toUpperCase with startsWith") {
-                val toUpperCaseStartsWithH = Kova.string().toUpperCase().startsWith("H")
+                val toUpperCaseStartsWithH = Kova.string().toUppercase().startsWith("H")
                 val result = toUpperCaseStartsWithH.tryValidate("hello")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe "HELLO"
@@ -858,7 +858,7 @@ class StringValidatorTest :
         }
 
         context("toLowerCase") {
-            val toLowerCase = Kova.string().toLowerCase()
+            val toLowerCase = Kova.string().toLowercase()
 
             test("success - uppercase to lowercase") {
                 val result = toLowerCase.tryValidate("HELLO")
@@ -892,7 +892,7 @@ class StringValidatorTest :
         }
 
         context("toLowerCase with constraints") {
-            val toLowerCaseMin3 = Kova.string().toLowerCase().min(3)
+            val toLowerCaseMin3 = Kova.string().toLowercase().min(3)
 
             test("success - transformed value meets constraint") {
                 val result = toLowerCaseMin3.tryValidate("HELLO")
@@ -907,7 +907,7 @@ class StringValidatorTest :
             }
 
             test("success - combining toLowerCase with startsWith") {
-                val toLowerCaseStartsWithH = Kova.string().toLowerCase().startsWith("h")
+                val toLowerCaseStartsWithH = Kova.string().toLowercase().startsWith("h")
                 val result = toLowerCaseStartsWithH.tryValidate("HELLO")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe "hello"

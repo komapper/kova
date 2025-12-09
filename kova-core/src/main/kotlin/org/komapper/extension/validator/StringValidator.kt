@@ -506,26 +506,26 @@ fun StringValidator.trim() = map { it.trim() }
  *
  * Example:
  * ```kotlin
- * val validator = Kova.string().toUpperCase()
+ * val validator = Kova.string().toUppercase()
  * validator.validate("hello") // Success: "HELLO"
  * ```
  *
  * @return A new validator that transforms to uppercase
  */
-fun StringValidator.toUpperCase() = map { it.uppercase() } // TODO rename
+fun StringValidator.toUppercase() = map { it.uppercase() }
 
 /**
  * Transforms the string to lowercase.
  *
  * Example:
  * ```kotlin
- * val validator = Kova.string().toLowerCase()
+ * val validator = Kova.string().toLowercase()
  * validator.validate("HELLO") // Success: "hello"
  * ```
  *
  * @return A new validator that transforms to lowercase
  */
-fun StringValidator.toLowerCase() = map { it.lowercase() } // TODO rename
+fun StringValidator.toLowercase() = map { it.lowercase() }
 
 /**
  * Validates that the string can be parsed as an Int and converts it.

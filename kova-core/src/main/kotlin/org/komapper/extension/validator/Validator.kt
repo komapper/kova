@@ -241,7 +241,7 @@ inline fun <reified IN, reified OUT, reified NEW> Validator<IN, OUT>.map(noinlin
         when (val result = self.execute(input, context)) {
             is Success -> tryTransform(result.value, result.context, transform)
             is Failure -> {
-                // TODO
+                // TODO refactoring
                 val failureInput =
                     when (val v = result.value) {
                         is Input.Unknown -> Input.Unknown(v.value)
