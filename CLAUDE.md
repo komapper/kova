@@ -80,7 +80,13 @@ val validator = Kova.localDate().past() + Kova.localDate().min(LocalDate.of(2020
 ## Important Implementation Details
 
 ### Immutability & Composition
-All validators are immutable. Composition operators (`+`, `and`, `or`, `map`, `then`) return new instances. The `chain` method is available on `IdentityValidator<T>` for chaining validators with the same input/output type.
+All validators are immutable. Composition operators (`+`, `and`, `or`, `map`, `then`, `compose`) return new instances. The `chain` method is available on `IdentityValidator<T>` for chaining validators with the same input/output type.
+
+**Lambda-based composition**: Composition operators have lambda-based overloads that accept builder functions for more fluent API:
+- `and { validator }` - Combines validators with AND logic using a lambda
+- `or { validator }` - Combines validators with OR logic using a lambda
+- `then { validator }` - Chains validators (right-to-left composition) using a lambda
+- `compose { validator }` - Composes validators (left-to-right composition) using a lambda
 
 ### Circular Reference Detection
 - `ValidationContext.addRoot()` accepts object reference for tracking
@@ -99,6 +105,8 @@ Properties must be object properties (not in constructor lambda) since the `invo
 - `.withDefault { value }` sets lazy-evaluated default for null inputs on nullable validators
 - `.notNull()` rejects null values
 - `.isNull()` accepts only null values
+- `.isNullOr { validator }` convenience method: equivalent to `.isNull().or(validator.asNullable())`
+- `.notNullAnd { validator }` convenience method: equivalent to `.notNull().and(validator.asNullable())`
 
 ### Failure Structure
 - **ValidationResult.Failure**: Contains a list of `FailureDetail` objects
@@ -141,8 +149,9 @@ fun StringValidator.min(
 
 ## Key Files
 - `Kova.kt` - Main API entry point, factory methods returning `IdentityValidator<T>`
-- `Validator.kt` - Core interface and composition operators (`+`, `and`, `or`, `map`, `then`)
+- `Validator.kt` - Core interface and composition operators (`+`, `and`, `or`, `map`, `then`, `compose`) with lambda-based overloads
 - `IdentityValidator.kt` - Type alias for `Validator<T, T>`, provides `chain`, `constrain`, `onlyIf`, and `literal` extension functions
+- `NullableValidator.kt` - Type alias for `Validator<T?, S?>` with nullable-specific extensions (`isNull`, `notNull`, `isNullOr`, `notNullAnd`, `withDefault`, `asNullable`)
 - `ValidationResult.kt` - Result types (`Success`, `Failure`) and `FailureDetail` interface
 - `ValidationContext.kt` - State tracking with circular reference detection
 - `ValidationConfig.kt` - Centralized validation settings (failFast, locale)

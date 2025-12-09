@@ -2,9 +2,23 @@ package org.komapper.extension.validator
 
 import kotlin.reflect.KFunction
 
+/**
+ * Checks if validation should terminate early based on failFast setting.
+ *
+ * @param validationResult The validation result to check
+ * @return true if failFast is enabled and the result is a failure
+ */
 private fun <T> ValidationContext.shouldReturnEarly(validationResult: ValidationResult<T>): Boolean =
     failFast && validationResult.isFailure()
 
+/**
+ * Constructs an object and validates it with the provided validator.
+ *
+ * @param context The validation context
+ * @param validator The validator to apply to the constructed object
+ * @param block Lambda that constructs the object
+ * @return Validation result containing the validated object or failure details
+ */
 private fun <T> tryConstruct(
     context: ValidationContext,
     validator: IdentityValidator<T>,
@@ -14,6 +28,16 @@ private fun <T> tryConstruct(
     return validator.execute(instance, context)
 }
 
+/**
+ * Combines multiple validation results into a single failure result.
+ *
+ * Collects all failure messages from the provided validation results and combines them
+ * into a single failure result with unknown input.
+ *
+ * @param arg The first validation result
+ * @param args Additional validation results
+ * @return A combined failure result with all error messages
+ */
 private fun <T : Any> createFailure(
     arg: ValidationResult<*>,
     vararg args: ValidationResult<*>,
@@ -29,6 +53,13 @@ private fun <T : Any> createFailure(
     }
 }
 
+/**
+ * Extracts the value from a validation result or throws an exception on failure.
+ *
+ * @param result The validation result to unwrap
+ * @return The validated value
+ * @throws ValidationException if the result is a failure
+ */
 private fun <T> unwrapValidationResult(result: ValidationResult<T>): T =
     when (result) {
         is ValidationResult.Success -> result.value
@@ -124,10 +155,25 @@ fun <T> ObjectFactory<T>.create(config: ValidationConfig = ValidationConfig()): 
     return unwrapValidationResult(result)
 }
 
+/**
+ * Descriptor for a function, containing its name and parameter names.
+ *
+ * Used to provide meaningful error messages by including parameter names
+ * in validation paths when available through reflection.
+ *
+ * @property name The name of the function
+ * @property parameters Map of parameter indices to parameter names
+ */
 internal data class FunctionDesc(
     val name: String,
     private val parameters: Map<Int, String?>,
 ) {
+    /**
+     * Gets the parameter name at the specified index.
+     *
+     * @param index The parameter index
+     * @return The parameter name, or "paramN" if unavailable
+     */
     operator fun get(index: Int): String {
         if (index < 0 || parameters.size <= index) return "param$index"
         return parameters[index] ?: "param$index"
@@ -156,6 +202,17 @@ private fun introspectFunction(ctor: Any): FunctionDesc =
         FunctionDesc(ctor.toString(), emptyMap())
     }
 
+/**
+ * Creates an ObjectFactory for a constructor with 1 argument.
+ *
+ * Validates the argument using its ObjectFactory, then constructs and validates
+ * the resulting object using the provided validator.
+ *
+ * @param validator The validator for the final constructed object
+ * @param ctor The constructor function
+ * @param arg0 The ObjectFactory for the first argument
+ * @return An ObjectFactory that validates and constructs the object
+ */
 internal fun <T0, R> createObjectFactory(
     validator: IdentityValidator<R>,
     ctor: (T0) -> R,
@@ -178,6 +235,18 @@ internal fun <T0, R> createObjectFactory(
     }
 }
 
+/**
+ * Creates an ObjectFactory for a constructor with 2 arguments.
+ *
+ * Validates all arguments using their ObjectFactories, then constructs and validates
+ * the resulting object using the provided validator.
+ *
+ * @param validator The validator for the final constructed object
+ * @param ctor The constructor function
+ * @param arg0 The ObjectFactory for the first argument
+ * @param arg1 The ObjectFactory for the second argument
+ * @return An ObjectFactory that validates and constructs the object
+ */
 internal fun <T0, T1, R> createObjectFactory(
     validator: IdentityValidator<R>,
     ctor: (T0, T1) -> R,
@@ -205,6 +274,19 @@ internal fun <T0, T1, R> createObjectFactory(
     }
 }
 
+/**
+ * Creates an ObjectFactory for a constructor with 3 arguments.
+ *
+ * Validates all arguments using their ObjectFactories, then constructs and validates
+ * the resulting object using the provided validator.
+ *
+ * @param validator The validator for the final constructed object
+ * @param ctor The constructor function
+ * @param arg0 The ObjectFactory for the first argument
+ * @param arg1 The ObjectFactory for the second argument
+ * @param arg2 The ObjectFactory for the third argument
+ * @return An ObjectFactory that validates and constructs the object
+ */
 internal fun <T0, T1, T2, R> createObjectFactory(
     validator: IdentityValidator<R>,
     ctor: (T0, T1, T2) -> R,
@@ -237,6 +319,20 @@ internal fun <T0, T1, T2, R> createObjectFactory(
     }
 }
 
+/**
+ * Creates an ObjectFactory for a constructor with 4 arguments.
+ *
+ * Validates all arguments using their ObjectFactories, then constructs and validates
+ * the resulting object using the provided validator.
+ *
+ * @param validator The validator for the final constructed object
+ * @param ctor The constructor function
+ * @param arg0 The ObjectFactory for the first argument
+ * @param arg1 The ObjectFactory for the second argument
+ * @param arg2 The ObjectFactory for the third argument
+ * @param arg3 The ObjectFactory for the fourth argument
+ * @return An ObjectFactory that validates and constructs the object
+ */
 internal fun <T0, T1, T2, T3, R> createObjectFactory(
     validator: IdentityValidator<R>,
     ctor: (T0, T1, T2, T3) -> R,
@@ -274,6 +370,21 @@ internal fun <T0, T1, T2, T3, R> createObjectFactory(
     }
 }
 
+/**
+ * Creates an ObjectFactory for a constructor with 5 arguments.
+ *
+ * Validates all arguments using their ObjectFactories, then constructs and validates
+ * the resulting object using the provided validator.
+ *
+ * @param validator The validator for the final constructed object
+ * @param ctor The constructor function
+ * @param arg0 The ObjectFactory for the first argument
+ * @param arg1 The ObjectFactory for the second argument
+ * @param arg2 The ObjectFactory for the third argument
+ * @param arg3 The ObjectFactory for the fourth argument
+ * @param arg4 The ObjectFactory for the fifth argument
+ * @return An ObjectFactory that validates and constructs the object
+ */
 internal fun <T0, T1, T2, T3, T4, R> createObjectFactory(
     validator: IdentityValidator<R>,
     ctor: (T0, T1, T2, T3, T4) -> R,
@@ -316,6 +427,22 @@ internal fun <T0, T1, T2, T3, T4, R> createObjectFactory(
     }
 }
 
+/**
+ * Creates an ObjectFactory for a constructor with 6 arguments.
+ *
+ * Validates all arguments using their ObjectFactories, then constructs and validates
+ * the resulting object using the provided validator.
+ *
+ * @param validator The validator for the final constructed object
+ * @param ctor The constructor function
+ * @param arg0 The ObjectFactory for the first argument
+ * @param arg1 The ObjectFactory for the second argument
+ * @param arg2 The ObjectFactory for the third argument
+ * @param arg3 The ObjectFactory for the fourth argument
+ * @param arg4 The ObjectFactory for the fifth argument
+ * @param arg5 The ObjectFactory for the sixth argument
+ * @return An ObjectFactory that validates and constructs the object
+ */
 internal fun <T0, T1, T2, T3, T4, T5, R> createObjectFactory(
     validator: IdentityValidator<R>,
     ctor: (T0, T1, T2, T3, T4, T5) -> R,
@@ -369,6 +496,23 @@ internal fun <T0, T1, T2, T3, T4, T5, R> createObjectFactory(
     }
 }
 
+/**
+ * Creates an ObjectFactory for a constructor with 7 arguments.
+ *
+ * Validates all arguments using their ObjectFactories, then constructs and validates
+ * the resulting object using the provided validator.
+ *
+ * @param validator The validator for the final constructed object
+ * @param ctor The constructor function
+ * @param arg0 The ObjectFactory for the first argument
+ * @param arg1 The ObjectFactory for the second argument
+ * @param arg2 The ObjectFactory for the third argument
+ * @param arg3 The ObjectFactory for the fourth argument
+ * @param arg4 The ObjectFactory for the fifth argument
+ * @param arg5 The ObjectFactory for the sixth argument
+ * @param arg6 The ObjectFactory for the seventh argument
+ * @return An ObjectFactory that validates and constructs the object
+ */
 internal fun <T0, T1, T2, T3, T4, T5, T6, R> createObjectFactory(
     validator: IdentityValidator<R>,
     ctor: (T0, T1, T2, T3, T4, T5, T6) -> R,
@@ -436,6 +580,24 @@ internal fun <T0, T1, T2, T3, T4, T5, T6, R> createObjectFactory(
     }
 }
 
+/**
+ * Creates an ObjectFactory for a constructor with 8 arguments.
+ *
+ * Validates all arguments using their ObjectFactories, then constructs and validates
+ * the resulting object using the provided validator.
+ *
+ * @param validator The validator for the final constructed object
+ * @param ctor The constructor function
+ * @param arg0 The ObjectFactory for the first argument
+ * @param arg1 The ObjectFactory for the second argument
+ * @param arg2 The ObjectFactory for the third argument
+ * @param arg3 The ObjectFactory for the fourth argument
+ * @param arg4 The ObjectFactory for the fifth argument
+ * @param arg5 The ObjectFactory for the sixth argument
+ * @param arg6 The ObjectFactory for the seventh argument
+ * @param arg7 The ObjectFactory for the eighth argument
+ * @return An ObjectFactory that validates and constructs the object
+ */
 internal fun <T0, T1, T2, T3, T4, T5, T6, T7, R> createObjectFactory(
     validator: IdentityValidator<R>,
     ctor: (T0, T1, T2, T3, T4, T5, T6, T7) -> R,
@@ -510,6 +672,25 @@ internal fun <T0, T1, T2, T3, T4, T5, T6, T7, R> createObjectFactory(
     }
 }
 
+/**
+ * Creates an ObjectFactory for a constructor with 9 arguments.
+ *
+ * Validates all arguments using their ObjectFactories, then constructs and validates
+ * the resulting object using the provided validator.
+ *
+ * @param validator The validator for the final constructed object
+ * @param ctor The constructor function
+ * @param arg0 The ObjectFactory for the first argument
+ * @param arg1 The ObjectFactory for the second argument
+ * @param arg2 The ObjectFactory for the third argument
+ * @param arg3 The ObjectFactory for the fourth argument
+ * @param arg4 The ObjectFactory for the fifth argument
+ * @param arg5 The ObjectFactory for the sixth argument
+ * @param arg6 The ObjectFactory for the seventh argument
+ * @param arg7 The ObjectFactory for the eighth argument
+ * @param arg8 The ObjectFactory for the ninth argument
+ * @return An ObjectFactory that validates and constructs the object
+ */
 internal fun <T0, T1, T2, T3, T4, T5, T6, T7, T8, R> createObjectFactory(
     validator: IdentityValidator<R>,
     ctor: (T0, T1, T2, T3, T4, T5, T6, T7, T8) -> R,
@@ -591,6 +772,26 @@ internal fun <T0, T1, T2, T3, T4, T5, T6, T7, T8, R> createObjectFactory(
     }
 }
 
+/**
+ * Creates an ObjectFactory for a constructor with 10 arguments.
+ *
+ * Validates all arguments using their ObjectFactories, then constructs and validates
+ * the resulting object using the provided validator.
+ *
+ * @param validator The validator for the final constructed object
+ * @param ctor The constructor function
+ * @param arg0 The ObjectFactory for the first argument
+ * @param arg1 The ObjectFactory for the second argument
+ * @param arg2 The ObjectFactory for the third argument
+ * @param arg3 The ObjectFactory for the fourth argument
+ * @param arg4 The ObjectFactory for the fifth argument
+ * @param arg5 The ObjectFactory for the sixth argument
+ * @param arg6 The ObjectFactory for the seventh argument
+ * @param arg7 The ObjectFactory for the eighth argument
+ * @param arg8 The ObjectFactory for the ninth argument
+ * @param arg9 The ObjectFactory for the tenth argument
+ * @return An ObjectFactory that validates and constructs the object
+ */
 internal fun <T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, R> createObjectFactory(
     validator: IdentityValidator<R>,
     ctor: (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9) -> R,
