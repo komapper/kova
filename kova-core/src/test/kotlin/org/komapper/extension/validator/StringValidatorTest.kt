@@ -186,6 +186,24 @@ class StringValidatorTest :
             }
         }
 
+        context("blank") {
+            val blank = Kova.string().blank()
+
+            test("success - empty string") {
+                val result = blank.tryValidate("")
+                result.isSuccess().mustBeTrue()
+            }
+            test("success - whitespace only") {
+                val result = blank.tryValidate("   ")
+                result.isSuccess().mustBeTrue()
+            }
+            test("failure") {
+                val result = blank.tryValidate("ab")
+                result.isFailure().mustBeTrue()
+                result.messages.single().text shouldBe "must be blank"
+            }
+        }
+
         context("notBlank with message") {
             val notBlank = Kova.string().notBlank(Message.text { "Must not be blank" })
 
@@ -215,6 +233,25 @@ class StringValidatorTest :
             }
         }
 
+        context("empty") {
+            val empty = Kova.string().empty()
+
+            test("success") {
+                val result = empty.tryValidate("")
+                result.isSuccess().mustBeTrue()
+            }
+            test("failure - with content") {
+                val result = empty.tryValidate("ab")
+                result.isFailure().mustBeTrue()
+                result.messages.single().text shouldBe "must be empty"
+            }
+            test("failure - whitespace only") {
+                val result = empty.tryValidate("   ")
+                result.isFailure().mustBeTrue()
+                result.messages.single().text shouldBe "must be empty"
+            }
+        }
+
         context("startsWith") {
             val startsWith = Kova.string().startsWith("ab")
 
@@ -226,6 +263,20 @@ class StringValidatorTest :
                 val result = startsWith.tryValidate("cde")
                 result.isFailure().mustBeTrue()
                 result.messages.single().text shouldBe "must start with \"ab\""
+            }
+        }
+
+        context("notStartsWith") {
+            val notStartsWith = Kova.string().notStartsWith("ab")
+
+            test("success") {
+                val result = notStartsWith.tryValidate("cde")
+                result.isSuccess().mustBeTrue()
+            }
+            test("failure") {
+                val result = notStartsWith.tryValidate("abcde")
+                result.isFailure().mustBeTrue()
+                result.messages.single().text shouldBe "must not start with \"ab\""
             }
         }
 
@@ -243,6 +294,20 @@ class StringValidatorTest :
             }
         }
 
+        context("notEndsWith") {
+            val notEndsWith = Kova.string().notEndsWith("de")
+
+            test("success") {
+                val result = notEndsWith.tryValidate("ab")
+                result.isSuccess().mustBeTrue()
+            }
+            test("failure") {
+                val result = notEndsWith.tryValidate("abcde")
+                result.isFailure().mustBeTrue()
+                result.messages.single().text shouldBe "must not end with \"de\""
+            }
+        }
+
         context("contains") {
             val contains = Kova.string().contains("cd")
 
@@ -254,6 +319,20 @@ class StringValidatorTest :
                 val result = contains.tryValidate("fg")
                 result.isFailure().mustBeTrue()
                 result.messages.single().text shouldBe "must contain \"cd\""
+            }
+        }
+
+        context("notContains") {
+            val notContains = Kova.string().notContains("cd")
+
+            test("success") {
+                val result = notContains.tryValidate("fg")
+                result.isSuccess().mustBeTrue()
+            }
+            test("failure") {
+                val result = notContains.tryValidate("abcde")
+                result.isFailure().mustBeTrue()
+                result.messages.single().text shouldBe "must not contain \"cd\""
             }
         }
 
@@ -270,6 +349,21 @@ class StringValidatorTest :
                 result.isFailure().mustBeTrue()
                 result.messages.single().text shouldBe
                     "must match pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}\$"
+            }
+        }
+
+        context("notMatches") {
+            val digitPattern = Regex("^\\d+\$")
+            val notMatches = Kova.string().notMatches(digitPattern)
+
+            test("success") {
+                val result = notMatches.tryValidate("hello")
+                result.isSuccess().mustBeTrue()
+            }
+            test("failure") {
+                val result = notMatches.tryValidate("12345")
+                result.isFailure().mustBeTrue()
+                result.messages.single().text shouldBe "must not match pattern: ^\\d+\$"
             }
         }
 
