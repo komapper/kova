@@ -60,8 +60,8 @@ class KovaTest :
 
             val userSchema =
                 object : ObjectSchema<User>() {
-                    val nameV = User::name { Kova.nullable<String>().isNull().or(Kova.literal("")) }
-                    val ageV = User::age { Kova.nullable<Int>().isNull().or(Kova.literal(0)) }
+                    val nameV = User::name { Kova.nullable<String>().isNullOr({ it.literal("") }) }
+                    val ageV = User::age { Kova.nullable<Int>().isNullOr({ it.literal(0) }) }
 
                     fun bind(
                         name: String?,
@@ -107,8 +107,9 @@ class KovaTest :
                 operator fun get(key: String): String? = map[key]
             }
 
-            val notNull = Kova.nullable<String>().notNull()
-            val notNullAndMin3 = notNull.and(Kova.string().min(3)).toNonNullable()
+            val nullable = Kova.nullable<String>()
+            val notNull = nullable.notNull()
+            val notNullAndMin3 = nullable.notNullAnd({ it.min(3) }).toNonNullable()
             val requestKey = Kova.generic<Request>().name("Request[key]").map { it["key"] }
             val requestKeyIsNotNull = requestKey.then(notNull)
             val requestKeyIsNotNullAndMin3 = requestKey.then(notNullAndMin3)

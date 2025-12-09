@@ -41,6 +41,32 @@ class ValidatorTest :
             }
         }
 
+        context("and") {
+            val and = Kova.int().min(2).and(Kova.int().max(3))
+
+            test("success") {
+                val result = and.tryValidate(2)
+                result.isSuccess().mustBeTrue()
+            }
+            test("failure") {
+                val result = and.tryValidate(4)
+                result.isFailure().mustBeTrue()
+            }
+        }
+
+        context("and - lambda") {
+            val and = Kova.int().min(2).and { it.max(3) }
+
+            test("success") {
+                val result = and.tryValidate(2)
+                result.isSuccess().mustBeTrue()
+            }
+            test("failure") {
+                val result = and.tryValidate(4)
+                result.isFailure().mustBeTrue()
+            }
+        }
+
         context("or: 2") {
             val length2 = Kova.string().length(2)
             val length5 = Kova.string().length(5)
@@ -74,6 +100,36 @@ class ValidatorTest :
             val length5 = Kova.string().length(5)
             val length7 = Kova.string().length(7)
             val length2or5or7 = length2 or length5 or length7
+
+            test("failure - length(3)") {
+                val result = length2or5or7.tryValidate("abc")
+                result.isFailure().mustBeTrue()
+                result.messages.size shouldBe 1
+                result.messages[0].let {
+                    it.constraintId shouldBe "kova.or"
+                    it.text shouldBe
+                        """at least one constraint must be satisfied: [
+                        |[at least one constraint must be satisfied: [
+                        |[must be exactly 2 characters], [must be exactly 5 characters]]], 
+                        |[must be exactly 7 characters]]
+                        """.trimMargin()
+                            .replace("\n", "")
+                    it.shouldBeInstanceOf<Message.Or>()
+                    it.first.messages[0].text shouldBe
+                        "at least one constraint must be satisfied: [[must be exactly 2 characters], [must be exactly 5 characters]]"
+                    it.second.messages[0].text shouldBe "must be exactly 7 characters"
+                    println(it)
+                }
+            }
+        }
+
+        context("or: 3 - lambda") {
+            val length2or5or7 =
+                Kova
+                    .string()
+                    .length(2)
+                    .or { it.length(5) }
+                    .or { it.length(7) }
 
             test("failure - length(3)") {
                 val result = length2or5or7.tryValidate("abc")
@@ -131,13 +187,56 @@ class ValidatorTest :
             }
         }
 
-        context("andThen") {
+        context("compose - lambda") {
+            val validator = Kova.string().max(1).compose { Kova.int().min(3).map { it.toString() } }
+            test("success") {
+                val result = validator.tryValidate(3)
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "3"
+            }
+            test("failure - first constraint violated") {
+                val result = validator.tryValidate(2)
+                result.isFailure().mustBeTrue()
+                result.messages.single().text shouldBe "must be greater than or equal to 3"
+            }
+            test("failure - second constraint violated") {
+                val result = validator.tryValidate(10)
+                result.isFailure().mustBeTrue()
+                result.messages.single().text shouldBe "must be at most 1 characters"
+            }
+        }
+
+        context("then") {
             val validator =
                 Kova
                     .int()
                     .min(3)
                     .map { it.toString() }
                     .then(Kova.string().max(1))
+            test("success") {
+                val result = validator.tryValidate(3)
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "3"
+            }
+            test("failure - first constraint violated") {
+                val result = validator.tryValidate(2)
+                result.isFailure().mustBeTrue()
+                result.messages.single().text shouldBe "must be greater than or equal to 3"
+            }
+            test("failure - second constraint violated") {
+                val result = validator.tryValidate(10)
+                result.isFailure().mustBeTrue()
+                result.messages.single().text shouldBe "must be at most 1 characters"
+            }
+        }
+
+        context("then - lambda") {
+            val validator =
+                Kova
+                    .int()
+                    .min(3)
+                    .map { it.toString() }
+                    .then { it.max(1) }
             test("success") {
                 val result = validator.tryValidate(3)
                 result.isSuccess().mustBeTrue()

@@ -68,24 +68,16 @@ class NullableValidatorTest :
                 result.messages.size shouldBe 1
                 result.messages[0].text shouldBe "must be null"
             }
-
-            test("failure - min constraint violated") {
-                val result = isNull.tryValidate(2)
-                result.isFailure().mustBeTrue()
-                result.messages.size shouldBe 1
-                result.messages[0].text shouldBe "must be null"
-            }
         }
 
-        context("isNull or nullable") {
+        context("or") {
             val isNull = Kova.nullable<Int>().isNull()
             val isNullOrMin3Max3 =
                 isNull.or(
                     Kova
                         .int()
                         .min(3)
-                        .max(3)
-                        .asNullable(),
+                        .max(3),
                 )
 
             test("success - null") {
@@ -110,10 +102,8 @@ class NullableValidatorTest :
             }
         }
 
-        context("isNull or nonNullable") {
-            val min3 = Kova.int().min(3)
-            val max3 = Kova.int().max(3)
-            val isNullOrMin3Max3 = Kova.nullable<Int>().isNull().or(min3 and max3)
+        context("isNullOr") {
+            val isNullOrMin3Max3 = Kova.nullable<Int>().isNullOr({ it.min(3).max(3) })
 
             test("success - null") {
                 val result = isNullOrMin3Max3.tryValidate(null)
@@ -133,59 +123,63 @@ class NullableValidatorTest :
             }
         }
 
-        context("isNull or then") {
-            val min3 = Kova.int().min(3)
-            val min5 = Kova.int().min(5)
-            val max4 = Kova.int().max(4)
-            val isNullOrMin3OrMin5AndThenMax4 =
-                Kova
-                    .int()
-                    .asNullable()
-                    .isNull()
-                    .or(min3 or min5)
-                    .then(max4)
+        context("notNull") {
+            val notNull = Kova.nullable<Int>().notNull()
 
-            test("success - isNull constraint satisfied") {
-                val result = isNullOrMin3OrMin5AndThenMax4.tryValidate(null)
+            test("success") {
+                val result = notNull.tryValidate(4)
                 result.isSuccess().mustBeTrue()
+                result.value shouldBe 4
             }
 
-            test("success - min3 constraint satisfied") {
-                val result = isNullOrMin3OrMin5AndThenMax4.tryValidate(3)
-                result.isSuccess().mustBeTrue()
-            }
-
-            test("success - max4 constraint failed") {
-                val result = isNullOrMin3OrMin5AndThenMax4.tryValidate(5)
+            test("failure") {
+                val result = notNull.tryValidate(null)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].text shouldBe "must be less than or equal to 4"
+                result.messages[0].text shouldBe "must not be null"
+            }
+        }
+
+        context("notNullAnd") {
+            val notNullAndMin3 = Kova.nullable<Int>().notNullAnd({ it.min(3) })
+
+            test("success") {
+                val result = notNullAndMin3.tryValidate(4)
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe 4
             }
 
-            test("failure - all constraints violated") {
-                val result = isNullOrMin3OrMin5AndThenMax4.tryValidate(2)
+            test("failure") {
+                val result = notNullAndMin3.tryValidate(null)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].constraintId shouldBe "kova.or"
+                result.messages[0].text shouldBe "must not be null"
+            }
+
+            test("failure - min constraint violated") {
+                val result = notNullAndMin3.tryValidate(2)
+                result.isFailure().mustBeTrue()
+                result.messages.size shouldBe 1
+                result.messages[0].text shouldBe "must be greater than or equal to 3"
             }
         }
 
         context("and") {
             val min3 = Kova.int().min(3)
-            val whenNotNullMin3 = Kova.nullable<Int>().and(min3)
+            val nullableMin3 = Kova.nullable<Int>().and(min3)
 
             test("success - non-null") {
-                val result = whenNotNullMin3.tryValidate(4)
+                val result = nullableMin3.tryValidate(4)
                 result.isSuccess().mustBeTrue()
             }
 
             test("success - null") {
-                val result = whenNotNullMin3.tryValidate(null)
+                val result = nullableMin3.tryValidate(null)
                 result.isSuccess().mustBeTrue()
             }
 
-            test("failure - min 3constraint violated") {
-                val result = whenNotNullMin3.tryValidate(2)
+            test("failure - min3 constraint violated") {
+                val result = nullableMin3.tryValidate(2)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].text shouldBe "must be greater than or equal to 3"
@@ -243,9 +237,7 @@ class NullableValidatorTest :
         }
 
         context("toNonNullable - then") {
-            val max5 = Kova.int().max(5)
-            val min3 = Kova.int().min(3)
-            val notNullAndMin3AndMax3 = Kova.nullable<Int>().toNonNullable().then(min3 and max5)
+            val notNullAndMin3AndMax3 = Kova.nullable<Int>().toNonNullable().then { it.max(5).min(3) }
 
             test("success") {
                 val result = notNullAndMin3AndMax3.tryValidate(4)
@@ -275,8 +267,7 @@ class NullableValidatorTest :
         }
 
         context("logs") {
-            val min3 = Kova.int().min(3)
-            val isNullOrMin3Max3 = Kova.nullable<Int>().isNull().or(min3)
+            val isNullOrMin3Max3 = Kova.nullable<Int>().isNullOr({ it.min(3) })
 
             test("success: 3") {
                 val logs = mutableListOf<LogEntry>()

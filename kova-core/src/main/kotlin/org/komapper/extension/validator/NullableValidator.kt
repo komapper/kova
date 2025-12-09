@@ -83,6 +83,14 @@ fun <T : Any, S : Any> NullableValidator<T, S>.constrain(
 fun <T : Any, S : Any> NullableValidator<T, S>.isNull(message: MessageProvider = Message.resource()): NullableValidator<T, S> =
     constrain("kova.nullable.isNull", Constraints.isNull(message))
 
+fun <T : Any, S : Any> NullableValidator<T, S>.isNullOr(
+    block: (Validator<T, T>) -> Validator<T, S>,
+    message: MessageProvider? = null,
+): NullableValidator<T, S> {
+    val isNull = if (message == null) isNull() else isNull(message)
+    return isNull.or(block(Validator.success()).asNullable())
+}
+
 /**
  * Validates that the input is not null.
  *
@@ -100,6 +108,14 @@ fun <T : Any, S : Any> NullableValidator<T, S>.isNull(message: MessageProvider =
  */
 fun <T : Any, S : Any> NullableValidator<T, S>.notNull(message: MessageProvider = Message.resource()): NullableValidator<T, S> =
     constrain("kova.nullable.notNull", Constraints.notNull(message))
+
+fun <T : Any, S : Any> NullableValidator<T, S>.notNullAnd(
+    block: (Validator<T, T>) -> Validator<T, S>,
+    message: MessageProvider? = null,
+): NullableValidator<T, S> {
+    val notNull = if (message == null) notNull() else notNull(message)
+    return notNull.and(block(Validator.success()).asNullable())
+}
 
 /**
  * Converts a nullable validator to a validator with non-nullable output.
@@ -216,35 +232,3 @@ fun <T : Any, S : Any> NullableValidator<T, S>.and(other: Validator<T, S>): Null
  * @return A new nullable validator combining both
  */
 fun <T : Any, S : Any> NullableValidator<T, S>.or(other: Validator<T, S>): NullableValidator<T, S> = or(other.asNullable())
-
-/**
- * Composes this nullable validator with a non-nullable validator applied before it.
- *
- * The non-nullable validator is automatically converted to nullable before composing.
- * This is the reverse of [then].
- *
- * @param other The non-nullable validator to apply first
- * @return A new nullable validator with both validators composed
- */
-fun <T : Any, S : Any, U : Any> NullableValidator<T, S>.compose(other: Validator<U, T>): NullableValidator<U, S> =
-    compose(other.asNullable())
-
-/**
- * Chains this nullable validator with a non-nullable validator applied after it.
- *
- * The non-nullable validator is automatically converted to nullable before chaining.
- * The second validator only executes if the first passes.
- *
- * Example:
- * ```kotlin
- * val validator = Kova.string().asNullable()
- *     .then(Kova.string().map { it.uppercase() })
- *
- * validator.validate(null)    // Success: null
- * validator.validate("hello") // Success: "HELLO"
- * ```
- *
- * @param other The non-nullable validator to apply after this one
- * @return A new nullable validator with both validators chained
- */
-fun <T : Any, S : Any, U : Any> NullableValidator<T, S>.then(other: Validator<S, U>): NullableValidator<T, U> = then(other.asNullable())

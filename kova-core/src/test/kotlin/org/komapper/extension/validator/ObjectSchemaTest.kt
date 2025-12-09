@@ -416,7 +416,7 @@ class ObjectSchemaTest :
             val nodeSchema =
                 object : ObjectSchema<NodeWithValue>() {
                     val value = NodeWithValue::value { Kova.int().min(0).max(100) }
-                    val next = NodeWithValue::next { Kova.nullable<NodeWithValue>().then(this) }
+                    val next = NodeWithValue::next { Kova.nullable<NodeWithValue>().and(this) }
                 }
 
             test("circular reference detected - validation succeeds without error") {
