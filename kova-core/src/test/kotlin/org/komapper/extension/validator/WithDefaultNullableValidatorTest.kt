@@ -116,28 +116,28 @@ class WithDefaultNullableValidatorTest :
         context("then") {
             val max5 = Kova.int().max(5)
             val min3 = Kova.int().min(3)
-            val notNullAndMin3AndMax3 = Kova.nullable(4).then(min3 and max5)
+            val nullableThenMin3AndMax3 = Kova.nullable(4).then(min3 and max5)
 
             test("success") {
-                val result = notNullAndMin3AndMax3.tryValidate(4)
+                val result = nullableThenMin3AndMax3.tryValidate(4)
                 result.isSuccess().mustBeTrue()
             }
 
             test("success - null") {
-                val result = notNullAndMin3AndMax3.tryValidate(null)
+                val result = nullableThenMin3AndMax3.tryValidate(null)
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe 4
             }
 
             test("failure - min3 constraint is violated") {
-                val result = notNullAndMin3AndMax3.tryValidate(2)
+                val result = nullableThenMin3AndMax3.tryValidate(2)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].text shouldBe "must be greater than or equal to 3"
             }
 
             test("failure - max5 constraint violated") {
-                val result = notNullAndMin3AndMax3.tryValidate(6)
+                val result = nullableThenMin3AndMax3.tryValidate(6)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].text shouldBe "must be less than or equal to 5"
@@ -146,7 +146,7 @@ class WithDefaultNullableValidatorTest :
 
         context("or") {
             val min3 = Kova.int().min(3)
-            val isNullOrMin3Max3 =
+            val nullableMax5OrMin3 =
                 Kova
                     .int()
                     .max(5)
@@ -156,7 +156,7 @@ class WithDefaultNullableValidatorTest :
             test("success: 3") {
                 val logs = mutableListOf<LogEntry>()
                 val config = ValidationConfig(logger = { logs.add(it) })
-                val result = isNullOrMin3Max3.tryValidate(3, config = config)
+                val result = nullableMax5OrMin3.tryValidate(3, config = config)
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe 3
                 logs shouldBe
@@ -173,7 +173,7 @@ class WithDefaultNullableValidatorTest :
             test("success: 2") {
                 val logs = mutableListOf<LogEntry>()
                 val config = ValidationConfig(logger = { logs.add(it) })
-                val result = isNullOrMin3Max3.tryValidate(2, config = config)
+                val result = nullableMax5OrMin3.tryValidate(2, config = config)
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe 2
                 logs shouldBe
@@ -190,7 +190,7 @@ class WithDefaultNullableValidatorTest :
             test("success: 6") {
                 val logs = mutableListOf<LogEntry>()
                 val config = ValidationConfig(logger = { logs.add(it) })
-                val result = isNullOrMin3Max3.tryValidate(6, config = config)
+                val result = nullableMax5OrMin3.tryValidate(6, config = config)
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe 6
                 logs shouldBe
@@ -203,7 +203,7 @@ class WithDefaultNullableValidatorTest :
             test("success: null") {
                 val logs = mutableListOf<LogEntry>()
                 val config = ValidationConfig(logger = { logs.add(it) })
-                val result = isNullOrMin3Max3.tryValidate(null, config = config)
+                val result = nullableMax5OrMin3.tryValidate(null, config = config)
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe 0
                 logs shouldBe listOf()

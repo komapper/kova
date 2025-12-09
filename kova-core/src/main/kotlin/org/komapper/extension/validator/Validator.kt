@@ -9,7 +9,7 @@ import org.komapper.extension.validator.ValidationResult.Success
  * A validator transforms an input of type [IN] into an output of type [OUT],
  * or produces a validation failure with detailed error information.
  *
- * Validators are immutable and composable using operators like [plus], [and], [or],
+ * Validators are immutable and composable using operators like [plus], [and], [orNullable],
  * [map], [then], and [chain].
  *
  * @param IN The input type to validate
@@ -135,6 +135,8 @@ infix fun <IN, OUT> Validator<IN, OUT>.and(other: Validator<IN, OUT>): Validator
     }
 }
 
+fun <IN, OUT> Validator<IN, OUT>.and(block: (Validator<IN, IN>) -> Validator<IN, OUT>): Validator<IN, OUT> = and(block(Validator.success()))
+
 /**
  * Combines two validators where at least one must succeed for the overall validation to succeed.
  *
@@ -169,6 +171,8 @@ infix fun <IN, OUT> Validator<IN, OUT>.or(other: Validator<IN, OUT>): Validator<
         }
     }
 }
+
+fun <IN, OUT> Validator<IN, OUT>.or(block: (Validator<IN, IN>) -> Validator<IN, OUT>): Validator<IN, OUT> = or(block(Validator.success()))
 
 /**
  * Transforms the output value on successful validation.
@@ -215,6 +219,27 @@ inline fun <reified IN, reified OUT, reified NEW> Validator<IN, OUT>.map(noinlin
     }
 }
 
+fun <T, R> tryTransform(
+    input: T,
+    context: ValidationContext,
+    transform: (T) -> R,
+): ValidationResult<R> {
+    return try {
+        return Success(transform(input), context)
+    } catch (cause: Exception) {
+        val content =
+            if (cause is MessageException) {
+                cause.message
+            } else {
+                throw cause
+            }
+        val constraintContext = context.createConstraintContext(input, "kova.transform")
+        val messageContext = constraintContext.createMessageContext(emptyList())
+        val message = Message.Text(messageContext, content.toString())
+        Failure(Input.Unknown(input), listOf(message))
+    }
+}
+
 /**
  * Adds a name to the validation path for better error reporting.
  *
@@ -249,6 +274,9 @@ fun <IN, OUT> Validator<IN, OUT>.name(name: String): Validator<IN, OUT> {
  * @return A new validator that applies both validators in sequence
  */
 fun <IN, OUT, NEW> Validator<OUT, NEW>.compose(before: Validator<IN, OUT>): Validator<IN, NEW> = before.then(this)
+
+fun <IN, OUT, NEW> Validator<OUT, NEW>.compose(block: (Validator<IN, IN>) -> Validator<IN, OUT>): Validator<IN, NEW> =
+    compose(block(Validator.success()))
 
 /**
  * Chains two validators sequentially, passing the output of the first to the second.
@@ -288,23 +316,5 @@ fun <IN, OUT, NEW> Validator<IN, OUT>.then(after: Validator<OUT, NEW>): Validato
     }
 }
 
-fun <T, R> tryTransform(
-    input: T,
-    context: ValidationContext,
-    transform: (T) -> R,
-): ValidationResult<R> {
-    return try {
-        return Success(transform(input), context)
-    } catch (cause: Exception) {
-        val content =
-            if (cause is MessageException) {
-                cause.message
-            } else {
-                throw cause
-            }
-        val constraintContext = context.createConstraintContext(input, "kova.transform")
-        val messageContext = constraintContext.createMessageContext(emptyList())
-        val message = Message.Text(messageContext, content.toString())
-        Failure(Input.Unknown(input), listOf(message))
-    }
-}
+fun <IN, OUT, NEW> Validator<IN, OUT>.then(block: (Validator<OUT, OUT>) -> Validator<OUT, NEW>): Validator<IN, NEW> =
+    then(block(Validator.success()))
