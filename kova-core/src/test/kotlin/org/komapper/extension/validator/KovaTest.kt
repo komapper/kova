@@ -92,10 +92,8 @@ class KovaTest :
                 val result = userFactory.tryCreate()
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 2
-                result.messages[0].text shouldBe
-                    "at least one constraint must be satisfied: [[must be null], [must be ]]"
-                result.messages[1].text shouldBe
-                    "at least one constraint must be satisfied: [[must be null], [must be 0]]"
+                result.messages[0].constraintId shouldBe "kova.or"
+                result.messages[1].constraintId shouldBe "kova.or"
             }
         }
 
@@ -126,7 +124,7 @@ class KovaTest :
                 result.messages.size shouldBe 1
                 result.messages[0].let {
                     it.path.fullName shouldBe "Request[key]"
-                    it.text shouldBe "must not be null"
+                    it.constraintId shouldBe "kova.nullable.notNull"
                 }
             }
 
@@ -142,7 +140,7 @@ class KovaTest :
                 result.messages.size shouldBe 1
                 result.messages[0].let {
                     it.path.fullName shouldBe "Request[key]"
-                    it.text shouldBe "must be at least 3 characters"
+                    it.constraintId shouldBe "kova.string.min"
                 }
             }
         }

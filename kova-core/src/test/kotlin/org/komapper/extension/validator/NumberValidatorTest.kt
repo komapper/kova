@@ -19,9 +19,9 @@ class NumberValidatorTest :
                 val result = validator.tryValidate(5)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 3
-                result.messages[0].text shouldBe "must be less than or equal to 2"
-                result.messages[1].text shouldBe "must be less than or equal to 3"
-                result.messages[2].text shouldBe "must be negative"
+                result.messages[0].constraintId shouldBe "kova.comparable.max"
+                result.messages[1].constraintId shouldBe "kova.comparable.max"
+                result.messages[2].constraintId shouldBe "kova.number.negative"
             }
         }
 
@@ -83,13 +83,13 @@ class NumberValidatorTest :
             test("failure with zero") {
                 val result = validator.tryValidate(0)
                 result.isFailure().mustBeTrue()
-                result.messages[0].text shouldBe "must be positive"
+                result.messages[0].constraintId shouldBe "kova.number.positive"
             }
 
             test("failure with negative number") {
                 val result = validator.tryValidate(-1)
                 result.isFailure().mustBeTrue()
-                result.messages[0].text shouldBe "must be positive"
+                result.messages[0].constraintId shouldBe "kova.number.positive"
             }
         }
 
@@ -105,7 +105,7 @@ class NumberValidatorTest :
             test("failure") {
                 val result = validator.tryValidate(-0.1)
                 result.isFailure().mustBeTrue()
-                result.messages[0].text shouldBe "must be positive"
+                result.messages[0].constraintId shouldBe "kova.number.positive"
             }
         }
 
@@ -127,13 +127,13 @@ class NumberValidatorTest :
             test("failure with zero") {
                 val result = validator.tryValidate(0)
                 result.isFailure().mustBeTrue()
-                result.messages[0].text shouldBe "must be negative"
+                result.messages[0].constraintId shouldBe "kova.number.negative"
             }
 
             test("failure with positive number") {
                 val result = validator.tryValidate(1)
                 result.isFailure().mustBeTrue()
-                result.messages[0].text shouldBe "must be negative"
+                result.messages[0].constraintId shouldBe "kova.number.negative"
             }
         }
 
@@ -149,7 +149,7 @@ class NumberValidatorTest :
             test("failure") {
                 val result = validator.tryValidate(0.1)
                 result.isFailure().mustBeTrue()
-                result.messages[0].text shouldBe "must be negative"
+                result.messages[0].constraintId shouldBe "kova.number.negative"
             }
         }
 
@@ -177,7 +177,7 @@ class NumberValidatorTest :
             test("failure with positive number") {
                 val result = validator.tryValidate(1)
                 result.isFailure().mustBeTrue()
-                result.messages[0].text shouldBe "must not be positive"
+                result.messages[0].constraintId shouldBe "kova.number.notPositive"
             }
         }
 
@@ -199,7 +199,7 @@ class NumberValidatorTest :
             test("failure with positive") {
                 val result = validator.tryValidate(0.1)
                 result.isFailure().mustBeTrue()
-                result.messages[0].text shouldBe "must not be positive"
+                result.messages[0].constraintId shouldBe "kova.number.notPositive"
             }
         }
 
@@ -221,13 +221,13 @@ class NumberValidatorTest :
             test("failure with equal value") {
                 val result = validator.tryValidate(5)
                 result.isFailure().mustBeTrue()
-                result.messages[0].text shouldBe "must be greater than 5"
+                result.messages[0].constraintId shouldBe "kova.comparable.gt"
             }
 
             test("failure with value less than threshold") {
                 val result = validator.tryValidate(4)
                 result.isFailure().mustBeTrue()
-                result.messages[0].text shouldBe "must be greater than 5"
+                result.messages[0].constraintId shouldBe "kova.comparable.gt"
             }
         }
 
@@ -243,13 +243,13 @@ class NumberValidatorTest :
             test("failure with equal value") {
                 val result = validator.tryValidate(5.5)
                 result.isFailure().mustBeTrue()
-                result.messages[0].text shouldBe "must be greater than 5.5"
+                result.messages[0].constraintId shouldBe "kova.comparable.gt"
             }
 
             test("failure with smaller value") {
                 val result = validator.tryValidate(5.4)
                 result.isFailure().mustBeTrue()
-                result.messages[0].text shouldBe "must be greater than 5.5"
+                result.messages[0].constraintId shouldBe "kova.comparable.gt"
             }
         }
 
@@ -271,7 +271,7 @@ class NumberValidatorTest :
             test("failure with value less than threshold") {
                 val result = validator.tryValidate(4)
                 result.isFailure().mustBeTrue()
-                result.messages[0].text shouldBe "must be greater than or equal to 5"
+                result.messages[0].constraintId shouldBe "kova.comparable.gte"
             }
         }
 
@@ -293,7 +293,7 @@ class NumberValidatorTest :
             test("failure") {
                 val result = validator.tryValidate(5.4)
                 result.isFailure().mustBeTrue()
-                result.messages[0].text shouldBe "must be greater than or equal to 5.5"
+                result.messages[0].constraintId shouldBe "kova.comparable.gte"
             }
         }
 
@@ -315,13 +315,13 @@ class NumberValidatorTest :
             test("failure with equal value") {
                 val result = validator.tryValidate(5)
                 result.isFailure().mustBeTrue()
-                result.messages[0].text shouldBe "must be less than 5"
+                result.messages[0].constraintId shouldBe "kova.comparable.lt"
             }
 
             test("failure with value greater than threshold") {
                 val result = validator.tryValidate(6)
                 result.isFailure().mustBeTrue()
-                result.messages[0].text shouldBe "must be less than 5"
+                result.messages[0].constraintId shouldBe "kova.comparable.lt"
             }
         }
 
@@ -337,13 +337,13 @@ class NumberValidatorTest :
             test("failure with equal value") {
                 val result = validator.tryValidate(5.5)
                 result.isFailure().mustBeTrue()
-                result.messages[0].text shouldBe "must be less than 5.5"
+                result.messages[0].constraintId shouldBe "kova.comparable.lt"
             }
 
             test("failure with greater value") {
                 val result = validator.tryValidate(5.6)
                 result.isFailure().mustBeTrue()
-                result.messages[0].text shouldBe "must be less than 5.5"
+                result.messages[0].constraintId shouldBe "kova.comparable.lt"
             }
         }
 
@@ -365,7 +365,7 @@ class NumberValidatorTest :
             test("failure with value greater than threshold") {
                 val result = validator.tryValidate(6)
                 result.isFailure().mustBeTrue()
-                result.messages[0].text shouldBe "must be less than or equal to 5"
+                result.messages[0].constraintId shouldBe "kova.comparable.lte"
             }
         }
 
@@ -387,7 +387,7 @@ class NumberValidatorTest :
             test("failure") {
                 val result = validator.tryValidate(5.6)
                 result.isFailure().mustBeTrue()
-                result.messages[0].text shouldBe "must be less than or equal to 5.5"
+                result.messages[0].constraintId shouldBe "kova.comparable.lte"
             }
         }
     })

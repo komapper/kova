@@ -22,7 +22,7 @@ class ValidatorTest :
                         validator.validate(0)
                     }
                 ex.messages.size shouldBe 1
-                ex.messages[0].text shouldBe "must be greater than or equal to 1"
+                ex.messages[0].constraintId shouldBe "kova.comparable.min"
             }
         }
 
@@ -86,11 +86,9 @@ class ValidatorTest :
                 result.messages.size shouldBe 1
                 result.messages[0].let {
                     it.constraintId shouldBe "kova.or"
-                    it.text shouldBe
-                        "at least one constraint must be satisfied: [[must be exactly 2 characters], [must be exactly 5 characters]]"
                     it.shouldBeInstanceOf<Message.Or>()
-                    it.first.messages[0].text shouldBe "must be exactly 2 characters"
-                    it.second.messages[0].text shouldBe "must be exactly 5 characters"
+                    it.first.messages[0].constraintId shouldBe "kova.string.length"
+                    it.second.messages[0].constraintId shouldBe "kova.string.length"
                 }
             }
         }
@@ -107,17 +105,9 @@ class ValidatorTest :
                 result.messages.size shouldBe 1
                 result.messages[0].let {
                     it.constraintId shouldBe "kova.or"
-                    it.text shouldBe
-                        """at least one constraint must be satisfied: [
-                        |[at least one constraint must be satisfied: [
-                        |[must be exactly 2 characters], [must be exactly 5 characters]]], 
-                        |[must be exactly 7 characters]]
-                        """.trimMargin()
-                            .replace("\n", "")
                     it.shouldBeInstanceOf<Message.Or>()
-                    it.first.messages[0].text shouldBe
-                        "at least one constraint must be satisfied: [[must be exactly 2 characters], [must be exactly 5 characters]]"
-                    it.second.messages[0].text shouldBe "must be exactly 7 characters"
+                    it.first.messages[0].constraintId shouldBe "kova.or"
+                    it.second.messages[0].constraintId shouldBe "kova.string.length"
                     println(it)
                 }
             }
@@ -137,17 +127,9 @@ class ValidatorTest :
                 result.messages.size shouldBe 1
                 result.messages[0].let {
                     it.constraintId shouldBe "kova.or"
-                    it.text shouldBe
-                        """at least one constraint must be satisfied: [
-                        |[at least one constraint must be satisfied: [
-                        |[must be exactly 2 characters], [must be exactly 5 characters]]], 
-                        |[must be exactly 7 characters]]
-                        """.trimMargin()
-                            .replace("\n", "")
                     it.shouldBeInstanceOf<Message.Or>()
-                    it.first.messages[0].text shouldBe
-                        "at least one constraint must be satisfied: [[must be exactly 2 characters], [must be exactly 5 characters]]"
-                    it.second.messages[0].text shouldBe "must be exactly 7 characters"
+                    it.first.messages[0].constraintId shouldBe "kova.or"
+                    it.second.messages[0].constraintId shouldBe "kova.string.length"
                     println(it)
                 }
             }
@@ -178,12 +160,12 @@ class ValidatorTest :
             test("failure - first constraint violated") {
                 val result = validator.tryValidate(2)
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be greater than or equal to 3"
+                result.messages.single().constraintId shouldBe "kova.comparable.min"
             }
             test("failure - second constraint violated") {
                 val result = validator.tryValidate(10)
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be at most 1 characters"
+                result.messages.single().constraintId shouldBe "kova.string.max"
             }
         }
 
@@ -197,12 +179,12 @@ class ValidatorTest :
             test("failure - first constraint violated") {
                 val result = validator.tryValidate(2)
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be greater than or equal to 3"
+                result.messages.single().constraintId shouldBe "kova.comparable.min"
             }
             test("failure - second constraint violated") {
                 val result = validator.tryValidate(10)
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be at most 1 characters"
+                result.messages.single().constraintId shouldBe "kova.string.max"
             }
         }
 
@@ -221,12 +203,12 @@ class ValidatorTest :
             test("failure - first constraint violated") {
                 val result = validator.tryValidate(2)
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be greater than or equal to 3"
+                result.messages.single().constraintId shouldBe "kova.comparable.min"
             }
             test("failure - second constraint violated") {
                 val result = validator.tryValidate(10)
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be at most 1 characters"
+                result.messages.single().constraintId shouldBe "kova.string.max"
             }
         }
 
@@ -245,12 +227,12 @@ class ValidatorTest :
             test("failure - first constraint violated") {
                 val result = validator.tryValidate(2)
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be greater than or equal to 3"
+                result.messages.single().constraintId shouldBe "kova.comparable.min"
             }
             test("failure - second constraint violated") {
                 val result = validator.tryValidate(10)
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be at most 1 characters"
+                result.messages.single().constraintId shouldBe "kova.string.max"
             }
         }
 

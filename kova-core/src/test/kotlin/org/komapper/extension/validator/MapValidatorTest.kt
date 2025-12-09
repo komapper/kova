@@ -24,8 +24,8 @@ class MapValidatorTest :
                 val result = validator.tryValidate(mapOf("a" to "1"))
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 2
-                result.messages[0].text shouldBe "Map (size 1) must have at least 2 entries"
-                result.messages[1].text shouldBe "Map (size 1) must have at least 3 entries"
+                result.messages[0].constraintId shouldBe "kova.map.min"
+                result.messages[1].constraintId shouldBe "kova.map.min"
             }
         }
 
@@ -41,7 +41,7 @@ class MapValidatorTest :
             test("failure") {
                 val result = validator.tryValidate(mapOf("a" to "1", "b" to "2", "c" to "3"))
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "Map (size 3) must have at most 2 entries"
+                result.messages.single().constraintId shouldBe "kova.map.max"
             }
         }
 
@@ -57,7 +57,7 @@ class MapValidatorTest :
             test("failure") {
                 val result = validator.tryValidate(emptyMap())
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must not be empty"
+                result.messages.single().constraintId shouldBe "kova.map.notEmpty"
             }
         }
 
@@ -73,13 +73,13 @@ class MapValidatorTest :
             test("failure - too few") {
                 val result = validator.tryValidate(mapOf("a" to "1"))
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "Map (size 1) must have exactly 2 entries"
+                result.messages.single().constraintId shouldBe "kova.map.length"
             }
 
             test("failure - too many") {
                 val result = validator.tryValidate(mapOf("a" to "1", "b" to "2", "c" to "3"))
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "Map (size 3) must have exactly 2 entries"
+                result.messages.single().constraintId shouldBe "kova.map.length"
             }
         }
 
@@ -119,8 +119,7 @@ class MapValidatorTest :
             test("failure") {
                 val result = validator.tryValidate(mapOf("a" to "a", "b" to "b"))
                 result.isFailure().mustBeTrue()
-                result.messages[0].text shouldBe
-                    "Some entries do not satisfy the constraint: [Constraint failed: a, Constraint failed: b]"
+                result.messages[0].constraintId shouldBe "kova.map.onEach"
             }
         }
 
@@ -137,10 +136,7 @@ class MapValidatorTest :
                 val result = validator.tryValidate(mapOf("a" to "1", "bb" to "2", "ccc" to "3"))
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].let {
-                    it.text shouldBe
-                        "Some keys do not satisfy the constraint: [must be exactly 1 characters, must be exactly 1 characters]"
-                }
+                result.messages[0].constraintId shouldBe "kova.map.onEachKey"
             }
         }
 
@@ -157,10 +153,7 @@ class MapValidatorTest :
                 val result = validator.tryValidate(mapOf("a" to "1", "b" to "22", "c" to "333"))
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].let {
-                    it.text shouldBe
-                        "Some values do not satisfy the constraint: [must be exactly 1 characters, must be exactly 1 characters]"
-                }
+                result.messages[0].constraintId shouldBe "kova.map.onEachValue"
             }
         }
     })

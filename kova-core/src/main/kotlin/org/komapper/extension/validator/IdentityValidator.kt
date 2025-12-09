@@ -18,48 +18,6 @@ import org.komapper.extension.validator.ValidationResult.Success
 typealias IdentityValidator<T> = Validator<T, T>
 
 /**
- * Validates that the input equals the specified value.
- *
- * Example:
- * ```kotlin
- * val validator = Kova.string().literal("admin")
- * validator.validate("admin") // Success
- * validator.validate("user")  // Failure
- * ```
- *
- * @param value The expected value
- * @param message Custom error message provider
- * @return A new validator that accepts only the specified value
- */
-fun <T> IdentityValidator<T>.literal(
-    value: T,
-    message: MessageProvider = Message.resource(),
-) = constrain("kova.literal.single") {
-    satisfies(it.input == value, message(value))
-}
-
-/**
- * Validates that the input is one of the specified values.
- *
- * Example:
- * ```kotlin
- * val validator = Kova.string().literal(listOf("admin", "user", "guest"))
- * validator.validate("admin") // Success
- * validator.validate("other") // Failure
- * ```
- *
- * @param values The list of acceptable values
- * @param message Custom error message provider
- * @return A new validator that accepts only values from the list
- */
-fun <T> IdentityValidator<T>.literal(
-    values: List<T>,
-    message: MessageProvider = Message.resource(),
-) = constrain("kova.literal.list") {
-    satisfies(it.input in values, message(values))
-}
-
-/**
  * Adds a custom constraint to this validator.
  *
  * This is a fundamental building block for creating custom validation rules.
@@ -80,37 +38,6 @@ fun <T> IdentityValidator<T>.constrain(
     id: String,
     check: ConstraintScope<T>.(ConstraintContext<T>) -> ConstraintResult,
 ): IdentityValidator<T> = chain(ConstraintValidator(Constraint(id, check)))
-
-/**
- * Conditionally applies this validator based on a predicate.
- *
- * If the condition returns false, validation passes automatically without executing
- * this validator. This is useful for conditional validation logic.
- *
- * Example:
- * ```kotlin
- * // Only validate email format if the string looks like an email
- * val validator = Kova.string()
- *     .email()
- *     .onlyIf { it.contains("@") }
- *
- * // More practical: validate discount code only if provided
- * val discountValidator = Kova.string()
- *     .min(5)
- *     .onlyIf { it.isNotBlank() }
- * ```
- *
- * @param condition Predicate that determines whether to apply this validator
- * @return A new validator that conditionally validates
- */
-fun <T> IdentityValidator<T>.onlyIf(condition: (T) -> Boolean) =
-    IdentityValidator<T> { input, context ->
-        if (condition(input)) {
-            execute(input, context)
-        } else {
-            Success(input, context)
-        }
-    }
 
 /**
  * Chains two validators where the second validator receives the output of the first if it succeeds.
@@ -155,5 +82,78 @@ fun <T> IdentityValidator<T>.chain(next: IdentityValidator<T>): IdentityValidato
                     }
                 }
             }
+        }
+    }
+
+/**
+ * Validates that the input equals the specified value.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.string().literal("admin")
+ * validator.validate("admin") // Success
+ * validator.validate("user")  // Failure
+ * ```
+ *
+ * @param value The expected value
+ * @param message Custom error message provider
+ * @return A new validator that accepts only the specified value
+ */
+fun <T> IdentityValidator<T>.literal(
+    value: T,
+    message: MessageProvider = Message.resource(),
+) = constrain("kova.literal.single") {
+    satisfies(it.input == value, message(value))
+}
+
+/**
+ * Validates that the input is one of the specified values.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.string().literal(listOf("admin", "user", "guest"))
+ * validator.validate("admin") // Success
+ * validator.validate("other") // Failure
+ * ```
+ *
+ * @param values The list of acceptable values
+ * @param message Custom error message provider
+ * @return A new validator that accepts only values from the list
+ */
+fun <T> IdentityValidator<T>.literal(
+    values: List<T>,
+    message: MessageProvider = Message.resource(),
+) = constrain("kova.literal.list") {
+    satisfies(it.input in values, message(values))
+}
+
+/**
+ * Conditionally applies this validator based on a predicate.
+ *
+ * If the condition returns false, validation passes automatically without executing
+ * this validator. This is useful for conditional validation logic.
+ *
+ * Example:
+ * ```kotlin
+ * // Only validate email format if the string looks like an email
+ * val validator = Kova.string()
+ *     .email()
+ *     .onlyIf { it.contains("@") }
+ *
+ * // More practical: validate discount code only if provided
+ * val discountValidator = Kova.string()
+ *     .min(5)
+ *     .onlyIf { it.isNotBlank() }
+ * ```
+ *
+ * @param condition Predicate that determines whether to apply this validator
+ * @return A new validator that conditionally validates
+ */
+fun <T> IdentityValidator<T>.onlyIf(condition: (T) -> Boolean) =
+    IdentityValidator<T> { input, context ->
+        if (condition(input)) {
+            execute(input, context)
+        } else {
+            Success(input, context)
         }
     }

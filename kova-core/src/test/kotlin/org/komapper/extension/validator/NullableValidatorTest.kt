@@ -66,7 +66,7 @@ class NullableValidatorTest :
                 val result = isNull.tryValidate(4)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].text shouldBe "must be null"
+                result.messages[0].constraintId shouldBe "kova.nullable.isNull"
             }
         }
 
@@ -136,7 +136,7 @@ class NullableValidatorTest :
                 val result = notNull.tryValidate(null)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].text shouldBe "must not be null"
+                result.messages[0].constraintId shouldBe "kova.nullable.notNull"
             }
         }
 
@@ -153,14 +153,14 @@ class NullableValidatorTest :
                 val result = notNullAndMin3.tryValidate(null)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].text shouldBe "must not be null"
+                result.messages[0].constraintId shouldBe "kova.nullable.notNull"
             }
 
             test("failure - min constraint violated") {
                 val result = notNullAndMin3.tryValidate(2)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].text shouldBe "must be greater than or equal to 3"
+                result.messages[0].constraintId shouldBe "kova.comparable.min"
             }
         }
 
@@ -182,7 +182,7 @@ class NullableValidatorTest :
                 val result = nullableMin3.tryValidate(2)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].text shouldBe "must be greater than or equal to 3"
+                result.messages[0].constraintId shouldBe "kova.comparable.min"
             }
         }
 
@@ -205,8 +205,7 @@ class NullableValidatorTest :
                 val result = onEachNullableMin3.tryValidate(listOf(2, null))
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].text shouldBe
-                    "Some elements do not satisfy the constraint: [must be greater than or equal to 3]"
+                result.messages[0].constraintId shouldBe "kova.collection.onEach"
             }
         }
 
@@ -225,14 +224,14 @@ class NullableValidatorTest :
                 val result = nullableMin3.tryValidate(null)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].text shouldBe "must not be null"
+                result.messages[0].constraintId shouldBe "kova.nullable.notNull"
             }
 
             test("failure - min3 constraint is violated") {
                 val result = nullableMin3.tryValidate(2)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].text shouldBe "must be greater than or equal to 3"
+                result.messages[0].constraintId shouldBe "kova.comparable.min"
             }
         }
 
@@ -248,21 +247,21 @@ class NullableValidatorTest :
                 val result = notNullAndMin3AndMax3.tryValidate(null)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].text shouldBe "must not be null"
+                result.messages[0].constraintId shouldBe "kova.nullable.notNull"
             }
 
             test("failure - min3 constraint is violated") {
                 val result = notNullAndMin3AndMax3.tryValidate(2)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].text shouldBe "must be greater than or equal to 3"
+                result.messages[0].constraintId shouldBe "kova.comparable.min"
             }
 
             test("failure - max5 constraint violated") {
                 val result = notNullAndMin3AndMax3.tryValidate(6)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].text shouldBe "must be less than or equal to 5"
+                result.messages[0].constraintId shouldBe "kova.comparable.max"
             }
         }
 

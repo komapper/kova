@@ -60,7 +60,7 @@ class WithDefaultNullableValidatorTest :
                 val result = whenNotNullMin3.tryValidate(2)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].text shouldBe "must be greater than or equal to 3"
+                result.messages[0].constraintId shouldBe "kova.comparable.min"
             }
         }
 
@@ -83,8 +83,7 @@ class WithDefaultNullableValidatorTest :
                 val result = onEachNullableMin3.tryValidate(listOf(2, null))
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].text shouldBe
-                    "Some elements do not satisfy the constraint: [must be greater than or equal to 3]"
+                result.messages[0].constraintId shouldBe "kova.collection.onEach"
             }
         }
 
@@ -109,7 +108,7 @@ class WithDefaultNullableValidatorTest :
                 val result = nullableMin3.tryValidate(2)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].text shouldBe "must be greater than or equal to 3"
+                result.messages[0].constraintId shouldBe "kova.comparable.min"
             }
         }
 
@@ -133,14 +132,14 @@ class WithDefaultNullableValidatorTest :
                 val result = nullableThenMin3AndMax3.tryValidate(2)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].text shouldBe "must be greater than or equal to 3"
+                result.messages[0].constraintId shouldBe "kova.comparable.min"
             }
 
             test("failure - max5 constraint violated") {
                 val result = nullableThenMin3AndMax3.tryValidate(6)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].text shouldBe "must be less than or equal to 5"
+                result.messages[0].constraintId shouldBe "kova.comparable.max"
             }
         }
 

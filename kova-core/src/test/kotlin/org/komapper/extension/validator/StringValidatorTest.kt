@@ -40,8 +40,8 @@ class StringValidatorTest :
                 val result = validator.tryValidate("1234")
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 2
-                result.messages[0].text shouldBe "must be at most 2 characters"
-                result.messages[1].text shouldBe "must be at most 3 characters"
+                result.messages[0].constraintId shouldBe "kova.string.max"
+                result.messages[1].constraintId shouldBe "kova.string.max"
             }
         }
 
@@ -58,8 +58,8 @@ class StringValidatorTest :
                 val result = validator.tryValidate("1234")
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 2
-                result.messages[0].text shouldBe "must be at most 2 characters"
-                result.messages[1].text shouldBe "must be at most 3 characters"
+                result.messages[0].constraintId shouldBe "kova.string.max"
+                result.messages[1].constraintId shouldBe "kova.string.max"
             }
         }
 
@@ -105,7 +105,7 @@ class StringValidatorTest :
                 val result = validator.tryValidate(" a ")
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
-                result.messages[0].text shouldBe "must be exactly 3 characters"
+                result.messages[0].constraintId shouldBe "kova.string.length"
             }
         }
 
@@ -138,7 +138,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = min.tryValidate("ab")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be at least 3 characters"
+                result.messages.single().constraintId shouldBe "kova.string.min"
             }
         }
 
@@ -153,7 +153,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = max.tryValidate("ab")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be at most 1 characters"
+                result.messages.single().constraintId shouldBe "kova.string.max"
             }
         }
 
@@ -168,7 +168,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = length.tryValidate("ab")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be exactly 1 characters"
+                result.messages.single().constraintId shouldBe "kova.string.length"
             }
         }
 
@@ -182,7 +182,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = notBlank.tryValidate("")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must not be blank"
+                result.messages.single().constraintId shouldBe "kova.string.notBlank"
             }
         }
 
@@ -200,7 +200,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = blank.tryValidate("ab")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be blank"
+                result.messages.single().constraintId shouldBe "kova.string.blank"
             }
         }
 
@@ -229,7 +229,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = notEmpty.tryValidate("")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must not be empty"
+                result.messages.single().constraintId shouldBe "kova.string.notEmpty"
             }
         }
 
@@ -243,12 +243,12 @@ class StringValidatorTest :
             test("failure - with content") {
                 val result = empty.tryValidate("ab")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be empty"
+                result.messages.single().constraintId shouldBe "kova.string.empty"
             }
             test("failure - whitespace only") {
                 val result = empty.tryValidate("   ")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be empty"
+                result.messages.single().constraintId shouldBe "kova.string.empty"
             }
         }
 
@@ -262,7 +262,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = startsWith.tryValidate("cde")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must start with \"ab\""
+                result.messages.single().constraintId shouldBe "kova.string.startsWith"
             }
         }
 
@@ -276,7 +276,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = notStartsWith.tryValidate("abcde")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must not start with \"ab\""
+                result.messages.single().constraintId shouldBe "kova.string.notStartsWith"
             }
         }
 
@@ -290,7 +290,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = endsWith.tryValidate("ab")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must end with \"de\""
+                result.messages.single().constraintId shouldBe "kova.string.endsWith"
             }
         }
 
@@ -304,7 +304,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = notEndsWith.tryValidate("abcde")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must not end with \"de\""
+                result.messages.single().constraintId shouldBe "kova.string.notEndsWith"
             }
         }
 
@@ -318,7 +318,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = contains.tryValidate("fg")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must contain \"cd\""
+                result.messages.single().constraintId shouldBe "kova.string.contains"
             }
         }
 
@@ -332,7 +332,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = notContains.tryValidate("abcde")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must not contain \"cd\""
+                result.messages.single().constraintId shouldBe "kova.string.notContains"
             }
         }
 
@@ -347,8 +347,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = matches.tryValidate("invalid-email")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe
-                    "must match pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}\$"
+                result.messages.single().constraintId shouldBe "kova.string.matches"
             }
         }
 
@@ -363,7 +362,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = notMatches.tryValidate("12345")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must not match pattern: ^\\d+\$"
+                result.messages.single().constraintId shouldBe "kova.string.notMatches"
             }
         }
 
@@ -405,42 +404,42 @@ class StringValidatorTest :
             test("failure - starts with dot") {
                 val result = email.tryValidate(".user@example.com")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be a valid email address"
+                result.messages.single().constraintId shouldBe "kova.string.email"
             }
             test("failure - consecutive dots") {
                 val result = email.tryValidate("user..name@example.com")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be a valid email address"
+                result.messages.single().constraintId shouldBe "kova.string.email"
             }
             test("failure - ends with dot before @") {
                 val result = email.tryValidate("user.@example.com")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be a valid email address"
+                result.messages.single().constraintId shouldBe "kova.string.email"
             }
             test("failure - no @") {
                 val result = email.tryValidate("userexample.com")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be a valid email address"
+                result.messages.single().constraintId shouldBe "kova.string.email"
             }
             test("failure - no domain") {
                 val result = email.tryValidate("user@")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be a valid email address"
+                result.messages.single().constraintId shouldBe "kova.string.email"
             }
             test("failure - no local part") {
                 val result = email.tryValidate("@example.com")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be a valid email address"
+                result.messages.single().constraintId shouldBe "kova.string.email"
             }
             test("failure - no TLD") {
                 val result = email.tryValidate("user@example")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be a valid email address"
+                result.messages.single().constraintId shouldBe "kova.string.email"
             }
             test("failure - spaces") {
                 val result = email.tryValidate("user name@example.com")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be a valid email address"
+                result.messages.single().constraintId shouldBe "kova.string.email"
             }
         }
 
@@ -455,7 +454,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = isInt.tryValidate("123a")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be a valid integer"
+                result.messages.single().constraintId shouldBe "kova.string.isInt"
             }
         }
 
@@ -470,7 +469,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = isLong.tryValidate("123.45")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be a valid long"
+                result.messages.single().constraintId shouldBe "kova.string.isLong"
             }
         }
 
@@ -485,7 +484,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = isShort.tryValidate("99999")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be a valid short"
+                result.messages.single().constraintId shouldBe "kova.string.isShort"
             }
         }
 
@@ -500,7 +499,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = isByte.tryValidate("256")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be a valid byte"
+                result.messages.single().constraintId shouldBe "kova.string.isByte"
             }
         }
 
@@ -515,7 +514,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = isDouble.tryValidate("abc")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be a valid double"
+                result.messages.single().constraintId shouldBe "kova.string.isDouble"
             }
         }
 
@@ -530,7 +529,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = isFloat.tryValidate("abc")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be a valid float"
+                result.messages.single().constraintId shouldBe "kova.string.isFloat"
             }
         }
 
@@ -545,7 +544,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = isBigDecimal.tryValidate("abc")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be a valid decimal number"
+                result.messages.single().constraintId shouldBe "kova.string.isBigDecimal"
             }
         }
 
@@ -560,7 +559,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = isBigInteger.tryValidate("123.45")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be a valid integer number"
+                result.messages.single().constraintId shouldBe "kova.string.isBigInteger"
             }
         }
 
@@ -580,12 +579,12 @@ class StringValidatorTest :
             test("false - case sensitive") {
                 val result = isBoolean.tryValidate("TRUE")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be \"true\" or \"false\""
+                result.messages.single().constraintId shouldBe "kova.string.isBoolean"
             }
             test("failure") {
                 val result = isBoolean.tryValidate("yes")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be \"true\" or \"false\""
+                result.messages.single().constraintId shouldBe "kova.string.isBoolean"
             }
         }
 
@@ -605,7 +604,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = toBoolean.tryValidate("yes")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be \"true\" or \"false\""
+                result.messages.single().constraintId shouldBe "kova.string.isBoolean"
             }
         }
 
@@ -620,7 +619,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = toLong.tryValidate("abc")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be a valid long"
+                result.messages.single().constraintId shouldBe "kova.string.isLong"
             }
         }
 
@@ -635,7 +634,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = toShort.tryValidate("99999")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be a valid short"
+                result.messages.single().constraintId shouldBe "kova.string.isShort"
             }
         }
 
@@ -650,7 +649,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = toByte.tryValidate("256")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be a valid byte"
+                result.messages.single().constraintId shouldBe "kova.string.isByte"
             }
         }
 
@@ -665,7 +664,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = toDouble.tryValidate("abc")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be a valid double"
+                result.messages.single().constraintId shouldBe "kova.string.isDouble"
             }
         }
 
@@ -680,7 +679,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = toFloat.tryValidate("abc")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be a valid float"
+                result.messages.single().constraintId shouldBe "kova.string.isFloat"
             }
         }
 
@@ -695,7 +694,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = toBigDecimal.tryValidate("abc")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be a valid decimal number"
+                result.messages.single().constraintId shouldBe "kova.string.isBigDecimal"
             }
         }
 
@@ -710,7 +709,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = toBigInteger.tryValidate("123.45")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be a valid integer number"
+                result.messages.single().constraintId shouldBe "kova.string.isBigInteger"
             }
         }
 
@@ -730,7 +729,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = uppercase.tryValidate("Hello")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be uppercase"
+                result.messages.single().constraintId shouldBe "kova.string.uppercase"
             }
         }
 
@@ -750,7 +749,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = lowercase.tryValidate("Hello")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be lowercase"
+                result.messages.single().constraintId shouldBe "kova.string.lowercase"
             }
         }
 
@@ -765,7 +764,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = toInt.tryValidate("123a")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be a valid integer"
+                result.messages.single().constraintId shouldBe "kova.string.isInt"
             }
         }
 
@@ -788,7 +787,7 @@ class StringValidatorTest :
             test("failure") {
                 val result = max1.tryValidate("12")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be at most 1 characters"
+                result.messages.single().constraintId shouldBe "kova.string.max"
             }
         }
 
@@ -884,13 +883,13 @@ class StringValidatorTest :
             test("failure - trimmed value violates constraint") {
                 val result = trimMin3.tryValidate("  hi  ")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be at least 3 characters"
+                result.messages.single().constraintId shouldBe "kova.string.min"
             }
 
             test("failure - whitespace only becomes empty after trim") {
                 val result = trimMin3.tryValidate("   ")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be at least 3 characters"
+                result.messages.single().constraintId shouldBe "kova.string.min"
             }
         }
 
@@ -940,7 +939,7 @@ class StringValidatorTest :
             test("failure - transformed value violates constraint") {
                 val result = toUpperCaseMin3.tryValidate("hi")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be at least 3 characters"
+                result.messages.single().constraintId shouldBe "kova.string.min"
             }
 
             test("success - combining toUpperCase with startsWith") {
@@ -997,7 +996,7 @@ class StringValidatorTest :
             test("failure - transformed value violates constraint") {
                 val result = toLowerCaseMin3.tryValidate("HI")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be at least 3 characters"
+                result.messages.single().constraintId shouldBe "kova.string.min"
             }
 
             test("success - combining toLowerCase with startsWith") {
@@ -1029,12 +1028,12 @@ class StringValidatorTest :
             test("failure - invalid value") {
                 val result = isEnum.tryValidate("INVALID")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be one of: [ACTIVE, INACTIVE, PENDING]"
+                result.messages.single().constraintId shouldBe "kova.string.isEnum"
             }
             test("failure - lowercase") {
                 val result = isEnum.tryValidate("active")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be one of: [ACTIVE, INACTIVE, PENDING]"
+                result.messages.single().constraintId shouldBe "kova.string.isEnum"
             }
         }
 
@@ -1059,12 +1058,12 @@ class StringValidatorTest :
             test("failure - invalid value") {
                 val result = isEnum.tryValidate("INVALID")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be one of: [ACTIVE, INACTIVE, PENDING]"
+                result.messages.single().constraintId shouldBe "kova.string.isEnum"
             }
             test("failure - lowercase") {
                 val result = isEnum.tryValidate("active")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be one of: [ACTIVE, INACTIVE, PENDING]"
+                result.messages.single().constraintId shouldBe "kova.string.isEnum"
             }
         }
 
@@ -1089,12 +1088,12 @@ class StringValidatorTest :
             test("failure - invalid value") {
                 val result = toEnum.tryValidate("INVALID")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be one of: [ACTIVE, INACTIVE, PENDING]"
+                result.messages.single().constraintId shouldBe "kova.string.isEnum"
             }
             test("failure - lowercase") {
                 val result = toEnum.tryValidate("active")
                 result.isFailure().mustBeTrue()
-                result.messages.single().text shouldBe "must be one of: [ACTIVE, INACTIVE, PENDING]"
+                result.messages.single().constraintId shouldBe "kova.string.isEnum"
             }
         }
     }) {
