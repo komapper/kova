@@ -70,13 +70,13 @@ class MapValidatorTest :
                 result.value shouldBe mapOf("a" to "1", "b" to "2")
             }
 
-            test("failure - too few") {
+            test("failure with too few entries") {
                 val result = validator.tryValidate(mapOf("a" to "1"))
                 result.isFailure().mustBeTrue()
                 result.messages.single().constraintId shouldBe "kova.map.length"
             }
 
-            test("failure - too many") {
+            test("failure with too many entries") {
                 val result = validator.tryValidate(mapOf("a" to "1", "b" to "2", "c" to "3"))
                 result.isFailure().mustBeTrue()
                 result.messages.single().constraintId shouldBe "kova.map.length"

@@ -22,7 +22,7 @@ class KovaTest :
             }
         }
 
-        context("failFast - plus") {
+        context("failFast with plus operator") {
             val validator = Kova.string().min(3).asNullable() + Kova.string().length(4).asNullable()
 
             test("failFast = false") {
@@ -41,12 +41,12 @@ class KovaTest :
         context("boolean") {
             val validator = Kova.boolean()
 
-            test("success - true") {
+            test("success with true value") {
                 val result = validator.tryValidate(true)
                 result.isSuccess().mustBeTrue()
             }
 
-            test("success - false") {
+            test("success with false value") {
                 val result = validator.tryValidate(false)
                 result.isSuccess().mustBeTrue()
             }
@@ -73,14 +73,14 @@ class KovaTest :
                     }
                 }
 
-            test("success - null") {
+            test("success with null value") {
                 val userFactory = userSchema.bind(null, null)
                 val result = userFactory.tryCreate()
                 result.isSuccess().mustBeTrue(result.toString())
                 result.value shouldBe User(null, null)
             }
 
-            test("success - non-null") {
+            test("success with non-null value") {
                 val userFactory = userSchema.bind("", 0)
                 val result = userFactory.tryCreate()
                 result.isSuccess().mustBeTrue()
@@ -112,13 +112,13 @@ class KovaTest :
             val requestKeyIsNotNull = requestKey.then(notNull)
             val requestKeyIsNotNullAndMin3 = requestKey.then(notNullAndMin3)
 
-            test("success - requestKeyIsNotNull") {
+            test("success when requestKey is not null") {
                 val result = requestKeyIsNotNull.tryValidate(Request(mapOf("key" to "abc")))
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe "abc"
             }
 
-            test("failure - requestKeyIsNotNull") {
+            test("failure when requestKey is null") {
                 val result = requestKeyIsNotNull.tryValidate(Request(mapOf()))
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
@@ -128,13 +128,13 @@ class KovaTest :
                 }
             }
 
-            test("success - requestKeyIsNotNullAndMin3") {
+            test("success when requestKey is not null and min 3") {
                 val result = requestKeyIsNotNullAndMin3.tryValidate(Request(mapOf("key" to "abc")))
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe "abc"
             }
 
-            test("failure - requestKeyIsNotNullAndMin3") {
+            test("failure when requestKey constraint violated") {
                 val result = requestKeyIsNotNullAndMin3.tryValidate(Request(mapOf("key" to "ab")))
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1

@@ -58,7 +58,7 @@ class ObjectSchemaTest :
                 result.value shouldBe user
             }
 
-            test("failure - 1 rule violated") {
+            test("failure with 1 rule violated") {
                 val user = User(2, "too-long-name")
                 val result = userSchema.tryValidate(user)
                 result.isFailure().mustBeTrue()
@@ -70,7 +70,7 @@ class ObjectSchemaTest :
                 }
             }
 
-            test("failure - 2 rules violated") {
+            test("failure with 2 rules violated") {
                 val user = User(0, "too-long-name")
                 val result = userSchema.tryValidate(user)
                 result.isFailure().mustBeTrue()
@@ -149,14 +149,14 @@ class ObjectSchemaTest :
                     val name = User::name { it.min(1).max(10) }
                 }.asNullable()
 
-            test("success - non null") {
+            test("success with non-null value") {
                 val user = User(1, "abc")
                 val result = validator.tryValidate(user)
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe user
             }
 
-            test("success - null") {
+            test("success with null value") {
                 val result = validator.tryValidate(null)
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe null
@@ -178,7 +178,7 @@ class ObjectSchemaTest :
                 result.value shouldBe user
             }
 
-            test("failure - 1 constraint violated") {
+            test("failure with 1 constraint violated") {
                 val user = User(2, "too-long-name")
                 val result = userSchema.tryValidate(user)
                 result.isFailure().mustBeTrue()
@@ -190,7 +190,7 @@ class ObjectSchemaTest :
                 }
             }
 
-            test("failure - 2 constraints violated") {
+            test("failure with 2 constraints violated") {
                 val user = User(0, "too-long-name")
                 val result = userSchema.tryValidate(user)
                 result.isFailure().mustBeTrue()
@@ -272,21 +272,21 @@ class ObjectSchemaTest :
                     val address = Employee::address { addressSchema }
                 }
 
-            test("success - country is US") {
+            test("success when country is US") {
                 val employee = Employee(1, "abc", Address(1, Street(1, "def"), country = "US", postalCode = "12345678"))
                 val result = employeeSchema.tryValidate(employee)
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe employee
             }
 
-            test("success - country is not US") {
+            test("success when country is not US") {
                 val employee = Employee(1, "abc", Address(1, Street(1, "def"), country = "JP", postalCode = "12345"))
                 val result = employeeSchema.tryValidate(employee)
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe employee
             }
 
-            test("failure - country is US") {
+            test("failure when country is US") {
                 val employee =
                     Employee(1, "abc", Address(1, Street(1, "def"), country = "US", postalCode = "123456789"))
                 val result = employeeSchema.tryValidate(employee)
@@ -299,7 +299,7 @@ class ObjectSchemaTest :
                 }
             }
 
-            test("failure - country is not US") {
+            test("failure when country is not US") {
                 val employee =
                     Employee(1, "abc", Address(1, Street(1, "def"), country = "JP", postalCode = "123456789"))
                 val result = employeeSchema.tryValidate(employee)
@@ -346,14 +346,14 @@ class ObjectSchemaTest :
                 result.value shouldBe person
             }
 
-            test("success - nullable") {
+            test("success with nullable values") {
                 val person = Person(1, null, null, null)
                 val result = personSchema.tryValidate(person)
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe person
             }
 
-            test("failure - isNotNull") {
+            test("failure when not null constraint violated") {
                 val person = Person(1, null, null, null)
                 val result = personSchema2.tryValidate(person)
                 result.isFailure().mustBeTrue()
@@ -387,7 +387,7 @@ class ObjectSchemaTest :
                 result.isSuccess().mustBeTrue()
             }
 
-            test("failure - children size > 3") {
+            test("failure when children size exceeds 3") {
                 val node = Node(listOf(Node(), Node(), Node(listOf(Node(), Node(), Node(), Node()))))
                 val result = nodeSchema.tryValidate(node)
                 result.isFailure().mustBeTrue()
@@ -396,7 +396,7 @@ class ObjectSchemaTest :
                     "Some elements do not satisfy the constraint: [Collection (size 4) must have at most 3 elements]"
             }
 
-            test("failure - grand children size > 3") {
+            test("failure when grandchildren size exceeds 3") {
                 val node = Node(listOf(Node(), Node(), Node(listOf(Node(listOf(Node(), Node(), Node(), Node()))))))
                 val result = nodeSchema.tryValidate(node)
                 result.isFailure().mustBeTrue()
@@ -418,7 +418,7 @@ class ObjectSchemaTest :
                     val next = NodeWithValue::next { it.and(this) }
                 }
 
-            test("circular reference detected - validation succeeds without error") {
+            test("success when circular reference detected") {
                 val node1 = NodeWithValue(10, null)
                 val node2 = NodeWithValue(20, node1)
                 node1.next = node2 // Create circular reference: node1 -> node2 -> node1
@@ -427,7 +427,7 @@ class ObjectSchemaTest :
                 result.isSuccess().mustBeTrue()
             }
 
-            test("non-circular nested objects - all valid") {
+            test("success with non-circular nested objects") {
                 val node4 = NodeWithValue(40, null)
                 val node3 = NodeWithValue(30, node4)
                 val node2 = NodeWithValue(20, node3)
@@ -437,7 +437,7 @@ class ObjectSchemaTest :
                 result.isSuccess().mustBeTrue()
             }
 
-            test("constraint violation in nested object") {
+            test("failure when constraint violated in nested object") {
                 val node3 = NodeWithValue(150, null) // Invalid: > 100
                 val node2 = NodeWithValue(20, node3)
                 val node1 = NodeWithValue(10, node2)
@@ -449,7 +449,7 @@ class ObjectSchemaTest :
                 result.messages[0].constraintId shouldBe "kova.comparable.max"
             }
 
-            test("constraint violation in root object") {
+            test("failure when constraint violated in root object") {
                 val node2 = NodeWithValue(20, null)
                 val node1 = NodeWithValue(-5, node2) // Invalid: < 0
 
@@ -461,7 +461,7 @@ class ObjectSchemaTest :
             }
 
             // To avoid StackOverflowError, use 'shouldBeEqual' instead of 'shouldBe'
-            test("circular reference with constraint violation - stops before revisiting") {
+            test("failure when circular reference has constraint violation") {
                 val node1 = NodeWithValue(200, null) // Invalid: > 100
                 val node2 = NodeWithValue(20, node1)
                 node1.next = node2 // Create circular reference

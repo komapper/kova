@@ -9,45 +9,45 @@ class NullableValidatorTest :
         context("nullable") {
             val nullable = Kova.nullable<Int>()
 
-            test("success - null") {
+            test("success with null value") {
                 val result = nullable.tryValidate(null)
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe null
             }
 
-            test("success - non null") {
+            test("success with non-null value") {
                 val result = nullable.tryValidate(123)
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe 123
             }
         }
 
-        context("withDefault - literal") {
+        context("withDefault with literal") {
             val nullable = Kova.nullable<Int>().withDefault(0)
 
-            test("success - null") {
+            test("success with null value") {
                 val result = nullable.tryValidate(null)
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe 0
             }
 
-            test("success - non null") {
+            test("success with non-null value") {
                 val result = nullable.tryValidate(123)
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe 123
             }
         }
 
-        context("withDefault - lambda") {
+        context("withDefault with lambda") {
             val nullable = Kova.nullable<Int>().withDefault { 0 }
 
-            test("success - null") {
+            test("success with null value") {
                 val result = nullable.tryValidate(null)
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe 0
             }
 
-            test("success - non null") {
+            test("success with non-null value") {
                 val result = nullable.tryValidate(123)
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe 123
@@ -80,12 +80,12 @@ class NullableValidatorTest :
                         .max(3),
                 )
 
-            test("success - null") {
+            test("success with null value") {
                 val result = isNullOrMin3Max3.tryValidate(null)
                 result.isSuccess().mustBeTrue()
             }
 
-            test("success - 3") {
+            test("success with value 3") {
                 val result = isNullOrMin3Max3.tryValidate(3)
                 result.isSuccess().mustBeTrue()
             }
@@ -105,17 +105,17 @@ class NullableValidatorTest :
         context("isNullOr") {
             val isNullOrMin3Max3 = Kova.nullable<Int>().isNullOr({ it.min(3).max(3) })
 
-            test("success - null") {
+            test("success with null value") {
                 val result = isNullOrMin3Max3.tryValidate(null)
                 result.isSuccess().mustBeTrue()
             }
 
-            test("success - non-null") {
+            test("success with non-null value") {
                 val result = isNullOrMin3Max3.tryValidate(3)
                 result.isSuccess().mustBeTrue()
             }
 
-            test("failure - isNull and max3 constraints violated") {
+            test("failure when isNull and max3 constraints violated") {
                 val result = isNullOrMin3Max3.tryValidate(5)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
@@ -156,7 +156,7 @@ class NullableValidatorTest :
                 result.messages[0].constraintId shouldBe "kova.nullable.notNull"
             }
 
-            test("failure - min constraint violated") {
+            test("failure when min constraint violated") {
                 val result = notNullAndMin3.tryValidate(2)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
@@ -168,17 +168,17 @@ class NullableValidatorTest :
             val min3 = Kova.int().min(3)
             val nullableMin3 = Kova.nullable<Int>().and(min3)
 
-            test("success - non-null") {
+            test("success with non-null value") {
                 val result = nullableMin3.tryValidate(4)
                 result.isSuccess().mustBeTrue()
             }
 
-            test("success - null") {
+            test("success with null value") {
                 val result = nullableMin3.tryValidate(null)
                 result.isSuccess().mustBeTrue()
             }
 
-            test("failure - min3 constraint violated") {
+            test("failure when min3 constraint violated") {
                 val result = nullableMin3.tryValidate(2)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
@@ -191,17 +191,17 @@ class NullableValidatorTest :
             val nullableMin3 = Kova.nullable<Int>().and(min3)
             val onEachNullableMin3 = Kova.list<Int?>().onEach(nullableMin3)
 
-            test("success - non-null") {
+            test("success with non-null value") {
                 val result = onEachNullableMin3.tryValidate(listOf(4, 5))
                 result.isSuccess().mustBeTrue()
             }
 
-            test("success - null") {
+            test("success with null value") {
                 val result = onEachNullableMin3.tryValidate(listOf(null, null))
                 result.isSuccess().mustBeTrue()
             }
 
-            test("failure - min3　constraint violated") {
+            test("failure when min3 constraint violated") {
                 val result = onEachNullableMin3.tryValidate(listOf(2, null))
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
@@ -213,21 +213,21 @@ class NullableValidatorTest :
             val min3 = Kova.int().min(3)
             val nullableMin3 = min3.asNullable().toNonNullable()
 
-            test("success - non-null") {
+            test("success with non-null value") {
                 val result = nullableMin3.tryValidate(4)
                 result.isSuccess().mustBeTrue()
                 val value: Int = result.value // The type is "Int" instead of "Int?"
                 value shouldBe 4
             }
 
-            test("failure - null") {
+            test("failure with null value") {
                 val result = nullableMin3.tryValidate(null)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.nullable.notNull"
             }
 
-            test("failure - min3 constraint is violated") {
+            test("failure when min3 constraint is violated") {
                 val result = nullableMin3.tryValidate(2)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
@@ -243,21 +243,21 @@ class NullableValidatorTest :
                 result.isSuccess().mustBeTrue()
             }
 
-            test("failure - notNull constraint is violated") {
+            test("failure when notNull constraint is violated") {
                 val result = notNullAndMin3AndMax3.tryValidate(null)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.nullable.notNull"
             }
 
-            test("failure - min3 constraint is violated") {
+            test("failure when min3 constraint is violated") {
                 val result = notNullAndMin3AndMax3.tryValidate(2)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.comparable.min"
             }
 
-            test("failure - max5 constraint violated") {
+            test("failure when max5 constraint violated") {
                 val result = notNullAndMin3AndMax3.tryValidate(6)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
