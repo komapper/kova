@@ -463,3 +463,85 @@ fun <T : Any, S : Any> Validator<T, S>.asNullable(withDefault: () -> S): WithDef
         }
     return WithDefaultNullableValidator(validator, withDefault)
 }
+
+/**
+ * Replaces all validation error messages with a single custom message.
+ *
+ * This function consolidates multiple validation errors into one message, which is useful
+ * when you want to provide simplified, user-friendly error messages instead of exposing
+ * individual constraint violations to end users.
+ *
+ * The lambda receives the list of original [Message] objects from all failed constraints,
+ * allowing you to create dynamic messages based on what validations failed.
+ *
+ * Example - Access original messages for dynamic consolidation:
+ * ```kotlin
+ * val validator = Kova.string().notEmpty().min(3).max(10)
+ *     .withMessage { messages ->
+ *         Message.text { "Validation failed: ${messages.joinToString { it.text }}" }
+ *     }
+ *
+ * validator.tryValidate("ab") // Error: "Validation failed: must not be empty, must be at least 3 characters"
+ * ```
+ *
+ * Example - Simple custom message ignoring original errors:
+ * ```kotlin
+ * val validator = Kova.string().notEmpty().min(3).max(10)
+ *     .withMessage { Message.text { "Invalid username format" } }
+ * ```
+ *
+ * Example - Internationalization with resource messages:
+ * ```kotlin
+ * val validator = Kova.string().notEmpty().min(3)
+ *     .withMessage { Message.resource() }
+ * // Uses the constraint ID "kova.withMessage" to load from kova.properties
+ * ```
+ *
+ * @param block A function that receives the list of original error messages and returns
+ *              a [MessageProvider] for the consolidated message
+ * @return A new validator that returns a single custom message on validation failure
+ * @see withMessage for a simpler overload that accepts a static string message
+ */
+fun <T, S> Validator<T, S>.withMessage(block: (List<Message>) -> MessageProvider): Validator<T, S> =
+    Validator { input, context ->
+        when (val result = execute(input, context)) {
+            is Success -> result
+            is Failure -> {
+                val constraintContext = context.createConstraintContext(input, "kova.withMessage")
+                val messageProvider = block(result.messages)
+                val messageGenerator = messageProvider(result.messages)
+                val message = messageGenerator(constraintContext)
+                Failure(result.value, listOf(message))
+            }
+        }
+    }
+
+/**
+ * Replaces all validation error messages with a static text message.
+ *
+ * This is a convenience overload for the common case where you want to show a simple,
+ * fixed error message instead of the detailed constraint violations.
+ *
+ * Example:
+ * ```kotlin
+ * val usernameValidator = Kova.string().notEmpty().min(3).max(20)
+ *     .withMessage("Username must be between 3 and 20 characters")
+ *
+ * val passwordValidator = Kova.string().min(8).matches(Regex(".*[A-Z].*"))
+ *     .withMessage("Password must be at least 8 characters with uppercase letters")
+ * ```
+ *
+ * Example - In ObjectSchema:
+ * ```kotlin
+ * object UserSchema : ObjectSchema<User>() {
+ *     val email = User::email {
+ *         it.notEmpty().email().withMessage("Invalid email address")
+ *     }
+ * }
+ * ```
+ *
+ * @param message The static text message to display on validation failure
+ * @return A new validator that returns the custom message on validation failure
+ * @see withMessage for an advanced overload that can access the original error messages
+ */
+fun <T, S> Validator<T, S>.withMessage(message: String): Validator<T, S> = withMessage { _ -> Message.text { _ -> message } }

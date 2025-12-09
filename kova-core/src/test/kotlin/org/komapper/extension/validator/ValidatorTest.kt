@@ -265,4 +265,107 @@ class ValidatorTest :
                     )
             }
         }
+
+        context("message - provider - text") {
+            val validator =
+                Kova.string().uppercase().min(3).withMessage { messages ->
+                    Message.text { "Invalid: consolidates messages=(${ messages.joinToString { it.text} })" }
+                }
+
+            test("success") {
+                val result = validator.tryValidate("ABCDE")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "ABCDE"
+            }
+            test("failure") {
+                val result = validator.tryValidate("ab")
+                result.isFailure().mustBeTrue()
+                val message = result.messages.single()
+                message.constraintId shouldBe "kova.withMessage"
+                message.text shouldBe "Invalid: consolidates messages=(must be uppercase, must be at least 3 characters)"
+                message.root shouldBe ""
+                message.path.fullName shouldBe ""
+            }
+        }
+
+        context("message - provider - resource") {
+            val validator =
+                Kova
+                    .string()
+                    .uppercase()
+                    .min(3)
+                    .withMessage { Message.resource() }
+
+            test("success") {
+                val result = validator.tryValidate("ABCDE")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "ABCDE"
+            }
+            test("failure") {
+                val result = validator.tryValidate("ab")
+                result.isFailure().mustBeTrue()
+                val message = result.messages.single()
+                message.constraintId shouldBe "kova.withMessage"
+                message.text shouldBe "invalid: [must be uppercase, must be at least 3 characters]"
+                message.root shouldBe ""
+                message.path.fullName shouldBe ""
+            }
+        }
+
+        context("message - text") {
+            val validator =
+                Kova
+                    .string()
+                    .uppercase()
+                    .min(3)
+                    .withMessage("Invalid")
+
+            test("success") {
+                val result = validator.tryValidate("ABCDE")
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe "ABCDE"
+            }
+            test("failure") {
+                val result = validator.tryValidate("ab")
+                result.isFailure().mustBeTrue()
+                val message = result.messages.single()
+                message.constraintId shouldBe "kova.withMessage"
+                message.text shouldBe "Invalid"
+                message.root shouldBe ""
+                message.path.fullName shouldBe ""
+            }
+        }
+
+        context("message - schema") {
+            data class User(
+                val id: Int,
+                val name: String,
+            )
+
+            val userSchema =
+                object : ObjectSchema<User>() {
+                    val id = User::id { it }
+                    val name =
+                        User::name {
+                            it.uppercase().min(3).withMessage {
+                                Message.text { "Must be uppercase and at least 3 characters long" }
+                            }
+                        }
+                }
+
+            test("success") {
+                val result = userSchema.tryValidate(User(1, "ABCDE"))
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe User(1, "ABCDE")
+            }
+            test("failure") {
+                val result = userSchema.tryValidate(User(1, "ab"))
+                result.isFailure().mustBeTrue()
+                val message = result.messages.single()
+                message.constraintId shouldBe "kova.withMessage"
+                message.text shouldBe "Must be uppercase and at least 3 characters long"
+                message.root shouldBe "User"
+                message.path.fullName shouldBe "name"
+            }
+        }
     })
