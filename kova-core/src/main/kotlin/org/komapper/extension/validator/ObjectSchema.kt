@@ -202,9 +202,10 @@ open class ObjectSchema<T : Any> private constructor(
      * @param block Lambda that chooses a validator based on the object
      * @return The block function for further use
      */
-    infix fun <V, VALIDATOR : IdentityValidator<V>> KProperty1<T, V>.choose(block: (T) -> VALIDATOR): (T) -> VALIDATOR {
-        addRule(this, block)
-        return block
+    infix fun <V, VALIDATOR : IdentityValidator<V>> KProperty1<T, V>.choose(block: (T, Validator<V, V>) -> VALIDATOR): (T) -> VALIDATOR {
+        val choose = { receiver: T -> block(receiver, Validator.success()) }
+        addRule(this, choose)
+        return choose
     }
 
     private fun <T, V> addRule(

@@ -259,10 +259,10 @@ class ObjectSchemaTest :
                 object : ObjectSchema<Address>() {
                     val street = Address::street { streetSchema }
                     val postalCode =
-                        Address::postalCode choose { address ->
+                        Address::postalCode choose { address, v ->
                             when (address.country) {
-                                "US" -> Kova.string().length(8)
-                                else -> Kova.string().length(5)
+                                "US" -> v.length(8)
+                                else -> v.length(5)
                             }
                         }
                 }
