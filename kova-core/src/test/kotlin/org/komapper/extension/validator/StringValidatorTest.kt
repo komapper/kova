@@ -66,13 +66,13 @@ class StringValidatorTest :
         context("or") {
             val validator = (Kova.string().isInt() or Kova.literal("zero")).toUppercase()
 
-            test("success - int") {
+            test("success with int value") {
                 val result = validator.tryValidate("1")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe "1"
             }
 
-            test("success - literal") {
+            test("success with literal value") {
                 val result = validator.tryValidate("zero")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe "ZERO"
@@ -189,11 +189,11 @@ class StringValidatorTest :
         context("blank") {
             val blank = Kova.string().blank()
 
-            test("success - empty string") {
+            test("success with empty string") {
                 val result = blank.tryValidate("")
                 result.isSuccess().mustBeTrue()
             }
-            test("success - whitespace only") {
+            test("success with whitespace only") {
                 val result = blank.tryValidate("   ")
                 result.isSuccess().mustBeTrue()
             }
@@ -240,12 +240,12 @@ class StringValidatorTest :
                 val result = empty.tryValidate("")
                 result.isSuccess().mustBeTrue()
             }
-            test("failure - with content") {
+            test("failure with content") {
                 val result = empty.tryValidate("ab")
                 result.isFailure().mustBeTrue()
                 result.messages.single().constraintId shouldBe "kova.string.empty"
             }
-            test("failure - whitespace only") {
+            test("failure with whitespace only") {
                 val result = empty.tryValidate("   ")
                 result.isFailure().mustBeTrue()
                 result.messages.single().constraintId shouldBe "kova.string.empty"
@@ -369,74 +369,74 @@ class StringValidatorTest :
         context("email") {
             val email = Kova.string().email()
 
-            test("success - simple email") {
+            test("success with simple email") {
                 val result = email.tryValidate("user@example.com")
                 result.isSuccess().mustBeTrue()
             }
-            test("success - with dots") {
+            test("success with dots") {
                 val result = email.tryValidate("first.last@example.com")
                 result.isSuccess().mustBeTrue()
             }
-            test("success - with plus") {
+            test("success with plus sign") {
                 val result = email.tryValidate("user+tag@example.com")
                 result.isSuccess().mustBeTrue()
             }
-            test("success - with hyphen in domain") {
+            test("success with hyphen in domain") {
                 val result = email.tryValidate("user@my-domain.com")
                 result.isSuccess().mustBeTrue()
             }
-            test("success - with subdomain") {
+            test("success with subdomain") {
                 val result = email.tryValidate("user@mail.example.com")
                 result.isSuccess().mustBeTrue()
             }
-            test("success - with numbers") {
+            test("success with numbers") {
                 val result = email.tryValidate("user123@example.com")
                 result.isSuccess().mustBeTrue()
             }
-            test("success - with underscore") {
+            test("success with underscore") {
                 val result = email.tryValidate("user_name@example.com")
                 result.isSuccess().mustBeTrue()
             }
-            test("success - case insensitive") {
+            test("success with case insensitive") {
                 val result = email.tryValidate("User@Example.COM")
                 result.isSuccess().mustBeTrue()
             }
-            test("failure - starts with dot") {
+            test("failure when starts with dot") {
                 val result = email.tryValidate(".user@example.com")
                 result.isFailure().mustBeTrue()
                 result.messages.single().constraintId shouldBe "kova.string.email"
             }
-            test("failure - consecutive dots") {
+            test("failure with consecutive dots") {
                 val result = email.tryValidate("user..name@example.com")
                 result.isFailure().mustBeTrue()
                 result.messages.single().constraintId shouldBe "kova.string.email"
             }
-            test("failure - ends with dot before @") {
+            test("failure when ends with dot before @") {
                 val result = email.tryValidate("user.@example.com")
                 result.isFailure().mustBeTrue()
                 result.messages.single().constraintId shouldBe "kova.string.email"
             }
-            test("failure - no @") {
+            test("failure with no @ symbol") {
                 val result = email.tryValidate("userexample.com")
                 result.isFailure().mustBeTrue()
                 result.messages.single().constraintId shouldBe "kova.string.email"
             }
-            test("failure - no domain") {
+            test("failure with no domain") {
                 val result = email.tryValidate("user@")
                 result.isFailure().mustBeTrue()
                 result.messages.single().constraintId shouldBe "kova.string.email"
             }
-            test("failure - no local part") {
+            test("failure with no local part") {
                 val result = email.tryValidate("@example.com")
                 result.isFailure().mustBeTrue()
                 result.messages.single().constraintId shouldBe "kova.string.email"
             }
-            test("failure - no TLD") {
+            test("failure with no TLD") {
                 val result = email.tryValidate("user@example")
                 result.isFailure().mustBeTrue()
                 result.messages.single().constraintId shouldBe "kova.string.email"
             }
-            test("failure - spaces") {
+            test("failure with spaces") {
                 val result = email.tryValidate("user name@example.com")
                 result.isFailure().mustBeTrue()
                 result.messages.single().constraintId shouldBe "kova.string.email"
@@ -566,17 +566,17 @@ class StringValidatorTest :
         context("isBoolean") {
             val isBoolean = Kova.string().isBoolean()
 
-            test("success - true") {
+            test("success with true") {
                 val result = isBoolean.tryValidate("true")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe "true"
             }
-            test("success - false") {
+            test("success with false") {
                 val result = isBoolean.tryValidate("false")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe "false"
             }
-            test("false - case sensitive") {
+            test("failure with case sensitive mismatch") {
                 val result = isBoolean.tryValidate("TRUE")
                 result.isFailure().mustBeTrue()
                 result.messages.single().constraintId shouldBe "kova.string.isBoolean"
@@ -591,12 +591,12 @@ class StringValidatorTest :
         context("toBoolean") {
             val toBoolean = Kova.string().toBoolean()
 
-            test("success - true") {
+            test("success with true") {
                 val result = toBoolean.tryValidate("true")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe true
             }
-            test("success - false") {
+            test("success with false") {
                 val result = toBoolean.tryValidate("false")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe false
@@ -721,7 +721,7 @@ class StringValidatorTest :
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe "HELLO"
             }
-            test("success - empty string") {
+            test("success with empty string") {
                 val result = uppercase.tryValidate("")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe ""
@@ -741,7 +741,7 @@ class StringValidatorTest :
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe "hello"
             }
-            test("success - empty string") {
+            test("success with empty string") {
                 val result = lowercase.tryValidate("")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe ""
@@ -780,7 +780,7 @@ class StringValidatorTest :
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe "1"
             }
-            test("failure - null") {
+            test("failure with null value") {
                 val result = max1.tryValidate(null)
                 result.isFailure().mustBeTrue()
             }
@@ -803,22 +803,22 @@ class StringValidatorTest :
                     }
                 }
 
-            test("success - true") {
+            test("success with true") {
                 val result = stringBools.tryValidate("true")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe true
             }
-            test("success - 1") {
+            test("success with value 1") {
                 val result = stringBools.tryValidate("1")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe true
             }
-            test("success - false") {
+            test("success with false") {
                 val result = stringBools.tryValidate("false")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe false
             }
-            test("success - 0") {
+            test("success with value 0") {
                 val result = stringBools.tryValidate("0")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe false
@@ -834,37 +834,37 @@ class StringValidatorTest :
         context("trim") {
             val trim = Kova.string().trim()
 
-            test("success - trimming leading whitespace") {
+            test("success when trimming leading whitespace") {
                 val result = trim.tryValidate("  hello")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe "hello"
             }
 
-            test("success - trimming trailing whitespace") {
+            test("success when trimming trailing whitespace") {
                 val result = trim.tryValidate("hello  ")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe "hello"
             }
 
-            test("success - trimming both sides") {
+            test("success when trimming both sides") {
                 val result = trim.tryValidate("  hello  ")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe "hello"
             }
 
-            test("success - no whitespace to trim") {
+            test("success with no whitespace to trim") {
                 val result = trim.tryValidate("hello")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe "hello"
             }
 
-            test("success - empty string") {
+            test("success with empty string") {
                 val result = trim.tryValidate("")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe ""
             }
 
-            test("success - only whitespace") {
+            test("success with only whitespace") {
                 val result = trim.tryValidate("   ")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe ""
@@ -874,19 +874,19 @@ class StringValidatorTest :
         context("trim with constraints") {
             val trimMin3 = Kova.string().trim().min(3)
 
-            test("success - trimmed value meets constraint") {
+            test("success when trimmed value meets constraint") {
                 val result = trimMin3.tryValidate("  hello  ")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe "hello"
             }
 
-            test("failure - trimmed value violates constraint") {
+            test("failure when trimmed value violates constraint") {
                 val result = trimMin3.tryValidate("  hi  ")
                 result.isFailure().mustBeTrue()
                 result.messages.single().constraintId shouldBe "kova.string.min"
             }
 
-            test("failure - whitespace only becomes empty after trim") {
+            test("failure when whitespace only becomes empty after trim") {
                 val result = trimMin3.tryValidate("   ")
                 result.isFailure().mustBeTrue()
                 result.messages.single().constraintId shouldBe "kova.string.min"
@@ -896,31 +896,31 @@ class StringValidatorTest :
         context("toUpperCase") {
             val toUpperCase = Kova.string().toUppercase()
 
-            test("success - lowercase to uppercase") {
+            test("success when converting lowercase to uppercase") {
                 val result = toUpperCase.tryValidate("hello")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe "HELLO"
             }
 
-            test("success - mixed case to uppercase") {
+            test("success when converting mixed case to uppercase") {
                 val result = toUpperCase.tryValidate("HeLLo")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe "HELLO"
             }
 
-            test("success - already uppercase") {
+            test("success with already uppercase") {
                 val result = toUpperCase.tryValidate("HELLO")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe "HELLO"
             }
 
-            test("success - empty string") {
+            test("success with empty string") {
                 val result = toUpperCase.tryValidate("")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe ""
             }
 
-            test("success - with numbers and symbols") {
+            test("success with numbers and symbols") {
                 val result = toUpperCase.tryValidate("hello123!@#")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe "HELLO123!@#"
@@ -930,19 +930,19 @@ class StringValidatorTest :
         context("toUpperCase with constraints") {
             val toUpperCaseMin3 = Kova.string().toUppercase().min(3)
 
-            test("success - transformed value meets constraint") {
+            test("success when transformed value meets constraint") {
                 val result = toUpperCaseMin3.tryValidate("hello")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe "HELLO"
             }
 
-            test("failure - transformed value violates constraint") {
+            test("failure when transformed value violates constraint") {
                 val result = toUpperCaseMin3.tryValidate("hi")
                 result.isFailure().mustBeTrue()
                 result.messages.single().constraintId shouldBe "kova.string.min"
             }
 
-            test("success - combining toUpperCase with startsWith") {
+            test("success when combining toUpperCase with startsWith") {
                 val toUpperCaseStartsWithH = Kova.string().toUppercase().startsWith("H")
                 val result = toUpperCaseStartsWithH.tryValidate("hello")
                 result.isSuccess().mustBeTrue()
@@ -953,31 +953,31 @@ class StringValidatorTest :
         context("toLowerCase") {
             val toLowerCase = Kova.string().toLowercase()
 
-            test("success - uppercase to lowercase") {
+            test("success when converting uppercase to lowercase") {
                 val result = toLowerCase.tryValidate("HELLO")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe "hello"
             }
 
-            test("success - mixed case to lowercase") {
+            test("success when converting mixed case to lowercase") {
                 val result = toLowerCase.tryValidate("HeLLo")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe "hello"
             }
 
-            test("success - already lowercase") {
+            test("success with already lowercase") {
                 val result = toLowerCase.tryValidate("hello")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe "hello"
             }
 
-            test("success - empty string") {
+            test("success with empty string") {
                 val result = toLowerCase.tryValidate("")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe ""
             }
 
-            test("success - with numbers and symbols") {
+            test("success with numbers and symbols") {
                 val result = toLowerCase.tryValidate("HELLO123!@#")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe "hello123!@#"
@@ -987,19 +987,19 @@ class StringValidatorTest :
         context("toLowerCase with constraints") {
             val toLowerCaseMin3 = Kova.string().toLowercase().min(3)
 
-            test("success - transformed value meets constraint") {
+            test("success when transformed value meets constraint") {
                 val result = toLowerCaseMin3.tryValidate("HELLO")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe "hello"
             }
 
-            test("failure - transformed value violates constraint") {
+            test("failure when transformed value violates constraint") {
                 val result = toLowerCaseMin3.tryValidate("HI")
                 result.isFailure().mustBeTrue()
                 result.messages.single().constraintId shouldBe "kova.string.min"
             }
 
-            test("success - combining toLowerCase with startsWith") {
+            test("success when combining toLowerCase with startsWith") {
                 val toLowerCaseStartsWithH = Kova.string().toLowercase().startsWith("h")
                 val result = toLowerCaseStartsWithH.tryValidate("HELLO")
                 result.isSuccess().mustBeTrue()
@@ -1010,27 +1010,27 @@ class StringValidatorTest :
         context("isEnum with Type") {
             val isEnum = Kova.string().isEnum<Status>()
 
-            test("success - ACTIVE") {
+            test("success with ACTIVE") {
                 val result = isEnum.tryValidate("ACTIVE")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe "ACTIVE"
             }
-            test("success - INACTIVE") {
+            test("success with INACTIVE") {
                 val result = isEnum.tryValidate("INACTIVE")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe "INACTIVE"
             }
-            test("success - PENDING") {
+            test("success with PENDING") {
                 val result = isEnum.tryValidate("PENDING")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe "PENDING"
             }
-            test("failure - invalid value") {
+            test("failure with invalid value") {
                 val result = isEnum.tryValidate("INVALID")
                 result.isFailure().mustBeTrue()
                 result.messages.single().constraintId shouldBe "kova.string.isEnum"
             }
-            test("failure - lowercase") {
+            test("failure with lowercase") {
                 val result = isEnum.tryValidate("active")
                 result.isFailure().mustBeTrue()
                 result.messages.single().constraintId shouldBe "kova.string.isEnum"
@@ -1040,27 +1040,27 @@ class StringValidatorTest :
         context("isEnum with KClass") {
             val isEnum = Kova.string().isEnum(Status::class)
 
-            test("success - ACTIVE") {
+            test("success with ACTIVE") {
                 val result = isEnum.tryValidate("ACTIVE")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe "ACTIVE"
             }
-            test("success - INACTIVE") {
+            test("success with INACTIVE") {
                 val result = isEnum.tryValidate("INACTIVE")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe "INACTIVE"
             }
-            test("success - PENDING") {
+            test("success with PENDING") {
                 val result = isEnum.tryValidate("PENDING")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe "PENDING"
             }
-            test("failure - invalid value") {
+            test("failure with invalid value") {
                 val result = isEnum.tryValidate("INVALID")
                 result.isFailure().mustBeTrue()
                 result.messages.single().constraintId shouldBe "kova.string.isEnum"
             }
-            test("failure - lowercase") {
+            test("failure with lowercase") {
                 val result = isEnum.tryValidate("active")
                 result.isFailure().mustBeTrue()
                 result.messages.single().constraintId shouldBe "kova.string.isEnum"
@@ -1070,27 +1070,27 @@ class StringValidatorTest :
         context("toEnum") {
             val toEnum = Kova.string().toEnum<Status>()
 
-            test("success - ACTIVE") {
+            test("success with ACTIVE") {
                 val result = toEnum.tryValidate("ACTIVE")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe Status.ACTIVE
             }
-            test("success - INACTIVE") {
+            test("success with INACTIVE") {
                 val result = toEnum.tryValidate("INACTIVE")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe Status.INACTIVE
             }
-            test("success - PENDING") {
+            test("success with PENDING") {
                 val result = toEnum.tryValidate("PENDING")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe Status.PENDING
             }
-            test("failure - invalid value") {
+            test("failure with invalid value") {
                 val result = toEnum.tryValidate("INVALID")
                 result.isFailure().mustBeTrue()
                 result.messages.single().constraintId shouldBe "kova.string.isEnum"
             }
-            test("failure - lowercase") {
+            test("failure with lowercase") {
                 val result = toEnum.tryValidate("active")
                 result.isFailure().mustBeTrue()
                 result.messages.single().constraintId shouldBe "kova.string.isEnum"

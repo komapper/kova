@@ -94,14 +94,14 @@ class IdentityValidatorTest :
         }
 
         context("onlyIf") {
-            test("success - condition not met") {
+            test("success when condition not met") {
                 val validator = Kova.int().min(3).onlyIf { it % 2 == 0 }
                 val result = validator.tryValidate(1)
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe 1
             }
 
-            test("failure - condition met") {
+            test("failure when condition met") {
                 val validator = Kova.int().min(3).onlyIf { it % 2 == 0 }
                 val result = validator.tryValidate(2)
                 result.isFailure().mustBeTrue()

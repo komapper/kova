@@ -9,13 +9,13 @@ class ObjectFactoryTest :
     FunSpec({
 
         context("FunctionDesc") {
-            test("KParameter available") {
+            test("success when KParameter is available") {
                 val desc = FunctionDesc("User", mapOf(0 to "name", 1 to "age"))
                 desc[0] shouldBe "name"
                 desc[1] shouldBe "age"
             }
 
-            test("KParameter unavailable") {
+            test("success when KParameter is unavailable") {
                 val desc = FunctionDesc("", emptyMap())
                 desc[0] shouldBe "param0"
                 desc[1] shouldBe "param1"
@@ -43,14 +43,14 @@ class ObjectFactoryTest :
                     }
                 }
 
-            test("success - null") {
+            test("success with null values") {
                 val userFactory = userSchema.bind(null, null)
                 val result = userFactory.tryCreate()
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe User("", 0)
             }
 
-            test("success - non-null") {
+            test("success with non-null values") {
                 val userFactory = userSchema.bind("abc", 10)
                 val result = userFactory.tryCreate()
                 result.isSuccess().mustBeTrue()
@@ -74,20 +74,20 @@ class ObjectFactoryTest :
                         }
                 }
 
-            test("success - tryCreate") {
+            test("success when using tryCreate") {
                 val factory = userSchema.bind(1)
                 val result = factory.tryCreate()
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe User(1)
             }
 
-            test("success - create") {
+            test("success when using create") {
                 val factory = userSchema.bind(1)
                 val user = factory.create()
                 user shouldBe User(1)
             }
 
-            test("failure - tryCreate") {
+            test("failure when using tryCreate") {
                 val factory = userSchema.bind(-1)
                 val result = factory.tryCreate()
                 result.isFailure().mustBeTrue()
@@ -98,7 +98,7 @@ class ObjectFactoryTest :
                 message.constraintId shouldBe "kova.comparable.min"
             }
 
-            test("failure - create") {
+            test("failure when using create") {
                 val factory = userSchema.bind(-1)
                 val ex =
                     shouldThrow<ValidationException> {
@@ -148,7 +148,7 @@ class ObjectFactoryTest :
                 result.messages.size shouldBe 2
             }
 
-            test("failure - failFast is true") {
+            test("failure when failFast is true") {
                 val userFactory = userSchema.bind(0, "")
                 val result = userFactory.tryCreate(ValidationConfig(failFast = true))
                 result.isFailure().mustBeTrue()
@@ -156,7 +156,7 @@ class ObjectFactoryTest :
             }
         }
 
-        context("2 args - generic validator") {
+        context("2 args with generic validator") {
             data class User(
                 val id: Int,
                 val name: String,
@@ -182,7 +182,7 @@ class ObjectFactoryTest :
             }
         }
 
-        context("2 args - nested factory") {
+        context("2 args with nested factory") {
             data class Age(
                 val value: Int,
             )

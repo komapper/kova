@@ -54,7 +54,7 @@ class ValidatorTest :
             }
         }
 
-        context("and - lambda") {
+        context("and with lambda") {
             val and = Kova.int().min(2).and { it.max(3) }
 
             test("success") {
@@ -72,15 +72,15 @@ class ValidatorTest :
             val length5 = Kova.string().length(5)
             val length2or5 = length2 or length5
 
-            test("success - length(2)") {
+            test("success with length 2") {
                 val result = length2or5.tryValidate("ab")
                 result.isSuccess().mustBeTrue()
             }
-            test("success - length(5)") {
+            test("success with length 5") {
                 val result = length2or5.tryValidate("abcde")
                 result.isSuccess().mustBeTrue()
             }
-            test("failure - length(3)") {
+            test("failure with length 3") {
                 val result = length2or5.tryValidate("abc")
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
@@ -99,7 +99,7 @@ class ValidatorTest :
             val length7 = Kova.string().length(7)
             val length2or5or7 = length2 or length5 or length7
 
-            test("failure - length(3)") {
+            test("failure with length 3") {
                 val result = length2or5or7.tryValidate("abc")
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
@@ -121,7 +121,7 @@ class ValidatorTest :
                     .or { it.length(5) }
                     .or { it.length(7) }
 
-            test("failure - length(3)") {
+            test("failure with length 3") {
                 val result = length2or5or7.tryValidate("abc")
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
@@ -157,12 +157,12 @@ class ValidatorTest :
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe "3"
             }
-            test("failure - first constraint violated") {
+            test("failure when first constraint violated") {
                 val result = validator.tryValidate(2)
                 result.isFailure().mustBeTrue()
                 result.messages.single().constraintId shouldBe "kova.comparable.min"
             }
-            test("failure - second constraint violated") {
+            test("failure when second constraint violated") {
                 val result = validator.tryValidate(10)
                 result.isFailure().mustBeTrue()
                 result.messages.single().constraintId shouldBe "kova.string.max"
@@ -176,12 +176,12 @@ class ValidatorTest :
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe "3"
             }
-            test("failure - first constraint violated") {
+            test("failure when first constraint violated") {
                 val result = validator.tryValidate(2)
                 result.isFailure().mustBeTrue()
                 result.messages.single().constraintId shouldBe "kova.comparable.min"
             }
-            test("failure - second constraint violated") {
+            test("failure when second constraint violated") {
                 val result = validator.tryValidate(10)
                 result.isFailure().mustBeTrue()
                 result.messages.single().constraintId shouldBe "kova.string.max"
@@ -200,12 +200,12 @@ class ValidatorTest :
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe "3"
             }
-            test("failure - first constraint violated") {
+            test("failure when first constraint violated") {
                 val result = validator.tryValidate(2)
                 result.isFailure().mustBeTrue()
                 result.messages.single().constraintId shouldBe "kova.comparable.min"
             }
-            test("failure - second constraint violated") {
+            test("failure when second constraint violated") {
                 val result = validator.tryValidate(10)
                 result.isFailure().mustBeTrue()
                 result.messages.single().constraintId shouldBe "kova.string.max"
@@ -224,12 +224,12 @@ class ValidatorTest :
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe "3"
             }
-            test("failure - first constraint violated") {
+            test("failure when first constraint violated") {
                 val result = validator.tryValidate(2)
                 result.isFailure().mustBeTrue()
                 result.messages.single().constraintId shouldBe "kova.comparable.min"
             }
-            test("failure - second constraint violated") {
+            test("failure when second constraint violated") {
                 val result = validator.tryValidate(10)
                 result.isFailure().mustBeTrue()
                 result.messages.single().constraintId shouldBe "kova.string.max"

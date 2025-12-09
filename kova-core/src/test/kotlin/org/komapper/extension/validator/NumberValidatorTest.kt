@@ -28,18 +28,18 @@ class NumberValidatorTest :
         context("or") {
             val validator = (Kova.int().max(2) or Kova.int().max(3)).min(1)
 
-            test("success : 2") {
+            test("success with value 2") {
                 val result = validator.tryValidate(2)
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe 2
             }
-            test("success : 3") {
+            test("success with value 3") {
                 val result = validator.tryValidate(3)
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe 3
             }
 
-            test("failure : 4") {
+            test("failure with value 4") {
                 val result = validator.tryValidate(4)
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
@@ -96,13 +96,13 @@ class NumberValidatorTest :
         context("positive with double") {
             val validator = Kova.double().positive()
 
-            test("success") {
+            test("success with positive number") {
                 val result = validator.tryValidate(0.1)
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe 0.1
             }
 
-            test("failure") {
+            test("failure with negative number") {
                 val result = validator.tryValidate(-0.1)
                 result.isFailure().mustBeTrue()
                 result.messages[0].constraintId shouldBe "kova.number.positive"
@@ -140,13 +140,13 @@ class NumberValidatorTest :
         context("negative with double") {
             val validator = Kova.double().negative()
 
-            test("success") {
+            test("success with negative number") {
                 val result = validator.tryValidate(-0.1)
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe -0.1
             }
 
-            test("failure") {
+            test("failure with positive number") {
                 val result = validator.tryValidate(0.1)
                 result.isFailure().mustBeTrue()
                 result.messages[0].constraintId shouldBe "kova.number.negative"
@@ -190,13 +190,13 @@ class NumberValidatorTest :
                 result.value shouldBe 0.0
             }
 
-            test("success with negative") {
+            test("success with negative number") {
                 val result = validator.tryValidate(-0.1)
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe -0.1
             }
 
-            test("failure with positive") {
+            test("failure with positive number") {
                 val result = validator.tryValidate(0.1)
                 result.isFailure().mustBeTrue()
                 result.messages[0].constraintId shouldBe "kova.number.notPositive"
@@ -234,7 +234,7 @@ class NumberValidatorTest :
         context("gt with double") {
             val validator = Kova.double().gt(5.5)
 
-            test("success") {
+            test("success with value greater than threshold") {
                 val result = validator.tryValidate(5.6)
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe 5.6
@@ -290,7 +290,7 @@ class NumberValidatorTest :
                 result.value shouldBe 5.5
             }
 
-            test("failure") {
+            test("failure with value less than threshold") {
                 val result = validator.tryValidate(5.4)
                 result.isFailure().mustBeTrue()
                 result.messages[0].constraintId shouldBe "kova.comparable.gte"
@@ -328,7 +328,7 @@ class NumberValidatorTest :
         context("lt with double") {
             val validator = Kova.double().lt(5.5)
 
-            test("success") {
+            test("success with value less than threshold") {
                 val result = validator.tryValidate(5.4)
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe 5.4
@@ -384,7 +384,7 @@ class NumberValidatorTest :
                 result.value shouldBe 5.5
             }
 
-            test("failure") {
+            test("failure with value greater than threshold") {
                 val result = validator.tryValidate(5.6)
                 result.isFailure().mustBeTrue()
                 result.messages[0].constraintId shouldBe "kova.comparable.lte"

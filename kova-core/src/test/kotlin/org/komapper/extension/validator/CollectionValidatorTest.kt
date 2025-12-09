@@ -32,14 +32,14 @@ class CollectionValidatorTest :
                 result.value shouldBe listOf("1", "2")
             }
 
-            test("failure - too few elements") {
+            test("failure with too few elements") {
                 val result = validator.tryValidate(listOf("1"))
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.collection.length"
             }
 
-            test("failure - too many elements") {
+            test("failure with too many elements") {
                 val result = validator.tryValidate(listOf("1", "2", "3"))
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
@@ -113,7 +113,7 @@ class CollectionValidatorTest :
                 }
             }
 
-            test("failure - failFast is true") {
+            test("failure when failFast is true") {
                 val result = validator.tryValidate(listOf("123", "4567", "8910"), ValidationConfig(failFast = true))
                 result.isFailure().mustBeTrue()
                 result.messages[0].let {
