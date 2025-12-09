@@ -701,6 +701,40 @@ if (result.isFailure()) {
 }
 ```
 
+### Custom Error Messages
+
+You can replace all validation error messages with a single custom message using the `withMessage` function. This is useful when you want to provide simplified, user-friendly error messages instead of exposing individual constraint violations:
+
+```kotlin
+// Simple static message
+val usernameValidator = Kova.string().notEmpty().min(3).max(20)
+    .withMessage("Username must be between 3 and 20 characters")
+
+val result = usernameValidator.tryValidate("ab")
+// Error: "Username must be between 3 and 20 characters"
+
+// Dynamic message based on original errors
+val passwordValidator = Kova.string().min(8).matches(Regex(".*[A-Z].*"))
+    .withMessage { messages ->
+        Message.text { "Invalid password: ${messages.joinToString { it.text }}" }
+    }
+
+// Use in ObjectSchema
+object UserSchema : ObjectSchema<User>() {
+    val email = User::email {
+        it.notEmpty().email().withMessage("Invalid email address")
+    }
+    val password = User::password {
+        it.min(8).matches(Regex(".*[A-Z].*"))
+            .withMessage("Password must be at least 8 characters with uppercase letters")
+    }
+}
+```
+
+The `withMessage` function has two overloads:
+- **`withMessage(message: String)`**: Simple overload for static error messages
+- **`withMessage(block: (List<Message>) -> MessageProvider)`**: Advanced overload that receives the list of original error messages, allowing you to create dynamic consolidated messages
+
 ### Path Tracking for Nested Objects
 
 ```kotlin
