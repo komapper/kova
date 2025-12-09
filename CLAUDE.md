@@ -12,6 +12,22 @@
 
 **Stack**: Kotlin, Gradle 8.14, Java 17, Kotest, Spotless/ktlint
 
+## Package Structure & File Locations
+
+All Kova classes and functions use the package name **`org.komapper.extension.validator`**. Files are located in the directory structure corresponding to the package:
+
+- **Main source**: `kova-core/src/main/kotlin/org/komapper/extension/validator/`
+- **Test source**: `kova-core/src/test/kotlin/org/komapper/extension/validator/`
+
+**File organization by type:**
+- **Core interfaces**: `Validator.kt`, `IdentityValidator.kt`, `NullableValidator.kt`, `ValidationResult.kt`, `ValidationContext.kt`, `ValidationConfig.kt`
+- **Type-specific validators**: `StringValidator.kt`, `NumberValidator.kt`, `CollectionValidator.kt`, `MapValidator.kt`, `TemporalValidator.kt`, etc.
+- **Object validation**: `ObjectSchema.kt`, `ObjectFactory.kt`
+- **Constraint system**: `ConstraintValidator.kt`, `Constraints.kt`, `ConstraintContext.kt`, `ConstraintResult.kt`
+- **Messaging**: `Message.kt`, `MessageProvider.kt`
+- **Main entry point**: `Kova.kt`
+- **Utilities**: `Path.kt`, `ValidationException.kt`
+
 ## Core Architecture
 
 ### Validators
