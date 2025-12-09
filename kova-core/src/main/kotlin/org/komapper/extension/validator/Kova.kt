@@ -3,9 +3,16 @@ package org.komapper.extension.validator
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.time.Clock
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.MonthDay
+import java.time.OffsetDateTime
+import java.time.OffsetTime
+import java.time.Year
+import java.time.YearMonth
+import java.time.ZonedDateTime
 import java.time.temporal.Temporal
 
 /**
@@ -108,6 +115,44 @@ interface Kova {
      * Creates a validator for LocalDateTime values with temporal constraints.
      */
     fun localDateTime(): TemporalValidator<LocalDateTime> = temporal(temporalNow = LocalDateTimeNow)
+
+    /**
+     * Creates a validator for Instant values with temporal constraints.
+     */
+    fun instant(): TemporalValidator<Instant> = temporal(temporalNow = InstantNow)
+
+    /**
+     * Creates a validator for MonthDay values.
+     *
+     * Note: MonthDay does not support temporal constraints (past, future, min, max) since it
+     * does not implement Comparable. Use generic() or custom constraints for validation.
+     */
+    fun monthDay(): IdentityValidator<MonthDay> = generic()
+
+    /**
+     * Creates a validator for OffsetDateTime values with temporal constraints.
+     */
+    fun offsetDateTime(): TemporalValidator<OffsetDateTime> = temporal(temporalNow = OffsetDateTimeNow)
+
+    /**
+     * Creates a validator for OffsetTime values with temporal constraints.
+     */
+    fun offsetTime(): TemporalValidator<OffsetTime> = temporal(temporalNow = OffsetTimeNow)
+
+    /**
+     * Creates a validator for Year values with temporal constraints.
+     */
+    fun year(): TemporalValidator<Year> = temporal(temporalNow = YearNow)
+
+    /**
+     * Creates a validator for YearMonth values with temporal constraints.
+     */
+    fun yearMonth(): TemporalValidator<YearMonth> = temporal(temporalNow = YearMonthNow)
+
+    /**
+     * Creates a validator for ZonedDateTime values with temporal constraints.
+     */
+    fun zonedDateTime(): TemporalValidator<ZonedDateTime> = temporal(temporalNow = ZonedDateTimeNow)
 
     /** Creates a validator for Collection values with size and element validation. */
     fun <E> collection(): IdentityValidator<Collection<E>> = generic()
