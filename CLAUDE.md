@@ -49,8 +49,8 @@ val result = Kova.string().min(1).max(10).tryValidate("hello")
 **Object validation:**
 ```kotlin
 object UserSchema : ObjectSchema<User>() {
-    val name = User::name { Kova.string().min(1).max(10) }
-    val age = User::age { Kova.int().min(0) }
+    val name = User::name { it.min(1).max(10) }
+    val age = User::age { it.min(0) }
 }
 ```
 
@@ -59,16 +59,16 @@ object UserSchema : ObjectSchema<User>() {
 object PeriodSchema : ObjectSchema<Period>({
     constrain("dateRange") { satisfies(it.input.startDate <= it.input.endDate, "...") }
 }) {
-    val startDate = Period::startDate { Kova.localDate() }
-    val endDate = Period::endDate { Kova.localDate() }
+    val startDate = Period::startDate { it }
+    val endDate = Period::endDate { it }
 }
 ```
 
 **Object factory (validate + construct):**
 ```kotlin
 object PersonSchema : ObjectSchema<Person>() {
-    private val nameV = Person::name { Kova.string().min(1) }
-    private val ageV = Person::age { Kova.int().min(0) }
+    private val nameV = Person::name { it.min(1) }
+    private val ageV = Person::age { it.min(0) }
 
     fun bind(name: String, age: Int) = factory {
         create(::Person, nameV.bind(name), ageV.bind(age))
@@ -111,6 +111,28 @@ All validators are immutable. Composition operators (`+`, `and`, `or`, `map`, `t
 
 ### ObjectSchema Properties
 Properties must be object properties (not in constructor lambda) since the `invoke` operator is only available on `ObjectSchema` itself.
+
+**Property validator DSL**: The `invoke` operator passes a base validator as the lambda parameter (`it`), enabling concise validator composition:
+```kotlin
+object UserSchema : ObjectSchema<User>() {
+    val id = User::id { it.min(1) }  // 'it' is a base validator for the property type
+    val name = User::name { it.min(1).max(10) }
+}
+```
+
+**Conditional validation with choose**: The `choose` method provides both the object instance and a base validator parameter:
+```kotlin
+object AddressSchema : ObjectSchema<Address>() {
+    val country = Address::country { it }
+    val postalCode = Address::postalCode choose { address, v ->
+        when (address.country) {
+            "US" -> v.length(5)
+            "CA" -> v.length(6)
+            else -> v.min(1)
+        }
+    }
+}
+```
 
 ### Nullable Handling
 - `Kova.nullable<T>()` accepts null by default

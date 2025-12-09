@@ -112,10 +112,10 @@ data class Product(val id: Int, val name: String, val price: Double, val stock: 
 
 // Define a schema for the Product class
 object ProductSchema : ObjectSchema<Product>() {
-    val id = Product::id { Kova.int().min(1) }
-    val name = Product::name { Kova.string().min(1).max(100).notBlank() }
-    val price = Product::price { Kova.double().min(0.0) }
-    val stock = Product::stock { Kova.int().min(0) }
+    val id = Product::id { it.min(1) }
+    val name = Product::name { it.min(1).max(100).notBlank() }
+    val price = Product::price { it.min(0.0) }
+    val stock = Product::stock { it.min(0) }
 }
 
 // Validate a product instance
@@ -142,8 +142,8 @@ object PeriodSchema : ObjectSchema<Period>({
         )
     }
 }) {
-    val startDate = Period::startDate { Kova.localDate() }
-    val endDate = Period::endDate { Kova.localDate() }
+    val startDate = Period::startDate { it }
+    val endDate = Period::endDate { it }
 }
 
 val result = PeriodSchema.tryValidate(Period(
@@ -167,10 +167,10 @@ data class UserRegistration(val username: String, val email: String, val passwor
 
 object UserRegistrationSchema : ObjectSchema<UserRegistration>() {
     private val usernameV = UserRegistration::username {
-        Kova.string().min(3).max(20).matches(Regex("^[a-zA-Z0-9_]+$"))
+        it.min(3).max(20).matches(Regex("^[a-zA-Z0-9_]+$"))
     }
-    private val emailV = UserRegistration::email { Kova.string().email() }
-    private val passwordV = UserRegistration::password { Kova.string().min(8).max(100) }
+    private val emailV = UserRegistration::email { it.email() }
+    private val passwordV = UserRegistration::password { it.min(8).max(100) }
 
     // Create a factory method that builds an ObjectFactory
     fun bind(username: String, email: String, password: String) = factory {
@@ -191,9 +191,9 @@ data class Address(val street: String, val city: String, val zipCode: String)
 data class Customer(val name: String, val email: String, val address: Address)
 
 object AddressSchema : ObjectSchema<Address>() {
-    private val streetV = Address::street { Kova.string().min(1).max(100) }
-    private val cityV = Address::city { Kova.string().min(1).max(50) }
-    private val zipCodeV = Address::zipCode { Kova.string().matches(Regex("^\\d{5}(-\\d{4})?$")) }
+    private val streetV = Address::street { it.min(1).max(100) }
+    private val cityV = Address::city { it.min(1).max(50) }
+    private val zipCodeV = Address::zipCode { it.matches(Regex("^\\d{5}(-\\d{4})?$")) }
 
     fun bind(street: String, city: String, zipCode: String) = factory {
         create(::Address, streetV.bind(street), cityV.bind(city), zipCodeV.bind(zipCode))
@@ -201,8 +201,8 @@ object AddressSchema : ObjectSchema<Address>() {
 }
 
 object CustomerSchema : ObjectSchema<Customer>() {
-    private val nameV = Customer::name { Kova.string().min(1).max(100) }
-    private val emailV = Customer::email { Kova.string().email() }
+    private val nameV = Customer::name { it.min(1).max(100) }
+    private val emailV = Customer::email { it.email() }
     private val addressV = Customer::address { AddressSchema }
 
     fun bind(name: String, email: String, street: String, city: String, zipCode: String) = factory {
@@ -538,7 +538,7 @@ data class Node(
 )
 
 object NodeSchema : ObjectSchema<Node>() {
-    val children = Node::children { Kova.list<Node>().max(2).onEach(this@NodeSchema) }
+    val children = Node::children { it.max(2).onEach(this) }
 }
 
 val node = Node(
@@ -561,8 +561,8 @@ data class Node(
 )
 
 object NodeSchema : ObjectSchema<Node>() {
-    val value = Node::value { Kova.int().min(0).max(100) }
-    val next = Node::next { Kova.nullable<Node>().then(this@NodeSchema) }
+    val value = Node::value { it.min(0).max(100) }
+    val next = Node::next { it.and(this) }
 }
 
 // Create a circular reference: node1 -> node2 -> node1
