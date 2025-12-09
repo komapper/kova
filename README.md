@@ -57,6 +57,8 @@ val productName = productNameValidator.validate("Wireless Mouse")
 
 ### Validator Composition
 
+Kova validators are composable - you can combine existing validators to create new, reusable validators:
+
 ```kotlin
 // Combine validators with + operator (or 'and')
 val emailValidator = Kova.string().notBlank() + Kova.string().email()
@@ -71,6 +73,36 @@ val priceValidator = Kova.string().toDouble()  // Validates and converts to Doub
 // Type-specific validators return the same type when composed
 val usernameValidator: StringValidator = Kova.string().min(3).max(20).matches(Regex("^[a-zA-Z0-9_]+$"))
 val stockValidator: NumberValidator<Int> = Kova.int().min(0).max(10000)
+```
+
+**Creating Reusable Validators by Composition**:
+
+Once created, validators can be reused across your application:
+
+```kotlin
+// Create a reusable password validator
+val passwordValidator = Kova.string()
+    .min(8)
+    .max(100)
+    .matches(Regex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$"))
+
+// Create a reusable email validator with specific rules
+val businessEmailValidator = Kova.string()
+    .notBlank()
+    .email()
+    .notEndsWith("@gmail.com")
+    .notEndsWith("@yahoo.com")
+
+// Compose validators to create more specific validators
+val adminEmailValidator = businessEmailValidator + Kova.string().endsWith("@company.com")
+
+// Use these validators across your application
+val signupPassword = passwordValidator.validate("SecurePass123")
+val adminEmail = adminEmailValidator.validate("admin@company.com")
+
+// Compose with nullable handling
+val optionalEmailValidator = emailValidator.asNullable()
+val emailWithDefault = emailValidator.asNullable("default@example.com")
 ```
 
 ### Object Validation
@@ -91,7 +123,7 @@ val product = Product(1, "Wireless Mouse", 29.99, 150)
 val result = ProductSchema.tryValidate(product)
 ```
 
-**Note**: Properties must be defined as object properties (outside the constructor lambda), as the `invoke` operator for property definitions is only available on the `ObjectSchema` class itself, not within the lambda scope.
+**Note**: Properties must be defined as object properties, as the `invoke` operator for property definitions is only available on the `ObjectSchema` class itself.
 
 ### Object-Level Constraints
 
@@ -290,12 +322,18 @@ Kova.string()
     .min(1)                    // Minimum length
     .max(100)                  // Maximum length
     .length(10)                // Exact length
-    .notBlank()                // Must not be blank
+    .blank()                   // Must be blank (empty or only whitespace)
+    .notBlank()                // Must not be blank (not empty and not only whitespace)
+    .empty()                   // Must be empty
     .notEmpty()                // Must not be empty
     .startsWith("prefix")      // Must start with prefix
+    .notStartsWith("prefix")   // Must not start with prefix
     .endsWith("suffix")        // Must end with suffix
+    .notEndsWith("suffix")     // Must not end with suffix
     .contains("substring")     // Must contain substring
+    .notContains("substring")  // Must not contain substring
     .matches(Regex("\\d+"))    // Must match regex pattern
+    .notMatches(Regex("\\d+")) // Must not match regex pattern
     .email()                   // Must be a valid email address
     .isInt()                   // Must be a valid integer string
     .isLong()                  // Must be a valid long string
@@ -310,8 +348,8 @@ Kova.string()
     .uppercase()               // Must be uppercase
     .lowercase()               // Must be lowercase
     .trim()                    // Transform: trim whitespace
-    .toUpperCase()             // Transform: convert to uppercase
-    .toLowerCase()             // Transform: convert to lowercase
+    .toUppercase()             // Transform: convert to uppercase
+    .toLowercase()             // Transform: convert to lowercase
     .toInt()                   // Transform: validate and convert to Int
     .toLong()                  // Transform: validate and convert to Long
     .toShort()                 // Transform: validate and convert to Short
@@ -357,9 +395,11 @@ Kova.boolean()     // Returns generic validator for boolean values
 
 ### Temporal Types
 
+Kova provides validators for Java Time API types with temporal constraints:
+
 ```kotlin
 // LocalDate validation
-Kova.localDate()           // Optional clock parameter (defaults to Clock.systemDefaultZone())
+Kova.localDate()
     .min(LocalDate.of(2024, 1, 1))     // Minimum date (>=)
     .max(LocalDate.of(2024, 12, 31))   // Maximum date (<=)
     .gt(LocalDate.of(2024, 6, 1))      // Greater than (>)
@@ -372,7 +412,7 @@ Kova.localDate()           // Optional clock parameter (defaults to Clock.system
     .pastOrPresent()                    // Must be in the past or present
 
 // LocalTime validation
-Kova.localTime()           // Optional clock parameter (defaults to Clock.systemDefaultZone())
+Kova.localTime()
     .min(LocalTime.of(9, 0))           // Minimum time (>=)
     .max(LocalTime.of(17, 0))          // Maximum time (<=)
     .gt(LocalTime.of(8, 30))           // Greater than (>)
@@ -385,7 +425,7 @@ Kova.localTime()           // Optional clock parameter (defaults to Clock.system
     .pastOrPresent()                    // Must be in the past or present
 
 // LocalDateTime validation
-Kova.localDateTime()       // Optional clock parameter (defaults to Clock.systemDefaultZone())
+Kova.localDateTime()
     .min(LocalDateTime.of(2024, 1, 1, 0, 0))     // Minimum datetime (>=)
     .max(LocalDateTime.of(2024, 12, 31, 23, 59)) // Maximum datetime (<=)
     .gt(startDateTime)                            // Greater than (>)
@@ -397,10 +437,70 @@ Kova.localDateTime()       // Optional clock parameter (defaults to Clock.system
     .past()                                       // Must be in the past
     .pastOrPresent()                              // Must be in the past or present
 
+// Instant validation
+Kova.instant()
+    .min(Instant.parse("2024-01-01T00:00:00Z"))  // Minimum instant (>=)
+    .max(Instant.parse("2024-12-31T23:59:59Z"))  // Maximum instant (<=)
+    .gt(startInstant)                             // Greater than (>)
+    .gte(startInstant)                            // Greater than or equal (>=)
+    .lt(endInstant)                               // Less than (<)
+    .lte(endInstant)                              // Less than or equal (<=)
+    .future()                                     // Must be in the future
+    .futureOrPresent()                            // Must be in the future or present
+    .past()                                       // Must be in the past
+    .pastOrPresent()                              // Must be in the past or present
+
+// OffsetDateTime validation
+Kova.offsetDateTime()
+    .min(OffsetDateTime.parse("2024-01-01T00:00:00Z"))  // Minimum offset datetime (>=)
+    .max(OffsetDateTime.parse("2024-12-31T23:59:59Z"))  // Maximum offset datetime (<=)
+    .future()                                            // Must be in the future
+    .past()                                              // Must be in the past
+    // ... supports all temporal constraints (gt, gte, lt, lte, futureOrPresent, pastOrPresent)
+
+// OffsetTime validation
+Kova.offsetTime()
+    .min(OffsetTime.parse("09:00:00Z"))    // Minimum offset time (>=)
+    .max(OffsetTime.parse("17:00:00Z"))    // Maximum offset time (<=)
+    .future()                               // Must be in the future
+    .past()                                 // Must be in the past
+    // ... supports all temporal constraints
+
+// ZonedDateTime validation
+Kova.zonedDateTime()
+    .min(ZonedDateTime.parse("2024-01-01T00:00:00Z"))  // Minimum zoned datetime (>=)
+    .max(ZonedDateTime.parse("2024-12-31T23:59:59Z"))  // Maximum zoned datetime (<=)
+    .future()                                           // Must be in the future
+    .past()                                             // Must be in the past
+    // ... supports all temporal constraints
+
+// Year validation
+Kova.year()
+    .min(Year.of(2024))    // Minimum year (>=)
+    .max(Year.of(2030))    // Maximum year (<=)
+    .future()               // Must be in the future
+    .past()                 // Must be in the past
+    // ... supports all temporal constraints
+
+// YearMonth validation
+Kova.yearMonth()
+    .min(YearMonth.of(2024, 1))    // Minimum year-month (>=)
+    .max(YearMonth.of(2024, 12))   // Maximum year-month (<=)
+    .future()                       // Must be in the future
+    .past()                         // Must be in the past
+    // ... supports all temporal constraints
+
+// MonthDay validation (no temporal constraints)
+Kova.monthDay()  // Returns generic validator (MonthDay doesn't implement Comparable)
+
+// Custom clock for testing
+val kova = Kova(clock = Clock.fixed(Instant.parse("2024-01-01T00:00:00Z"), ZoneId.systemDefault()))
+val validator = kova.localDate().future()
+
 // All temporal validators support composition operators
-val dateValidator: LocalDateValidator = Kova.localDate().past() + Kova.localDate().min(LocalDate.of(2020, 1, 1))
-val timeValidator: LocalTimeValidator = Kova.localTime().gte(LocalTime.of(9, 0)) or Kova.localTime().lte(LocalTime.of(17, 0))
-val dateTimeValidator: LocalDateTimeValidator = Kova.localDateTime().min(start).max(end)
+val dateValidator = Kova.localDate().past() + Kova.localDate().min(LocalDate.of(2020, 1, 1))
+val timeValidator = Kova.localTime().gte(LocalTime.of(9, 0)) or Kova.localTime().lte(LocalTime.of(17, 0))
+val dateTimeValidator = Kova.localDateTime().min(start).max(end)
 ```
 
 ### Collections
