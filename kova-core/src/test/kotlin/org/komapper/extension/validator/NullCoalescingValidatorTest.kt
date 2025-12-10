@@ -3,7 +3,7 @@ package org.komapper.extension.validator
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-class WithDefaultNullableValidatorTest :
+class NullCoalescingValidatorTest :
     FunSpec({
 
         context("nullable") {
@@ -190,7 +190,7 @@ class WithDefaultNullableValidatorTest :
                 val logs = mutableListOf<LogEntry>()
                 val config = ValidationConfig(logger = { logs.add(it) })
                 val result = nullableMax5OrMin3.tryValidate(6, config = config)
-                result.isSuccess().mustBeTrue()
+                result.isSuccess().mustBeTrue(result)
                 result.value shouldBe 6
                 logs shouldBe
                     listOf(
