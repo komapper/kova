@@ -41,6 +41,20 @@ class KovaPropertiesTest :
                 val message = result.messages.single()
                 message.text shouldBe "must not be empty"
             }
+
+            test("contains") {
+                val result = Kova.list<String>().contains("foo").tryValidate(listOf("bar", "baz"))
+                result.isFailure().mustBeTrue()
+                val message = result.messages.single()
+                message.text shouldBe "must contain foo"
+            }
+
+            test("notContains") {
+                val result = Kova.list<String>().notContains("foo").tryValidate(listOf("foo", "bar"))
+                result.isFailure().mustBeTrue()
+                val message = result.messages.single()
+                message.text shouldBe "must not contain foo"
+            }
         }
 
         context("kova.comparable") {

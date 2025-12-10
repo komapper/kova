@@ -151,3 +151,45 @@ fun <E, C : Collection<E>> CollectionValidator<C>.onEach(validator: Validator<E,
  */
 fun <E, C : Collection<E>> CollectionValidator<C>.onEach(block: (IdentityValidator<E>) -> Validator<E, *>) =
     onEach(block(Validator.success()))
+
+/**
+ * Validates that the collection contains the specified element.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.collection<String>().contains("foo")
+ * validator.validate(listOf("foo", "bar"))  // Success
+ * validator.validate(listOf("bar", "baz"))  // Failure
+ * ```
+ *
+ * @param element The element that must be present in the collection
+ * @param message Custom error message provider
+ * @return A new validator with the contains constraint
+ */
+fun <E, C : Collection<E>> CollectionValidator<C>.contains(
+    element: E,
+    message: MessageProvider = Message.resource(),
+) = constrain("kova.collection.contains") {
+    satisfies(it.input.contains(element), message(element))
+}
+
+/**
+ * Validates that the collection does not contain the specified element.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.collection<String>().notContains("foo")
+ * validator.validate(listOf("bar", "baz"))  // Success
+ * validator.validate(listOf("foo", "bar"))  // Failure
+ * ```
+ *
+ * @param element The element that must not be present in the collection
+ * @param message Custom error message provider
+ * @return A new validator with the notContains constraint
+ */
+fun <E, C : Collection<E>> CollectionValidator<C>.notContains(
+    element: E,
+    message: MessageProvider = Message.resource(),
+) = constrain("kova.collection.notContains") {
+    satisfies(!it.input.contains(element), message(element))
+}

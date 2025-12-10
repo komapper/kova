@@ -127,6 +127,50 @@ class CollectionValidatorTest :
             }
         }
 
+        context("contains") {
+            val validator = Kova.list<String>().contains("foo")
+
+            test("success") {
+                val result = validator.tryValidate(listOf("foo", "bar"))
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe listOf("foo", "bar")
+            }
+
+            test("failure") {
+                val result = validator.tryValidate(listOf("bar", "baz"))
+                result.isFailure().mustBeTrue()
+                result.messages.size shouldBe 1
+                result.messages[0].constraintId shouldBe "kova.collection.contains"
+            }
+
+            test("failure with empty list") {
+                val result = validator.tryValidate(emptyList())
+                result.isFailure().mustBeTrue()
+            }
+        }
+
+        context("notContains") {
+            val validator = Kova.list<String>().notContains("foo")
+
+            test("success") {
+                val result = validator.tryValidate(listOf("bar", "baz"))
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe listOf("bar", "baz")
+            }
+
+            test("failure") {
+                val result = validator.tryValidate(listOf("foo", "bar"))
+                result.isFailure().mustBeTrue()
+                result.messages.size shouldBe 1
+                result.messages[0].constraintId shouldBe "kova.collection.notContains"
+            }
+
+            test("success with empty list") {
+                val result = validator.tryValidate(emptyList())
+                result.isSuccess().mustBeTrue()
+            }
+        }
+
         context("property") {
             data class ListHolder(
                 val list: List<String>,
