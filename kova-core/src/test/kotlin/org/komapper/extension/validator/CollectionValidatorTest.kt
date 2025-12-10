@@ -85,7 +85,7 @@ class CollectionValidatorTest :
         }
 
         context("onEach") {
-            val validator = Kova.list<String>().onEach(Kova.string().length(3))
+            val validator = Kova.list<String>().onEach { it.length(3) }
 
             test("success") {
                 val result = validator.tryValidate(listOf("123", "456"))
@@ -135,9 +135,7 @@ class CollectionValidatorTest :
             val schema =
                 object : ObjectSchema<ListHolder>() {
                     val list =
-                        ListHolder::list {
-                            it.onEach(Kova.string().length(3))
-                        }
+                        ListHolder::list { e -> e.onEach { it.length(3) } }
                 }
 
             test("success") {

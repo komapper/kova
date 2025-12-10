@@ -29,7 +29,7 @@ class KovaPropertiesTest :
             }
 
             test("onEach") {
-                val result = Kova.list<Int>().onEach(Kova.int().positive()).tryValidate(listOf(1, -2, 3))
+                val result = Kova.list<Int>().onEach { it.positive() }.tryValidate(listOf(1, -2, 3))
                 result.isFailure().mustBeTrue()
                 val message = result.messages.single()
                 message.text shouldBe "Some elements do not satisfy the constraint: [must be positive]"
@@ -129,7 +129,7 @@ class KovaPropertiesTest :
                 val result =
                     Kova
                         .map<String, Int>()
-                        .onEachKey(Kova.string().min(2))
+                        .onEachKey { it.min(2) }
                         .tryValidate(mapOf("a" to 1, "bb" to 2))
                 result.isFailure().mustBeTrue()
                 val message = result.messages.single()
@@ -140,7 +140,7 @@ class KovaPropertiesTest :
                 val result =
                     Kova
                         .map<String, Int>()
-                        .onEachValue(Kova.int().positive())
+                        .onEachValue { it.positive() }
                         .tryValidate(mapOf("a" to 1, "b" to -2))
                 result.isFailure().mustBeTrue()
                 val message = result.messages.single()

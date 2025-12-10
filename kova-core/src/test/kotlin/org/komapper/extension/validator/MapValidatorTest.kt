@@ -104,11 +104,11 @@ class MapValidatorTest :
 
         context("onEach") {
             val validator =
-                Kova.map<String, String>().onEach(
-                    Kova.mapEntry<String, String>().constrain("test") {
+                Kova.map<String, String>().onEach { v ->
+                    v.constrain("test") {
                         satisfies(it.input.key != it.input.value, "Constraint failed: ${it.input.key}")
-                    },
-                )
+                    }
+                }
 
             test("success") {
                 val result = validator.tryValidate(mapOf("a" to "1", "b" to "1"))
@@ -124,7 +124,7 @@ class MapValidatorTest :
         }
 
         context("onEachKey") {
-            val validator = Kova.map<String, String>().onEachKey(Kova.string().length(1))
+            val validator = Kova.map<String, String>().onEachKey { it.length(1) }
 
             test("success") {
                 val result = validator.tryValidate(mapOf("a" to "1", "b" to "2"))
@@ -141,7 +141,7 @@ class MapValidatorTest :
         }
 
         context("onEachValue") {
-            val validator = Kova.map<String, String>().onEachValue(Kova.string().length(1))
+            val validator = Kova.map<String, String>().onEachValue { it.length(1) }
 
             test("success") {
                 val result = validator.tryValidate(mapOf("a" to "1", "b" to "2"))
