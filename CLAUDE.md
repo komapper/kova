@@ -21,9 +21,9 @@ All Kova classes and functions use the package name **`org.komapper.extension.va
 
 **File organization by type:**
 - **Core interfaces**: `Validator.kt`, `IdentityValidator.kt`, `NullableValidator.kt`, `ValidationResult.kt`, `ValidationContext.kt`, `ValidationConfig.kt`
-- **Type-specific validators**: `StringValidator.kt`, `NumberValidator.kt`, `CollectionValidator.kt`, `MapValidator.kt`, `TemporalValidator.kt`, etc.
+- **Type-specific validators**: `StringValidator.kt`, `NumberValidator.kt`, `CollectionValidator.kt`, `MapValidator.kt`, `TemporalValidator.kt`, `ComparableValidator.kt`, etc.
 - **Object validation**: `ObjectSchema.kt`, `ObjectFactory.kt`
-- **Constraint system**: `ConstraintValidator.kt`, `Constraints.kt`, `ConstraintContext.kt`, `ConstraintResult.kt`
+- **Constraint system**: `ConstraintValidator.kt`, `ConstraintContext.kt`, `ConstraintResult.kt`
 - **Messaging**: `Message.kt`, `MessageProvider.kt`
 - **Main entry point**: `Kova.kt`
 - **Utilities**: `Path.kt`, `ValidationException.kt`
@@ -37,7 +37,7 @@ All Kova classes and functions use the package name **`org.komapper.extension.va
 - **FailureDetail**: Sealed interface (`Single` | `Or`) representing individual failure information
 - **ValidationContext**: Tracks state (root, path, config), supports circular reference detection via `Path.containsObject()`
 - **ValidationConfig**: Centralized settings (failFast, locale)
-- **Architecture**: Validators use extension functions built on top of `constrain()` rather than specialized interfaces
+- **Architecture**: Most validators use extension functions built on top of `constrain()`. TemporalValidator uses an interface-based design where validation methods are interface members rather than extension functions, providing better encapsulation of clock and temporalNow state
 
 ### Key Patterns
 
@@ -89,7 +89,15 @@ Kova.localDate().min(LocalDate.of(2024, 1, 1)).max(LocalDate.of(2024, 12, 31))
 Kova.localTime().gte(LocalTime.of(9, 0)).lte(LocalTime.of(17, 0))
 Kova.localDateTime().gt(startDateTime).lt(endDateTime)
 
-// All temporal validators support composition operators (+, and, or, chain)
+// MonthDay implements Comparable but not Temporal (comparison constraints only)
+Kova.monthDay().min(MonthDay.of(3, 1)).max(MonthDay.of(10, 31))
+
+// Custom clock for testing (captured in closure, not exposed as public property)
+val fixedClock = Clock.fixed(Instant.parse("2024-01-01T00:00:00Z"), ZoneOffset.UTC)
+val kova = Kova(fixedClock)
+val validator = kova.localDate().future()
+
+// All temporal validators support composition operators (+, and, or)
 val validator = Kova.localDate().past() + Kova.localDate().min(LocalDate.of(2020, 1, 1))
 ```
 
@@ -186,17 +194,18 @@ fun StringValidator.min(
 ```
 
 ## Key Files
-- `Kova.kt` - Main API entry point, factory methods returning `IdentityValidator<T>`
+- `Kova.kt` - Main API entry point with factory methods returning `IdentityValidator<T>` or specialized validators. Includes `Kova()` factory function for creating instances with custom clocks
 - `Validator.kt` - Core interface and composition operators (`+`, `and`, `or`, `map`, `then`, `compose`) with lambda-based overloads
 - `IdentityValidator.kt` - Type alias for `Validator<T, T>`, provides `chain`, `constrain`, `onlyIf`, and `literal` extension functions
 - `NullableValidator.kt` - Type alias for `Validator<T?, S?>` with nullable-specific extensions (`isNull`, `notNull`, `isNullOr`, `notNullAnd`, `withDefault`, `asNullable`)
+- `TemporalValidator.kt` - Interface-based validator for temporal types with methods as interface members. Factory function captures clock and temporalNow in closure for better encapsulation
+- `ComparableValidator.kt` - Extension functions for `Comparable` types (min, max, gt, gte, lt, lte) with consolidated `kova.comparable.*` constraint IDs
 - `ValidationResult.kt` - Result types (`Success`, `Failure`) and `FailureDetail` interface
 - `ValidationContext.kt` - State tracking with circular reference detection
 - `ValidationConfig.kt` - Centralized validation settings (failFast, locale)
 - `ObjectSchema.kt` - Object validation with property rules, factory method, and ObjectSchemaFactoryScope for object construction
 - `ObjectFactory.kt` - Object construction interface and internal createObjectFactory functions (1-10 args)
 - `ConstraintValidator.kt` - Converts `ConstraintResult` to `ValidationResult`, base for extension functions
-- `Constraints.kt` - Shared constraint utilities (`min`, `max`, `isNull`, `notNull`)
 - `Message.kt` - Message types (Text, Resource, Collection, Or) with `text`, `constraintId`, `root`, `path`, and `context` properties
 - `MessageProvider.kt` - MessageProvider interface (no type parameter) and MessageProviderFactory for creating text/resource message providers
 - **Validator extension files** - `StringValidator.kt`, `NumberValidator.kt`, `CollectionValidator.kt`, etc. define extension functions on `IdentityValidator<T>`
