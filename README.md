@@ -12,7 +12,11 @@ Add Kova to your Gradle project:
 
 ```kotlin
 dependencies {
+    // Core validation library
     implementation("org.komapper:kova-core:0.0.3")
+
+    // Ktor integration (optional)
+    implementation("org.komapper:kova-ktor:0.0.3")
 }
 ```
 
@@ -27,6 +31,7 @@ dependencies {
 - **Fail-Fast Support**: Option to stop validation at the first error or collect all errors
 - **Nullable Support**: First-class support for nullable types
 - **Object Construction**: Validate inputs and construct objects in a single step
+- **Ktor Integration**: Automatic request validation with Ktor's RequestValidation plugin
 - **Zero Dependencies**: No external runtime dependencies, only requires Kotlin standard library
 
 ## Quick Start
@@ -222,6 +227,44 @@ val customer = factory.create()  // Validates and constructs nested objects
 - **`ObjectFactory.create(config = ValidationConfig())`**: Validates and constructs, returning `T` or throwing `ValidationException`
 
 **Note**: Properties must be defined as object properties because the `invoke` operator for property definitions is only available on the `ObjectSchema` class itself. This also allows properties to be referenced when binding values. The `bind` and `create` methods are only available within the `factory { }` scope, which provides access to `ObjectSchemaFactoryScope`.
+
+## Ktor Integration
+
+Kova provides seamless integration with [Ktor](https://ktor.io/) through the `kova-ktor` module, enabling automatic request validation using Ktor's RequestValidation plugin.
+
+```kotlin
+// Add dependency
+dependencies {
+    implementation("org.komapper:kova-ktor:$kovaVersion")
+}
+
+// Annotate your data class with the validation schema
+@ValidatedWith(CustomerSchema::class)
+@Serializable
+data class Customer(val id: Int, val firstName: String, val lastName: String)
+
+object CustomerSchema : ObjectSchema<Customer>() {
+    val id = Customer::id { it.positive() }
+    val firstName = Customer::firstName { it.min(1).max(50) }
+}
+
+// Install the validator
+fun Application.module() {
+    install(RequestValidation) {
+        validate(SchemaValidator())
+    }
+}
+
+// Requests are automatically validated
+routing {
+    post("/customers") {
+        val customer = call.receive<Customer>()  // Validated automatically
+        call.respond(HttpStatusCode.Created, customer)
+    }
+}
+```
+
+For detailed documentation, examples, and API reference, see **[kova-ktor/README.md](kova-ktor/README.md)**.
 
 ### Nullable Validation
 
@@ -891,6 +934,9 @@ if (result.isFailure()) {
 
 # Run tests for kova-core module
 ./gradlew kova-core:test
+
+# Run tests for kova-ktor module
+./gradlew kova-ktor:test
 
 # Build the project
 ./gradlew build
