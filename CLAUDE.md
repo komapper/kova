@@ -6,15 +6,25 @@
 
 ```bash
 ./gradlew test              # Run all tests
+./gradlew kova-core:test    # Run kova-core tests
+./gradlew kova-ktor:test    # Run kova-ktor tests
 ./gradlew build             # Build project
 ./gradlew spotlessApply     # Format code (auto-runs during build)
 ```
 
-**Stack**: Kotlin, Gradle 8.14, Java 17, Kotest, Spotless/ktlint
+**Stack**: Kotlin, Gradle 8.14, Java 17, Kotest, Spotless/ktlint, Ktor 3.0.0+
+
+**Note**: Spotless is configured to suppress the `standard:no-wildcard-imports` ktlint rule to allow wildcard imports where appropriate.
 
 ## Package Structure & File Locations
 
-All Kova classes and functions use the package name **`org.komapper.extension.validator`**. Files are located in the directory structure corresponding to the package:
+Kova consists of two modules:
+- **kova-core**: Core validation library
+- **kova-ktor**: Ktor integration module
+
+### kova-core
+
+Core validation classes use the package name **`org.komapper.extension.validator`**:
 
 - **Main source**: `kova-core/src/main/kotlin/org/komapper/extension/validator/`
 - **Test source**: `kova-core/src/test/kotlin/org/komapper/extension/validator/`
@@ -27,6 +37,20 @@ All Kova classes and functions use the package name **`org.komapper.extension.va
 - **Messaging**: `Message.kt`, `MessageProvider.kt`
 - **Main entry point**: `Kova.kt`
 - **Utilities**: `Path.kt`, `ValidationException.kt`
+
+### kova-ktor
+
+Ktor integration classes use the package name **`org.komapper.extension.validator.ktor.server`**:
+
+- **Main source**: `kova-ktor/src/main/kotlin/org/komapper/extension/validator/ktor/server/`
+- **Key files**:
+  - `SchemaValidator.kt` - Ktor Validator implementation for ObjectSchema validation
+  - `ValidatedWith.kt` - Annotation to link data classes with ObjectSchemas
+
+### Example projects
+
+- **example-core**: Examples demonstrating core validation features (object validation, factory pattern, nested validation)
+- **example-ktor**: Example Ktor application demonstrating kova-ktor integration with RequestValidation plugin
 
 ## Core Architecture
 
@@ -99,6 +123,39 @@ val validator = kova.localDate().future()
 
 // All temporal validators support composition operators (+, and, or)
 val validator = Kova.localDate().past() + Kova.localDate().min(LocalDate.of(2020, 1, 1))
+```
+
+**Ktor integration:**
+```kotlin
+// Annotate data class with validation schema
+@ValidatedWith(CustomerSchema::class)
+@Serializable
+data class Customer(val id: Int, val firstName: String, val lastName: String)
+
+object CustomerSchema : ObjectSchema<Customer>() {
+    val id = Customer::id { it.positive() }
+    val firstName = Customer::firstName { it.min(1).max(50) }
+}
+
+// Install SchemaValidator in Ktor application
+fun Application.module() {
+    install(RequestValidation) {
+        validate(SchemaValidator())
+    }
+    install(StatusPages) {
+        exception<RequestValidationException> { call, cause ->
+            call.respond(HttpStatusCode.BadRequest, cause.reasons.joinToString("\n"))
+        }
+    }
+}
+
+// Requests are automatically validated
+routing {
+    post("/customers") {
+        val customer = call.receive<Customer>()  // Validated automatically
+        call.respond(HttpStatusCode.Created, customer)
+    }
+}
 ```
 
 ## Important Implementation Details
@@ -193,6 +250,20 @@ fun StringValidator.min(
 }
 ```
 
+### Ktor Integration (kova-ktor module)
+- **`@ValidatedWith(schemaClass)`**: Annotation that links a data class to its ObjectSchema for automatic validation
+  - Must be applied to the data class that needs validation
+  - The schema class must be an object declaration (not a regular class)
+  - Works with Ktor's RequestValidation plugin
+- **`SchemaValidator`**: Ktor Validator implementation that integrates Kova ObjectSchemas with Ktor's request validation
+  - Constructor parameter: `errorFormatter: (List<Message>) -> String` - Optional custom error formatter (defaults to joining messages with newlines)
+  - Implements Ktor's `Validator` interface with `validate()` and `filter()` methods
+  - `filter()` checks for @ValidatedWith annotation to determine which requests to validate
+  - `validate()` extracts the ObjectSchema from the annotation and uses it to validate the request body
+  - Converts Kova's ValidationResult to Ktor's ValidationResult
+- **Error handling**: Use Ktor's StatusPages plugin to handle RequestValidationException
+- **Package**: All Ktor integration classes are in `org.komapper.extension.validator.ktor.server`
+
 ## Key Files
 - `Kova.kt` - Main API entry point with factory methods returning `IdentityValidator<T>` or specialized validators. Includes `Kova()` factory function for creating instances with custom clocks
 - `Validator.kt` - Core interface and composition operators (`+`, `and`, `or`, `map`, `then`, `compose`) with lambda-based overloads
@@ -209,3 +280,7 @@ fun StringValidator.min(
 - `Message.kt` - Message types (Text, Resource, Collection, Or) with `text`, `constraintId`, `root`, `path`, and `context` properties
 - `MessageProvider.kt` - MessageProvider interface (no type parameter) and MessageProviderFactory for creating text/resource message providers
 - **Validator extension files** - `StringValidator.kt`, `NumberValidator.kt`, `CollectionValidator.kt`, etc. define extension functions on `IdentityValidator<T>`
+
+### kova-ktor files
+- `SchemaValidator.kt` - Ktor Validator implementation that integrates ObjectSchemas with Ktor's RequestValidation plugin
+- `ValidatedWith.kt` - Annotation for linking data classes to ObjectSchemas for automatic validation
