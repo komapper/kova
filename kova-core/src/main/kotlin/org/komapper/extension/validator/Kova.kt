@@ -2,7 +2,6 @@ package org.komapper.extension.validator
 
 import java.math.BigDecimal
 import java.math.BigInteger
-import java.time.Clock
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -23,11 +22,20 @@ import java.time.temporal.Temporal
  *
  * Example usage:
  * ```kotlin
- * // Simple validation
+ * // String validation
  * val result = Kova.string().min(1).max(10).tryValidate("hello")
  *
  * // Numeric validation
  * val ageValidator = Kova.int().min(0).max(120)
+ *
+ * // Temporal validation with system clock (default)
+ * val dateValidator = Kova.localDate().past().min(LocalDate.of(2020, 1, 1))
+ * dateValidator.validate(LocalDate.of(2024, 6, 15))
+ *
+ * // Temporal validation with custom clock for testing
+ * val fixedClock = Clock.fixed(Instant.parse("2025-01-01T00:00:00Z"), ZoneOffset.UTC)
+ * val config = ValidationConfig(clock = fixedClock)
+ * dateValidator.tryValidate(LocalDate.of(2024, 12, 31), config = config)
  *
  * // Collection validation
  * val listValidator = Kova.list<String>().min(1).onEach(Kova.string().min(1))
@@ -84,42 +92,49 @@ interface Kova {
     fun uShort(): IdentityValidator<UShort> = generic()
 
     /**
-     * Creates a validator for temporal values with temporal constraints.
+     * Creates a validator for LocalDate values with temporal constraints.
      *
-     * This generic method supports LocalDate, LocalTime, LocalDateTime, and any other
-     * type that implements both Temporal and Comparable.
-     *
-     * @param T The temporal type to validate
-     * @param temporalNow Strategy for obtaining the current temporal value
-     * @return A temporal validator for type T
+     * Temporal constraints (past, future, pastOrPresent, futureOrPresent) use the clock
+     * from [ValidationConfig]. By default, [java.time.Clock.systemDefaultZone] is used.
+     * For testing, pass a custom clock via the config parameter in validation methods.
      *
      * Example:
      * ```kotlin
-     * val dateValidator = Kova.temporal<LocalDate>(temporalNow = LocalDateNow)
-     * val timeValidator = Kova.temporal<LocalTime>(temporalNow = LocalTimeNow)
+     * // Using default system clock
+     * val validator = Kova.localDate().past()
+     * validator.validate(LocalDate.of(2024, 1, 1))
+     *
+     * // Using custom clock for testing
+     * val fixedClock = Clock.fixed(Instant.parse("2025-01-01T00:00:00Z"), ZoneOffset.UTC)
+     * val config = ValidationConfig(clock = fixedClock)
+     * validator.tryValidate(LocalDate.of(2024, 12, 31), config = config)
      * ```
      */
-    fun <T> temporal(temporalNow: TemporalNow<T>): TemporalValidator<T> where T : java.time.temporal.Temporal, T : Comparable<T>
-
-    /**
-     * Creates a validator for LocalDate values with temporal constraints.
-     */
-    fun localDate(): TemporalValidator<LocalDate> = temporal(temporalNow = LocalDateNow)
+    fun localDate(): TemporalValidator<LocalDate> = generic()
 
     /**
      * Creates a validator for LocalTime values with temporal constraints.
+     *
+     * Temporal constraints use the clock from [ValidationConfig].
+     * See [localDate] for clock configuration details.
      */
-    fun localTime(): TemporalValidator<LocalTime> = temporal(temporalNow = LocalTimeNow)
+    fun localTime(): TemporalValidator<LocalTime> = generic()
 
     /**
      * Creates a validator for LocalDateTime values with temporal constraints.
+     *
+     * Temporal constraints use the clock from [ValidationConfig].
+     * See [localDate] for clock configuration details.
      */
-    fun localDateTime(): TemporalValidator<LocalDateTime> = temporal(temporalNow = LocalDateTimeNow)
+    fun localDateTime(): TemporalValidator<LocalDateTime> = generic()
 
     /**
      * Creates a validator for Instant values with temporal constraints.
+     *
+     * Temporal constraints use the clock from [ValidationConfig].
+     * See [localDate] for clock configuration details.
      */
-    fun instant(): TemporalValidator<Instant> = temporal(temporalNow = InstantNow)
+    fun instant(): TemporalValidator<Instant> = generic()
 
     /**
      * Creates a validator for MonthDay values.
@@ -132,28 +147,43 @@ interface Kova {
 
     /**
      * Creates a validator for OffsetDateTime values with temporal constraints.
+     *
+     * Temporal constraints use the clock from [ValidationConfig].
+     * See [localDate] for clock configuration details.
      */
-    fun offsetDateTime(): TemporalValidator<OffsetDateTime> = temporal(temporalNow = OffsetDateTimeNow)
+    fun offsetDateTime(): TemporalValidator<OffsetDateTime> = generic()
 
     /**
      * Creates a validator for OffsetTime values with temporal constraints.
+     *
+     * Temporal constraints use the clock from [ValidationConfig].
+     * See [localDate] for clock configuration details.
      */
-    fun offsetTime(): TemporalValidator<OffsetTime> = temporal(temporalNow = OffsetTimeNow)
+    fun offsetTime(): TemporalValidator<OffsetTime> = generic()
 
     /**
      * Creates a validator for Year values with temporal constraints.
+     *
+     * Temporal constraints use the clock from [ValidationConfig].
+     * See [localDate] for clock configuration details.
      */
-    fun year(): TemporalValidator<Year> = temporal(temporalNow = YearNow)
+    fun year(): TemporalValidator<Year> = generic()
 
     /**
      * Creates a validator for YearMonth values with temporal constraints.
+     *
+     * Temporal constraints use the clock from [ValidationConfig].
+     * See [localDate] for clock configuration details.
      */
-    fun yearMonth(): TemporalValidator<YearMonth> = temporal(temporalNow = YearMonthNow)
+    fun yearMonth(): TemporalValidator<YearMonth> = generic()
 
     /**
      * Creates a validator for ZonedDateTime values with temporal constraints.
+     *
+     * Temporal constraints use the clock from [ValidationConfig].
+     * See [localDate] for clock configuration details.
      */
-    fun zonedDateTime(): TemporalValidator<ZonedDateTime> = temporal(temporalNow = ZonedDateTimeNow)
+    fun zonedDateTime(): TemporalValidator<ZonedDateTime> = generic()
 
     /** Creates a validator for Collection values with size and element validation. */
     fun <E> collection(): IdentityValidator<Collection<E>> = generic()
@@ -260,60 +290,5 @@ interface Kova {
      */
     fun fail(message: String): Nothing = throw MessageException(message)
 
-    /**
-     * Default Kova instance with system default clock.
-     *
-     * This companion object provides convenient access to all Kova factory methods
-     * using the system default clock. It delegates to a default Kova instance created
-     * with [Clock.systemDefaultZone].
-     *
-     * Example usage:
-     * ```kotlin
-     * // Access factory methods directly through companion object
-     * val stringValidator = Kova.string().min(1).max(100)
-     * val dateValidator = Kova.localDate().past()
-     * val listValidator = Kova.list<String>().min(1)
-     * ```
-     *
-     * For testing or scenarios requiring a custom clock, use the [Kova] factory function:
-     * ```kotlin
-     * val fixedClock = Clock.fixed(Instant.parse("2025-01-01T00:00:00Z"), ZoneOffset.UTC)
-     * val testKova = Kova(fixedClock)
-     * ```
-     */
-    companion object : Kova by Kova()
-}
-
-/**
- * Creates a Kova instance with a custom clock for temporal validations.
- *
- * This factory function allows you to provide a custom [Clock] instance that will be used
- * for all temporal validators (past, future, etc.) created from this Kova instance.
- * This is particularly useful for testing scenarios where you need deterministic time-based validation.
- *
- * @param clock The clock to use for temporal comparisons. Defaults to system default zone.
- * @return A Kova instance configured with the specified clock
- *
- * Example:
- * ```kotlin
- * // Use default system clock
- * val kova = Kova()
- *
- * // Use fixed clock for testing
- * val fixedInstant = Instant.parse("2025-01-01T00:00:00Z")
- * val fixedClock = Clock.fixed(fixedInstant, ZoneOffset.UTC)
- * val testKova = Kova(fixedClock)
- *
- * val validator = testKova.localDate().past()
- * validator.tryValidate(LocalDate.of(2024, 12, 31)) // Success (before fixed time)
- * validator.tryValidate(LocalDate.of(2025, 1, 2))   // Failure (after fixed time)
- * ```
- */
-fun Kova(clock: Clock = Clock.systemDefaultZone()): Kova = KovaImpl(clock)
-
-internal class KovaImpl(
-    private val clock: Clock,
-) : Kova {
-    override fun <T> temporal(temporalNow: TemporalNow<T>): TemporalValidator<T> where T : Temporal, T : Comparable<T> =
-        TemporalValidator(clock = clock, temporalNow = temporalNow)
+    companion object : Kova
 }

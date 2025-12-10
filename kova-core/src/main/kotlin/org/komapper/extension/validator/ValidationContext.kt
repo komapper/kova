@@ -1,5 +1,7 @@
 package org.komapper.extension.validator
 
+import java.time.Clock
+
 /**
  * Context object that tracks the state of validation execution.
  *
@@ -18,6 +20,13 @@ data class ValidationContext(
 ) {
     /** Whether validation should stop at the first failure. */
     val failFast: Boolean get() = config.failFast
+
+    /**
+     * The clock used for temporal validation constraints (past, future, etc.).
+     *
+     * Delegates to [ValidationConfig.clock].
+     */
+    val clock: Clock get() = config.clock
 }
 
 /**
@@ -25,21 +34,31 @@ data class ValidationContext(
  *
  * @property failFast If true, validation stops at the first failure instead of collecting all errors.
  *                    Default is false (collect all errors).
+ * @property clock The clock used for temporal validation constraints (past, future, pastOrPresent, futureOrPresent).
+ *                 Defaults to [Clock.systemDefaultZone]. Use a fixed clock for deterministic testing.
  * @property logger Optional callback function for receiving debug log messages during validation.
  *                  If null (default), no logging is performed. Each log message contains information
  *                  about constraint satisfaction/violation, including constraint ID, root, path, and input value.
  *
  * Example:
  * ```kotlin
+ * // Basic configuration
  * val config = ValidationConfig(
  *     failFast = true,
  *     logger = { message -> println(message) }
  * )
  * val result = validator.tryValidate(input, config)
+ *
+ * // Configuration with fixed clock for testing temporal validators
+ * val fixedClock = Clock.fixed(Instant.parse("2025-01-01T00:00:00Z"), ZoneOffset.UTC)
+ * val testConfig = ValidationConfig(clock = fixedClock)
+ * val dateValidator = Kova.localDate().past()
+ * dateValidator.tryValidate(LocalDate.of(2024, 12, 31), config = testConfig)
  * ```
  */
 data class ValidationConfig(
     val failFast: Boolean = false,
+    val clock: Clock = Clock.systemDefaultZone(),
     val logger: ((LogEntry) -> Unit)? = null,
 )
 

@@ -546,15 +546,14 @@ Kova.monthDay()
     .lte(MonthDay.of(12, 31))   // Less than or equal (<=)
 
 // Custom clock for testing
-// The Kova() factory function creates a Kova instance with a custom clock
-// that will be used for all temporal validators (past, future, etc.).
-// This is particularly useful for testing scenarios where you need deterministic
-// time-based validation.
+// Temporal validators use the clock from ValidationConfig for time-based
+// constraints (past, future, etc.). This is particularly useful for testing
+// scenarios where you need deterministic time-based validation.
 val fixedClock = Clock.fixed(Instant.parse("2024-01-01T00:00:00Z"), ZoneOffset.UTC)
-val kova = Kova(fixedClock)
-val validator = kova.localDate().future()
-validator.tryValidate(LocalDate.of(2023, 12, 31))  // Failure (before fixed time)
-validator.tryValidate(LocalDate.of(2024, 1, 2))    // Success (after fixed time)
+val config = ValidationConfig(clock = fixedClock)
+val validator = Kova.localDate().future()
+validator.tryValidate(LocalDate.of(2023, 12, 31), config = config)  // Failure (before fixed time)
+validator.tryValidate(LocalDate.of(2024, 1, 2), config = config)    // Success (after fixed time)
 
 // All temporal validators support composition operators
 val dateValidator = Kova.localDate().past() + Kova.localDate().min(LocalDate.of(2020, 1, 1))
