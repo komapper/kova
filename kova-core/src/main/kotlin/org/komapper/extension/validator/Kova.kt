@@ -124,8 +124,9 @@ interface Kova {
     /**
      * Creates a validator for MonthDay values.
      *
-     * Note: MonthDay does not support temporal constraints (past, future, min, max) since it
-     * does not implement Comparable. Use generic() or custom constraints for validation.
+     * Note: MonthDay does not implement [Temporal], so it does not support temporal-specific
+     * constraints (past, future, pastOrPresent, futureOrPresent). However, it does implement
+     * [Comparable], so comparison constraints (min, max, gt, gte, lt, lte) are available.
      */
     fun monthDay(): IdentityValidator<MonthDay> = generic()
 
@@ -259,9 +260,55 @@ interface Kova {
      */
     fun fail(message: String): Nothing = throw MessageException(message)
 
+    /**
+     * Default Kova instance with system default clock.
+     *
+     * This companion object provides convenient access to all Kova factory methods
+     * using the system default clock. It delegates to a default Kova instance created
+     * with [Clock.systemDefaultZone].
+     *
+     * Example usage:
+     * ```kotlin
+     * // Access factory methods directly through companion object
+     * val stringValidator = Kova.string().min(1).max(100)
+     * val dateValidator = Kova.localDate().past()
+     * val listValidator = Kova.list<String>().min(1)
+     * ```
+     *
+     * For testing or scenarios requiring a custom clock, use the [Kova] factory function:
+     * ```kotlin
+     * val fixedClock = Clock.fixed(Instant.parse("2025-01-01T00:00:00Z"), ZoneOffset.UTC)
+     * val testKova = Kova(fixedClock)
+     * ```
+     */
     companion object : Kova by Kova()
 }
 
+/**
+ * Creates a Kova instance with a custom clock for temporal validations.
+ *
+ * This factory function allows you to provide a custom [Clock] instance that will be used
+ * for all temporal validators (past, future, etc.) created from this Kova instance.
+ * This is particularly useful for testing scenarios where you need deterministic time-based validation.
+ *
+ * @param clock The clock to use for temporal comparisons. Defaults to system default zone.
+ * @return A Kova instance configured with the specified clock
+ *
+ * Example:
+ * ```kotlin
+ * // Use default system clock
+ * val kova = Kova()
+ *
+ * // Use fixed clock for testing
+ * val fixedInstant = Instant.parse("2025-01-01T00:00:00Z")
+ * val fixedClock = Clock.fixed(fixedInstant, ZoneOffset.UTC)
+ * val testKova = Kova(fixedClock)
+ *
+ * val validator = testKova.localDate().past()
+ * validator.tryValidate(LocalDate.of(2024, 12, 31)) // Success (before fixed time)
+ * validator.tryValidate(LocalDate.of(2025, 1, 2))   // Failure (after fixed time)
+ * ```
+ */
 fun Kova(clock: Clock = Clock.systemDefaultZone()): Kova = KovaImpl(clock)
 
 internal class KovaImpl(
