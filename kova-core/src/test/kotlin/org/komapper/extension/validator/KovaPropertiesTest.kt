@@ -167,6 +167,20 @@ class KovaPropertiesTest :
                 val message = result.messages.single()
                 message.text shouldBe "must not be empty"
             }
+
+            test("containsKey") {
+                val result = Kova.map<String, Int>().containsKey("foo").tryValidate(mapOf("bar" to 2, "baz" to 3))
+                result.isFailure().mustBeTrue()
+                val message = result.messages.single()
+                message.text shouldBe "must contain key foo"
+            }
+
+            test("notContainsKey") {
+                val result = Kova.map<String, Int>().notContainsKey("foo").tryValidate(mapOf("foo" to 1, "bar" to 2))
+                result.isFailure().mustBeTrue()
+                val message = result.messages.single()
+                message.text shouldBe "must not contain key foo"
+            }
         }
 
         context("kova.nullable") {
