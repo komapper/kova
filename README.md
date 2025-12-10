@@ -569,6 +569,8 @@ Kova.list<String>()
     .max(10)                                 // Maximum size
     .length(5)                               // Exact size
     .notEmpty()                              // Must not be empty
+    .contains("foo")                         // Must contain element
+    .notContains("bar")                      // Must not contain element
     .onEach(Kova.string().min(1))           // Validate each element
 
 Kova.set<Int>()
@@ -576,6 +578,8 @@ Kova.set<Int>()
     .max(10)
     .length(5)
     .notEmpty()
+    .contains(42)
+    .notContains(0)
     .onEach(Kova.int().min(0))
 
 Kova.collection<String>()
@@ -583,6 +587,8 @@ Kova.collection<String>()
     .max(10)
     .length(5)
     .notEmpty()
+    .contains("required")
+    .notContains("forbidden")
     .onEach(Kova.string().notBlank())
 ```
 
@@ -642,7 +648,10 @@ Kova.map<String, Int>()
     .max(10)                                 // Maximum size
     .length(5)                               // Exact size
     .notEmpty()                              // Must not be empty
-    .onEach(Kova.mapEntry<String, Int>())   // Validate each entry
+    .containsKey("foo")                      // Must contain key
+    .notContainsKey("bar")                   // Must not contain key
+    .containsValue(42)                       // Must contain value
+    .notContainsValue(0)                     // Must not contain value
     .onEachKey(Kova.string().min(1))        // Validate each key
     .onEachValue(Kova.int().min(0))         // Validate each value
 ```
