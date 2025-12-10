@@ -1,5 +1,7 @@
 package org.komapper.extension.validator
 
+import java.time.Clock
+
 /**
  * Represents a validation constraint that can be applied to a value.
  *
@@ -85,6 +87,22 @@ data class ConstraintContext<T>(
 
     /** Whether validation should stop at the first failure */
     val failFast: Boolean get() = validationContext.failFast
+
+    /**
+     * The clock used for temporal validation constraints.
+     *
+     * This clock is used by temporal extension functions (past, future, pastOrPresent, futureOrPresent)
+     * to determine the current time for comparison. Defaults to the system clock, but can be configured
+     * via [ValidationConfig] for testing purposes.
+     *
+     * Example usage in temporal constraints:
+     * ```kotlin
+     * constrain("kova.temporal.future") { ctx ->
+     *     satisfies(ctx.input > LocalDate.now(ctx.clock), "Date must be in the future")
+     * }
+     * ```
+     */
+    val clock: Clock get() = validationContext.clock
 }
 
 /**

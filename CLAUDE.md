@@ -31,13 +31,14 @@
 - **Validator<IN, OUT>**: Core interface with `execute(input, context)` method (input first, context second)
 - **IdentityValidator<T>**: Type alias for `Validator<T, T>` - for validators that don't transform types
 - **NullableValidator<T, S>**: Type alias for `Validator<T?, S?>` - for nullable validators
+- **TemporalValidator<T>**: Type alias for `IdentityValidator<T>` - for temporal validators
 - **ValidationResult**: Sealed interface (`Success<T>` | `Failure`)
 - **ValidationContext**: Tracks state (root, path, config), supports circular reference detection
-- **ValidationConfig**: Centralized settings (failFast, locale)
+- **ValidationConfig**: Centralized settings (failFast, clock, logger)
 
 ### Design Patterns
-- **Most validators**: Extension functions built on `constrain()` (e.g., `StringValidator.kt`, `NumberValidator.kt`)
-- **TemporalValidator**: Interface-based design (methods as interface members, not extensions) for better clock/temporalNow encapsulation
+- **Most validators**: Extension functions built on `constrain()` (e.g., `StringValidator.kt`, `NumberValidator.kt`, `TemporalValidator.kt`)
+- **TemporalValidator**: Type alias with extension functions using reified type parameters for temporal constraints
 - **Immutability**: All validators immutable; composition operators return new instances
 - **Composition**: `+`, `and`, `or`, `map`, `then`, `compose` with lambda-based overloads for fluent API
 
@@ -125,10 +126,12 @@ fun Application.module() {
 - `tryCreate(config)` returns `ValidationResult`, `create(config)` returns object or throws
 
 ### Temporal Validators
-- Interface-based design with methods as members (not extensions)
-- Factory function captures clock and temporalNow in closure (not public properties)
+- Type alias `TemporalValidator<T> = IdentityValidator<T>` - no wrapper interface
+- Extension functions with reified type parameters (e.g., `inline fun <reified T> TemporalValidator<T>.future()`)
+- Clock obtained from `ValidationConfig.clock` at validation time (not at validator creation)
+- Internal `now()` function maps `KClass<T>` to appropriate `T.now(Clock)` method
 - `MonthDay` implements `Comparable` but not `Temporal` (comparison constraints only, no past/future)
-- Custom clock for testing: `Kova(fixedClock).localDate().future()`
+- Custom clock for testing: `validator.tryValidate(date, config = ValidationConfig(clock = fixedClock))`
 
 ### Ktor Integration
 - **@ValidatedWith(schemaClass)**: Links data class to ObjectSchema (schema must be object declaration)
@@ -147,7 +150,7 @@ fun Application.module() {
 - **Object validation**: `ObjectSchema.kt`, `ObjectFactory.kt`
 - **Constraint system**: `ConstraintValidator.kt`, `ConstraintContext.kt`, `ConstraintResult.kt`
 - **Messaging**: `Message.kt`, `MessageProvider.kt`
-- **Entry point**: `Kova.kt` - factory methods, includes `Kova()` for custom clocks
+- **Entry point**: `Kova.kt` - factory methods for creating validators (companion object provides static access)
 - **Utilities**: `Path.kt`, `ValidationException.kt`
 
 ### kova-ktor

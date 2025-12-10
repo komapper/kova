@@ -482,7 +482,7 @@ class ObjectSchemaTest :
             val userSchema =
                 object : ObjectSchema<User>() {
                     val name = User::name { it.notBlank() }
-                    val birthday = User::birthday { Kova.localDate() }
+                    val birthday = User::birthday { it }
                 }
 
             test("success") {

@@ -22,80 +22,80 @@ class TemporalValidatorTest :
             val zone = ZoneOffset.UTC
             val instant = date.atStartOfDay(zone).toInstant()
             val clock = Clock.fixed(instant, zone)
-            val kova = Kova(clock)
+            val config = ValidationConfig(clock = clock)
 
             context("future") {
-                val validator = kova.localDate().future()
+                val validator = Kova.generic<LocalDate>().future()
 
                 test("success") {
-                    val result = validator.tryValidate(date.plusDays(1))
+                    val result = validator.tryValidate(date.plusDays(1), config = config)
                     result.isSuccess().mustBeTrue()
                 }
 
                 test("failure with present value") {
-                    val result = validator.tryValidate(date)
+                    val result = validator.tryValidate(date, config = config)
                     result.isFailure().mustBeTrue()
                 }
 
                 test("failure with past value") {
-                    val result = validator.tryValidate(date.minusDays(1))
+                    val result = validator.tryValidate(date.minusDays(1), config = config)
                     result.isFailure().mustBeTrue()
                 }
             }
 
             context("futureOrPresent") {
-                val validator = kova.localDate().futureOrPresent()
+                val validator = Kova.localDate().futureOrPresent()
 
                 test("success with future value") {
-                    val result = validator.tryValidate(date.plusDays(1))
+                    val result = validator.tryValidate(date.plusDays(1), config = config)
                     result.isSuccess().mustBeTrue()
                 }
 
                 test("success with present value") {
-                    val result = validator.tryValidate(date)
+                    val result = validator.tryValidate(date, config = config)
                     result.isSuccess().mustBeTrue()
                 }
 
                 test("failure with past value") {
-                    val result = validator.tryValidate(date.minusDays(1))
+                    val result = validator.tryValidate(date.minusDays(1), config = config)
                     result.isFailure().mustBeTrue()
                 }
             }
 
             context("past") {
-                val validator = kova.localDate().past()
+                val validator = Kova.localDate().past()
 
                 test("success") {
-                    val result = validator.tryValidate(date.minusDays(1))
+                    val result = validator.tryValidate(date.minusDays(1), config = config)
                     result.isSuccess().mustBeTrue()
                 }
 
                 test("failure with present value") {
-                    val result = validator.tryValidate(date)
+                    val result = validator.tryValidate(date, config = config)
                     result.isFailure().mustBeTrue()
                 }
 
                 test("failure with future value") {
-                    val result = validator.tryValidate(date.plusDays(1))
+                    val result = validator.tryValidate(date.plusDays(1), config = config)
                     result.isFailure().mustBeTrue()
                 }
             }
 
             context("pastOrPresent") {
-                val validator = kova.localDate().pastOrPresent()
+                val validator = Kova.localDate().pastOrPresent()
 
                 test("success with past value") {
-                    val result = validator.tryValidate(date.minusDays(1))
+                    val result = validator.tryValidate(date.minusDays(1), config = config)
                     result.isSuccess().mustBeTrue()
                 }
 
                 test("success with present value") {
-                    val result = validator.tryValidate(date)
+                    val result = validator.tryValidate(date, config = config)
                     result.isSuccess().mustBeTrue()
                 }
 
                 test("failure with future value") {
-                    val result = validator.tryValidate(date.plusDays(1))
+                    val result = validator.tryValidate(date.plusDays(1), config = config)
                     result.isFailure().mustBeTrue()
                 }
             }
@@ -227,80 +227,80 @@ class TemporalValidatorTest :
             val zone = ZoneOffset.UTC
             val instant = date.atTime(time).toInstant(zone)
             val clock = Clock.fixed(instant, zone)
-            val kova = Kova(clock)
+            val config = ValidationConfig(clock = clock)
 
             context("future") {
-                val validator = kova.localTime().future()
+                val validator = Kova.localTime().future()
 
                 test("success") {
-                    val result = validator.tryValidate(time.plusHours(1))
+                    val result = validator.tryValidate(time.plusHours(1), config = config)
                     result.isSuccess().mustBeTrue()
                 }
 
                 test("failure with present value") {
-                    val result = validator.tryValidate(time)
+                    val result = validator.tryValidate(time, config = config)
                     result.isFailure().mustBeTrue()
                 }
 
                 test("failure with past value") {
-                    val result = validator.tryValidate(time.minusHours(1))
+                    val result = validator.tryValidate(time.minusHours(1), config = config)
                     result.isFailure().mustBeTrue()
                 }
             }
 
             context("futureOrPresent") {
-                val validator = kova.localTime().futureOrPresent()
+                val validator = Kova.localTime().futureOrPresent()
 
                 test("success with future value") {
-                    val result = validator.tryValidate(time.plusHours(1))
+                    val result = validator.tryValidate(time.plusHours(1), config = config)
                     result.isSuccess().mustBeTrue()
                 }
 
                 test("success with present value") {
-                    val result = validator.tryValidate(time)
+                    val result = validator.tryValidate(time, config = config)
                     result.isSuccess().mustBeTrue()
                 }
 
                 test("failure with past value") {
-                    val result = validator.tryValidate(time.minusHours(1))
+                    val result = validator.tryValidate(time.minusHours(1), config = config)
                     result.isFailure().mustBeTrue()
                 }
             }
 
             context("past") {
-                val validator = kova.localTime().past()
+                val validator = Kova.localTime().past()
 
                 test("success") {
-                    val result = validator.tryValidate(time.minusHours(1))
+                    val result = validator.tryValidate(time.minusHours(1), config = config)
                     result.isSuccess().mustBeTrue()
                 }
 
                 test("failure with present value") {
-                    val result = validator.tryValidate(time)
+                    val result = validator.tryValidate(time, config = config)
                     result.isFailure().mustBeTrue()
                 }
 
                 test("failure with future value") {
-                    val result = validator.tryValidate(time.plusHours(1))
+                    val result = validator.tryValidate(time.plusHours(1), config = config)
                     result.isFailure().mustBeTrue()
                 }
             }
 
             context("pastOrPresent") {
-                val validator = kova.localTime().pastOrPresent()
+                val validator = Kova.localTime().pastOrPresent()
 
                 test("success with past value") {
-                    val result = validator.tryValidate(time.minusHours(1))
+                    val result = validator.tryValidate(time.minusHours(1), config = config)
                     result.isSuccess().mustBeTrue()
                 }
 
                 test("success with present value") {
-                    val result = validator.tryValidate(time)
+                    val result = validator.tryValidate(time, config = config)
                     result.isSuccess().mustBeTrue()
                 }
 
                 test("failure with future value") {
-                    val result = validator.tryValidate(time.plusHours(1))
+                    val result = validator.tryValidate(time.plusHours(1), config = config)
                     result.isFailure().mustBeTrue()
                 }
             }
@@ -431,80 +431,80 @@ class TemporalValidatorTest :
             val zone = ZoneOffset.UTC
             val instant = dateTime.toInstant(zone)
             val clock = Clock.fixed(instant, zone)
-            val kova = Kova(clock)
+            val config = ValidationConfig(clock = clock)
 
             context("future") {
-                val validator = kova.localDateTime().future()
+                val validator = Kova.localDateTime().future()
 
                 test("success") {
-                    val result = validator.tryValidate(dateTime.plusHours(1))
+                    val result = validator.tryValidate(dateTime.plusHours(1), config = config)
                     result.isSuccess().mustBeTrue()
                 }
 
                 test("failure with present value") {
-                    val result = validator.tryValidate(dateTime)
+                    val result = validator.tryValidate(dateTime, config = config)
                     result.isFailure().mustBeTrue()
                 }
 
                 test("failure with past value") {
-                    val result = validator.tryValidate(dateTime.minusHours(1))
+                    val result = validator.tryValidate(dateTime.minusHours(1), config = config)
                     result.isFailure().mustBeTrue()
                 }
             }
 
             context("futureOrPresent") {
-                val validator = kova.localDateTime().futureOrPresent()
+                val validator = Kova.localDateTime().futureOrPresent()
 
                 test("success with future value") {
-                    val result = validator.tryValidate(dateTime.plusHours(1))
+                    val result = validator.tryValidate(dateTime.plusHours(1), config = config)
                     result.isSuccess().mustBeTrue()
                 }
 
                 test("success with present value") {
-                    val result = validator.tryValidate(dateTime)
+                    val result = validator.tryValidate(dateTime, config = config)
                     result.isSuccess().mustBeTrue()
                 }
 
                 test("failure with past value") {
-                    val result = validator.tryValidate(dateTime.minusHours(1))
+                    val result = validator.tryValidate(dateTime.minusHours(1), config = config)
                     result.isFailure().mustBeTrue()
                 }
             }
 
             context("past") {
-                val validator = kova.localDateTime().past()
+                val validator = Kova.localDateTime().past()
 
                 test("success") {
-                    val result = validator.tryValidate(dateTime.minusHours(1))
+                    val result = validator.tryValidate(dateTime.minusHours(1), config = config)
                     result.isSuccess().mustBeTrue()
                 }
 
                 test("failure with present value") {
-                    val result = validator.tryValidate(dateTime)
+                    val result = validator.tryValidate(dateTime, config = config)
                     result.isFailure().mustBeTrue()
                 }
 
                 test("failure with future value") {
-                    val result = validator.tryValidate(dateTime.plusHours(1))
+                    val result = validator.tryValidate(dateTime.plusHours(1), config = config)
                     result.isFailure().mustBeTrue()
                 }
             }
 
             context("pastOrPresent") {
-                val validator = kova.localDateTime().pastOrPresent()
+                val validator = Kova.localDateTime().pastOrPresent()
 
                 test("success with past value") {
-                    val result = validator.tryValidate(dateTime.minusHours(1))
+                    val result = validator.tryValidate(dateTime.minusHours(1), config = config)
                     result.isSuccess().mustBeTrue()
                 }
 
                 test("success with present value") {
-                    val result = validator.tryValidate(dateTime)
+                    val result = validator.tryValidate(dateTime, config = config)
                     result.isSuccess().mustBeTrue()
                 }
 
                 test("failure with future value") {
-                    val result = validator.tryValidate(dateTime.plusHours(1))
+                    val result = validator.tryValidate(dateTime.plusHours(1), config = config)
                     result.isFailure().mustBeTrue()
                 }
             }
@@ -633,32 +633,32 @@ class TemporalValidatorTest :
         context("Instant") {
             val instant = Instant.parse("2025-01-01T12:00:00Z")
             val clock = Clock.fixed(instant, ZoneOffset.UTC)
-            val kova = Kova(clock)
+            val config = ValidationConfig(clock = clock)
 
             context("future") {
-                val validator = kova.instant().future()
+                val validator = Kova.instant().future()
 
                 test("success") {
-                    val result = validator.tryValidate(instant.plusSeconds(3600))
+                    val result = validator.tryValidate(instant.plusSeconds(3600), config = config)
                     result.isSuccess().mustBeTrue()
                 }
 
                 test("failure with past value") {
-                    val result = validator.tryValidate(instant.minusSeconds(3600))
+                    val result = validator.tryValidate(instant.minusSeconds(3600), config = config)
                     result.isFailure().mustBeTrue()
                 }
             }
 
             context("past") {
-                val validator = kova.instant().past()
+                val validator = Kova.instant().past()
 
                 test("success") {
-                    val result = validator.tryValidate(instant.minusSeconds(3600))
+                    val result = validator.tryValidate(instant.minusSeconds(3600), config = config)
                     result.isSuccess().mustBeTrue()
                 }
 
                 test("failure with future value") {
-                    val result = validator.tryValidate(instant.plusSeconds(3600))
+                    val result = validator.tryValidate(instant.plusSeconds(3600), config = config)
                     result.isFailure().mustBeTrue()
                 }
             }
@@ -829,32 +829,32 @@ class TemporalValidatorTest :
         context("OffsetDateTime") {
             val offsetDateTime = OffsetDateTime.of(2025, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC)
             val clock = Clock.fixed(offsetDateTime.toInstant(), ZoneOffset.UTC)
-            val kova = Kova(clock)
+            val config = ValidationConfig(clock = clock)
 
             context("future") {
-                val validator = kova.offsetDateTime().future()
+                val validator = Kova.offsetDateTime().future()
 
                 test("success") {
-                    val result = validator.tryValidate(offsetDateTime.plusHours(1))
+                    val result = validator.tryValidate(offsetDateTime.plusHours(1), config = config)
                     result.isSuccess().mustBeTrue()
                 }
 
                 test("failure with past value") {
-                    val result = validator.tryValidate(offsetDateTime.minusHours(1))
+                    val result = validator.tryValidate(offsetDateTime.minusHours(1), config = config)
                     result.isFailure().mustBeTrue()
                 }
             }
 
             context("past") {
-                val validator = kova.offsetDateTime().past()
+                val validator = Kova.offsetDateTime().past()
 
                 test("success") {
-                    val result = validator.tryValidate(offsetDateTime.minusHours(1))
+                    val result = validator.tryValidate(offsetDateTime.minusHours(1), config = config)
                     result.isSuccess().mustBeTrue()
                 }
 
                 test("failure with future value") {
-                    val result = validator.tryValidate(offsetDateTime.plusHours(1))
+                    val result = validator.tryValidate(offsetDateTime.plusHours(1), config = config)
                     result.isFailure().mustBeTrue()
                 }
             }
@@ -905,32 +905,32 @@ class TemporalValidatorTest :
             val offsetTime = OffsetTime.of(12, 0, 0, 0, ZoneOffset.UTC)
             val instant = date.atTime(offsetTime.toLocalTime()).toInstant(ZoneOffset.UTC)
             val clock = Clock.fixed(instant, ZoneOffset.UTC)
-            val kova = Kova(clock)
+            val config = ValidationConfig(clock = clock)
 
             context("future") {
-                val validator = kova.offsetTime().future()
+                val validator = Kova.offsetTime().future()
 
                 test("success") {
-                    val result = validator.tryValidate(offsetTime.plusHours(1))
+                    val result = validator.tryValidate(offsetTime.plusHours(1), config = config)
                     result.isSuccess().mustBeTrue()
                 }
 
                 test("failure with past value") {
-                    val result = validator.tryValidate(offsetTime.minusHours(1))
+                    val result = validator.tryValidate(offsetTime.minusHours(1), config = config)
                     result.isFailure().mustBeTrue()
                 }
             }
 
             context("past") {
-                val validator = kova.offsetTime().past()
+                val validator = Kova.offsetTime().past()
 
                 test("success") {
-                    val result = validator.tryValidate(offsetTime.minusHours(1))
+                    val result = validator.tryValidate(offsetTime.minusHours(1), config = config)
                     result.isSuccess().mustBeTrue()
                 }
 
                 test("failure with future value") {
-                    val result = validator.tryValidate(offsetTime.plusHours(1))
+                    val result = validator.tryValidate(offsetTime.plusHours(1), config = config)
                     result.isFailure().mustBeTrue()
                 }
             }
@@ -981,32 +981,32 @@ class TemporalValidatorTest :
             val zone = ZoneOffset.UTC
             val instant = date.atStartOfDay(zone).toInstant()
             val clock = Clock.fixed(instant, zone)
-            val kova = Kova(clock)
+            val config = ValidationConfig(clock = clock)
 
             context("future") {
-                val validator = kova.year().future()
+                val validator = Kova.year().future()
 
                 test("success") {
-                    val result = validator.tryValidate(Year.of(2026))
+                    val result = validator.tryValidate(Year.of(2026), config = config)
                     result.isSuccess().mustBeTrue()
                 }
 
                 test("failure with past value") {
-                    val result = validator.tryValidate(Year.of(2024))
+                    val result = validator.tryValidate(Year.of(2024), config = config)
                     result.isFailure().mustBeTrue()
                 }
             }
 
             context("past") {
-                val validator = kova.year().past()
+                val validator = Kova.year().past()
 
                 test("success") {
-                    val result = validator.tryValidate(Year.of(2024))
+                    val result = validator.tryValidate(Year.of(2024), config = config)
                     result.isSuccess().mustBeTrue()
                 }
 
                 test("failure with future value") {
-                    val result = validator.tryValidate(Year.of(2026))
+                    val result = validator.tryValidate(Year.of(2026), config = config)
                     result.isFailure().mustBeTrue()
                 }
             }
@@ -1057,32 +1057,32 @@ class TemporalValidatorTest :
             val zone = ZoneOffset.UTC
             val instant = date.atStartOfDay(zone).toInstant()
             val clock = Clock.fixed(instant, zone)
-            val kova = Kova(clock)
+            val config = ValidationConfig(clock = clock)
 
             context("future") {
-                val validator = kova.yearMonth().future()
+                val validator = Kova.yearMonth().future()
 
                 test("success") {
-                    val result = validator.tryValidate(YearMonth.of(2025, 2))
+                    val result = validator.tryValidate(YearMonth.of(2025, 2), config = config)
                     result.isSuccess().mustBeTrue()
                 }
 
                 test("failure with past value") {
-                    val result = validator.tryValidate(YearMonth.of(2024, 12))
+                    val result = validator.tryValidate(YearMonth.of(2024, 12), config = config)
                     result.isFailure().mustBeTrue()
                 }
             }
 
             context("past") {
-                val validator = kova.yearMonth().past()
+                val validator = Kova.yearMonth().past()
 
                 test("success") {
-                    val result = validator.tryValidate(YearMonth.of(2024, 12))
+                    val result = validator.tryValidate(YearMonth.of(2024, 12), config = config)
                     result.isSuccess().mustBeTrue()
                 }
 
                 test("failure with future value") {
-                    val result = validator.tryValidate(YearMonth.of(2025, 2))
+                    val result = validator.tryValidate(YearMonth.of(2025, 2), config = config)
                     result.isFailure().mustBeTrue()
                 }
             }
@@ -1131,32 +1131,32 @@ class TemporalValidatorTest :
         context("ZonedDateTime") {
             val zonedDateTime = ZonedDateTime.of(2025, 1, 1, 12, 0, 0, 0, ZoneOffset.UTC)
             val clock = Clock.fixed(zonedDateTime.toInstant(), ZoneOffset.UTC)
-            val kova = Kova(clock)
+            val config = ValidationConfig(clock = clock)
 
             context("future") {
-                val validator = kova.zonedDateTime().future()
+                val validator = Kova.zonedDateTime().future()
 
                 test("success") {
-                    val result = validator.tryValidate(zonedDateTime.plusHours(1))
+                    val result = validator.tryValidate(zonedDateTime.plusHours(1), config = config)
                     result.isSuccess().mustBeTrue()
                 }
 
                 test("failure with past value") {
-                    val result = validator.tryValidate(zonedDateTime.minusHours(1))
+                    val result = validator.tryValidate(zonedDateTime.minusHours(1), config = config)
                     result.isFailure().mustBeTrue()
                 }
             }
 
             context("past") {
-                val validator = kova.zonedDateTime().past()
+                val validator = Kova.zonedDateTime().past()
 
                 test("success") {
-                    val result = validator.tryValidate(zonedDateTime.minusHours(1))
+                    val result = validator.tryValidate(zonedDateTime.minusHours(1), config = config)
                     result.isSuccess().mustBeTrue()
                 }
 
                 test("failure with future value") {
-                    val result = validator.tryValidate(zonedDateTime.plusHours(1))
+                    val result = validator.tryValidate(zonedDateTime.plusHours(1), config = config)
                     result.isFailure().mustBeTrue()
                 }
             }
