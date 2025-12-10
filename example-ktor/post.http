@@ -1,0 +1,9 @@
+###
+POST http://0.0.0.0:8090/json
+Content-Type: application/json
+
+{
+  "id": -1,
+  "firstName": "Jet",
+  "lastName": "Brains"
+}

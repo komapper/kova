@@ -26,6 +26,10 @@ spotless {
         target("**/*.kt")
         targetExclude("**/build/**/*.kt")
         ktlint()
+        suppressLintsFor {
+            step = "ktlint"
+            shortCode = "standard:no-wildcard-imports"
+        }
     }
     kotlinGradle {
         target("**/*.gradle.kts")
