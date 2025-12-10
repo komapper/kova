@@ -192,7 +192,8 @@ infix fun <IN, OUT> Validator<IN, OUT>.or(other: Validator<IN, OUT>): Validator<
                     is Success -> otherResult
                     is Failure -> {
                         val constraintContext = context.createConstraintContext(input, "kova.or")
-                        val messageContext = constraintContext.createMessageContext(listOf(selfResult.messages, otherResult.messages))
+                        val messageContext =
+                            constraintContext.createMessageContext(listOf(selfResult.messages, otherResult.messages))
                         Failure(otherResult.value, listOf(Message.Or(messageContext, selfResult, otherResult)))
                     }
                 }
@@ -438,7 +439,7 @@ fun <T : Any, S : Any> Validator<T, S>.asNullable(): NullableValidator<T, S> =
  * @param defaultValue The value to use when input is null
  * @return A new validator that accepts null input but produces non-nullable output
  */
-fun <T : Any, S : Any> Validator<T, S>.asNullable(defaultValue: S): WithDefaultNullableValidator<T, S> = asNullable { defaultValue }
+fun <T : Any, S : Any> Validator<T, S>.asNullable(defaultValue: S): NullCoalescingValidator<T, S> = asNullable { defaultValue }
 
 /**
  * Converts a non-nullable validator to a nullable validator with a lazily-evaluated default value.
@@ -456,13 +457,10 @@ fun <T : Any, S : Any> Validator<T, S>.asNullable(defaultValue: S): WithDefaultN
  * @param withDefault Function that generates the default value when input is null
  * @return A new validator that accepts null input but produces non-nullable output
  */
-fun <T : Any, S : Any> Validator<T, S>.asNullable(withDefault: () -> S): WithDefaultNullableValidator<T, S> {
-    val validator =
-        Validator<T?, S> { input, context ->
-            if (input == null) Success(withDefault(), context) else execute(input, context)
-        }
-    return WithDefaultNullableValidator(validator, withDefault)
-}
+fun <T : Any, S : Any> Validator<T, S>.asNullable(withDefault: () -> S): NullCoalescingValidator<T, S> =
+    Validator { input, context ->
+        if (input == null) Success(withDefault(), context) else execute(input, context)
+    }
 
 /**
  * Replaces all validation error messages with a single custom message.

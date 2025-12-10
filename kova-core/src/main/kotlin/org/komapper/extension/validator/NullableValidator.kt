@@ -158,7 +158,7 @@ inline fun <reified T : Any, reified S : Any> NullableValidator<T, S>.toNonNulla
  * Provides a default value for null inputs.
  *
  * If the input is null, the validator returns the default value instead.
- * This converts the validator to a [WithDefaultNullableValidator] that produces non-nullable output.
+ * This converts the validator to a [NullCoalescingValidator] that produces non-nullable output.
  *
  * Example:
  * ```kotlin
@@ -171,7 +171,7 @@ inline fun <reified T : Any, reified S : Any> NullableValidator<T, S>.toNonNulla
  * @param defaultValue The value to use when input is null
  * @return A new validator with non-nullable output that uses the default for null inputs
  */
-inline fun <reified T : Any, reified S : Any> NullableValidator<T, S>.withDefault(defaultValue: S): WithDefaultNullableValidator<T, S> =
+inline fun <reified T : Any, reified S : Any> NullableValidator<T, S>.withDefault(defaultValue: S): NullCoalescingValidator<T, S> =
     withDefault { defaultValue }
 
 /**
@@ -194,7 +194,7 @@ inline fun <reified T : Any, reified S : Any> NullableValidator<T, S>.withDefaul
  */
 inline fun <reified T : Any, reified S : Any> NullableValidator<T, S>.withDefault(
     noinline provide: () -> S,
-): WithDefaultNullableValidator<T, S> = WithDefaultNullableValidator(map { it ?: provide() }, provide)
+): NullCoalescingValidator<T, S> = map { it ?: provide() }
 
 /**
  * Operator overload for [and]. Combines this nullable validator with a non-nullable validator.
