@@ -56,7 +56,9 @@ fun <T : Any, S : Any> NullableValidator<T, S>.constrain(
  * @return A new validator that only accepts null
  */
 fun <T : Any, S : Any> NullableValidator<T, S>.isNull(message: MessageProvider = Message.resource()): NullableValidator<T, S> =
-    constrain("kova.nullable.isNull", Constraints.isNull(message))
+    constrain("kova.nullable.isNull") {
+        satisfies(it.input == null, message())
+    }
 
 /**
  * Validates that the input is null OR satisfies a custom validator.
@@ -102,7 +104,9 @@ fun <T : Any, S : Any> NullableValidator<T, S>.isNullOr(
  * @return A new validator that rejects null
  */
 fun <T : Any, S : Any> NullableValidator<T, S>.notNull(message: MessageProvider = Message.resource()): NullableValidator<T, S> =
-    constrain("kova.nullable.notNull", Constraints.notNull(message))
+    constrain("kova.nullable.notNull") {
+        satisfies(it.input != null, message())
+    }
 
 /**
  * Validates that the input is not null AND satisfies a custom validator.

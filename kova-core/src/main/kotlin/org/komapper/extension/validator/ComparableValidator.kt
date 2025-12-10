@@ -17,7 +17,10 @@ package org.komapper.extension.validator
 fun <T : Comparable<T>> IdentityValidator<T>.min(
     value: T,
     message: MessageProvider = Message.resource(),
-): IdentityValidator<T> = constrain("kova.comparable.min", Constraints.min(value, message))
+): IdentityValidator<T> =
+    constrain("kova.comparable.min") {
+        satisfies(it.input >= value, message(value))
+    }
 
 /**
  * Validates that the number is less than or equal to the specified maximum value.
@@ -36,7 +39,10 @@ fun <T : Comparable<T>> IdentityValidator<T>.min(
 fun <T : Comparable<T>> IdentityValidator<T>.max(
     value: T,
     message: MessageProvider = Message.resource(),
-): IdentityValidator<T> = constrain("kova.comparable.max", Constraints.max(value, message))
+): IdentityValidator<T> =
+    constrain("kova.comparable.max") {
+        satisfies(it.input <= value, message(value))
+    }
 
 /**
  * Validates that the number is strictly greater than the specified value.
@@ -56,7 +62,10 @@ fun <T : Comparable<T>> IdentityValidator<T>.max(
 fun <T : Comparable<T>> IdentityValidator<T>.gt(
     value: T,
     message: MessageProvider = Message.resource(),
-): IdentityValidator<T> = constrain("kova.comparable.gt", Constraints.gt(value, message))
+): IdentityValidator<T> =
+    constrain("kova.comparable.gt") {
+        satisfies(it.input > value, message(value))
+    }
 
 /**
  * Validates that the number is greater than or equal to the specified value.
@@ -76,7 +85,10 @@ fun <T : Comparable<T>> IdentityValidator<T>.gt(
 fun <T : Comparable<T>> IdentityValidator<T>.gte(
     value: T,
     message: MessageProvider = Message.resource(),
-): IdentityValidator<T> = constrain("kova.comparable.gte", Constraints.gte(value, message))
+): IdentityValidator<T> =
+    constrain("kova.comparable.gte") {
+        satisfies(it.input >= value, message(value))
+    }
 
 /**
  * Validates that the number is strictly less than the specified value.
@@ -96,7 +108,10 @@ fun <T : Comparable<T>> IdentityValidator<T>.gte(
 fun <T : Comparable<T>> IdentityValidator<T>.lt(
     value: T,
     message: MessageProvider = Message.resource(),
-): IdentityValidator<T> = constrain("kova.comparable.lt", Constraints.lt(value, message))
+): IdentityValidator<T> =
+    constrain("kova.comparable.lt") {
+        satisfies(it.input < value, message(value))
+    }
 
 /**
  * Validates that the number is less than or equal to the specified value.
@@ -116,4 +131,7 @@ fun <T : Comparable<T>> IdentityValidator<T>.lt(
 fun <T : Comparable<T>> IdentityValidator<T>.lte(
     value: T,
     message: MessageProvider = Message.resource(),
-): IdentityValidator<T> = constrain("kova.comparable.lte", Constraints.lte(value, message))
+): IdentityValidator<T> =
+    constrain("kova.comparable.lte") {
+        satisfies(it.input <= value, message(value))
+    }
