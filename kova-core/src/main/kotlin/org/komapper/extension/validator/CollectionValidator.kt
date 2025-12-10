@@ -129,3 +129,25 @@ fun <E, C : Collection<E>> CollectionValidator<C>.onEach(validator: Validator<E,
             Message.Collection(messageContext, failures)
         }
     }
+
+/**
+ * Lambda-based overload of [onEach] for more fluent validation composition.
+ *
+ * This allows building an element validator using a lambda function instead of providing
+ * a pre-built validator instance.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.collection<String>()
+ *     .notEmpty()
+ *     .onEach { it.min(2).max(10) }
+ *
+ * validator.validate(listOf("abc", "def"))    // Success
+ * validator.validate(listOf("a", "b"))        // Failure: elements too short
+ * ```
+ *
+ * @param block A function that builds an element validator from a success validator
+ * @return A new validator with per-element validation
+ */
+fun <E, C : Collection<E>> CollectionValidator<C>.onEach(block: (IdentityValidator<E>) -> Validator<E, *>) =
+    onEach(block(Validator.success()))

@@ -121,6 +121,29 @@ fun <K, V> MapValidator<K, V>.onEach(validator: Validator<Map.Entry<K, V>, *>) =
     }
 
 /**
+ * Lambda-based overload of [onEach] for more fluent validation composition.
+ *
+ * This allows building an entry validator using a lambda function instead of providing
+ * a pre-built validator instance.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.map<String, Int>()
+ *     .onEach { entry ->
+ *         entry.constrain("validEntry") { ctx ->
+ *             satisfies(ctx.input.key.length >= 2 && ctx.input.value >= 0,
+ *                 "Key must be at least 2 chars and value non-negative")
+ *         }
+ *     }
+ * ```
+ *
+ * @param block A function that builds an entry validator from a success validator
+ * @return A new validator with per-entry validation
+ */
+fun <K, V> MapValidator<K, V>.onEach(block: (IdentityValidator<Map.Entry<K, V>>) -> Validator<Map.Entry<K, V>, *>) =
+    onEach(block(Validator.success()))
+
+/**
  * Validates each key of the map using the specified validator.
  *
  * If any key fails validation, the entire map validation fails.
@@ -148,6 +171,27 @@ fun <K, V> MapValidator<K, V>.onEachKey(validator: Validator<K, *>) =
     }
 
 /**
+ * Lambda-based overload of [onEachKey] for more fluent validation composition.
+ *
+ * This allows building a key validator using a lambda function instead of providing
+ * a pre-built validator instance.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.map<String, Int>()
+ *     .notEmpty()
+ *     .onEachKey { it.min(2).max(10) }
+ *
+ * validator.validate(mapOf("abc" to 1, "def" to 2)) // Success
+ * validator.validate(mapOf("a" to 1, "b" to 2))     // Failure: keys too short
+ * ```
+ *
+ * @param block A function that builds a key validator from a success validator
+ * @return A new validator with per-key validation
+ */
+fun <K, V> MapValidator<K, V>.onEachKey(block: (IdentityValidator<K>) -> Validator<K, *>) = onEachKey(block(Validator.success()))
+
+/**
  * Validates each value of the map using the specified validator.
  *
  * If any value fails validation, the entire map validation fails.
@@ -173,6 +217,27 @@ fun <K, V> MapValidator<K, V>.onEachValue(validator: Validator<V, *>) =
             validator.execute(entry.value, validationContext.appendPath(text = path))
         }
     }
+
+/**
+ * Lambda-based overload of [onEachValue] for more fluent validation composition.
+ *
+ * This allows building a value validator using a lambda function instead of providing
+ * a pre-built validator instance.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.map<String, Int>()
+ *     .notEmpty()
+ *     .onEachValue { it.min(0).max(100) }
+ *
+ * validator.validate(mapOf("a" to 10, "b" to 20))  // Success
+ * validator.validate(mapOf("a" to -1, "b" to 150)) // Failure: values out of range
+ * ```
+ *
+ * @param block A function that builds a value validator from a success validator
+ * @return A new validator with per-value validation
+ */
+fun <K, V> MapValidator<K, V>.onEachValue(block: (IdentityValidator<V>) -> Validator<V, *>) = onEachValue(block(Validator.success()))
 
 private fun <K, V, T> ConstraintScope<Map<K, V>>.validateOnEach(
     context: ConstraintContext<Map<K, V>>,
