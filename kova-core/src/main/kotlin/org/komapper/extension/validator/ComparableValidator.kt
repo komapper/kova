@@ -135,3 +135,49 @@ fun <T : Comparable<T>> IdentityValidator<T>.lte(
     constrain("kova.comparable.lte") {
         satisfies(it.input <= value, message(value))
     }
+
+/**
+ * Validates that the value is equal to the specified value.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.int().eq(42)
+ * validator.validate(42)  // Success
+ * validator.validate(41)  // Failure
+ * validator.validate(43)  // Failure
+ * ```
+ *
+ * @param value The value to compare against
+ * @param message Custom error message provider
+ * @return A new validator with the equality constraint
+ */
+fun <T : Comparable<T>> IdentityValidator<T>.eq(
+    value: T,
+    message: MessageProvider = Message.resource(),
+): IdentityValidator<T> =
+    constrain("kova.comparable.eq") {
+        satisfies(it.input == value, message(value))
+    }
+
+/**
+ * Validates that the value is not equal to the specified value.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.int().notEq(0)
+ * validator.validate(1)   // Success
+ * validator.validate(-1)  // Success
+ * validator.validate(0)   // Failure
+ * ```
+ *
+ * @param value The value to compare against
+ * @param message Custom error message provider
+ * @return A new validator with the inequality constraint
+ */
+fun <T : Comparable<T>> IdentityValidator<T>.notEq(
+    value: T,
+    message: MessageProvider = Message.resource(),
+): IdentityValidator<T> =
+    constrain("kova.comparable.notEq") {
+        satisfies(it.input != value, message(value))
+    }
