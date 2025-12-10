@@ -473,4 +473,22 @@ class ObjectSchemaTest :
                 result.messages[0].constraintId shouldBeEqual "kova.comparable.max"
             }
         }
+
+        context("temporal property") {
+            data class User(
+                val name: String,
+                val birthday: java.time.LocalDate,
+            )
+            val userSchema =
+                object : ObjectSchema<User>() {
+                    val name = User::name { it.notBlank() }
+                    val birthday = User::birthday { Kova.localDate() }
+                }
+
+            test("success") {
+                val user = User("abc", java.time.LocalDate.of(2021, 1, 1))
+                val result = userSchema.tryValidate(user)
+                result.isSuccess().mustBeTrue()
+            }
+        }
     })

@@ -3,70 +3,6 @@ package org.komapper.extension.validator
 import kotlin.reflect.KFunction
 
 /**
- * Checks if validation should terminate early based on failFast setting.
- *
- * @param validationResult The validation result to check
- * @return true if failFast is enabled and the result is a failure
- */
-private fun <T> ValidationContext.shouldReturnEarly(validationResult: ValidationResult<T>): Boolean =
-    failFast && validationResult.isFailure()
-
-/**
- * Constructs an object and validates it with the provided validator.
- *
- * @param context The validation context
- * @param validator The validator to apply to the constructed object
- * @param block Lambda that constructs the object
- * @return Validation result containing the validated object or failure details
- */
-private fun <T> tryConstruct(
-    context: ValidationContext,
-    validator: IdentityValidator<T>,
-    block: () -> T,
-): ValidationResult<T> {
-    val instance = block()
-    return validator.execute(instance, context)
-}
-
-/**
- * Combines multiple validation results into a single failure result.
- *
- * Collects all failure messages from the provided validation results and combines them
- * into a single failure result with unknown input.
- *
- * @param arg The first validation result
- * @param args Additional validation results
- * @return A combined failure result with all error messages
- */
-private fun <T : Any> createFailure(
-    arg: ValidationResult<*>,
-    vararg args: ValidationResult<*>,
-): ValidationResult<T> {
-    val result =
-        (listOf(arg) + args)
-            .filterIsInstance<ValidationResult.Failure<*>>()
-            .map { it as ValidationResult<Any?> }
-            .reduce { a, b -> a + b }
-    return when (result) {
-        is ValidationResult.Success -> error("This should never happen.")
-        is ValidationResult.Failure -> ValidationResult.Failure(Input.Unknown(null), result.messages)
-    }
-}
-
-/**
- * Extracts the value from a validation result or throws an exception on failure.
- *
- * @param result The validation result to unwrap
- * @return The validated value
- * @throws ValidationException if the result is a failure
- */
-private fun <T> unwrapValidationResult(result: ValidationResult<T>): T =
-    when (result) {
-        is ValidationResult.Success -> result.value
-        is ValidationResult.Failure -> throw ValidationException(result.messages)
-    }
-
-/**
  * Factory for validating inputs and constructing objects.
  *
  * ObjectFactory combines validation with object construction, allowing you to
@@ -154,6 +90,92 @@ fun <T> ObjectFactory<T>.create(config: ValidationConfig = ValidationConfig()): 
 }
 
 /**
+ * Constructs an object and validates it with the provided validator.
+ *
+ * @param context The validation context
+ * @param validator The validator to apply to the constructed object
+ * @param block Lambda that constructs the object
+ * @return Validation result containing the validated object or failure details
+ */
+private fun <T> tryConstruct(
+    context: ValidationContext,
+    validator: IdentityValidator<T>,
+    block: () -> T,
+): ValidationResult<T> {
+    val instance = block()
+    return validator.execute(instance, context)
+}
+
+/**
+ * Combines multiple validation results into a single failure result.
+ *
+ * Collects all failure messages from the provided validation results and combines them
+ * into a single failure result with unknown input.
+ *
+ * @param arg The first validation result
+ * @param args Additional validation results
+ * @return A combined failure result with all error messages
+ */
+private fun <T : Any> createFailure(
+    arg: ValidationResult<*>,
+    vararg args: ValidationResult<*>,
+): ValidationResult<T> {
+    val result =
+        (listOf(arg) + args)
+            .filterIsInstance<ValidationResult.Failure<*>>()
+            .map { it as ValidationResult<Any?> }
+            .reduce { a, b -> a + b }
+    return when (result) {
+        is ValidationResult.Success -> error("This should never happen.")
+        is ValidationResult.Failure -> ValidationResult.Failure(Input.Unknown(null), result.messages)
+    }
+}
+
+/**
+ * Extracts the value from a validation result or throws an exception on failure.
+ *
+ * @param result The validation result to unwrap
+ * @return The validated value
+ * @throws ValidationException if the result is a failure
+ */
+private fun <T> unwrapValidationResult(result: ValidationResult<T>): T =
+    when (result) {
+        is ValidationResult.Success -> result.value
+        is ValidationResult.Failure -> throw ValidationException(result.messages)
+    }
+
+private val isKotlinReflectAvailable: Boolean =
+    try {
+        Class.forName("kotlin.reflect.full.KClasses")
+        true
+    } catch (ignored: ClassNotFoundException) {
+        false
+    }
+
+@Suppress("NO_REFLECTION_IN_CLASS_PATH")
+private fun introspectFunction(ctor: Any): FunctionDesc =
+    if (ctor is KFunction<*>) {
+        val parameters =
+            if (isKotlinReflectAvailable) {
+                ctor.parameters.withIndex().associate { (i, p) -> i to p.name }
+            } else {
+                emptyMap()
+            }
+        FunctionDesc(ctor.name, parameters)
+    } else {
+        FunctionDesc(ctor.toString(), emptyMap())
+    }
+
+/**
+ * Checks if validation should terminate early based on failFast setting.
+ *
+ * @param validationResult The validation result to check
+ * @return true if failFast is enabled and the result is a failure
+ */
+private fun <T> ValidationContext.shouldReturnEarly(validationResult: ValidationResult<T>): Boolean =
+    failFast && validationResult.isFailure()
+
+/**
  * Descriptor for a function, containing its name and parameter names.
  *
  * Used to provide meaningful error messages by including parameter names
@@ -177,28 +199,6 @@ internal data class FunctionDesc(
         return parameters[index] ?: "param$index"
     }
 }
-
-private val isKotlinReflectAvailable: Boolean =
-    try {
-        Class.forName("kotlin.reflect.full.KClasses")
-        true
-    } catch (ignored: ClassNotFoundException) {
-        false
-    }
-
-@Suppress("NO_REFLECTION_IN_CLASS_PATH")
-private fun introspectFunction(ctor: Any): FunctionDesc =
-    if (ctor is KFunction<*>) {
-        val parameters =
-            if (isKotlinReflectAvailable) {
-                ctor.parameters.withIndex().associate { (i, p) -> i to p.name }
-            } else {
-                emptyMap()
-            }
-        FunctionDesc(ctor.name, parameters)
-    } else {
-        FunctionDesc(ctor.toString(), emptyMap())
-    }
 
 /**
  * Creates an ObjectFactory for a constructor with 1 argument.

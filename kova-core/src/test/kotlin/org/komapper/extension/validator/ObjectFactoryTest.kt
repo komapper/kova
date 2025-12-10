@@ -240,4 +240,90 @@ class ObjectFactoryTest :
                 result.value shouldBe Person(Name("abc"), Age(10))
             }
         }
+
+        context("dynamic validator") {
+            data class Street(
+                val id: Int,
+                val name: String,
+            )
+
+            data class Address(
+                val id: Int,
+                val street: Street,
+                val country: String = "US",
+                val postalCode: String = "",
+            )
+
+            data class Employee(
+                val id: Int,
+                val name: String,
+                val address: Address,
+            )
+
+            val streetSchema =
+                object : ObjectSchema<Street>() {
+                    val idV = Street::id { it.min(1) }
+                    val nameV = Street::name { it.min(3).max(5) }
+
+                    fun bind(
+                        id: Int,
+                        name: String,
+                    ) = factory {
+                        create(::Street, idV.bind(id), nameV.bind(name))
+                    }
+                }
+
+            val addressSchema =
+                object : ObjectSchema<Address>() {
+                    val idV = Address::id { it.positive() }
+                    val streetV = Address::street { streetSchema }
+                    val countryV = Address::country { it.notBlank() }
+                    val postalCodeV =
+                        Address::postalCode.choose({ it.country }) { country, v ->
+                            when (country) {
+                                "US" -> v.length(8)
+                                else -> v.length(5)
+                            }
+                        }
+
+                    fun bind(
+                        id: Int,
+                        streetId: Int,
+                        street: String,
+                        country: String,
+                        postalCode: String,
+                    ) = factory {
+                        create(
+                            ::Address,
+                            idV.bind(id),
+                            streetV.bind(streetId, street),
+                            countryV.bind(country),
+                            postalCodeV(country).bind(postalCode),
+                        )
+                    }
+                }
+
+            val employeeSchema =
+                object : ObjectSchema<Employee>() {
+                    val idV = Employee::id { it.positive() }
+                    val nameV = Employee::name { it.notBlank() }
+                    val addressV = Employee::address { addressSchema }
+
+                    fun bind(
+                        id: Int,
+                        name: String,
+                        addressFactory: ObjectFactory<Address>,
+                    ) = factory {
+                        create(::Employee, idV.bind(id), nameV.bind(name), addressFactory)
+                    }
+                }
+
+            test("success") {
+                val addressFactory = addressSchema.bind(1, 1, "abc", "US", "12345678")
+                val employeeFactory = employeeSchema.bind(1, "abc", addressFactory)
+                val result = employeeFactory.tryCreate()
+                result.isSuccess().mustBeTrue(result.toString())
+                result.value.id shouldBe 1
+            }
+        }
     })
