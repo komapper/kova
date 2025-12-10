@@ -92,6 +92,90 @@ fun <K, V> MapValidator<K, V>.length(
 }
 
 /**
+ * Validates that the map contains the specified key.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.map<String, Int>().containsKey("foo")
+ * validator.validate(mapOf("foo" to 1, "bar" to 2))  // Success
+ * validator.validate(mapOf("bar" to 2, "baz" to 3))  // Failure
+ * ```
+ *
+ * @param key The key that must be present in the map
+ * @param message Custom error message provider
+ * @return A new validator with the containsKey constraint
+ */
+fun <K, V> MapValidator<K, V>.containsKey(
+    key: K,
+    message: MessageProvider = Message.resource(),
+) = constrain("kova.map.containsKey") {
+    satisfies(it.input.containsKey(key), message(key))
+}
+
+/**
+ * Validates that the map does not contain the specified key.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.map<String, Int>().notContainsKey("foo")
+ * validator.validate(mapOf("bar" to 2, "baz" to 3))  // Success
+ * validator.validate(mapOf("foo" to 1, "bar" to 2))  // Failure
+ * ```
+ *
+ * @param key The key that must not be present in the map
+ * @param message Custom error message provider
+ * @return A new validator with the notContainsKey constraint
+ */
+fun <K, V> MapValidator<K, V>.notContainsKey(
+    key: K,
+    message: MessageProvider = Message.resource(),
+) = constrain("kova.map.notContainsKey") {
+    satisfies(!it.input.containsKey(key), message(key))
+}
+
+/**
+ * Validates that the map contains the specified value.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.map<String, Int>().containsValue(42)
+ * validator.validate(mapOf("foo" to 42, "bar" to 2))  // Success
+ * validator.validate(mapOf("foo" to 1, "bar" to 2))   // Failure
+ * ```
+ *
+ * @param value The value that must be present in the map
+ * @param message Custom error message provider
+ * @return A new validator with the containsValue constraint
+ */
+fun <K, V> MapValidator<K, V>.containsValue(
+    value: V,
+    message: MessageProvider = Message.resource(),
+) = constrain("kova.map.containsValue") {
+    satisfies(it.input.containsValue(value), message(value))
+}
+
+/**
+ * Validates that the map does not contain the specified value.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.map<String, Int>().notContainsValue(42)
+ * validator.validate(mapOf("foo" to 1, "bar" to 2))   // Success
+ * validator.validate(mapOf("foo" to 42, "bar" to 2))  // Failure
+ * ```
+ *
+ * @param value The value that must not be present in the map
+ * @param message Custom error message provider
+ * @return A new validator with the notContainsValue constraint
+ */
+fun <K, V> MapValidator<K, V>.notContainsValue(
+    value: V,
+    message: MessageProvider = Message.resource(),
+) = constrain("kova.map.notContainsValue") {
+    satisfies(!it.input.containsValue(value), message(value))
+}
+
+/**
  * Validates each entry (key-value pair) of the map using the specified validator.
  *
  * If any entry fails validation, the entire map validation fails.
@@ -238,90 +322,6 @@ fun <K, V> MapValidator<K, V>.onEachValue(validator: Validator<V, *>) =
  * @return A new validator with per-value validation
  */
 fun <K, V> MapValidator<K, V>.onEachValue(block: (IdentityValidator<V>) -> Validator<V, *>) = onEachValue(block(Validator.success()))
-
-/**
- * Validates that the map contains the specified key.
- *
- * Example:
- * ```kotlin
- * val validator = Kova.map<String, Int>().containsKey("foo")
- * validator.validate(mapOf("foo" to 1, "bar" to 2))  // Success
- * validator.validate(mapOf("bar" to 2, "baz" to 3))  // Failure
- * ```
- *
- * @param key The key that must be present in the map
- * @param message Custom error message provider
- * @return A new validator with the containsKey constraint
- */
-fun <K, V> MapValidator<K, V>.containsKey(
-    key: K,
-    message: MessageProvider = Message.resource(),
-) = constrain("kova.map.containsKey") {
-    satisfies(it.input.containsKey(key), message(key))
-}
-
-/**
- * Validates that the map does not contain the specified key.
- *
- * Example:
- * ```kotlin
- * val validator = Kova.map<String, Int>().notContainsKey("foo")
- * validator.validate(mapOf("bar" to 2, "baz" to 3))  // Success
- * validator.validate(mapOf("foo" to 1, "bar" to 2))  // Failure
- * ```
- *
- * @param key The key that must not be present in the map
- * @param message Custom error message provider
- * @return A new validator with the notContainsKey constraint
- */
-fun <K, V> MapValidator<K, V>.notContainsKey(
-    key: K,
-    message: MessageProvider = Message.resource(),
-) = constrain("kova.map.notContainsKey") {
-    satisfies(!it.input.containsKey(key), message(key))
-}
-
-/**
- * Validates that the map contains the specified value.
- *
- * Example:
- * ```kotlin
- * val validator = Kova.map<String, Int>().containsValue(42)
- * validator.validate(mapOf("foo" to 42, "bar" to 2))  // Success
- * validator.validate(mapOf("foo" to 1, "bar" to 2))   // Failure
- * ```
- *
- * @param value The value that must be present in the map
- * @param message Custom error message provider
- * @return A new validator with the containsValue constraint
- */
-fun <K, V> MapValidator<K, V>.containsValue(
-    value: V,
-    message: MessageProvider = Message.resource(),
-) = constrain("kova.map.containsValue") {
-    satisfies(it.input.containsValue(value), message(value))
-}
-
-/**
- * Validates that the map does not contain the specified value.
- *
- * Example:
- * ```kotlin
- * val validator = Kova.map<String, Int>().notContainsValue(42)
- * validator.validate(mapOf("foo" to 1, "bar" to 2))   // Success
- * validator.validate(mapOf("foo" to 42, "bar" to 2))  // Failure
- * ```
- *
- * @param value The value that must not be present in the map
- * @param message Custom error message provider
- * @return A new validator with the notContainsValue constraint
- */
-fun <K, V> MapValidator<K, V>.notContainsValue(
-    value: V,
-    message: MessageProvider = Message.resource(),
-) = constrain("kova.map.notContainsValue") {
-    satisfies(!it.input.containsValue(value), message(value))
-}
 
 private fun <K, V, T> ConstraintScope<Map<K, V>>.validateOnEach(
     context: ConstraintContext<Map<K, V>>,

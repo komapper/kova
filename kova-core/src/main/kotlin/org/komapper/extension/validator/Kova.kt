@@ -197,9 +197,6 @@ interface Kova {
     /** Creates a validator for Map values with size, key, and value validation. */
     fun <K, V> map(): IdentityValidator<Map<K, V>> = generic()
 
-    /** Creates a validator for Map.Entry values with key and value validation. */
-    fun <K, V> mapEntry(): IdentityValidator<Map.Entry<K, V>> = generic()
-
     /**
      * Creates a generic validator that accepts any value of type T.
      *
