@@ -490,12 +490,28 @@ Kova.yearMonth()
     .past()                         // Must be in the past
     // ... supports all temporal constraints
 
-// MonthDay validation (no temporal constraints)
-Kova.monthDay()  // Returns generic validator (MonthDay doesn't implement Comparable)
+// MonthDay validation
+// Note: MonthDay does not implement Temporal, so it doesn't support temporal-specific
+// constraints (past, future, pastOrPresent, futureOrPresent). However, it does implement
+// Comparable, so comparison constraints (min, max, gt, gte, lt, lte) are available.
+Kova.monthDay()
+    .min(MonthDay.of(3, 1))     // Minimum month-day (>=)
+    .max(MonthDay.of(10, 31))   // Maximum month-day (<=)
+    .gt(MonthDay.of(6, 15))     // Greater than (>)
+    .gte(MonthDay.of(6, 15))    // Greater than or equal (>=)
+    .lt(MonthDay.of(12, 25))    // Less than (<)
+    .lte(MonthDay.of(12, 31))   // Less than or equal (<=)
 
 // Custom clock for testing
-val kova = Kova(clock = Clock.fixed(Instant.parse("2024-01-01T00:00:00Z"), ZoneId.systemDefault()))
+// The Kova() factory function creates a Kova instance with a custom clock
+// that will be used for all temporal validators (past, future, etc.).
+// This is particularly useful for testing scenarios where you need deterministic
+// time-based validation.
+val fixedClock = Clock.fixed(Instant.parse("2024-01-01T00:00:00Z"), ZoneOffset.UTC)
+val kova = Kova(fixedClock)
 val validator = kova.localDate().future()
+validator.tryValidate(LocalDate.of(2023, 12, 31))  // Failure (before fixed time)
+validator.tryValidate(LocalDate.of(2024, 1, 2))    // Success (after fixed time)
 
 // All temporal validators support composition operators
 val dateValidator = Kova.localDate().past() + Kova.localDate().min(LocalDate.of(2020, 1, 1))
