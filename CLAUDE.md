@@ -30,7 +30,8 @@
 ### Validators
 - **Validator<IN, OUT>**: Core interface with `execute(input, context)` method (input first, context second)
 - **IdentityValidator<T>**: Type alias for `Validator<T, T>` - for validators that don't transform types
-- **NullableValidator<T, S>**: Type alias for `Validator<T?, S?>` - for nullable validators
+- **NullableValidator<T, S>**: Type alias for `Validator<T?, S?>` - for nullable validators (accepts null input/output)
+- **NullCoalescingValidator<T, S>**: Type alias for `Validator<T?, S>` - coalesces null to default value (nullable input, non-null output)
 - **TemporalValidator<T>**: Type alias for `IdentityValidator<T>` - for temporal validators
 - **ValidationResult**: Sealed interface (`Success<T>` | `Failure`)
 - **ValidationContext**: Tracks state (root, path, config), supports circular reference detection
@@ -145,7 +146,7 @@ fun Application.module() {
 ## Key Files
 
 ### kova-core
-- **Core**: `Validator.kt`, `IdentityValidator.kt`, `NullableValidator.kt`, `ValidationResult.kt`, `ValidationContext.kt`, `ValidationConfig.kt`
+- **Core**: `Validator.kt`, `IdentityValidator.kt`, `NullableValidator.kt`, `NullCoalescingValidator.kt`, `ValidationResult.kt`, `ValidationContext.kt`, `ValidationConfig.kt`
 - **Type validators**: `StringValidator.kt`, `NumberValidator.kt`, `CollectionValidator.kt`, `MapValidator.kt`, `TemporalValidator.kt`, `ComparableValidator.kt`
 - **Object validation**: `ObjectSchema.kt`, `ObjectFactory.kt`
 - **Constraint system**: `ConstraintValidator.kt`, `ConstraintContext.kt`, `ConstraintResult.kt`
