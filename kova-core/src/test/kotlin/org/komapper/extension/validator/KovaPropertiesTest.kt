@@ -99,6 +99,20 @@ class KovaPropertiesTest :
                 val message = result.messages.single()
                 message.text shouldBe "must be less than or equal to 10"
             }
+
+            test("eq") {
+                val result = Kova.int().eq(42).tryValidate(10)
+                result.isFailure().mustBeTrue()
+                val message = result.messages.single()
+                message.text shouldBe "must be equal to 42"
+            }
+
+            test("notEq") {
+                val result = Kova.int().notEq(0).tryValidate(0)
+                result.isFailure().mustBeTrue()
+                val message = result.messages.single()
+                message.text shouldBe "must not be equal to 0"
+            }
         }
 
         context("kova.literal") {

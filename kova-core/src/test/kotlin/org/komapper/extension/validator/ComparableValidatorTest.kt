@@ -209,6 +209,50 @@ class ComparableValidatorTest :
                 }
             }
 
+            context("eq (equal)") {
+                val validator = Kova.uInt().eq(5u)
+
+                test("success with equal value") {
+                    val result = validator.tryValidate(5u)
+                    result.isSuccess().mustBeTrue()
+                    result.value shouldBe 5u
+                }
+
+                test("failure with value greater than threshold") {
+                    val result = validator.tryValidate(6u)
+                    result.isFailure().mustBeTrue()
+                    result.messages[0].constraintId shouldBe "kova.comparable.eq"
+                }
+
+                test("failure with value less than threshold") {
+                    val result = validator.tryValidate(4u)
+                    result.isFailure().mustBeTrue()
+                    result.messages[0].constraintId shouldBe "kova.comparable.eq"
+                }
+            }
+
+            context("notEq (not equal)") {
+                val validator = Kova.uInt().notEq(5u)
+
+                test("success with value greater than threshold") {
+                    val result = validator.tryValidate(6u)
+                    result.isSuccess().mustBeTrue()
+                    result.value shouldBe 6u
+                }
+
+                test("success with value less than threshold") {
+                    val result = validator.tryValidate(4u)
+                    result.isSuccess().mustBeTrue()
+                    result.value shouldBe 4u
+                }
+
+                test("failure with equal value") {
+                    val result = validator.tryValidate(5u)
+                    result.isFailure().mustBeTrue()
+                    result.messages[0].constraintId shouldBe "kova.comparable.notEq"
+                }
+            }
+
             context("chaining multiple validators") {
                 val validator =
                     Kova

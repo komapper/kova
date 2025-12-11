@@ -424,6 +424,8 @@ Kova.bigInteger()  // BigInteger
     .gte(0)         // Greater than or equal (>= 0)
     .lt(100)        // Less than (< 100)
     .lte(100)       // Less than or equal (<= 100)
+    .eq(42)         // Equal to (== 42)
+    .notEq(0)       // Not equal to (!= 0)
     .positive()     // Must be positive (> 0)
     .negative()     // Must be negative (< 0)
     .notPositive()  // Must not be positive (<= 0)
@@ -449,6 +451,8 @@ Kova.localDate()
     .gte(LocalDate.of(2024, 1, 1))     // Greater than or equal (>=)
     .lt(LocalDate.of(2025, 1, 1))      // Less than (<)
     .lte(LocalDate.of(2024, 12, 31))   // Less than or equal (<=)
+    .eq(LocalDate.of(2024, 6, 15))     // Equal to (==)
+    .notEq(LocalDate.of(2024, 1, 1))   // Not equal to (!=)
     .future()                           // Must be in the future
     .futureOrPresent()                  // Must be in the future or present
     .past()                             // Must be in the past
@@ -462,6 +466,8 @@ Kova.localTime()
     .gte(LocalTime.of(9, 0))           // Greater than or equal (>=)
     .lt(LocalTime.of(18, 0))           // Less than (<)
     .lte(LocalTime.of(17, 30))         // Less than or equal (<=)
+    .eq(LocalTime.of(12, 0))           // Equal to (==)
+    .notEq(LocalTime.of(0, 0))         // Not equal to (!=)
     .future()                           // Must be in the future
     .futureOrPresent()                  // Must be in the future or present
     .past()                             // Must be in the past
@@ -475,6 +481,8 @@ Kova.localDateTime()
     .gte(startDateTime)                           // Greater than or equal (>=)
     .lt(endDateTime)                              // Less than (<)
     .lte(endDateTime)                             // Less than or equal (<=)
+    .eq(specificDateTime)                         // Equal to (==)
+    .notEq(excludedDateTime)                      // Not equal to (!=)
     .future()                                     // Must be in the future
     .futureOrPresent()                            // Must be in the future or present
     .past()                                       // Must be in the past
@@ -488,6 +496,8 @@ Kova.instant()
     .gte(startInstant)                            // Greater than or equal (>=)
     .lt(endInstant)                               // Less than (<)
     .lte(endInstant)                              // Less than or equal (<=)
+    .eq(specificInstant)                          // Equal to (==)
+    .notEq(excludedInstant)                       // Not equal to (!=)
     .future()                                     // Must be in the future
     .futureOrPresent()                            // Must be in the future or present
     .past()                                       // Must be in the past
@@ -499,7 +509,7 @@ Kova.offsetDateTime()
     .max(OffsetDateTime.parse("2024-12-31T23:59:59Z"))  // Maximum offset datetime (<=)
     .future()                                            // Must be in the future
     .past()                                              // Must be in the past
-    // ... supports all temporal constraints (gt, gte, lt, lte, futureOrPresent, pastOrPresent)
+    // ... supports all temporal constraints (gt, gte, lt, lte, eq, notEq, futureOrPresent, pastOrPresent)
 
 // OffsetTime validation
 Kova.offsetTime()
@@ -507,7 +517,7 @@ Kova.offsetTime()
     .max(OffsetTime.parse("17:00:00Z"))    // Maximum offset time (<=)
     .future()                               // Must be in the future
     .past()                                 // Must be in the past
-    // ... supports all temporal constraints
+    // ... supports all temporal constraints (gt, gte, lt, lte, eq, notEq, futureOrPresent, pastOrPresent)
 
 // ZonedDateTime validation
 Kova.zonedDateTime()
@@ -515,7 +525,7 @@ Kova.zonedDateTime()
     .max(ZonedDateTime.parse("2024-12-31T23:59:59Z"))  // Maximum zoned datetime (<=)
     .future()                                           // Must be in the future
     .past()                                             // Must be in the past
-    // ... supports all temporal constraints
+    // ... supports all temporal constraints (gt, gte, lt, lte, eq, notEq, futureOrPresent, pastOrPresent)
 
 // Year validation
 Kova.year()
@@ -523,7 +533,7 @@ Kova.year()
     .max(Year.of(2030))    // Maximum year (<=)
     .future()               // Must be in the future
     .past()                 // Must be in the past
-    // ... supports all temporal constraints
+    // ... supports all temporal constraints (gt, gte, lt, lte, eq, notEq, futureOrPresent, pastOrPresent)
 
 // YearMonth validation
 Kova.yearMonth()
@@ -531,12 +541,12 @@ Kova.yearMonth()
     .max(YearMonth.of(2024, 12))   // Maximum year-month (<=)
     .future()                       // Must be in the future
     .past()                         // Must be in the past
-    // ... supports all temporal constraints
+    // ... supports all temporal constraints (gt, gte, lt, lte, eq, notEq, futureOrPresent, pastOrPresent)
 
 // MonthDay validation
 // Note: MonthDay does not implement Temporal, so it doesn't support temporal-specific
 // constraints (past, future, pastOrPresent, futureOrPresent). However, it does implement
-// Comparable, so comparison constraints (min, max, gt, gte, lt, lte) are available.
+// Comparable, so comparison constraints (min, max, gt, gte, lt, lte, eq, notEq) are available.
 Kova.monthDay()
     .min(MonthDay.of(3, 1))     // Minimum month-day (>=)
     .max(MonthDay.of(10, 31))   // Maximum month-day (<=)
@@ -544,6 +554,8 @@ Kova.monthDay()
     .gte(MonthDay.of(6, 15))    // Greater than or equal (>=)
     .lt(MonthDay.of(12, 25))    // Less than (<)
     .lte(MonthDay.of(12, 31))   // Less than or equal (<=)
+    .eq(MonthDay.of(7, 4))      // Equal to (==)
+    .notEq(MonthDay.of(1, 1))   // Not equal to (!=)
 
 // Custom clock for testing
 // Temporal validators use the clock from ValidationConfig for time-based
@@ -714,6 +726,8 @@ Kova.uShort()
     .gte(0u)        // Greater than or equal (>= 0u)
     .lt(100u)       // Less than (< 100u)
     .lte(100u)      // Less than or equal (<= 100u)
+    .eq(42u)        // Equal to (== 42u)
+    .notEq(0u)      // Not equal to (!= 0u)
 ```
 
 ### Generic Validator
