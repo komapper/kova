@@ -138,6 +138,99 @@ open class ObjectSchema<T : Any>(
             addRule(key, choose)
         })
     }
+
+    /**
+     * Composes this schema with another schema using AND logic (operator form).
+     *
+     * This operator is equivalent to calling [and]. The validation succeeds only if both schemas
+     * are satisfied. If either schema fails, the validation fails and returns all error messages
+     * from both schemas.
+     *
+     * Example:
+     * ```kotlin
+     * val schemaA = object : ObjectSchema<User>({
+     *     User::name { it.min(1).max(10) }
+     * }) {}
+     *
+     * val schemaB = object : ObjectSchema<User>({
+     *     User::id { it.min(1) }
+     * }) {}
+     *
+     * val combined = schemaA + schemaB
+     * // Validation succeeds only if both name and id constraints are satisfied
+     * ```
+     *
+     * @param other The schema to compose with this schema
+     * @return A new ObjectSchema that validates using AND logic
+     */
+    operator fun plus(other: ObjectSchema<T>): ObjectSchema<T> = and(other)
+
+    /**
+     * Composes this schema with another schema using AND logic.
+     *
+     * The validation succeeds only if both this schema and the other schema are satisfied.
+     * If either schema fails, the validation fails and returns all error messages from both schemas.
+     *
+     * Example:
+     * ```kotlin
+     * val schemaA = object : ObjectSchema<User>({
+     *     User::name { it.min(1).max(10) }
+     * }) {}
+     *
+     * val schemaB = object : ObjectSchema<User>({
+     *     User::id { it.min(1) }
+     * }) {}
+     *
+     * val combined = schemaA and schemaB
+     * // Validation succeeds only if both name and id constraints are satisfied
+     * ```
+     *
+     * @param other The schema to compose with this schema
+     * @return A new ObjectSchema that validates using AND logic
+     */
+    infix fun and(other: ObjectSchema<T>): ObjectSchema<T> {
+        val composed = (this as IdentityValidator<T>) and other
+        return object : ObjectSchema<T>() {
+            override fun execute(
+                input: T,
+                context: ValidationContext,
+            ): ValidationResult<T> = composed.execute(input, context)
+        }
+    }
+
+    /**
+     * Composes this schema with another schema using OR logic.
+     *
+     * The validation succeeds if at least one of the schemas is satisfied.
+     * If both schemas fail, the validation fails and returns a single error message with
+     * constraint ID `kova.or` containing all error messages from both schemas.
+     *
+     * Example:
+     * ```kotlin
+     * val schemaA = object : ObjectSchema<User>({
+     *     User::name { it.min(1).max(10) }
+     * }) {}
+     *
+     * val schemaB = object : ObjectSchema<User>({
+     *     User::id { it.min(1) }
+     * }) {}
+     *
+     * val combined = schemaA or schemaB
+     * // Validation succeeds if either name or id constraint is satisfied
+     * ```
+     *
+     * @param other The schema to compose with this schema
+     * @return A new ObjectSchema that validates using OR logic
+     */
+    infix fun or(other: ObjectSchema<T>): ObjectSchema<T> {
+        val composed = (this as IdentityValidator<T>) or other
+        return object : ObjectSchema<T>() {
+            override fun execute(
+                input: T,
+                context: ValidationContext,
+            ): ValidationResult<T> = composed.execute(input, context)
+        }
+    }
 }
 
 internal data class Rule(

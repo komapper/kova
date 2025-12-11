@@ -38,7 +38,7 @@ class ObjectSchemaTest :
             val address: Address?,
         )
 
-        context("plus") {
+        context("and") {
 
             val a =
                 object : ObjectSchema<User>({
@@ -49,7 +49,7 @@ class ObjectSchemaTest :
                     User::id { it.min(1) }
                 }) {}
 
-            val userSchema = a + b
+            val userSchema = a and b
 
             test("success") {
                 val user = User(1, "abc")
@@ -85,6 +85,54 @@ class ObjectSchemaTest :
                     it.root shouldBe "User"
                     it.path.fullName shouldBe "id"
                     it.constraintId shouldBe "kova.comparable.min"
+                }
+            }
+        }
+
+        context("or") {
+
+            val a =
+                object : ObjectSchema<User>({
+                    User::name { it.min(1).max(10) }
+                }) {}
+            val b =
+                object : ObjectSchema<User>({
+                    User::id { it.min(1) }
+                }) {}
+
+            val userSchema = a or b
+
+            test("success when both schemas are satisfied") {
+                val user = User(1, "abc")
+                val result = userSchema.tryValidate(user)
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe user
+            }
+
+            test("success when first schema is satisfied and second fails") {
+                val user = User(0, "abc")
+                val result = userSchema.tryValidate(user)
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe user
+            }
+
+            test("success when first schema fails and second is satisfied") {
+                val user = User(1, "too-long-name")
+                val result = userSchema.tryValidate(user)
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe user
+            }
+
+            test("failure when both schemas fail") {
+                val user = User(0, "too-long-name")
+                val result = userSchema.tryValidate(user)
+                result.isFailure().mustBeTrue()
+
+                result.messages.size shouldBe 1
+                result.messages[0].let {
+                    it.constraintId shouldBe "kova.or"
+                    it.text shouldBe
+                        "at least one constraint must be satisfied: [[must be at most 10 characters], [must be greater than or equal to 1]]"
                 }
             }
         }
