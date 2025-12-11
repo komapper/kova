@@ -396,7 +396,7 @@ fun <IN, OUT, NEW> Validator<IN, OUT>.then(block: (Validator<OUT, OUT>) -> Valid
  */
 fun <T : Any, S : Any> Validator<T, S>.asNullable(): NullableValidator<T, S> =
     Validator { input, context ->
-        if (input == null) Success(null, context) else this.execute(input, context)
+        if (input == null) Success(null, context) else execute(input, context)
     }
 
 /**

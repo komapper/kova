@@ -63,7 +63,7 @@ fun <T> IdentityValidator<T>.constrain(
  */
 fun <T> IdentityValidator<T>.chain(next: IdentityValidator<T>): IdentityValidator<T> =
     IdentityValidator { input, context ->
-        when (val result = this.execute(input, context)) {
+        when (val result = execute(input, context)) {
             is Success -> {
                 next.execute(result.value, result.context)
             }
@@ -183,5 +183,5 @@ fun <T> IdentityValidator<T>.onlyIf(condition: (T) -> Boolean) =
  */
 fun <T : Any> IdentityValidator<T>.asNullable(): NullableValidator<T, T> =
     Validator { input, context ->
-        if (input == null) Success(null, context) else this.execute(input, context)
+        if (input == null) Success(null, context) else execute(input, context)
     }
