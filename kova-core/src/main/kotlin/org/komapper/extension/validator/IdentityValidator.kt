@@ -154,6 +154,33 @@ fun <T> IdentityValidator<T>.onlyIf(condition: (T) -> Boolean) =
         }
     }
 
+/**
+ * Converts this validator to accept nullable input.
+ *
+ * When the input is null, validation succeeds with null output.
+ * When the input is non-null, the original validator logic is applied.
+ *
+ * This is useful for making required validators optional or for chaining with nullable properties.
+ *
+ * Example:
+ * ```kotlin
+ * // Make a string validator nullable
+ * val validator = Kova.string().min(3).max(20).asNullable()
+ * validator.validate(null)    // Success(null)
+ * validator.validate("hello") // Success("hello")
+ * validator.validate("ab")    // Failure (too short)
+ *
+ * // Use with ObjectSchema for optional fields
+ * object UserSchema : ObjectSchema<User>({
+ *     User::middleName {
+ *         it.min(1).max(50).asNullable()
+ *     }
+ * })
+ * ```
+ *
+ * @return A new nullable validator that accepts null input
+ * @see Validator.asNullable for the base version that works with any validator type
+ */
 fun <T : Any> IdentityValidator<T>.asNullable(): NullableValidator<T, T> =
     Validator { input, context ->
         if (input == null) Success(null, context) else this.execute(input, context)
