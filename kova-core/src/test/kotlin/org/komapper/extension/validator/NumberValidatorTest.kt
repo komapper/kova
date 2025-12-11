@@ -390,4 +390,80 @@ class NumberValidatorTest :
                 result.messages[0].constraintId shouldBe "kova.comparable.lte"
             }
         }
+
+        context("positive with float") {
+            val validator = Kova.float().positive()
+
+            test("success with positive number") {
+                val result = validator.tryValidate(1.5f)
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe 1.5f
+            }
+
+            test("failure with negative number") {
+                val result = validator.tryValidate(-1.5f)
+                result.isFailure().mustBeTrue()
+                result.messages[0].constraintId shouldBe "kova.number.positive"
+            }
+        }
+
+        context("negative with byte") {
+            val validator = Kova.byte().negative()
+
+            test("success with negative number") {
+                val result = validator.tryValidate(-10)
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe (-10).toByte()
+            }
+
+            test("failure with positive number") {
+                val result = validator.tryValidate(10)
+                result.isFailure().mustBeTrue()
+                result.messages[0].constraintId shouldBe "kova.number.negative"
+            }
+        }
+
+        context("gt with bigDecimal") {
+            val validator = Kova.bigDecimal().gt(100.toBigDecimal())
+
+            test("success with value greater than threshold") {
+                val result = validator.tryValidate(150.toBigDecimal())
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe 150.toBigDecimal()
+            }
+
+            test("failure with equal value") {
+                val result = validator.tryValidate(100.toBigDecimal())
+                result.isFailure().mustBeTrue()
+                result.messages[0].constraintId shouldBe "kova.comparable.gt"
+            }
+
+            test("failure with smaller value") {
+                val result = validator.tryValidate(50.toBigDecimal())
+                result.isFailure().mustBeTrue()
+                result.messages[0].constraintId shouldBe "kova.comparable.gt"
+            }
+        }
+
+        context("lt with bigInteger") {
+            val validator = Kova.bigInteger().lt(100.toBigInteger())
+
+            test("success with value less than threshold") {
+                val result = validator.tryValidate(50.toBigInteger())
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe 50.toBigInteger()
+            }
+
+            test("failure with equal value") {
+                val result = validator.tryValidate(100.toBigInteger())
+                result.isFailure().mustBeTrue()
+                result.messages[0].constraintId shouldBe "kova.comparable.lt"
+            }
+
+            test("failure with greater value") {
+                val result = validator.tryValidate(150.toBigInteger())
+                result.isFailure().mustBeTrue()
+                result.messages[0].constraintId shouldBe "kova.comparable.lt"
+            }
+        }
     })
