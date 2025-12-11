@@ -177,10 +177,9 @@ class CollectionValidatorTest :
             )
 
             val schema =
-                object : ObjectSchema<ListHolder>() {
-                    val list =
-                        ListHolder::list { e -> e.onEach { it.length(3) } }
-                }
+                object : ObjectSchema<ListHolder>({
+                    ListHolder::list { e -> e.onEach { it.length(3) } }
+                }) {}
 
             test("success") {
                 val result = schema.tryValidate(ListHolder(listOf("123", "456")))

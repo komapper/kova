@@ -53,23 +53,24 @@ import kotlin.reflect.KProperty1
  * @param T The type of object to validate
  * @param block Lambda for defining object-level constraints
  */
-open class ObjectSchema<T : Any> private constructor(
-    private val ruleMap: MutableMap<String, Rule>,
+open class ObjectSchema<T : Any>(
     private val block: ObjectSchemaScope<T>.() -> Unit = {},
 ) : Validator<T, T> {
-    /**
-     * Creates an ObjectSchema with optional object-level constraints.
-     *
-     * @param block Lambda for defining constraints that validate relationships between properties
-     */
-    constructor(block: ObjectSchemaScope<T>.() -> Unit = {}) : this(mutableMapOf(), block)
+    private val constraints: List<Constraint<T>>
+    private val ruleMap: Map<KProperty1<T, *>, Rule>
+
+    init {
+        val constraints: MutableList<Constraint<T>> = mutableListOf()
+        val ruleMap: MutableMap<KProperty1<T, *>, Rule> = mutableMapOf()
+        block(ObjectSchemaScope(this, constraints, ruleMap))
+        this.constraints = constraints
+        this.ruleMap = ruleMap
+    }
 
     override fun execute(
         input: T,
         context: ValidationContext,
     ): ValidationResult<T> {
-        val constraints: MutableList<Constraint<T>> = mutableListOf()
-        block(ObjectSchemaScope(constraints))
         val klass = input::class
         val rootName = klass.qualifiedName ?: klass.simpleName ?: klass.toString()
         val context = context.addRoot(rootName, input)
@@ -87,7 +88,7 @@ open class ObjectSchema<T : Any> private constructor(
     private fun applyRules(
         input: T,
         context: ValidationContext,
-        ruleMap: Map<String, Rule>,
+        ruleMap: Map<KProperty1<T, *>, Rule>,
     ): ValidationResult<T> {
         val results = mutableListOf<ValidationResult<T>>()
         for ((key, rule) in ruleMap) {
@@ -103,12 +104,12 @@ open class ObjectSchema<T : Any> private constructor(
     private fun applyRule(
         input: T,
         context: ValidationContext,
-        key: String,
+        key: KProperty1<T, *>,
         rule: Rule,
     ): ValidationResult<T> {
         val value = rule.transform(input)
         val validator = rule.choose(input)
-        val pathResult = context.addPathChecked(key, value)
+        val pathResult = context.addPathChecked(key.name, value)
         return when (pathResult) {
             is ValidationResult.Success -> {
                 when (val result = validator.execute(pathResult.value, pathResult.context)) {
@@ -146,14 +147,59 @@ open class ObjectSchema<T : Any> private constructor(
         key: KProperty1<T, V>,
         validator: IdentityValidator<V>,
     ): ObjectSchema<T> {
-        val rule =
-            Rule(
-                transform = { receiver: T -> key.get(receiver) } as (Any?) -> Any?,
-                choose = { _: T -> validator } as (Any?) -> IdentityValidator<Any?>,
-            )
-        val newRuleMap = ruleMap.toMutableMap()
-        newRuleMap.replace(key.name, rule)
-        return ObjectSchema(newRuleMap)
+        val choose = { _: T -> validator } as (Any?) -> IdentityValidator<Any?>
+        return ObjectSchema({
+            constraints.forEach { constrain(it.id, it.check) }
+            ruleMap.forEach { addRule(it.key, it.value.choose) }
+            addRule(key, choose)
+        })
+    }
+}
+
+internal data class Rule(
+    val transform: (Any?) -> Any?,
+    val choose: (Any?) -> IdentityValidator<Any?>,
+)
+
+/**
+ * Scope for defining object-level constraints within an ObjectSchema.
+ *
+ * This scope is provided in the constructor lambda of ObjectSchema, allowing you to define
+ * validation rules that apply to the entire object rather than individual properties.
+ * This is useful for validating relationships between properties.
+ *
+ * Example:
+ * ```kotlin
+ * data class Period(val startDate: LocalDate, val endDate: LocalDate)
+ *
+ * object PeriodSchema : ObjectSchema<Period>({
+ *     constrain("dateRange") {
+ *         satisfies(it.input.startDate <= it.input.endDate, "Start date must be before or equal to end date")
+ *     }
+ * }) {
+ *     val startDate = Period::startDate { it }
+ *     val endDate = Period::endDate { it }
+ * }
+ * ```
+ *
+ * @param T The type of object being validated
+ */
+class ObjectSchemaScope<T : Any> internal constructor(
+    val self: ObjectSchema<T>,
+    private val constraints: MutableList<Constraint<T>>,
+    private val ruleMap: MutableMap<KProperty1<T, *>, Rule>,
+) {
+    /**
+     * Defines an object-level constraint.
+     *
+     * @param id Unique identifier for this constraint (used in error messages)
+     * @param check Lambda that performs the validation using ConstraintScope
+     */
+    fun constrain(
+        id: String,
+        check: ConstraintScope<T>.(ConstraintContext<T>) -> ConstraintResult,
+    ) {
+        constraints.add(Constraint(id, check))
     }
 
     /**
@@ -252,58 +298,14 @@ open class ObjectSchema<T : Any> private constructor(
         return provide
     }
 
-    private fun <T, V> addRule(
+    internal fun <V> addRule(
         key: KProperty1<T, V>,
         choose: (T) -> Validator<V, V>,
     ) {
+        key as KProperty1<T, *>
         val transform = { receiver: T -> key.get(receiver) }
         transform as (Any?) -> Any?
         choose as (Any?) -> IdentityValidator<Any?>
-        ruleMap[key.name] = Rule(transform, choose)
-    }
-}
-
-internal data class Rule(
-    val transform: (Any?) -> Any?,
-    val choose: (Any?) -> IdentityValidator<Any?>,
-)
-
-/**
- * Scope for defining object-level constraints within an ObjectSchema.
- *
- * This scope is provided in the constructor lambda of ObjectSchema, allowing you to define
- * validation rules that apply to the entire object rather than individual properties.
- * This is useful for validating relationships between properties.
- *
- * Example:
- * ```kotlin
- * data class Period(val startDate: LocalDate, val endDate: LocalDate)
- *
- * object PeriodSchema : ObjectSchema<Period>({
- *     constrain("dateRange") {
- *         satisfies(it.input.startDate <= it.input.endDate, "Start date must be before or equal to end date")
- *     }
- * }) {
- *     val startDate = Period::startDate { it }
- *     val endDate = Period::endDate { it }
- * }
- * ```
- *
- * @param T The type of object being validated
- */
-class ObjectSchemaScope<T : Any> internal constructor(
-    private val constraints: MutableList<Constraint<T>>,
-) {
-    /**
-     * Defines an object-level constraint.
-     *
-     * @param id Unique identifier for this constraint (used in error messages)
-     * @param check Lambda that performs the validation using ConstraintScope
-     */
-    fun constrain(
-        id: String,
-        check: ConstraintScope<T>.(ConstraintContext<T>) -> ConstraintResult,
-    ) {
-        constraints.add(Constraint(id, check))
+        ruleMap[key] = Rule(transform, choose)
     }
 }
