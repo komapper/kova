@@ -87,7 +87,7 @@ fun Application.module() {
 - Properties defined in constructor lambda using property references (e.g., `User::name { validator }`)
 - Constructor lambda provides `ObjectSchemaScope` with `constrain()` for object-level constraints
 - `choose` method provides both object instance and base validator for conditional validation
-- Use `self` to reference the schema itself for recursive validation
+- Use `self` (typed as `Validator<T, T>`) to reference the schema for recursive validation
 
 ### Nullable Handling
 - `Kova.nullable<T>()` accepts null by default
