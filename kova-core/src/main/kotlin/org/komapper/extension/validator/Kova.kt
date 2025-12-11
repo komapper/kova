@@ -250,8 +250,8 @@ interface Kova {
      */
     fun <T : Any> literal(
         value: T,
-        message: MessageProvider? = null,
-    ): IdentityValidator<T> = if (message == null) generic<T>().literal(value) else generic<T>().literal(value, message)
+        message: MessageProvider = Message.resource(),
+    ): IdentityValidator<T> = generic<T>().literal(value, message)
 
     /**
      * Creates a validator that only accepts values from a specified list.
@@ -262,8 +262,8 @@ interface Kova {
      */
     fun <T : Any> literal(
         values: List<T>,
-        message: MessageProvider? = null,
-    ): IdentityValidator<T> = if (message == null) generic<T>().literal(values) else generic<T>().literal(values, message)
+        message: MessageProvider = Message.resource(),
+    ): IdentityValidator<T> = generic<T>().literal(values, message)
 
     /**
      * Creates a validator that only accepts values from a specified vararg list.
@@ -274,7 +274,7 @@ interface Kova {
      */
     fun <T : Any> literal(
         vararg values: T,
-        message: MessageProvider? = null,
+        message: MessageProvider = Message.resource(),
     ): IdentityValidator<T> = literal(values.toList(), message)
 
     companion object : Kova
