@@ -109,6 +109,10 @@ fun Application.module() {
 - **MessageProvider**: Functional interface with signature `invoke(vararg args: Any?): (ConstraintContext<*>) -> Message`
 - Pass constraint parameters (not input) to `message()`, access via `ctx[0]`, `ctx[1]` in lambda
 - Input accessible via `ctx.input` if needed
+- **Helper methods for creating messages in constraints**:
+  - `ConstraintContext<T>.text(content: String)` - creates `Message.Text` with given content
+  - `ConstraintContext<T>.resource(vararg args: Any?)` - creates `Message.Resource` for i18n messages
+  - Use in `satisfies()` method: `satisfies(condition, ctx.text("error message"))` or `satisfies(condition, ctx.resource(arg1, arg2))`
 - **Constraint IDs**:
   - Comparison validators use consolidated `kova.comparable.*` IDs (not type-specific)
   - CharSequence validators use `kova.charSequence.*` IDs (min, max, length, blank, empty, startsWith, endsWith, contains, matches)
