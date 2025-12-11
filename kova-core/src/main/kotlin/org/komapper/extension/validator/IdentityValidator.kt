@@ -63,7 +63,7 @@ fun <T> IdentityValidator<T>.constrain(
  */
 fun <T> IdentityValidator<T>.chain(next: IdentityValidator<T>): IdentityValidator<T> =
     IdentityValidator { input, context ->
-        when (val result = this.execute(input, context)) {
+        when (val result = execute(input, context)) {
             is Success -> {
                 next.execute(result.value, result.context)
             }
@@ -131,14 +131,14 @@ fun <T> IdentityValidator<T>.literal(
  *
  * Example:
  * ```kotlin
- * // Only validate email format if the string looks like an email
+ * // Only validate length if the string is not blank
  * val validator = Kova.string()
- *     .email()
- *     .onlyIf { it.contains("@") }
+ *     .min(3).max(20)
+ *     .onlyIf { it.isNotBlank() }
  *
- * // More practical: validate discount code only if provided
+ * // Validate discount code only if provided
  * val discountValidator = Kova.string()
- *     .min(5)
+ *     .matches(Regex("^[A-Z0-9]{5,10}$"))
  *     .onlyIf { it.isNotBlank() }
  * ```
  *
@@ -154,7 +154,34 @@ fun <T> IdentityValidator<T>.onlyIf(condition: (T) -> Boolean) =
         }
     }
 
+/**
+ * Converts this validator to accept nullable input.
+ *
+ * When the input is null, validation succeeds with null output.
+ * When the input is non-null, the original validator logic is applied.
+ *
+ * This is useful for making required validators optional or for chaining with nullable properties.
+ *
+ * Example:
+ * ```kotlin
+ * // Make a string validator nullable
+ * val validator = Kova.string().min(3).max(20).asNullable()
+ * validator.validate(null)    // Success(null)
+ * validator.validate("hello") // Success("hello")
+ * validator.validate("ab")    // Failure (too short)
+ *
+ * // Use with ObjectSchema for optional fields
+ * object UserSchema : ObjectSchema<User>({
+ *     User::middleName {
+ *         it.min(1).max(50).asNullable()
+ *     }
+ * })
+ * ```
+ *
+ * @return A new nullable validator that accepts null input
+ * @see Validator.asNullable for the base version that works with any validator type
+ */
 fun <T : Any> IdentityValidator<T>.asNullable(): NullableValidator<T, T> =
     Validator { input, context ->
-        if (input == null) Success(null, context) else this.execute(input, context)
+        if (input == null) Success(null, context) else execute(input, context)
     }
