@@ -114,7 +114,7 @@ open class ObjectSchema<T : Any>(
         val validator =
             constraints
                 .map { ConstraintValidator(it) }
-                .fold(Validator.success<T>() as IdentityValidator<T>) { acc, v -> acc + v }
+                .fold(Validator.success<T>()) { acc, v -> acc + v }
         return validator.execute(input, context)
     }
 
@@ -131,7 +131,7 @@ open class ObjectSchema<T : Any>(
         key: KProperty1<T, V>,
         validator: IdentityValidator<V>,
     ): ObjectSchema<T> {
-        val choose = { _: T -> validator } as (Any?) -> IdentityValidator<Any?>
+        val choose = { _: T -> validator }
         return ObjectSchema({
             constraints.forEach { constrain(it.id, it.check) }
             ruleMap.forEach { addRule(it.key, it.value.choose) }
@@ -334,52 +334,15 @@ class ObjectSchemaScope<T : Any> internal constructor(
         return chooser
     }
 
-    /**
-     * Defines a conditional validation rule for a property based on a selected value from the object.
-     *
-     * This overload of `choose` allows you to select a specific value from the object first,
-     * then use that value to determine which validator to apply. This is useful when you want to
-     * base validation decisions on a computed or derived value rather than the entire object.
-     *
-     * Example:
-     * ```kotlin
-     * data class Product(val category: String, val price: Double, val taxRate: Double)
-     *
-     * object ProductSchema : ObjectSchema<Product>({
-     *     Product::category { it }
-     *     Product::price choose(
-     *         select = { it.taxRate },
-     *         resolve = { taxRate, v ->
-     *             when {
-     *                 taxRate > 0.1 -> v.min(100.0)  // High tax items must be at least $100
-     *                 else -> v.min(10.0)             // Low tax items must be at least $10
-     *             }
-     *         }
-     *     )
-     * })
-     * ```
-     *
-     * @param select Lambda that extracts a value from the object to base the validator choice on
-     * @param resolve Lambda that receives the selected value and a base validator, and returns a validator
-     * @return The resolution function for further use
-     */
-    fun <V, VALIDATOR : IdentityValidator<V>, S> KProperty1<T, V>.choose(
-        select: (T) -> S,
-        resolve: (S, Validator<V, V>) -> VALIDATOR,
-    ): (S) -> VALIDATOR {
-        val provide = { value: S -> resolve(value, Validator.success()) }
-        val choose = { receiver: T -> provide(select(receiver)) }
-        addRule(this, choose)
-        return provide
-    }
-
     internal fun <V> addRule(
         key: KProperty1<T, V>,
         choose: (T) -> Validator<V, V>,
     ) {
         key as KProperty1<T, *>
         val transform = { receiver: T -> key.get(receiver) }
+        @Suppress("UNCHECKED_CAST")
         transform as (Any?) -> Any?
+        @Suppress("UNCHECKED_CAST")
         choose as (Any?) -> IdentityValidator<Any?>
         ruleMap[key] = Rule(transform, choose)
     }
