@@ -1,6 +1,24 @@
 package org.komapper.extension.validator
 
 /**
+ * Type alias for validators that validate comparable types.
+ *
+ * This is semantically equivalent to [IdentityValidator] but provides clearer intent
+ * that the validator is specifically for types implementing [Comparable], enabling
+ * comparison constraints like min, max, gt, lt, etc.
+ *
+ * Using this type alias improves code readability by making it explicit that
+ * comparison-based constraints are being applied.
+ *
+ * Example:
+ * ```kotlin
+ * val validator: ComparableValidator<Int> = Kova.int().min(0).max(100)
+ * val dateValidator: ComparableValidator<LocalDate> = Kova.temporal<LocalDate>().min(LocalDate.now())
+ * ```
+ */
+typealias ComparableValidator<T> = IdentityValidator<T>
+
+/**
  * Validates that the number is greater than or equal to the specified minimum value.
  *
  * Example:
@@ -14,10 +32,10 @@ package org.komapper.extension.validator
  * @param message Custom error message provider
  * @return A new validator with the minimum constraint
  */
-fun <T : Comparable<T>> IdentityValidator<T>.min(
+fun <T : Comparable<T>> ComparableValidator<T>.min(
     value: T,
     message: MessageProvider = Message.resource(),
-): IdentityValidator<T> =
+): ComparableValidator<T> =
     constrain("kova.comparable.min") {
         satisfies(it.input >= value, message(value))
     }
@@ -36,10 +54,10 @@ fun <T : Comparable<T>> IdentityValidator<T>.min(
  * @param message Custom error message provider
  * @return A new validator with the maximum constraint
  */
-fun <T : Comparable<T>> IdentityValidator<T>.max(
+fun <T : Comparable<T>> ComparableValidator<T>.max(
     value: T,
     message: MessageProvider = Message.resource(),
-): IdentityValidator<T> =
+): ComparableValidator<T> =
     constrain("kova.comparable.max") {
         satisfies(it.input <= value, message(value))
     }
@@ -59,10 +77,10 @@ fun <T : Comparable<T>> IdentityValidator<T>.max(
  * @param message Custom error message provider
  * @return A new validator with the greater-than constraint
  */
-fun <T : Comparable<T>> IdentityValidator<T>.gt(
+fun <T : Comparable<T>> ComparableValidator<T>.gt(
     value: T,
     message: MessageProvider = Message.resource(),
-): IdentityValidator<T> =
+): ComparableValidator<T> =
     constrain("kova.comparable.gt") {
         satisfies(it.input > value, message(value))
     }
@@ -82,10 +100,10 @@ fun <T : Comparable<T>> IdentityValidator<T>.gt(
  * @param message Custom error message provider
  * @return A new validator with the greater-than-or-equal constraint
  */
-fun <T : Comparable<T>> IdentityValidator<T>.gte(
+fun <T : Comparable<T>> ComparableValidator<T>.gte(
     value: T,
     message: MessageProvider = Message.resource(),
-): IdentityValidator<T> =
+): ComparableValidator<T> =
     constrain("kova.comparable.gte") {
         satisfies(it.input >= value, message(value))
     }
@@ -105,10 +123,10 @@ fun <T : Comparable<T>> IdentityValidator<T>.gte(
  * @param message Custom error message provider
  * @return A new validator with the less-than constraint
  */
-fun <T : Comparable<T>> IdentityValidator<T>.lt(
+fun <T : Comparable<T>> ComparableValidator<T>.lt(
     value: T,
     message: MessageProvider = Message.resource(),
-): IdentityValidator<T> =
+): ComparableValidator<T> =
     constrain("kova.comparable.lt") {
         satisfies(it.input < value, message(value))
     }
@@ -128,10 +146,10 @@ fun <T : Comparable<T>> IdentityValidator<T>.lt(
  * @param message Custom error message provider
  * @return A new validator with the less-than-or-equal constraint
  */
-fun <T : Comparable<T>> IdentityValidator<T>.lte(
+fun <T : Comparable<T>> ComparableValidator<T>.lte(
     value: T,
     message: MessageProvider = Message.resource(),
-): IdentityValidator<T> =
+): ComparableValidator<T> =
     constrain("kova.comparable.lte") {
         satisfies(it.input <= value, message(value))
     }
@@ -151,10 +169,10 @@ fun <T : Comparable<T>> IdentityValidator<T>.lte(
  * @param message Custom error message provider
  * @return A new validator with the equality constraint
  */
-fun <T : Comparable<T>> IdentityValidator<T>.eq(
+fun <T : Comparable<T>> ComparableValidator<T>.eq(
     value: T,
     message: MessageProvider = Message.resource(),
-): IdentityValidator<T> =
+): ComparableValidator<T> =
     constrain("kova.comparable.eq") {
         satisfies(it.input == value, message(value))
     }
@@ -174,10 +192,10 @@ fun <T : Comparable<T>> IdentityValidator<T>.eq(
  * @param message Custom error message provider
  * @return A new validator with the inequality constraint
  */
-fun <T : Comparable<T>> IdentityValidator<T>.notEq(
+fun <T : Comparable<T>> ComparableValidator<T>.notEq(
     value: T,
     message: MessageProvider = Message.resource(),
-): IdentityValidator<T> =
+): ComparableValidator<T> =
     constrain("kova.comparable.notEq") {
         satisfies(it.input != value, message(value))
     }
