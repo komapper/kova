@@ -184,8 +184,6 @@ sealed interface Message {
 
         override fun toString(): String = toDescription()
     }
-
-    companion object : MessageProviderFactory
 }
 
 private fun Message.toDescription() =

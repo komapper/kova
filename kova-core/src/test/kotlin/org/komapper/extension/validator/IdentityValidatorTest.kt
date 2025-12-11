@@ -127,4 +127,33 @@ class IdentityValidatorTest :
                 }
             }
         }
+
+        context("constrain") {
+            val validator =
+                Kova.int().constrain("even") {
+                    satisfies(it.input % 2 == 0, it.text("input must be even"))
+                }
+
+            test("failure") {
+                val result = validator.tryValidate(1)
+                result.isFailure().mustBeTrue()
+                result.messages.size shouldBe 1
+                result.messages[0].text shouldBe "input must be even"
+            }
+        }
+
+        context("constrain with extension function") {
+            fun IdentityValidator<Int>.even() =
+                constrain("even") {
+                    satisfies(it.input % 2 == 0, it.text("input must be even"))
+                }
+            val validator = Kova.int().even()
+
+            test("failure") {
+                val result = validator.tryValidate(1)
+                result.isFailure().mustBeTrue()
+                result.messages.size shouldBe 1
+                result.messages[0].text shouldBe "input must be even"
+            }
+        }
     })

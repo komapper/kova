@@ -269,7 +269,7 @@ class ValidatorTest :
         context("message - provider - text") {
             val validator =
                 Kova.string().uppercase().min(3).withMessage { messages ->
-                    Message.text { "Invalid: consolidates messages=(${messages.joinToString { it.text }})" }
+                    MessageProvider.text { "Invalid: consolidates messages=(${messages.joinToString { it.text }})" }
                 }
 
             test("success") {
@@ -294,7 +294,7 @@ class ValidatorTest :
                     .string()
                     .uppercase()
                     .min(3)
-                    .withMessage { Message.resource() }
+                    .withMessage { MessageProvider.resource() }
 
             test("success") {
                 val result = validator.tryValidate("ABCDE")
@@ -347,7 +347,7 @@ class ValidatorTest :
                     User::id { it }
                     User::name {
                         it.uppercase().min(3).withMessage {
-                            Message.text { "Must be uppercase and at least 3 characters long" }
+                            MessageProvider.text { "Must be uppercase and at least 3 characters long" }
                         }
                     }
                 }) {}

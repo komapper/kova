@@ -518,4 +518,4 @@ fun <T, S> Validator<T, S>.withMessage(block: (List<Message>) -> MessageProvider
  * @return A new validator that returns the custom message on validation failure
  * @see withMessage for an advanced overload that can access the original error messages
  */
-fun <T, S> Validator<T, S>.withMessage(message: String): Validator<T, S> = withMessage { _ -> Message.text { _ -> message } }
+fun <T, S> Validator<T, S>.withMessage(message: String): Validator<T, S> = withMessage { _ -> MessageProvider.text { _ -> message } }

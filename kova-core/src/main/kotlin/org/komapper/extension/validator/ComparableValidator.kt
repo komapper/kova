@@ -34,7 +34,7 @@ typealias ComparableValidator<T> = IdentityValidator<T>
  */
 fun <T : Comparable<T>> ComparableValidator<T>.min(
     value: T,
-    message: MessageProvider = Message.resource(),
+    message: MessageProvider = MessageProvider.resource(),
 ): ComparableValidator<T> =
     constrain("kova.comparable.min") {
         satisfies(it.input >= value, message(value))
@@ -56,7 +56,7 @@ fun <T : Comparable<T>> ComparableValidator<T>.min(
  */
 fun <T : Comparable<T>> ComparableValidator<T>.max(
     value: T,
-    message: MessageProvider = Message.resource(),
+    message: MessageProvider = MessageProvider.resource(),
 ): ComparableValidator<T> =
     constrain("kova.comparable.max") {
         satisfies(it.input <= value, message(value))
@@ -79,7 +79,7 @@ fun <T : Comparable<T>> ComparableValidator<T>.max(
  */
 fun <T : Comparable<T>> ComparableValidator<T>.gt(
     value: T,
-    message: MessageProvider = Message.resource(),
+    message: MessageProvider = MessageProvider.resource(),
 ): ComparableValidator<T> =
     constrain("kova.comparable.gt") {
         satisfies(it.input > value, message(value))
@@ -102,7 +102,7 @@ fun <T : Comparable<T>> ComparableValidator<T>.gt(
  */
 fun <T : Comparable<T>> ComparableValidator<T>.gte(
     value: T,
-    message: MessageProvider = Message.resource(),
+    message: MessageProvider = MessageProvider.resource(),
 ): ComparableValidator<T> =
     constrain("kova.comparable.gte") {
         satisfies(it.input >= value, message(value))
@@ -125,7 +125,7 @@ fun <T : Comparable<T>> ComparableValidator<T>.gte(
  */
 fun <T : Comparable<T>> ComparableValidator<T>.lt(
     value: T,
-    message: MessageProvider = Message.resource(),
+    message: MessageProvider = MessageProvider.resource(),
 ): ComparableValidator<T> =
     constrain("kova.comparable.lt") {
         satisfies(it.input < value, message(value))
@@ -148,7 +148,7 @@ fun <T : Comparable<T>> ComparableValidator<T>.lt(
  */
 fun <T : Comparable<T>> ComparableValidator<T>.lte(
     value: T,
-    message: MessageProvider = Message.resource(),
+    message: MessageProvider = MessageProvider.resource(),
 ): ComparableValidator<T> =
     constrain("kova.comparable.lte") {
         satisfies(it.input <= value, message(value))
@@ -171,7 +171,7 @@ fun <T : Comparable<T>> ComparableValidator<T>.lte(
  */
 fun <T : Comparable<T>> ComparableValidator<T>.eq(
     value: T,
-    message: MessageProvider = Message.resource(),
+    message: MessageProvider = MessageProvider.resource(),
 ): ComparableValidator<T> =
     constrain("kova.comparable.eq") {
         satisfies(it.input == value, message(value))
@@ -194,7 +194,7 @@ fun <T : Comparable<T>> ComparableValidator<T>.eq(
  */
 fun <T : Comparable<T>> ComparableValidator<T>.notEq(
     value: T,
-    message: MessageProvider = Message.resource(),
+    message: MessageProvider = MessageProvider.resource(),
 ): ComparableValidator<T> =
     constrain("kova.comparable.notEq") {
         satisfies(it.input != value, message(value))

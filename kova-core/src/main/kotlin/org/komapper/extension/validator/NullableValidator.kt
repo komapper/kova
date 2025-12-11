@@ -55,7 +55,7 @@ fun <T : Any, S : Any> NullableValidator<T, S>.constrain(
  * @param message Custom error message provider
  * @return A new validator that only accepts null
  */
-fun <T : Any, S : Any> NullableValidator<T, S>.isNull(message: MessageProvider = Message.resource()): NullableValidator<T, S> =
+fun <T : Any, S : Any> NullableValidator<T, S>.isNull(message: MessageProvider = MessageProvider.resource()): NullableValidator<T, S> =
     constrain("kova.nullable.isNull") {
         satisfies(it.input == null, message())
     }
@@ -82,7 +82,7 @@ fun <T : Any, S : Any> NullableValidator<T, S>.isNull(message: MessageProvider =
  */
 fun <T : Any, S : Any> NullableValidator<T, S>.isNullOr(
     block: (Validator<T, T>) -> Validator<T, S>,
-    message: MessageProvider = Message.resource(),
+    message: MessageProvider = MessageProvider.resource(),
 ): NullableValidator<T, S> = isNull(message).or(block(Validator.success()).asNullable())
 
 /**
@@ -100,7 +100,7 @@ fun <T : Any, S : Any> NullableValidator<T, S>.isNullOr(
  * @param message Custom error message provider
  * @return A new validator that rejects null
  */
-fun <T : Any, S : Any> NullableValidator<T, S>.notNull(message: MessageProvider = Message.resource()): NullableValidator<T, S> =
+fun <T : Any, S : Any> NullableValidator<T, S>.notNull(message: MessageProvider = MessageProvider.resource()): NullableValidator<T, S> =
     constrain("kova.nullable.notNull") {
         satisfies(it.input != null, message())
     }
@@ -127,7 +127,7 @@ fun <T : Any, S : Any> NullableValidator<T, S>.notNull(message: MessageProvider 
  */
 fun <T : Any, S : Any> NullableValidator<T, S>.notNullAnd(
     block: (Validator<T, T>) -> Validator<T, S>,
-    message: MessageProvider = Message.resource(),
+    message: MessageProvider = MessageProvider.resource(),
 ): NullableValidator<T, S> = notNull(message).and(block(Validator.success()).asNullable())
 
 /**

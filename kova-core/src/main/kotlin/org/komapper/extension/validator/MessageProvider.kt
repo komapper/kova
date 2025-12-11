@@ -44,6 +44,8 @@ interface MessageProvider {
      * @return A function that accepts a ConstraintContext and returns a Message object
      */
     operator fun invoke(vararg args: Any?): (ConstraintContext<*>) -> Message
+
+    companion object : MessageProviderFactory
 }
 
 /**
