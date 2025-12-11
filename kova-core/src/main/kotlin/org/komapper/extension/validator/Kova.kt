@@ -277,15 +277,5 @@ interface Kova {
         message: MessageProvider? = null,
     ): IdentityValidator<T> = literal(values.toList(), message)
 
-    /**
-     * Fails validation with a text message.
-     *
-     * This is useful for custom validation logic that needs to fail with a specific message.
-     *
-     * @param content The failure message text
-     * @throws MessageException Always throws with the provided message
-     */
-    fun fail(message: String): Nothing = throw MessageException(message)
-
     companion object : Kova
 }

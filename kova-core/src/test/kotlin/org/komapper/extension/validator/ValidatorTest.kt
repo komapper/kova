@@ -367,4 +367,25 @@ class ValidatorTest :
                 message.path.fullName shouldBe "name"
             }
         }
+
+        context("mapping operation after failure") {
+            val validator =
+                Kova
+                    .string()
+                    .trim()
+                    .min(3)
+                    .toUppercase()
+                    .max(3)
+
+            test("failure") {
+                val logs = mutableListOf<LogEntry>()
+                val result = validator.tryValidate("  ab  ", config = ValidationConfig(logger = { logs.add(it) }))
+                result.isFailure().mustBeTrue()
+                logs shouldBe
+                    listOf(
+                        LogEntry.Violated(constraintId = "kova.charSequence.min", root = "", path = "", input = "ab"),
+                        LogEntry.Satisfied(constraintId = "kova.charSequence.max", root = "", path = "", input = "AB"),
+                    )
+            }
+        }
     })
