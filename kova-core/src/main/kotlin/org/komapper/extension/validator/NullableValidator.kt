@@ -82,11 +82,8 @@ fun <T : Any, S : Any> NullableValidator<T, S>.isNull(message: MessageProvider =
  */
 fun <T : Any, S : Any> NullableValidator<T, S>.isNullOr(
     block: (Validator<T, T>) -> Validator<T, S>,
-    message: MessageProvider? = null,
-): NullableValidator<T, S> {
-    val isNull = if (message == null) isNull() else isNull(message)
-    return isNull.or(block(Validator.success()).asNullable())
-}
+    message: MessageProvider = Message.resource(),
+): NullableValidator<T, S> = isNull(message).or(block(Validator.success()).asNullable())
 
 /**
  * Validates that the input is not null.
@@ -130,11 +127,8 @@ fun <T : Any, S : Any> NullableValidator<T, S>.notNull(message: MessageProvider 
  */
 fun <T : Any, S : Any> NullableValidator<T, S>.notNullAnd(
     block: (Validator<T, T>) -> Validator<T, S>,
-    message: MessageProvider? = null,
-): NullableValidator<T, S> {
-    val notNull = if (message == null) notNull() else notNull(message)
-    return notNull.and(block(Validator.success()).asNullable())
-}
+    message: MessageProvider = Message.resource(),
+): NullableValidator<T, S> = notNull(message).and(block(Validator.success()).asNullable())
 
 /**
  * Converts a nullable validator to a validator with non-nullable output.
