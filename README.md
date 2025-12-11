@@ -65,11 +65,11 @@ Kova validators are composable - you can combine existing validators to create n
 
 ```kotlin
 // Combine validators with + operator (or 'and')
-val emailValidator = Kova.string().notBlank() + Kova.string().email()
+val nameValidator = Kova.string().notBlank() + Kova.string().max(100)
 
 // Use 'or' for alternative validations (succeeds if either passes)
-// Accept either an email or a phone number format
-val contactValidator = Kova.string().email() or Kova.string().matches(Regex("""^\+?[1-9]\d{1,14}$"""))
+// Accept either a phone number or a numeric ID format
+val contactValidator = Kova.string().matches(Regex("""^\+?[1-9]\d{1,14}$""")) or Kova.string().matches(Regex("""^\d{6,10}$"""))
 
 // Transform output with map
 val priceValidator = Kova.string().toDouble()  // Validates and converts to Double
@@ -90,23 +90,23 @@ val passwordValidator = Kova.string()
     .max(100)
     .matches(Regex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$"))
 
-// Create a reusable email validator with specific rules
-val businessEmailValidator = Kova.string()
+// Create a reusable username validator
+val usernameValidator = Kova.string()
     .notBlank()
-    .email()
-    .notEndsWith("@gmail.com")
-    .notEndsWith("@yahoo.com")
+    .min(3)
+    .max(20)
+    .matches(Regex("^[a-zA-Z0-9_]+$"))
 
 // Compose validators to create more specific validators
-val adminEmailValidator = businessEmailValidator + Kova.string().endsWith("@company.com")
+val adminUsernameValidator = usernameValidator + Kova.string().startsWith("admin_")
 
 // Use these validators across your application
 val signupPassword = passwordValidator.validate("SecurePass123")
-val adminEmail = adminEmailValidator.validate("admin@company.com")
+val adminUsername = adminUsernameValidator.validate("admin_john")
 
 // Compose with nullable handling
-val optionalEmailValidator = emailValidator.asNullable()
-val emailWithDefault = emailValidator.asNullable("default@example.com")
+val optionalUsernameValidator = usernameValidator.asNullable()
+val usernameWithDefault = usernameValidator.asNullable("guest")
 ```
 
 ### Object Validation
@@ -304,7 +304,6 @@ Kova.string()
     .notContains("substring")  // Must not contain substring
     .matches(Regex("\\d+"))    // Must match regex pattern
     .notMatches(Regex("\\d+")) // Must not match regex pattern
-    .email()                   // Must be a valid email address
     .isInt()                   // Must be a valid integer string
     .isLong()                  // Must be a valid long string
     .isShort()                 // Must be a valid short string
@@ -729,8 +728,8 @@ val passwordValidator = Kova.string().min(8).matches(Regex(".*[A-Z].*"))
 
 // Use in ObjectSchema
 object UserSchema : ObjectSchema<User>({
-    User::email {
-        it.notEmpty().email().withMessage("Invalid email address")
+    User::username {
+        it.notEmpty().min(3).max(20).withMessage("Invalid username")
     }
     User::password {
         it.min(8).matches(Regex(".*[A-Z].*"))

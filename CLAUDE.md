@@ -39,7 +39,7 @@
 
 ### Design Patterns
 - **Most validators**: Extension functions built on `constrain()` (e.g., `CharSequenceValidator.kt`, `StringValidator.kt`, `NumberValidator.kt`, `TemporalValidator.kt`)
-- **CharSequenceValidator**: Extension functions for CharSequence types (length, blank, empty, contains, matches, email, etc.) - works with String and other CharSequence types
+- **CharSequenceValidator**: Extension functions for CharSequence types (length, blank, empty, contains, matches, etc.) - works with String and other CharSequence types
 - **StringValidator**: String-specific validators (type conversions, enum, case transformations) - builds on CharSequenceValidator
 - **TemporalValidator**: Type alias with extension functions using reified type parameters for temporal constraints
 - **Immutability**: All validators immutable; composition operators return new instances
@@ -111,7 +111,7 @@ fun Application.module() {
 - Input accessible via `ctx.input` if needed
 - **Constraint IDs**:
   - Comparison validators use consolidated `kova.comparable.*` IDs (not type-specific)
-  - CharSequence validators use `kova.charSequence.*` IDs (min, max, length, blank, empty, startsWith, endsWith, contains, matches, email)
+  - CharSequence validators use `kova.charSequence.*` IDs (min, max, length, blank, empty, startsWith, endsWith, contains, matches)
   - String-specific validators use `kova.string.*` IDs (type conversions, enum, case transformations)
 
 

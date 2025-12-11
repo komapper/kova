@@ -314,28 +314,3 @@ fun <T : CharSequence> CharSequenceValidator<T>.notMatches(
 ) = constrain("kova.charSequence.notMatches") {
     satisfies(!pattern.matches(it.input), message(pattern))
 }
-
-/**
- * Validates that the character sequence is a valid email address.
- *
- * Uses a comprehensive email validation pattern that checks for common email format requirements.
- *
- * Example:
- * ```kotlin
- * val validator = Kova.string().email()
- * validator.validate("user@example.com") // Success
- * validator.validate("invalid-email")    // Failure
- * ```
- *
- * @param message Custom error message provider
- * @return A new validator with the email constraint
- */
-fun <T : CharSequence> CharSequenceValidator<T>.email(message: MessageProvider = Message.resource()) =
-    constrain("kova.charSequence.email") {
-        val emailPattern =
-            Regex(
-                "^(?!\\.)(?!.*\\.\\.)([a-z0-9_'+\\-\\.]*)[a-z0-9_+-]@([a-z0-9][a-z0-9\\-]*\\.)+[a-z]{2,}\$",
-                RegexOption.IGNORE_CASE,
-            )
-        satisfies(emailPattern.matches(it.input), message())
-    }
