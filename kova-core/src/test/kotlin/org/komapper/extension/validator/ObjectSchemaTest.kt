@@ -66,7 +66,7 @@ class ObjectSchemaTest :
                 result.messages[0].let {
                     it.root shouldBe "User"
                     it.path.fullName shouldBe "name"
-                    it.constraintId shouldBe "kova.string.max"
+                    it.constraintId shouldBe "kova.charSequence.max"
                 }
             }
 
@@ -79,7 +79,7 @@ class ObjectSchemaTest :
                 result.messages[0].let {
                     it.root shouldBe "User"
                     it.path.fullName shouldBe "name"
-                    it.constraintId shouldBe "kova.string.max"
+                    it.constraintId shouldBe "kova.charSequence.max"
                 }
                 result.messages[1].let {
                     it.root shouldBe "User"
@@ -234,7 +234,7 @@ class ObjectSchemaTest :
                 result.messages[0].let {
                     it.root shouldBe "User"
                     it.path.fullName shouldBe "name"
-                    it.constraintId shouldBe "kova.string.max"
+                    it.constraintId shouldBe "kova.charSequence.max"
                 }
             }
 
@@ -252,7 +252,7 @@ class ObjectSchemaTest :
                 result.messages[1].let {
                     it.root shouldBe "User"
                     it.path.fullName shouldBe "name"
-                    it.constraintId shouldBe "kova.string.max"
+                    it.constraintId shouldBe "kova.charSequence.max"
                 }
             }
         }
@@ -290,7 +290,7 @@ class ObjectSchemaTest :
                 result.messages[0].let {
                     it.root shouldBe "Employee"
                     it.path.fullName shouldBe "address.street.name"
-                    it.constraintId shouldBe "kova.string.max"
+                    it.constraintId shouldBe "kova.charSequence.max"
                 }
             }
         }
@@ -342,7 +342,7 @@ class ObjectSchemaTest :
                 result.messages[0].let {
                     it.root shouldBe "Employee"
                     it.path.fullName shouldBe "address.postalCode"
-                    it.constraintId shouldBe "kova.string.length"
+                    it.constraintId shouldBe "kova.charSequence.length"
                 }
             }
 
@@ -355,7 +355,7 @@ class ObjectSchemaTest :
                 result.messages[0].let {
                     it.root shouldBe "Employee"
                     it.path.fullName shouldBe "address.postalCode"
-                    it.constraintId shouldBe "kova.string.length"
+                    it.constraintId shouldBe "kova.charSequence.length"
                 }
             }
         }

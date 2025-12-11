@@ -87,8 +87,8 @@ class ValidatorTest :
                 result.messages[0].let {
                     it.constraintId shouldBe "kova.or"
                     it.shouldBeInstanceOf<Message.Or>()
-                    it.first.messages[0].constraintId shouldBe "kova.string.length"
-                    it.second.messages[0].constraintId shouldBe "kova.string.length"
+                    it.first.messages[0].constraintId shouldBe "kova.charSequence.length"
+                    it.second.messages[0].constraintId shouldBe "kova.charSequence.length"
                 }
             }
         }
@@ -107,7 +107,7 @@ class ValidatorTest :
                     it.constraintId shouldBe "kova.or"
                     it.shouldBeInstanceOf<Message.Or>()
                     it.first.messages[0].constraintId shouldBe "kova.or"
-                    it.second.messages[0].constraintId shouldBe "kova.string.length"
+                    it.second.messages[0].constraintId shouldBe "kova.charSequence.length"
                     println(it)
                 }
             }
@@ -129,7 +129,7 @@ class ValidatorTest :
                     it.constraintId shouldBe "kova.or"
                     it.shouldBeInstanceOf<Message.Or>()
                     it.first.messages[0].constraintId shouldBe "kova.or"
-                    it.second.messages[0].constraintId shouldBe "kova.string.length"
+                    it.second.messages[0].constraintId shouldBe "kova.charSequence.length"
                     println(it)
                 }
             }
@@ -165,7 +165,7 @@ class ValidatorTest :
             test("failure when second constraint violated") {
                 val result = validator.tryValidate(10)
                 result.isFailure().mustBeTrue()
-                result.messages.single().constraintId shouldBe "kova.string.max"
+                result.messages.single().constraintId shouldBe "kova.charSequence.max"
             }
         }
 
@@ -184,7 +184,7 @@ class ValidatorTest :
             test("failure when second constraint violated") {
                 val result = validator.tryValidate(10)
                 result.isFailure().mustBeTrue()
-                result.messages.single().constraintId shouldBe "kova.string.max"
+                result.messages.single().constraintId shouldBe "kova.charSequence.max"
             }
         }
 
@@ -208,7 +208,7 @@ class ValidatorTest :
             test("failure when second constraint violated") {
                 val result = validator.tryValidate(10)
                 result.isFailure().mustBeTrue()
-                result.messages.single().constraintId shouldBe "kova.string.max"
+                result.messages.single().constraintId shouldBe "kova.charSequence.max"
             }
         }
 
@@ -232,7 +232,7 @@ class ValidatorTest :
             test("failure when second constraint violated") {
                 val result = validator.tryValidate(10)
                 result.isFailure().mustBeTrue()
-                result.messages.single().constraintId shouldBe "kova.string.max"
+                result.messages.single().constraintId shouldBe "kova.charSequence.max"
             }
         }
 
@@ -248,8 +248,8 @@ class ValidatorTest :
 
                 logs shouldBe
                     listOf(
-                        LogEntry.Satisfied(constraintId = "kova.string.min", root = "", path = "", input = "abcde"),
-                        LogEntry.Satisfied(constraintId = "kova.string.max", root = "", path = "", input = "abcde"),
+                        LogEntry.Satisfied(constraintId = "kova.charSequence.min", root = "", path = "", input = "abcde"),
+                        LogEntry.Satisfied(constraintId = "kova.charSequence.max", root = "", path = "", input = "abcde"),
                     )
             }
 
@@ -260,8 +260,8 @@ class ValidatorTest :
 
                 logs shouldBe
                     listOf(
-                        LogEntry.Violated(constraintId = "kova.string.min", root = "", path = "", input = "ab"),
-                        LogEntry.Satisfied(constraintId = "kova.string.max", root = "", path = "", input = "ab"),
+                        LogEntry.Violated(constraintId = "kova.charSequence.min", root = "", path = "", input = "ab"),
+                        LogEntry.Satisfied(constraintId = "kova.charSequence.max", root = "", path = "", input = "ab"),
                     )
             }
         }

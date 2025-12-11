@@ -6,6 +6,121 @@ import java.time.LocalDate
 
 class KovaPropertiesTest :
     FunSpec({
+
+        context("kova.charSequence") {
+            test("min") {
+                val result = Kova.string().min(5).tryValidate("abc")
+                result.isFailure().mustBeTrue()
+                val message = result.messages.single()
+                message.text shouldBe "must be at least 5 characters"
+            }
+
+            test("max") {
+                val result = Kova.string().max(5).tryValidate("abcdef")
+                result.isFailure().mustBeTrue()
+                val message = result.messages.single()
+                message.text shouldBe "must be at most 5 characters"
+            }
+
+            test("length") {
+                val result = Kova.string().length(5).tryValidate("abc")
+                result.isFailure().mustBeTrue()
+                val message = result.messages.single()
+                message.text shouldBe "must be exactly 5 characters"
+            }
+
+            test("notBlank") {
+                val result = Kova.string().notBlank().tryValidate("  ")
+                result.isFailure().mustBeTrue()
+                val message = result.messages.single()
+                message.text shouldBe "must not be blank"
+            }
+
+            test("blank") {
+                val result = Kova.string().blank().tryValidate("abc")
+                result.isFailure().mustBeTrue()
+                val message = result.messages.single()
+                message.text shouldBe "must be blank"
+            }
+
+            test("notEmpty") {
+                val result = Kova.string().notEmpty().tryValidate("")
+                result.isFailure().mustBeTrue()
+                val message = result.messages.single()
+                message.text shouldBe "must not be empty"
+            }
+
+            test("empty") {
+                val result = Kova.string().empty().tryValidate("abc")
+                result.isFailure().mustBeTrue()
+                val message = result.messages.single()
+                message.text shouldBe "must be empty"
+            }
+
+            test("startsWith") {
+                val result = Kova.string().startsWith("hello").tryValidate("world")
+                result.isFailure().mustBeTrue()
+                val message = result.messages.single()
+                message.text shouldBe "must start with \"hello\""
+            }
+
+            test("notStartsWith") {
+                val result = Kova.string().notStartsWith("hello").tryValidate("hello world")
+                result.isFailure().mustBeTrue()
+                val message = result.messages.single()
+                message.text shouldBe "must not start with \"hello\""
+            }
+
+            test("endsWith") {
+                val result = Kova.string().endsWith("world").tryValidate("hello")
+                result.isFailure().mustBeTrue()
+                val message = result.messages.single()
+                message.text shouldBe "must end with \"world\""
+            }
+
+            test("notEndsWith") {
+                val result = Kova.string().notEndsWith("world").tryValidate("hello world")
+                result.isFailure().mustBeTrue()
+                val message = result.messages.single()
+                message.text shouldBe "must not end with \"world\""
+            }
+
+            test("contains") {
+                val result = Kova.string().contains("test").tryValidate("hello")
+                result.isFailure().mustBeTrue()
+                val message = result.messages.single()
+                message.text shouldBe "must contain \"test\""
+            }
+
+            test("notContains") {
+                val result = Kova.string().notContains("test").tryValidate("test value")
+                result.isFailure().mustBeTrue()
+                val message = result.messages.single()
+                message.text shouldBe "must not contain \"test\""
+            }
+
+            test("matches") {
+                val result = Kova.string().matches(Regex("[0-9]+")).tryValidate("abc")
+                result.isFailure().mustBeTrue()
+                val message = result.messages.single()
+                message.text shouldBe "must match pattern: [0-9]+"
+            }
+
+            test("notMatches") {
+                val result = Kova.string().notMatches(Regex("[0-9]+")).tryValidate("123")
+                result.isFailure().mustBeTrue()
+                val message = result.messages.single()
+                message.text shouldBe "must not match pattern: [0-9]+"
+            }
+
+            test("email") {
+                val result = Kova.string().email().tryValidate("invalid-email")
+                result.isFailure().mustBeTrue()
+                val message = result.messages.single()
+                message.text shouldBe "must be a valid email address"
+            }
+        }
+
         context("kova.collection") {
             test("min") {
                 val result = Kova.list<String>().min(3).tryValidate(listOf("a", "b"))
@@ -272,118 +387,6 @@ class KovaPropertiesTest :
         }
 
         context("kova.string") {
-            test("min") {
-                val result = Kova.string().min(5).tryValidate("abc")
-                result.isFailure().mustBeTrue()
-                val message = result.messages.single()
-                message.text shouldBe "must be at least 5 characters"
-            }
-
-            test("max") {
-                val result = Kova.string().max(5).tryValidate("abcdef")
-                result.isFailure().mustBeTrue()
-                val message = result.messages.single()
-                message.text shouldBe "must be at most 5 characters"
-            }
-
-            test("length") {
-                val result = Kova.string().length(5).tryValidate("abc")
-                result.isFailure().mustBeTrue()
-                val message = result.messages.single()
-                message.text shouldBe "must be exactly 5 characters"
-            }
-
-            test("notBlank") {
-                val result = Kova.string().notBlank().tryValidate("  ")
-                result.isFailure().mustBeTrue()
-                val message = result.messages.single()
-                message.text shouldBe "must not be blank"
-            }
-
-            test("blank") {
-                val result = Kova.string().blank().tryValidate("abc")
-                result.isFailure().mustBeTrue()
-                val message = result.messages.single()
-                message.text shouldBe "must be blank"
-            }
-
-            test("notEmpty") {
-                val result = Kova.string().notEmpty().tryValidate("")
-                result.isFailure().mustBeTrue()
-                val message = result.messages.single()
-                message.text shouldBe "must not be empty"
-            }
-
-            test("empty") {
-                val result = Kova.string().empty().tryValidate("abc")
-                result.isFailure().mustBeTrue()
-                val message = result.messages.single()
-                message.text shouldBe "must be empty"
-            }
-
-            test("startsWith") {
-                val result = Kova.string().startsWith("hello").tryValidate("world")
-                result.isFailure().mustBeTrue()
-                val message = result.messages.single()
-                message.text shouldBe "must start with \"hello\""
-            }
-
-            test("notStartsWith") {
-                val result = Kova.string().notStartsWith("hello").tryValidate("hello world")
-                result.isFailure().mustBeTrue()
-                val message = result.messages.single()
-                message.text shouldBe "must not start with \"hello\""
-            }
-
-            test("endsWith") {
-                val result = Kova.string().endsWith("world").tryValidate("hello")
-                result.isFailure().mustBeTrue()
-                val message = result.messages.single()
-                message.text shouldBe "must end with \"world\""
-            }
-
-            test("notEndsWith") {
-                val result = Kova.string().notEndsWith("world").tryValidate("hello world")
-                result.isFailure().mustBeTrue()
-                val message = result.messages.single()
-                message.text shouldBe "must not end with \"world\""
-            }
-
-            test("contains") {
-                val result = Kova.string().contains("test").tryValidate("hello")
-                result.isFailure().mustBeTrue()
-                val message = result.messages.single()
-                message.text shouldBe "must contain \"test\""
-            }
-
-            test("notContains") {
-                val result = Kova.string().notContains("test").tryValidate("test value")
-                result.isFailure().mustBeTrue()
-                val message = result.messages.single()
-                message.text shouldBe "must not contain \"test\""
-            }
-
-            test("matches") {
-                val result = Kova.string().matches(Regex("[0-9]+")).tryValidate("abc")
-                result.isFailure().mustBeTrue()
-                val message = result.messages.single()
-                message.text shouldBe "must match pattern: [0-9]+"
-            }
-
-            test("notMatches") {
-                val result = Kova.string().notMatches(Regex("[0-9]+")).tryValidate("123")
-                result.isFailure().mustBeTrue()
-                val message = result.messages.single()
-                message.text shouldBe "must not match pattern: [0-9]+"
-            }
-
-            test("email") {
-                val result = Kova.string().email().tryValidate("invalid-email")
-                result.isFailure().mustBeTrue()
-                val message = result.messages.single()
-                message.text shouldBe "must be a valid email address"
-            }
-
             test("isInt") {
                 val result = Kova.string().isInt().tryValidate("abc")
                 result.isFailure().mustBeTrue()

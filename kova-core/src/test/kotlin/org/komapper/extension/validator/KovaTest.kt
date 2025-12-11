@@ -95,7 +95,7 @@ class KovaTest :
                 result.messages.size shouldBe 1
                 result.messages[0].let {
                     it.path.fullName shouldBe "Request[key]"
-                    it.constraintId shouldBe "kova.string.min"
+                    it.constraintId shouldBe "kova.charSequence.min"
                 }
             }
         }

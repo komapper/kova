@@ -17,11 +17,11 @@ class MessageTest :
             val input = "abc"
             val vc = ValidationContext()
 
-            val cc1 = vc.createConstraintContext(input, "kova.string.min")
+            val cc1 = vc.createConstraintContext(input, "kova.charSequence.min")
             val mc1 = cc1.createMessageContext(listOf(1))
             val resource1 = Message.Resource(mc1)
 
-            val cc2 = vc.createConstraintContext(input, "kova.string.max")
+            val cc2 = vc.createConstraintContext(input, "kova.charSequence.max")
             val mc2 = cc2.createMessageContext(listOf(5))
             val resource2 = Message.Resource(mc2)
 
@@ -41,7 +41,7 @@ class MessageTest :
             result.isFailure().mustBeTrue()
             result.messages.size shouldBe 1
             result.messages[0].toString() shouldBe
-                "Message(constraintId=kova.string.min, text='must be at least 5 characters', root=, path=, input=abc)"
+                "Message(constraintId=kova.charSequence.min, text='must be at least 5 characters', root=, path=, input=abc)"
         }
 
         test("toString: object") {
@@ -58,6 +58,6 @@ class MessageTest :
             result.isFailure().mustBeTrue()
             result.messages.size shouldBe 1
             result.messages[0].toString() shouldBe
-                "Message(constraintId=kova.string.min, text='must be at least 5 characters', root=Person, path=name, input=abc)"
+                "Message(constraintId=kova.charSequence.min, text='must be at least 5 characters', root=Person, path=name, input=abc)"
         }
     })
