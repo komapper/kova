@@ -32,7 +32,7 @@ class MessageProviderTest :
 
             test("resource") {
                 val provider = Message.resource()
-                val message = provider(input)(ConstraintContext(input = input, constraintId = "kova.string.email"))
+                val message = provider(input)(ConstraintContext(input = input, constraintId = "kova.charSequence.email"))
                 message.text shouldBe "must be a valid email address"
             }
         }
@@ -48,7 +48,7 @@ class MessageProviderTest :
 
             test("resource") {
                 val provider = Message.resource()
-                val message = provider(1)(ConstraintContext(input = input, constraintId = "kova.string.length"))
+                val message = provider(1)(ConstraintContext(input = input, constraintId = "kova.charSequence.length"))
                 message.text shouldBe "must be exactly 1 characters"
             }
         }

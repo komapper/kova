@@ -844,8 +844,8 @@ Error messages are internationalized using resource bundles. All error messages 
 The default messages are in `kova.properties`:
 
 ```properties
-kova.string.min=must be at least {0} characters
-kova.string.max=must be at most {0} characters
+kova.charSequence.min=must be at least {0} characters
+kova.charSequence.max=must be at most {0} characters
 kova.comparable.min=must be greater than or equal to {0}
 kova.comparable.max=must be less than or equal to {0}
 # ... more messages
@@ -858,6 +858,7 @@ val validator = Kova.string().min(
     length = 5,
     message = Message.text { ctx -> "String '${ctx.input}' is too short (min: ${ctx[0]})" }
 )
+// The default constraint ID for min() on strings is "kova.charSequence.min"
 ```
 
 **Note**: When using `MessageProvider`, you only pass the constraint parameters (not the input value) to the `message()` function. The input value can be accessed via `ctx.input` in the message lambda if needed.
@@ -870,7 +871,7 @@ if (result.isFailure()) {
     result.messages.forEach { message ->
         println(message.text)  // Prints: "String 'ab' is too short (min: 5)"
         println(message)        // Detailed output with all information
-        // Prints: "Message(constraintId=kova.string.min, text=String 'ab' is too short (min: 5), root=, path=, input=ab)"
+        // Prints: "Message(constraintId=kova.charSequence.min, text=String 'ab' is too short (min: 5), root=, path=, input=ab)"
     }
 }
 ```

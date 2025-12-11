@@ -102,11 +102,11 @@ class CollectionValidatorTest :
                         "Some elements do not satisfy the constraint: [must be exactly 3 characters, must be exactly 3 characters]"
                     it.shouldBeInstanceOf<Message.Collection>()
                     it.elements.size shouldBe 2
-                    it.elements[0].messages[0].constraintId shouldBe "kova.string.length"
+                    it.elements[0].messages[0].constraintId shouldBe "kova.charSequence.length"
                     it.elements[0]
                         .messages[0]
                         .context.input shouldBe "4567"
-                    it.elements[1].messages[0].constraintId shouldBe "kova.string.length"
+                    it.elements[1].messages[0].constraintId shouldBe "kova.charSequence.length"
                     it.elements[1]
                         .messages[0]
                         .context.input shouldBe "8910"
@@ -122,7 +122,7 @@ class CollectionValidatorTest :
                         "Some elements do not satisfy the constraint: [must be exactly 3 characters]"
                     it.shouldBeInstanceOf<Message.Collection>()
                     it.elements.size shouldBe 1
-                    it.elements[0].messages[0].constraintId shouldBe "kova.string.length"
+                    it.elements[0].messages[0].constraintId shouldBe "kova.charSequence.length"
                 }
             }
         }
@@ -197,7 +197,7 @@ class CollectionValidatorTest :
                 message.elements[0].messages[0].let {
                     it.root shouldBe "ListHolder"
                     it.path.fullName shouldBe "list[1]<collection element>"
-                    it.constraintId shouldBe "kova.string.length"
+                    it.constraintId shouldBe "kova.charSequence.length"
                 }
             }
         }

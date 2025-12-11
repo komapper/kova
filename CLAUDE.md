@@ -38,7 +38,9 @@
 - **ValidationConfig**: Centralized settings (failFast, clock, logger)
 
 ### Design Patterns
-- **Most validators**: Extension functions built on `constrain()` (e.g., `StringValidator.kt`, `NumberValidator.kt`, `TemporalValidator.kt`)
+- **Most validators**: Extension functions built on `constrain()` (e.g., `CharSequenceValidator.kt`, `StringValidator.kt`, `NumberValidator.kt`, `TemporalValidator.kt`)
+- **CharSequenceValidator**: Extension functions for CharSequence types (length, blank, empty, contains, matches, email, etc.) - works with String and other CharSequence types
+- **StringValidator**: String-specific validators (type conversions, enum, case transformations) - builds on CharSequenceValidator
 - **TemporalValidator**: Type alias with extension functions using reified type parameters for temporal constraints
 - **Immutability**: All validators immutable; composition operators return new instances
 - **Composition**: `+`, `and`, `or`, `map`, `then`, `compose` with lambda-based overloads for fluent API
@@ -107,7 +109,10 @@ fun Application.module() {
 - **MessageProvider**: Functional interface with signature `invoke(vararg args: Any?): (ConstraintContext<*>) -> Message`
 - Pass constraint parameters (not input) to `message()`, access via `ctx[0]`, `ctx[1]` in lambda
 - Input accessible via `ctx.input` if needed
-- **Constraint IDs**: Comparison validators use consolidated `kova.comparable.*` IDs (not type-specific)
+- **Constraint IDs**:
+  - Comparison validators use consolidated `kova.comparable.*` IDs (not type-specific)
+  - CharSequence validators use `kova.charSequence.*` IDs (min, max, length, blank, empty, startsWith, endsWith, contains, matches, email)
+  - String-specific validators use `kova.string.*` IDs (type conversions, enum, case transformations)
 
 
 ### Temporal Validators
@@ -131,7 +136,7 @@ fun Application.module() {
 
 ### kova-core
 - **Core**: `Validator.kt`, `IdentityValidator.kt`, `NullableValidator.kt`, `NullCoalescingValidator.kt`, `ValidationResult.kt`, `ValidationContext.kt`, `ValidationConfig.kt`
-- **Type validators**: `StringValidator.kt`, `NumberValidator.kt`, `CollectionValidator.kt`, `MapValidator.kt`, `TemporalValidator.kt`, `ComparableValidator.kt`
+- **Type validators**: `CharSequenceValidator.kt`, `StringValidator.kt`, `NumberValidator.kt`, `CollectionValidator.kt`, `MapValidator.kt`, `TemporalValidator.kt`, `ComparableValidator.kt`
 - **Object validation**: `ObjectSchema.kt`
 - **Constraint system**: `ConstraintValidator.kt`, `ConstraintContext.kt`, `ConstraintResult.kt`
 - **Messaging**: `Message.kt`, `MessageProvider.kt`
