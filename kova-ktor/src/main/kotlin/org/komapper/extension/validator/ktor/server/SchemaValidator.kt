@@ -21,10 +21,10 @@ import kotlin.reflect.full.hasAnnotation
  * @Serializable
  * class Customer(val id: Int, val name: String)
  *
- * object CustomerSchema : ObjectSchema<Customer>() {
- *     val id = Customer::id { it.positive() }
- *     val name = Customer::name { it.min(1).max(100) }
- * }
+ * object CustomerSchema : ObjectSchema<Customer>({
+ *     Customer::id { it.positive() }
+ *     Customer::name { it.min(1).max(100) }
+ * })
  *
  * fun Application.module() {
  *     install(RequestValidation) {

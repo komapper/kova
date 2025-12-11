@@ -52,22 +52,10 @@ Kova.string().min(1).max(10).tryValidate("hello")
 
 ### Object Validation
 ```kotlin
-object UserSchema : ObjectSchema<User>() {
-    val name = User::name { it.min(1).max(10) }  // 'it' is base validator
-    val age = User::age { it.min(0) }
-}
-```
-
-### Object Factory (validate + construct)
-```kotlin
-object PersonSchema : ObjectSchema<Person>() {
-    private val nameV = Person::name { it.min(1) }
-    private val ageV = Person::age { it.min(0) }
-    fun bind(name: String, age: Int) = factory {
-        create(::Person, nameV.bind(name), ageV.bind(age))
-    }
-}
-PersonSchema.bind("Alice", 30).tryCreate()
+object UserSchema : ObjectSchema<User>({
+    User::name { it.min(1).max(10) }  // 'it' is base validator
+    User::age { it.min(0) }
+})
 ```
 
 ### Ktor Integration
@@ -76,10 +64,10 @@ PersonSchema.bind("Alice", 30).tryCreate()
 @Serializable
 data class Customer(val id: Int, val firstName: String, val lastName: String)
 
-object CustomerSchema : ObjectSchema<Customer>() {
-    val id = Customer::id { it.positive() }
-    val firstName = Customer::firstName { it.min(1).max(50) }
-}
+object CustomerSchema : ObjectSchema<Customer>({
+    Customer::id { it.positive() }
+    Customer::firstName { it.min(1).max(50) }
+})
 
 fun Application.module() {
     install(RequestValidation) { validate(SchemaValidator()) }
@@ -94,9 +82,10 @@ fun Application.module() {
 ## Important Implementation Details
 
 ### ObjectSchema Properties
-- Properties must be object properties (not in constructor lambda) - `invoke` operator only available on `ObjectSchema` itself
+- Properties defined in constructor lambda using property references (e.g., `User::name { validator }`)
 - Constructor lambda provides `ObjectSchemaScope` with `constrain()` for object-level constraints
 - `choose` method provides both object instance and base validator for conditional validation
+- Use `self` to reference the schema itself for recursive validation
 
 ### Nullable Handling
 - `Kova.nullable<T>()` accepts null by default
@@ -120,11 +109,6 @@ fun Application.module() {
 - Input accessible via `ctx.input` if needed
 - **Constraint IDs**: Comparison validators use consolidated `kova.comparable.*` IDs (not type-specific)
 
-### ObjectFactory Pattern
-- `factory(block)` creates `ObjectSchemaFactoryScope` with access to `bind`/`create` methods
-- `bind(value)` creates `ObjectFactory` from validator and value (only in factory scope)
-- `create(constructor, ...factories)` validates and constructs (supports 1-10 args, only in factory scope)
-- `tryCreate(config)` returns `ValidationResult`, `create(config)` returns object or throws
 
 ### Temporal Validators
 - Type alias `TemporalValidator<T> = IdentityValidator<T>` - no wrapper interface
@@ -148,7 +132,7 @@ fun Application.module() {
 ### kova-core
 - **Core**: `Validator.kt`, `IdentityValidator.kt`, `NullableValidator.kt`, `NullCoalescingValidator.kt`, `ValidationResult.kt`, `ValidationContext.kt`, `ValidationConfig.kt`
 - **Type validators**: `StringValidator.kt`, `NumberValidator.kt`, `CollectionValidator.kt`, `MapValidator.kt`, `TemporalValidator.kt`, `ComparableValidator.kt`
-- **Object validation**: `ObjectSchema.kt`, `ObjectFactory.kt`
+- **Object validation**: `ObjectSchema.kt`
 - **Constraint system**: `ConstraintValidator.kt`, `ConstraintContext.kt`, `ConstraintResult.kt`
 - **Messaging**: `Message.kt`, `MessageProvider.kt`
 - **Entry point**: `Kova.kt` - factory methods for creating validators (companion object provides static access)

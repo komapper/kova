@@ -12,10 +12,10 @@ import kotlin.reflect.KProperty1
  * ```kotlin
  * data class User(val name: String, val age: Int)
  *
- * object UserSchema : ObjectSchema<User>() {
- *     val name = User::name { it.min(1).max(50) }
- *     val age = User::age { it.min(0).max(120) }
- * }
+ * object UserSchema : ObjectSchema<User>({
+ *     User::name { it.min(1).max(50) }
+ *     User::age { it.min(0).max(120) }
+ * })
  *
  * // Validate an object
  * val result = UserSchema.tryValidate(User("Alice", 30))
@@ -26,28 +26,12 @@ import kotlin.reflect.KProperty1
  * data class Period(val startDate: LocalDate, val endDate: LocalDate)
  *
  * object PeriodSchema : ObjectSchema<Period>({
+ *     Period::startDate { it.min(LocalDate.of(2025, 1, 1)) }
+ *     Period::endDate { it.max(LocalDate.of(2025, 12, 31)) }
  *     constrain("dateRange") {
  *         satisfies(it.input.startDate <= it.input.endDate, "Start date must be before end date")
  *     }
- * }) {
- *     val startDate = Period::startDate { it }
- *     val endDate = Period::endDate { it }
- * }
- * ```
- *
- * Object construction with validation:
- * ```kotlin
- * object PersonSchema : ObjectSchema<Person>() {
- *     private val nameV = Person::name { it.min(1) }
- *     private val ageV = Person::age { it.min(0) }
- *
- *     fun bind(name: String, age: Int) = factory {
- *         create(::Person, nameV.bind(name), ageV.bind(age))
- *     }
- * }
- *
- * // Validate and construct an object
- * val result = PersonSchema.bind("Alice", 30).tryCreate()
+ * })
  * ```
  *
  * @param T The type of object to validate
@@ -173,13 +157,12 @@ internal data class Rule(
  * data class Period(val startDate: LocalDate, val endDate: LocalDate)
  *
  * object PeriodSchema : ObjectSchema<Period>({
+ *     Period::startDate { it }
+ *     Period::endDate { it }
  *     constrain("dateRange") {
  *         satisfies(it.input.startDate <= it.input.endDate, "Start date must be before or equal to end date")
  *     }
- * }) {
- *     val startDate = Period::startDate { it }
- *     val endDate = Period::endDate { it }
- * }
+ * })
  * ```
  *
  * @param T The type of object being validated
@@ -211,11 +194,10 @@ class ObjectSchemaScope<T : Any> internal constructor(
      *
      * Example:
      * ```kotlin
-     * object UserSchema : ObjectSchema<User>() {
-     *     val name = User::name { it.min(1).max(50) }
+     * object UserSchema : ObjectSchema<User>({
+     *     User::name { it.min(1).max(50) }
      *     // The lambda parameter 'it' is a base validator for the property type
-     *     // The property 'name' gets the returned validator
-     * }
+     * })
      * ```
      *
      * @param block Lambda that receives a base validator and creates the validator for this property
@@ -238,16 +220,16 @@ class ObjectSchemaScope<T : Any> internal constructor(
      * ```kotlin
      * data class Address(val country: String, val postalCode: String)
      *
-     * object AddressSchema : ObjectSchema<Address>() {
-     *     val country = Address::country { it }
-     *     val postalCode = Address::postalCode choose { address, v ->
+     * object AddressSchema : ObjectSchema<Address>({
+     *     Address::country { it }
+     *     Address::postalCode choose { address, v ->
      *         when (address.country) {
      *             "US" -> v.length(5)
      *             "CA" -> v.length(6)
      *             else -> v.min(1)
      *         }
      *     }
-     * }
+     * })
      * ```
      *
      * @param resolve Lambda that receives the object and a base validator, and chooses a validator
@@ -270,9 +252,9 @@ class ObjectSchemaScope<T : Any> internal constructor(
      * ```kotlin
      * data class Product(val category: String, val price: Double, val taxRate: Double)
      *
-     * object ProductSchema : ObjectSchema<Product>() {
-     *     val category = Product::category { it }
-     *     val price = Product::price choose(
+     * object ProductSchema : ObjectSchema<Product>({
+     *     Product::category { it }
+     *     Product::price choose(
      *         select = { it.taxRate },
      *         resolve = { taxRate, v ->
      *             when {
@@ -281,7 +263,7 @@ class ObjectSchemaScope<T : Any> internal constructor(
      *             }
      *         }
      *     )
-     * }
+     * })
      * ```
      *
      * @param select Lambda that extracts a value from the object to base the validator choice on
