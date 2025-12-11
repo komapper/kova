@@ -52,51 +52,6 @@ class KovaTest :
             }
         }
 
-        context("nullable") {
-            data class User(
-                val name: String?,
-                val age: Int?,
-            )
-
-            val userSchema =
-                object : ObjectSchema<User>() {
-                    val nameV = User::name { Kova.nullable<String>().isNullOr({ it.literal("") }) }
-                    val ageV = User::age { Kova.nullable<Int>().isNullOr({ it.literal(0) }) }
-
-                    fun bind(
-                        name: String?,
-                        age: Int?,
-                    ) = factory {
-                        val name = nameV.bind(name)
-                        val age = ageV.bind(age)
-                        create(::User, name, age)
-                    }
-                }
-
-            test("success with null value") {
-                val userFactory = userSchema.bind(null, null)
-                val result = userFactory.tryCreate()
-                result.isSuccess().mustBeTrue(result.toString())
-                result.value shouldBe User(null, null)
-            }
-
-            test("success with non-null value") {
-                val userFactory = userSchema.bind("", 0)
-                val result = userFactory.tryCreate()
-                result.isSuccess().mustBeTrue()
-                result.value shouldBe User("", 0)
-            }
-
-            test("failure") {
-                val userFactory = userSchema.bind("abc", 10)
-                val result = userFactory.tryCreate()
-                result.isFailure().mustBeTrue()
-                result.messages.size shouldBe 2
-                result.messages[0].constraintId shouldBe "kova.or"
-                result.messages[1].constraintId shouldBe "kova.or"
-            }
-        }
-
         context("generic") {
 
             data class Request(

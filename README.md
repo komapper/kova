@@ -30,7 +30,6 @@ dependencies {
 - **Internationalization**: Built-in support for localized error messages
 - **Fail-Fast Support**: Option to stop validation at the first error or collect all errors
 - **Nullable Support**: First-class support for nullable types
-- **Object Construction**: Validate inputs and construct objects in a single step
 - **Ktor Integration**: Automatic request validation with Ktor's RequestValidation plugin
 - **Zero Dependencies**: No external runtime dependencies, only requires Kotlin standard library
 
@@ -116,19 +115,17 @@ val emailWithDefault = emailValidator.asNullable("default@example.com")
 data class Product(val id: Int, val name: String, val price: Double, val stock: Int)
 
 // Define a schema for the Product class
-object ProductSchema : ObjectSchema<Product>() {
-    val id = Product::id { it.min(1) }
-    val name = Product::name { it.min(1).max(100).notBlank() }
-    val price = Product::price { it.min(0.0) }
-    val stock = Product::stock { it.min(0) }
-}
+object ProductSchema : ObjectSchema<Product>({
+    Product::id { it.min(1) }
+    Product::name { it.min(1).max(100).notBlank() }
+    Product::price { it.min(0.0) }
+    Product::stock { it.min(0) }
+})
 
 // Validate a product instance
 val product = Product(1, "Wireless Mouse", 29.99, 150)
 val result = ProductSchema.tryValidate(product)
 ```
-
-**Note**: Properties must be defined as object properties, as the `invoke` operator for property definitions is only available on the `ObjectSchema` class itself.
 
 ### Object-Level Constraints
 
@@ -140,16 +137,15 @@ import java.time.LocalDate
 data class Period(val startDate: LocalDate, val endDate: LocalDate)
 
 object PeriodSchema : ObjectSchema<Period>({
+    Period::startDate { it }
+    Period::endDate { it }
     constrain("dateRange") {
         satisfies(
             it.input.startDate <= it.input.endDate,
             "startDate must be less than or equal to endDate"
         )
     }
-}) {
-    val startDate = Period::startDate { it }
-    val endDate = Period::endDate { it }
-}
+})
 
 val result = PeriodSchema.tryValidate(Period(
     LocalDate.of(2024, 1, 1),
@@ -158,75 +154,6 @@ val result = PeriodSchema.tryValidate(Period(
 // Validation fails with message: "startDate must be less than or equal to endDate"
 ```
 
-**Note**: Even when using object-level constraints, properties must still be defined as object properties (outside the constructor lambda). Only the `constrain()` calls are placed within the constructor lambda. The lambda provides access to `ObjectSchemaScope` which includes the `constrain()` method.
-
-### Object Construction with Validation
-
-The ObjectFactory pattern allows you to validate inputs and construct objects in a single operation. This is useful for creating validated domain objects from raw inputs.
-
-```kotlin
-import org.komapper.extension.validator.Kova
-import org.komapper.extension.validator.ObjectSchema
-
-data class UserRegistration(val username: String, val email: String, val password: String)
-
-object UserRegistrationSchema : ObjectSchema<UserRegistration>() {
-    private val usernameV = UserRegistration::username {
-        it.min(3).max(20).matches(Regex("^[a-zA-Z0-9_]+$"))
-    }
-    private val emailV = UserRegistration::email { it.email() }
-    private val passwordV = UserRegistration::password { it.min(8).max(100) }
-
-    // Create a factory method that builds an ObjectFactory
-    fun bind(username: String, email: String, password: String) = factory {
-        create(::UserRegistration, usernameV.bind(username), emailV.bind(email), passwordV.bind(password))
-    }
-}
-
-// Use the factory to validate and construct
-val factory = UserRegistrationSchema.bind("john_doe", "john@example.com", "SecurePass123")
-val result = factory.tryCreate()  // Returns ValidationResult<UserRegistration>
-// or
-val registration = factory.create()     // Returns UserRegistration or throws ValidationException
-```
-
-**Nested Object Validation**:
-```kotlin
-data class Address(val street: String, val city: String, val zipCode: String)
-data class Customer(val name: String, val email: String, val address: Address)
-
-object AddressSchema : ObjectSchema<Address>() {
-    private val streetV = Address::street { it.min(1).max(100) }
-    private val cityV = Address::city { it.min(1).max(50) }
-    private val zipCodeV = Address::zipCode { it.matches(Regex("^\\d{5}(-\\d{4})?$")) }
-
-    fun bind(street: String, city: String, zipCode: String) = factory {
-        create(::Address, streetV.bind(street), cityV.bind(city), zipCodeV.bind(zipCode))
-    }
-}
-
-object CustomerSchema : ObjectSchema<Customer>() {
-    private val nameV = Customer::name { it.min(1).max(100) }
-    private val emailV = Customer::email { it.email() }
-    private val addressV = Customer::address { AddressSchema }
-
-    fun bind(name: String, email: String, street: String, city: String, zipCode: String) = factory {
-        create(::Customer, nameV.bind(name), emailV.bind(email), addressV.bind(street, city, zipCode))
-    }
-}
-
-val factory = CustomerSchema.bind("Bob Smith", "bob@example.com", "123 Main St", "Springfield", "12345")
-val customer = factory.create()  // Validates and constructs nested objects
-```
-
-**Key Components**:
-- **`ObjectSchema.factory(block)`**: Creates an object factory scope that provides access to `bind` and `create` methods for composing validators with object construction
-- **`Validator.bind(value)`**: Extension method (available in factory scope) that creates an `ObjectFactory` from a validator and input value
-- **`create(constructor, ...factories)`**: Method (available in factory scope) that creates an `ObjectFactory` which validates ObjectFactories and constructs objects (supports 1-10 arguments)
-- **`ObjectFactory.tryCreate(config = ValidationConfig())`**: Validates and constructs, returning `ValidationResult<T>`
-- **`ObjectFactory.create(config = ValidationConfig())`**: Validates and constructs, returning `T` or throwing `ValidationException`
-
-**Note**: Properties must be defined as object properties because the `invoke` operator for property definitions is only available on the `ObjectSchema` class itself. This also allows properties to be referenced when binding values. The `bind` and `create` methods are only available within the `factory { }` scope, which provides access to `ObjectSchemaFactoryScope`.
 
 ## Ktor Integration
 
@@ -243,10 +170,10 @@ dependencies {
 @Serializable
 data class Customer(val id: Int, val firstName: String, val lastName: String)
 
-object CustomerSchema : ObjectSchema<Customer>() {
-    val id = Customer::id { it.positive() }
-    val firstName = Customer::firstName { it.min(1).max(50) }
-}
+object CustomerSchema : ObjectSchema<Customer>({
+    Customer::id { it.positive() }
+    Customer::firstName { it.min(1).max(50) }
+})
 
 // Install the validator
 fun Application.module() {
@@ -613,9 +540,9 @@ data class Node(
     val children: List<Node> = emptyList(),
 )
 
-object NodeSchema : ObjectSchema<Node>() {
-    val children = Node::children { it.max(2).onEach(this) }
-}
+object NodeSchema : ObjectSchema<Node>({
+    Node::children { it.max(2).onEach(self) }
+})
 
 val node = Node(
     listOf(Node(), Node(
@@ -636,10 +563,10 @@ data class Node(
     var next: Node?,
 )
 
-object NodeSchema : ObjectSchema<Node>() {
-    val value = Node::value { it.min(0).max(100) }
-    val next = Node::next { it.and(this) }
-}
+object NodeSchema : ObjectSchema<Node>({
+    Node::value { it.min(0).max(100) }
+    Node::next { it.and(self) }
+})
 
 // Create a circular reference: node1 -> node2 -> node1
 val node1 = Node(10, null)
@@ -801,15 +728,15 @@ val passwordValidator = Kova.string().min(8).matches(Regex(".*[A-Z].*"))
     }
 
 // Use in ObjectSchema
-object UserSchema : ObjectSchema<User>() {
-    val email = User::email {
+object UserSchema : ObjectSchema<User>({
+    User::email {
         it.notEmpty().email().withMessage("Invalid email address")
     }
-    val password = User::password {
+    User::password {
         it.min(8).matches(Regex(".*[A-Z].*"))
             .withMessage("Password must be at least 8 characters with uppercase letters")
     }
-}
+})
 ```
 
 The `withMessage` function has two overloads:

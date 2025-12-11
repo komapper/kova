@@ -50,9 +50,9 @@ class MessageTest :
             )
 
             val personSchema =
-                object : ObjectSchema<Person>() {
-                    val name = Person::name { it.min(5) }
-                }
+                object : ObjectSchema<Person>({
+                    Person::name { it.min(5) }
+                }) {}
 
             val result = personSchema.tryValidate(Person("abc"))
             result.isFailure().mustBeTrue()

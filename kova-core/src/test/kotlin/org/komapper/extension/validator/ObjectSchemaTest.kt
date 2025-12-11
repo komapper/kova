@@ -38,18 +38,18 @@ class ObjectSchemaTest :
             val address: Address?,
         )
 
-        context("plus") {
+        context("and") {
 
             val a =
-                object : ObjectSchema<User>() {
-                    val name = User::name { it.min(1).max(10) }
-                }
+                object : ObjectSchema<User>({
+                    User::name { it.min(1).max(10) }
+                }) {}
             val b =
-                object : ObjectSchema<User>() {
-                    val id = User::id { it.min(1) }
-                }
+                object : ObjectSchema<User>({
+                    User::id { it.min(1) }
+                }) {}
 
-            val userSchema = a + b
+            val userSchema = a and b
 
             test("success") {
                 val user = User(1, "abc")
@@ -89,13 +89,61 @@ class ObjectSchemaTest :
             }
         }
 
+        context("or") {
+
+            val a =
+                object : ObjectSchema<User>({
+                    User::name { it.min(1).max(10) }
+                }) {}
+            val b =
+                object : ObjectSchema<User>({
+                    User::id { it.min(1) }
+                }) {}
+
+            val userSchema = a or b
+
+            test("success when both schemas are satisfied") {
+                val user = User(1, "abc")
+                val result = userSchema.tryValidate(user)
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe user
+            }
+
+            test("success when first schema is satisfied and second fails") {
+                val user = User(0, "abc")
+                val result = userSchema.tryValidate(user)
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe user
+            }
+
+            test("success when first schema fails and second is satisfied") {
+                val user = User(1, "too-long-name")
+                val result = userSchema.tryValidate(user)
+                result.isSuccess().mustBeTrue()
+                result.value shouldBe user
+            }
+
+            test("failure when both schemas fail") {
+                val user = User(0, "too-long-name")
+                val result = userSchema.tryValidate(user)
+                result.isFailure().mustBeTrue()
+
+                result.messages.size shouldBe 1
+                result.messages[0].let {
+                    it.constraintId shouldBe "kova.or"
+                    it.text shouldBe
+                        "at least one constraint must be satisfied: [[must be at most 10 characters], [must be greater than or equal to 1]]"
+                }
+            }
+        }
+
         context("replace") {
 
             val userSchema =
-                object : ObjectSchema<User>() {
-                    val id = User::id { it.min(1) }
-                    val name = User::name { it.min(1).max(10) }
-                }
+                object : ObjectSchema<User>({
+                    User::id { it.min(1) }
+                    User::name { it.min(1).max(10) }
+                }) {}
 
             test("success") {
                 val user = User(-1, "abc")
@@ -144,10 +192,10 @@ class ObjectSchemaTest :
 
         context("nullable") {
             val validator =
-                object : ObjectSchema<User>() {
-                    val id = User::id { it.min(1) }
-                    val name = User::name { it.min(1).max(10) }
-                }.asNullable()
+                object : ObjectSchema<User>({
+                    User::id { it.min(1) }
+                    User::name { it.min(1).max(10) }
+                }) {}.asNullable()
 
             test("success with non-null value") {
                 val user = User(1, "abc")
@@ -166,10 +214,10 @@ class ObjectSchemaTest :
         context("prop - simple") {
 
             val userSchema =
-                object : ObjectSchema<User>() {
-                    val id = User::id { it.min(1) }
-                    val name = User::name { it.min(1).max(10) }
-                }
+                object : ObjectSchema<User>({
+                    User::id { it.min(1) }
+                    User::name { it.min(1).max(10) }
+                }) {}
 
             test("success") {
                 val user = User(1, "abc")
@@ -212,20 +260,20 @@ class ObjectSchemaTest :
         context("prop - nest") {
 
             val streetSchema =
-                object : ObjectSchema<Street>() {
-                    val id = Street::id { it.min(1) }
-                    val name = Street::name { it.min(3).max(5) }
-                }
+                object : ObjectSchema<Street>({
+                    Street::id { it.min(1) }
+                    Street::name { it.min(3).max(5) }
+                }) {}
 
             val addressSchema =
-                object : ObjectSchema<Address>() {
-                    val street = Address::street { streetSchema }
-                }
+                object : ObjectSchema<Address>({
+                    Address::street { streetSchema }
+                }) {}
 
             val employeeSchema =
-                object : ObjectSchema<Employee>() {
-                    val address = Employee::address { addressSchema }
-                }
+                object : ObjectSchema<Employee>({
+                    Employee::address { addressSchema }
+                }) {}
 
             test("success") {
                 val employee = Employee(1, "abc", Address(1, Street(1, "def")))
@@ -250,27 +298,26 @@ class ObjectSchemaTest :
         context("prop - nest - dynamic") {
 
             val streetSchema =
-                object : ObjectSchema<Street>() {
-                    val id = Street::id { it.min(1) }
-                    val name = Street::name { it.min(3).max(5) }
-                }
+                object : ObjectSchema<Street>({
+                    Street::id { it.min(1) }
+                    Street::name { it.min(3).max(5) }
+                }) {}
 
             val addressSchema =
-                object : ObjectSchema<Address>() {
-                    val street = Address::street { streetSchema }
-                    val postalCode =
-                        Address::postalCode choose { address, v ->
-                            when (address.country) {
-                                "US" -> v.length(8)
-                                else -> v.length(5)
-                            }
+                object : ObjectSchema<Address>({
+                    Address::street { streetSchema }
+                    Address::postalCode choose { address, v ->
+                        when (address.country) {
+                            "US" -> v.length(8)
+                            else -> v.length(5)
                         }
-                }
+                    }
+                }) {}
 
             val employeeSchema =
-                object : ObjectSchema<Employee>() {
-                    val address = Employee::address { addressSchema }
-                }
+                object : ObjectSchema<Employee>({
+                    Employee::address { addressSchema }
+                }) {}
 
             test("success when country is US") {
                 val employee = Employee(1, "abc", Address(1, Street(1, "def"), country = "US", postalCode = "12345678"))
@@ -315,29 +362,29 @@ class ObjectSchemaTest :
 
         context("prop - nullable") {
             val streetSchema =
-                object : ObjectSchema<Street>() {
-                    val id = Street::id { it.min(1) }
-                    val name = Street::name { it.min(3).max(5) }
-                }
+                object : ObjectSchema<Street>({
+                    Street::id { it.min(1) }
+                    Street::name { it.min(3).max(5) }
+                }) {}
 
             val addressSchema =
-                object : ObjectSchema<Address>() {
-                    val street = Address::street { streetSchema }
-                }
+                object : ObjectSchema<Address>({
+                    Address::street { streetSchema }
+                }) {}
 
             val personSchema =
-                object : ObjectSchema<Person>() {
-                    val firstName = Person::firstName { it }
-                    val lastName = Person::lastName { it }
-                    val address = Person::address { addressSchema.asNullable() }
-                }
+                object : ObjectSchema<Person>({
+                    Person::firstName { it }
+                    Person::lastName { it }
+                    Person::address { addressSchema.asNullable() }
+                }) {}
 
             val personSchema2 =
-                object : ObjectSchema<Person>() {
-                    val firstName = Person::firstName { it.notNull() }
-                    val lastName = Person::lastName { it.notNull() }
-                    val address = Person::address { addressSchema.asNullable() }
-                }
+                object : ObjectSchema<Person>({
+                    Person::firstName { it.notNull() }
+                    Person::lastName { it.notNull() }
+                    Person::address { addressSchema.asNullable() }
+                }) {}
 
             test("success") {
                 val person = Person(1, "abc", "def", Address(1, Street(1, "hij")))
@@ -377,9 +424,9 @@ class ObjectSchemaTest :
             )
 
             val nodeSchema =
-                object : ObjectSchema<Node>() {
-                    val children = Node::children { it.max(3).onEach(this) }
-                }
+                object : ObjectSchema<Node>({
+                    Node::children { it.max(3).onEach(self) }
+                }) {}
 
             test("success") {
                 val node = Node(listOf(Node(), Node(), Node()))
@@ -413,10 +460,10 @@ class ObjectSchemaTest :
             )
 
             val nodeSchema =
-                object : ObjectSchema<NodeWithValue>() {
+                object : ObjectSchema<NodeWithValue>({
                     val value = NodeWithValue::value { it.min(0).max(100) }
-                    val next = NodeWithValue::next { it.and(this) }
-                }
+                    val next = NodeWithValue::next { it.and(self) }
+                }) {}
 
             test("success when circular reference detected") {
                 val node1 = NodeWithValue(10, null)
@@ -479,11 +526,12 @@ class ObjectSchemaTest :
                 val name: String,
                 val birthday: java.time.LocalDate,
             )
+
             val userSchema =
-                object : ObjectSchema<User>() {
-                    val name = User::name { it.notBlank() }
-                    val birthday = User::birthday { it }
-                }
+                object : ObjectSchema<User>({
+                    User::name { it.notBlank() }
+                    User::birthday { it }
+                }) {}
 
             test("success") {
                 val user = User("abc", java.time.LocalDate.of(2021, 1, 1))

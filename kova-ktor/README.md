@@ -37,11 +37,11 @@ data class Customer(
     val lastName: String
 )
 
-object CustomerSchema : ObjectSchema<Customer>() {
-    val id = Customer::id { it.positive() }
-    val firstName = Customer::firstName { it.min(1).max(50) }
-    val lastName = Customer::lastName { it.min(1).max(50) }
-}
+object CustomerSchema : ObjectSchema<Customer>({
+    Customer::id { it.positive() }
+    Customer::firstName { it.min(1).max(50) }
+    Customer::lastName { it.min(1).max(50) }
+})
 ```
 
 ### 2. Install the validation plugin
@@ -94,11 +94,11 @@ data class User(
     val age: Int
 )
 
-object UserSchema : ObjectSchema<User>() {
-    val name = User::name { it.min(1).max(100).notBlank() }
-    val email = User::email { it.email() }
-    val age = User::age { it.min(0).max(150) }
-}
+object UserSchema : ObjectSchema<User>({
+    User::name { it.min(1).max(100).notBlank() }
+    User::email { it.email() }
+    User::age { it.min(0).max(150) }
+})
 ```
 
 ### Custom Error Messages
@@ -106,14 +106,14 @@ object UserSchema : ObjectSchema<User>() {
 You can customize validation error messages in your schema:
 
 ```kotlin
-object CustomerSchema : ObjectSchema<Customer>() {
-    val id = Customer::id {
+object CustomerSchema : ObjectSchema<Customer>({
+    Customer::id {
         it.positive(Message.text { "Customer ID must be greater than 0" })
     }
-    val name = Customer::name {
+    Customer::name {
         it.min(1, Message.text { "Name is required" })
     }
-}
+})
 ```
 
 ### Custom Error Formatting
