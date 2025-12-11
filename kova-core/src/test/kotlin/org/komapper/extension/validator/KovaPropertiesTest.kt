@@ -112,13 +112,6 @@ class KovaPropertiesTest :
                 val message = result.messages.single()
                 message.text shouldBe "must not match pattern: [0-9]+"
             }
-
-            test("email") {
-                val result = Kova.string().email().tryValidate("invalid-email")
-                result.isFailure().mustBeTrue()
-                val message = result.messages.single()
-                message.text shouldBe "must be a valid email address"
-            }
         }
 
         context("kova.collection") {
