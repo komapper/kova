@@ -43,7 +43,8 @@ sealed interface Message {
      * @property context The message context containing constraint metadata and validation state
      * @property text The formatted message text
      */
-    data class Text(
+    @ConsistentCopyVisibility
+    data class Text internal constructor(
         /** The message context containing constraint metadata and validation state */
         override val context: MessageContext<*>,
         override val text: String,
@@ -77,7 +78,8 @@ sealed interface Message {
      *
      * @property context The message context containing the constraint ID (used as resource key) and arguments
      */
-    data class Resource(
+    @ConsistentCopyVisibility
+    data class Resource internal constructor(
         /** The message context containing the constraint ID (used as resource key) and arguments for message formatting */
         override val context: MessageContext<*>,
     ) : Message {

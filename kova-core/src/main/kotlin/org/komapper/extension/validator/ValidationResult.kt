@@ -59,7 +59,7 @@ operator fun <T> ValidationResult<T>.plus(other: ValidationResult<T>): Validatio
         is Success -> other
         is Failure ->
             when (other) {
-                is Success -> Failure(value = Input.Some(other.value), messages = this.messages)
+                is Success -> Failure(value = Input.Available(other.value), messages = this.messages)
                 is Failure -> Failure(other.value, messages = this.messages + other.messages)
             }
     }
@@ -112,12 +112,38 @@ fun <T> ValidationResult<T>.isFailure(): Boolean {
     return this is ValidationResult.Failure
 }
 
+/**
+ * Represents the input value state in a validation failure.
+ *
+ * This sealed interface captures the state of the input value when validation fails:
+ * - [Available]: The input value is present and can be accessed
+ * - [Unusable]: The input value could not be used (e.g., type conversion failure)
+ *
+ * @param T The expected type of the input value
+ */
 sealed interface Input<out T> {
-    data class Unknown(
-        val value: Any?,
-    ) : Input<Nothing>
-
-    data class Some<T>(
+    /**
+     * Represents an available input value in a validation failure.
+     *
+     * This is used when validation fails but the input value is still accessible.
+     * For example, when a string fails a length constraint, the string value is still available.
+     *
+     * @param value The input value that failed validation
+     */
+    data class Available<T>(
         val value: T,
     ) : Input<T>
+
+    /**
+     * Represents an unusable input value in a validation failure.
+     *
+     * This is used when the input value could not be used for validation, typically
+     * when a type conversion or transformation fails. For example, when attempting
+     * to parse "abc" as an integer, the original string value is unusable as an integer.
+     *
+     * @param value The original value before the failed conversion attempt
+     */
+    data class Unusable(
+        val value: Any?,
+    ) : Input<Nothing>
 }

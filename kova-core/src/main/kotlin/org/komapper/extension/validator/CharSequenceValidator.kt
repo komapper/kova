@@ -22,7 +22,7 @@ typealias CharSequenceValidator<T> = IdentityValidator<T>
  * @param message Custom error message provider
  * @return A new validator with the minimum length constraint
  */
-fun <T: CharSequence> CharSequenceValidator<T>.min(
+fun <T : CharSequence> CharSequenceValidator<T>.min(
     length: Int,
     message: MessageProvider = Message.resource(),
 ) = constrain("kova.charSequence.min") {
@@ -43,7 +43,7 @@ fun <T: CharSequence> CharSequenceValidator<T>.min(
  * @param message Custom error message provider
  * @return A new validator with the maximum length constraint
  */
-fun <T: CharSequence> CharSequenceValidator<T>.max(
+fun <T : CharSequence> CharSequenceValidator<T>.max(
     length: Int,
     message: MessageProvider = Message.resource(),
 ) = constrain("kova.charSequence.max") {
@@ -64,7 +64,7 @@ fun <T: CharSequence> CharSequenceValidator<T>.max(
  * @param message Custom error message provider
  * @return A new validator with the not-blank constraint
  */
-fun <T: CharSequence> CharSequenceValidator<T>.notBlank(message: MessageProvider = Message.resource()) =
+fun <T : CharSequence> CharSequenceValidator<T>.notBlank(message: MessageProvider = Message.resource()) =
     constrain("kova.charSequence.notBlank") {
         satisfies(it.input.isNotBlank(), message())
     }
@@ -83,7 +83,7 @@ fun <T: CharSequence> CharSequenceValidator<T>.notBlank(message: MessageProvider
  * @param message Custom error message provider
  * @return A new validator with the blank constraint
  */
-fun <T: CharSequence> CharSequenceValidator<T>.blank(message: MessageProvider = Message.resource()) =
+fun <T : CharSequence> CharSequenceValidator<T>.blank(message: MessageProvider = Message.resource()) =
     constrain("kova.charSequence.blank") {
         satisfies(it.input.isBlank(), message())
     }
@@ -102,7 +102,7 @@ fun <T: CharSequence> CharSequenceValidator<T>.blank(message: MessageProvider = 
  * @param message Custom error message provider
  * @return A new validator with the not-empty constraint
  */
-fun <T: CharSequence> CharSequenceValidator<T>.notEmpty(message: MessageProvider = Message.resource()) =
+fun <T : CharSequence> CharSequenceValidator<T>.notEmpty(message: MessageProvider = Message.resource()) =
     constrain("kova.charSequence.notEmpty") {
         satisfies(it.input.isNotEmpty(), message())
     }
@@ -121,7 +121,7 @@ fun <T: CharSequence> CharSequenceValidator<T>.notEmpty(message: MessageProvider
  * @param message Custom error message provider
  * @return A new validator with the empty constraint
  */
-fun <T: CharSequence> CharSequenceValidator<T>.empty(message: MessageProvider = Message.resource()) =
+fun <T : CharSequence> CharSequenceValidator<T>.empty(message: MessageProvider = Message.resource()) =
     constrain("kova.charSequence.empty") {
         satisfies(it.input.isEmpty(), message())
     }
@@ -140,7 +140,7 @@ fun <T: CharSequence> CharSequenceValidator<T>.empty(message: MessageProvider = 
  * @param message Custom error message provider
  * @return A new validator with the exact length constraint
  */
-fun <T: CharSequence> CharSequenceValidator<T>.length(
+fun <T : CharSequence> CharSequenceValidator<T>.length(
     length: Int,
     message: MessageProvider = Message.resource(),
 ) = constrain("kova.charSequence.length") {
@@ -161,7 +161,7 @@ fun <T: CharSequence> CharSequenceValidator<T>.length(
  * @param message Custom error message provider
  * @return A new validator with the starts-with constraint
  */
-fun <T: CharSequence> CharSequenceValidator<T>.startsWith(
+fun <T : CharSequence> CharSequenceValidator<T>.startsWith(
     prefix: CharSequence,
     message: MessageProvider = Message.resource(),
 ) = constrain("kova.charSequence.startsWith") {
@@ -182,7 +182,7 @@ fun <T: CharSequence> CharSequenceValidator<T>.startsWith(
  * @param message Custom error message provider
  * @return A new validator with the not-starts-with constraint
  */
-fun <T: CharSequence> CharSequenceValidator<T>.notStartsWith(
+fun <T : CharSequence> CharSequenceValidator<T>.notStartsWith(
     prefix: CharSequence,
     message: MessageProvider = Message.resource(),
 ) = constrain("kova.charSequence.notStartsWith") {
@@ -203,7 +203,7 @@ fun <T: CharSequence> CharSequenceValidator<T>.notStartsWith(
  * @param message Custom error message provider
  * @return A new validator with the ends-with constraint
  */
-fun <T: CharSequence> CharSequenceValidator<T>.endsWith(
+fun <T : CharSequence> CharSequenceValidator<T>.endsWith(
     suffix: CharSequence,
     message: MessageProvider = Message.resource(),
 ) = constrain("kova.charSequence.endsWith") {
@@ -224,7 +224,7 @@ fun <T: CharSequence> CharSequenceValidator<T>.endsWith(
  * @param message Custom error message provider
  * @return A new validator with the not-ends-with constraint
  */
-fun <T: CharSequence> CharSequenceValidator<T>.notEndsWith(
+fun <T : CharSequence> CharSequenceValidator<T>.notEndsWith(
     suffix: CharSequence,
     message: MessageProvider = Message.resource(),
 ) = constrain("kova.charSequence.notEndsWith") {
@@ -245,7 +245,7 @@ fun <T: CharSequence> CharSequenceValidator<T>.notEndsWith(
  * @param message Custom error message provider
  * @return A new validator with the contains constraint
  */
-fun <T: CharSequence> CharSequenceValidator<T>.contains(
+fun <T : CharSequence> CharSequenceValidator<T>.contains(
     infix: CharSequence,
     message: MessageProvider = Message.resource(),
 ) = constrain("kova.charSequence.contains") {
@@ -266,7 +266,7 @@ fun <T: CharSequence> CharSequenceValidator<T>.contains(
  * @param message Custom error message provider
  * @return A new validator with the not-contains constraint
  */
-fun <T: CharSequence> CharSequenceValidator<T>.notContains(
+fun <T : CharSequence> CharSequenceValidator<T>.notContains(
     infix: CharSequence,
     message: MessageProvider = Message.resource(),
 ) = constrain("kova.charSequence.notContains") {
@@ -287,7 +287,7 @@ fun <T: CharSequence> CharSequenceValidator<T>.notContains(
  * @param message Custom error message provider
  * @return A new validator with the regex constraint
  */
-fun <T: CharSequence> CharSequenceValidator<T>.matches(
+fun <T : CharSequence> CharSequenceValidator<T>.matches(
     pattern: Regex,
     message: MessageProvider = Message.resource(),
 ) = constrain("kova.charSequence.matches") {
@@ -308,7 +308,7 @@ fun <T: CharSequence> CharSequenceValidator<T>.matches(
  * @param message Custom error message provider
  * @return A new validator with the not-matches constraint
  */
-fun <T: CharSequence> CharSequenceValidator<T>.notMatches(
+fun <T : CharSequence> CharSequenceValidator<T>.notMatches(
     pattern: Regex,
     message: MessageProvider = Message.resource(),
 ) = constrain("kova.charSequence.notMatches") {
@@ -330,7 +330,7 @@ fun <T: CharSequence> CharSequenceValidator<T>.notMatches(
  * @param message Custom error message provider
  * @return A new validator with the email constraint
  */
-fun <T: CharSequence> CharSequenceValidator<T>.email(message: MessageProvider = Message.resource()) =
+fun <T : CharSequence> CharSequenceValidator<T>.email(message: MessageProvider = Message.resource()) =
     constrain("kova.charSequence.email") {
         val emailPattern =
             Regex(

@@ -54,7 +54,7 @@ fun <T> ConstraintValidator(constraint: Constraint<T>): ConstraintValidator<T> =
                         input = input,
                     )
                 }
-                ValidationResult.Failure(Input.Some(input), listOf(result.message))
+                ValidationResult.Failure(Input.Available(input), listOf(result.message))
             }
         }
     }

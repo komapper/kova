@@ -392,9 +392,7 @@ class StringValidatorTest :
                     when (it) {
                         "true" -> true
                         "1" -> true
-                        "false" -> false
-                        "0" -> false
-                        else -> Kova.fail("is not a boolean value")
+                        else -> false
                     }
                 }
 
@@ -417,12 +415,6 @@ class StringValidatorTest :
                 val result = stringBools.tryValidate("0")
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe false
-            }
-            test("failure") {
-                val result = stringBools.tryValidate("abc")
-                result.isFailure().mustBeTrue()
-                val message = result.messages.single()
-                message.text shouldBe "is not a boolean value"
             }
         }
 

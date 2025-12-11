@@ -222,8 +222,11 @@ fun <IN, OUT> Validator<IN, OUT>.or(block: (Validator<IN, IN>) -> Validator<IN, 
 /**
  * Transforms the output value on successful validation.
  *
- * The transform function is only called if validation succeeds. If it throws
- * a [MessageException], the exception is converted to a validation failure.
+ * When validation succeeds, the transform function is applied to the validated value.
+ * When validation fails, the behavior depends on the type compatibility:
+ * - If [OUT] and [NEW] are the same type and the failure value is available,
+ *   the transform is applied so that subsequent validators can use the transformed value.
+ * - Otherwise, the failure value is marked as unusable.
  *
  * Example:
  * ```kotlin
@@ -234,55 +237,29 @@ fun <IN, OUT> Validator<IN, OUT>.or(block: (Validator<IN, IN>) -> Validator<IN, 
  * @param transform Function to transform the validated value
  * @return A new validator with the transformed output type
  */
-inline fun <reified IN, reified OUT, reified NEW> Validator<IN, OUT>.map(noinline transform: (OUT) -> NEW): Validator<IN, NEW> {
+inline fun <IN, reified OUT, reified NEW> Validator<IN, OUT>.map(noinline transform: (OUT) -> NEW): Validator<IN, NEW> {
     val self = this
     val outClass = OUT::class
     val newClass = NEW::class
     return Validator { input, context ->
         when (val result = self.execute(input, context)) {
-            is Success -> tryTransform(result.value, result.context, transform)
+            is Success -> Success(transform(result.value), result.context)
             is Failure -> {
-                // TODO refactoring
-                val failureInput =
+                val failureValue =
                     when (val v = result.value) {
-                        is Input.Unknown -> Input.Unknown(v.value)
-                        is Input.Some -> {
+                        is Input.Available -> {
                             val value = v.value
                             if (outClass == newClass && outClass.isInstance(value)) {
-                                when (val r = tryTransform(value, context, transform)) {
-                                    is Success -> Input.Some(r.value)
-                                    is Failure -> Input.Unknown(value)
-                                }
+                                Input.Available(transform(value)) // subsequent validators can use this value
                             } else {
-                                Input.Unknown(value)
+                                Input.Unusable(value)
                             }
                         }
+                        is Input.Unusable -> v
                     }
-                Failure(failureInput, result.messages)
+                Failure(failureValue, result.messages)
             }
         }
-    }
-}
-
-@PublishedApi
-internal fun <T, R> tryTransform(
-    input: T,
-    context: ValidationContext,
-    transform: (T) -> R,
-): ValidationResult<R> {
-    return try {
-        return Success(transform(input), context)
-    } catch (cause: Exception) {
-        val content =
-            if (cause is MessageException) {
-                cause.message
-            } else {
-                throw cause
-            }
-        val constraintContext = context.createConstraintContext(input, "kova.transform")
-        val messageContext = constraintContext.createMessageContext(emptyList())
-        val message = Message.Text(messageContext, content.toString())
-        Failure(Input.Unknown(input), listOf(message))
     }
 }
 
@@ -369,8 +346,8 @@ fun <IN, OUT, NEW> Validator<IN, OUT>.then(after: Validator<OUT, NEW>): Validato
             is Failure -> {
                 val value =
                     when (val v = result.value) {
-                        is Input.Unknown -> Input.Unknown(v.value)
-                        is Input.Some -> Input.Unknown(v.value)
+                        is Input.Available -> Input.Unusable(v.value)
+                        is Input.Unusable -> Input.Unusable(v.value)
                     }
                 Failure(value, result.messages)
             }

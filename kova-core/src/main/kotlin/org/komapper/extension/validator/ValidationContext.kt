@@ -183,7 +183,7 @@ fun <T> ValidationContext.addPathChecked(
         val constraintContext = createConstraintContext(obj, "kova.circularReference")
         val messageContext = constraintContext.createMessageContext(emptyList())
         val message = Message.Text(messageContext, "Circular reference detected.")
-        return ValidationResult.Failure(Input.Some(obj), listOf(message))
+        return ValidationResult.Failure(Input.Available(obj), listOf(message))
     }
     return ValidationResult.Success(obj, addPath(name, obj))
 }

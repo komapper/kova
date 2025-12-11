@@ -212,19 +212,11 @@ fun <E : Enum<E>> StringValidator.isEnum(
  * validator.validate("OTHER") // Failure
  * ```
  *
+ * @param message Custom error message provider
  * @return A new validator with the is-enum constraint
  */
-inline fun <reified E : Enum<E>> StringValidator.isEnum(): StringValidator {
-    val enumValues = enumValues<E>()
-    val validNames = enumValues.map { it.name }
-    return this.constrain("kova.string.isEnum") {
-        val messageContext = it.createMessageContext(listOf(validNames))
-        // TODO simplify the following line
-        satisfies(validNames.contains(it.input)) {
-            Message.Resource(messageContext)
-        }
-    }
-}
+inline fun <reified E : Enum<E>> StringValidator.isEnum(message: MessageProvider = Message.resource()): StringValidator =
+    isEnum(E::class, message)
 
 /**
  * Validates that the string is a valid enum name and converts it to the enum value.
