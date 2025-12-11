@@ -139,10 +139,10 @@ data class Period(val startDate: LocalDate, val endDate: LocalDate)
 object PeriodSchema : ObjectSchema<Period>({
     Period::startDate { it }
     Period::endDate { it }
-    constrain("dateRange") {
+    constrain("dateRange") { ctx ->
         satisfies(
-            it.input.startDate <= it.input.endDate,
-            "startDate must be less than or equal to endDate"
+            ctx.input.startDate <= ctx.input.endDate,
+            ctx.text("startDate must be less than or equal to endDate")
         )
     }
 })
@@ -781,14 +781,14 @@ You can add custom constraints to any validator using the `constrain` method:
 val validator = Kova.string().constrain("custom.urlPath") { ctx ->
     satisfies(
         ctx.input.startsWith("/") && !ctx.input.contains(".."),
-        "Must be a valid URL path starting with / and not contain .."
+        ctx.text("Must be a valid URL path starting with / and not contain ..")
     )
 }
 ```
 
 The first parameter is the constraint ID, and the second is a lambda with `ConstraintScope` receiver that receives a `ConstraintContext<T>` and returns a `ConstraintResult`. Use the `satisfies()` helper within the lambda to simplify constraint creation. The `satisfies()` helper accepts either:
 - A message factory function `(ConstraintContext<*>) -> Message` (returned by `MessageProvider.invoke()`)
-- A plain string for simple error messages
+- A `Message` object created with helper methods like `ctx.text()` or `ctx.resource()`
 
 ### Creating Custom Extension Methods
 
