@@ -245,7 +245,25 @@ internal data class Rule(
  * validation rules that apply to the entire object rather than individual properties.
  * This is useful for validating relationships between properties.
  *
- * Example:
+ * ## Properties
+ *
+ * ### self
+ * A reference to the schema itself as a `Validator<T, T>`. This is useful for recursive validation,
+ * allowing a schema to reference itself when validating nested structures.
+ *
+ * Example of recursive validation:
+ * ```kotlin
+ * data class Node(val value: Int, val children: List<Node>)
+ *
+ * object NodeSchema : ObjectSchema<Node>({
+ *     Node::value { it.min(0) }
+ *     Node::children { it.onEach(self) }  // Use self to recursively validate each child node
+ * })
+ * ```
+ *
+ * ## Object-level constraints
+ *
+ * Use `constrain()` to define validation rules that check relationships between properties:
  * ```kotlin
  * data class Period(val startDate: LocalDate, val endDate: LocalDate)
  *
@@ -261,7 +279,7 @@ internal data class Rule(
  * @param T The type of object being validated
  */
 class ObjectSchemaScope<T : Any> internal constructor(
-    val self: ObjectSchema<T>,
+    val self: Validator<T, T>,
     private val constraints: MutableList<Constraint<T>>,
     private val ruleMap: MutableMap<KProperty1<T, *>, Rule>,
 ) {

@@ -462,7 +462,7 @@ class ObjectSchemaTest :
             val nodeSchema =
                 object : ObjectSchema<NodeWithValue>({
                     val value = NodeWithValue::value { it.min(0).max(100) }
-                    val next = NodeWithValue::next { it.and(self) }
+                    val next = NodeWithValue::next { self.asNullable() }
                 }) {}
 
             test("success when circular reference detected") {
