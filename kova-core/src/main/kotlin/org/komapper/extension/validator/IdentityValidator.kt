@@ -131,14 +131,14 @@ fun <T> IdentityValidator<T>.literal(
  *
  * Example:
  * ```kotlin
- * // Only validate email format if the string looks like an email
+ * // Only validate length if the string is not blank
  * val validator = Kova.string()
- *     .email()
- *     .onlyIf { it.contains("@") }
+ *     .min(3).max(20)
+ *     .onlyIf { it.isNotBlank() }
  *
- * // More practical: validate discount code only if provided
+ * // Validate discount code only if provided
  * val discountValidator = Kova.string()
- *     .min(5)
+ *     .matches(Regex("^[A-Z0-9]{5,10}$"))
  *     .onlyIf { it.isNotBlank() }
  * ```
  *

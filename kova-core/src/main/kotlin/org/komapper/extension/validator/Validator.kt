@@ -508,12 +508,11 @@ fun <T, S> Validator<T, S>.withMessage(block: (List<Message>) -> MessageProvider
  *
  * Example - In ObjectSchema:
  * ```kotlin
- * object UserSchema : ObjectSchema<User>() {
- *     val email = User::email {
- *         it.notEmpty().email().withMessage("Invalid email address")
+ * object UserSchema : ObjectSchema<User>({
+ *     User::username {
+ *         it.notEmpty().min(3).max(20).withMessage("Invalid username")
  *     }
- * }
- * ```
+ * })
  *
  * @param message The static text message to display on validation failure
  * @return A new validator that returns the custom message on validation failure
