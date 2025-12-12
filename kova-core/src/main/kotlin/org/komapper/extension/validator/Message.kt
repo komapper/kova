@@ -85,7 +85,7 @@ sealed interface Message {
     ) : Message {
         override val text: String by lazy {
             val pattern = getPattern(context.constraintId)
-            val newArgs = context.args.map { resolveArg(it) }
+            val newArgs = context.args.map { resolveArg(it.second) }
             MessageFormat.format(pattern, *newArgs.toTypedArray())
         }
         override val constraintId: String
@@ -184,8 +184,6 @@ sealed interface Message {
 
         override fun toString(): String = toDescription()
     }
-
-    companion object : MessageProviderFactory
 }
 
 private fun Message.toDescription() =

@@ -139,10 +139,10 @@ data class Period(val startDate: LocalDate, val endDate: LocalDate)
 object PeriodSchema : ObjectSchema<Period>({
     Period::startDate { it }
     Period::endDate { it }
-    constrain("dateRange") {
+    constrain("dateRange") { ctx ->
         satisfies(
-            it.input.startDate <= it.input.endDate,
-            "startDate must be less than or equal to endDate"
+            ctx.input.startDate <= ctx.input.endDate,
+            ctx.text("startDate must be less than or equal to endDate")
         )
     }
 })
@@ -723,7 +723,7 @@ val result = usernameValidator.tryValidate("ab")
 // Dynamic message based on original errors
 val passwordValidator = Kova.string().min(8).matches(Regex(".*[A-Z].*"))
     .withMessage { messages ->
-        Message.text { "Invalid password: ${messages.joinToString { it.text }}" }
+        MessageProvider.text { "Invalid password: ${messages.joinToString { it.text }}" }
     }
 
 // Use in ObjectSchema
@@ -781,14 +781,14 @@ You can add custom constraints to any validator using the `constrain` method:
 val validator = Kova.string().constrain("custom.urlPath") { ctx ->
     satisfies(
         ctx.input.startsWith("/") && !ctx.input.contains(".."),
-        "Must be a valid URL path starting with / and not contain .."
+        ctx.text("Must be a valid URL path starting with / and not contain ..")
     )
 }
 ```
 
 The first parameter is the constraint ID, and the second is a lambda with `ConstraintScope` receiver that receives a `ConstraintContext<T>` and returns a `ConstraintResult`. Use the `satisfies()` helper within the lambda to simplify constraint creation. The `satisfies()` helper accepts either:
 - A message factory function `(ConstraintContext<*>) -> Message` (returned by `MessageProvider.invoke()`)
-- A plain string for simple error messages
+- A `Message` object created with helper methods like `ctx.text()` or `ctx.resource()`
 
 ### Creating Custom Extension Methods
 
@@ -797,7 +797,7 @@ You can create reusable validation logic by defining extension methods on valida
 ```kotlin
 // Define a custom extension method for StringValidator
 fun StringValidator.isPhoneNumber(
-    message: MessageProvider = Message.resource()
+    message: MessageProvider = MessageProvider.resource()
 ): StringValidator = constrain("custom.phoneNumber") { ctx ->
         val phonePattern = Regex("""^\+?[1-9]\d{1,14}$""")
         satisfies(
@@ -812,7 +812,7 @@ val result = phoneValidator.tryValidate("+1234567890")  // Success
 
 // Define extension with custom message provider
 fun StringValidator.isStrongPassword(
-    message: MessageProvider = Message.text { ctx ->
+    message: MessageProvider = MessageProvider.text { ctx ->
         "Password must be at least ${ctx[0]} characters with uppercase, lowercase, and digits"
     }
 ): StringValidator = constrain("custom.strongPassword") { ctx ->
@@ -823,7 +823,7 @@ fun StringValidator.isStrongPassword(
             input.any { it.isUpperCase() } &&
             input.any { it.isLowerCase() } &&
             input.any { it.isDigit() },
-            message(minLength)
+            message("minLength" to minLength)
         )
     }
 
@@ -855,12 +855,12 @@ You can customize messages per validation:
 ```kotlin
 val validator = Kova.string().min(
     length = 5,
-    message = Message.text { ctx -> "String '${ctx.input}' is too short (min: ${ctx[0]})" }
+    message = MessageProvider.text { ctx -> "String '${ctx.input}' is too short (min: ${ctx[0]})" }
 )
 // The default constraint ID for min() on strings is "kova.charSequence.min"
 ```
 
-**Note**: When using `MessageProvider`, you only pass the constraint parameters (not the input value) to the `message()` function. The input value can be accessed via `ctx.input` in the message lambda if needed.
+**Note**: When using `MessageProvider`, constraint parameters are passed as named key-value pairs (e.g., `message("length" to length)`). The input value is accessible via `ctx.input` in the message lambda. Arguments can be accessed by name using `ctx["name"]` or by index using `ctx[0]`.
 
 To access error messages:
 

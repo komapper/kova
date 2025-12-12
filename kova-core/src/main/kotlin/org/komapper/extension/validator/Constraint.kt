@@ -161,7 +161,7 @@ class ConstraintScope<T>(
      *
      * Example with MessageProvider:
      * ```kotlin
-     * val messageProvider = Message.resource()
+     * val messageProvider = MessageProvider.resource()
      * satisfies(
      *     value > 0,
      *     messageProvider(value)
@@ -186,30 +186,110 @@ class ConstraintScope<T>(
      * Evaluates a condition and returns the appropriate constraint result.
      *
      * Returns [ConstraintResult.Satisfied] if the condition is true,
-     * or [ConstraintResult.Violated] with the given text message if false.
+     * or [ConstraintResult.Violated] with the given message if false.
      *
-     * Example with simple string:
+     * Example with text message:
      * ```kotlin
      * satisfies(
      *     value > 0,
-     *     "Value must be positive"
+     *     context.text("Value must be positive")
+     * )
+     * ```
+     *
+     * Example with resource message:
+     * ```kotlin
+     * satisfies(
+     *     value > 0,
+     *     context.resource(value)
      * )
      * ```
      *
      * @param condition The condition to evaluate
-     * @param message The error message text to use if the condition is false
+     * @param message The Message to use if the condition is false
      * @return The constraint result
      */
     fun satisfies(
         condition: Boolean,
-        message: String,
+        message: Message,
     ): ConstraintResult =
         if (condition) {
             ConstraintResult.Satisfied
         } else {
-            val messageContext = context.createMessageContext(emptyList())
-            ConstraintResult.Violated(Message.Text(messageContext, text = message))
+            ConstraintResult.Violated(message)
         }
 }
 
-fun <T> ConstraintContext<T>.createMessageContext(args: List<Any?>): MessageContext<T> = MessageContext(args, this)
+fun <T> ConstraintContext<T>.createMessageContext(args: List<Pair<String, Any?>>): MessageContext<T> = MessageContext(args, this)
+
+/**
+ * Creates a text-based validation message.
+ *
+ * Use this method to create simple text messages for constraint violations.
+ * The message will include the current validation context (root, path, constraint ID).
+ *
+ * Example usage in a constraint:
+ * ```kotlin
+ * constrain("positive") { context ->
+ *     satisfies(
+ *         context.input > 0,
+ *         context.text("Value must be positive")
+ *     )
+ * }
+ * ```
+ *
+ * @param content The text content of the error message
+ * @return A [Message.Text] instance with the given content
+ */
+fun <T> ConstraintContext<T>.text(content: String): Message {
+    val messageContext = createMessageContext(emptyList())
+    return Message.Text(messageContext, content)
+}
+
+/**
+ * Creates a resource-based validation message.
+ *
+ * Use this method to create internationalized messages that load text from `kova.properties`.
+ * The message key is determined by the constraint ID in the validation context.
+ * Arguments are provided as a vararg and automatically converted to indexed pairs for
+ * MessageFormat substitution (i.e., the first argument becomes {0}, second becomes {1}, etc.).
+ *
+ * Example usage in a constraint:
+ * ```kotlin
+ * constrain("kova.number.min") { context ->
+ *     val minValue = 0
+ *     satisfies(
+ *         context.input >= minValue,
+ *         context.resource(minValue)
+ *     )
+ * }
+ * ```
+ *
+ * The corresponding entry in `kova.properties` would be:
+ * ```
+ * kova.number.min=The value must be greater than or equal to {0}.
+ * ```
+ *
+ * For multiple arguments:
+ * ```kotlin
+ * constrain("kova.number.range") { context ->
+ *     val minValue = 0
+ *     val maxValue = 100
+ *     satisfies(
+ *         context.input in minValue..maxValue,
+ *         context.resource(minValue, maxValue)
+ *     )
+ * }
+ * ```
+ *
+ * With corresponding resource:
+ * ```
+ * kova.number.range=The value must be between {0} and {1}.
+ * ```
+ *
+ * @param args Arguments to be interpolated into the message template using MessageFormat
+ * @return A [Message.Resource] instance configured with the provided arguments
+ */
+fun <T> ConstraintContext<T>.resource(vararg args: Any?): Message {
+    val messageContext = createMessageContext(args.withIndex().map { (index, arg) -> "{$index}" to arg })
+    return Message.Resource(messageContext)
+}

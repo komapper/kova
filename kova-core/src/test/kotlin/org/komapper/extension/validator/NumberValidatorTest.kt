@@ -50,7 +50,7 @@ class NumberValidatorTest :
         context("constrain") {
             val validator =
                 Kova.int().constrain("test") {
-                    satisfies(it.input == 10, "Constraint failed")
+                    satisfies(it.input == 10, it.text("Constraint failed"))
                 }
 
             test("success") {

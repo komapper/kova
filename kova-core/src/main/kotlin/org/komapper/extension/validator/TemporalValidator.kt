@@ -55,7 +55,7 @@ typealias TemporalValidator<T> = IdentityValidator<T>
  * @return A new validator with the future constraint
  */
 inline fun <reified T> TemporalValidator<T>.future(
-    message: MessageProvider = Message.resource(),
+    message: MessageProvider = MessageProvider.resource(),
 ): TemporalValidator<T>
         where T : Temporal, T : Comparable<T> =
     constrain("kova.temporal.future") {
@@ -81,7 +81,7 @@ inline fun <reified T> TemporalValidator<T>.future(
  * @return A new validator with the future-or-present constraint
  */
 inline fun <reified T> TemporalValidator<T>.futureOrPresent(
-    message: MessageProvider = Message.resource(),
+    message: MessageProvider = MessageProvider.resource(),
 ): TemporalValidator<T>
         where T : Temporal, T : Comparable<T> =
     constrain("kova.temporal.futureOrPresent") {
@@ -107,7 +107,7 @@ inline fun <reified T> TemporalValidator<T>.futureOrPresent(
  * @return A new validator with the past constraint
  */
 inline fun <reified T> TemporalValidator<T>.past(
-    message: MessageProvider = Message.resource(),
+    message: MessageProvider = MessageProvider.resource(),
 ): TemporalValidator<T>
         where T : Temporal, T : Comparable<T> =
     constrain("kova.temporal.past") {
@@ -133,7 +133,7 @@ inline fun <reified T> TemporalValidator<T>.past(
  * @return A new validator with the past-or-present constraint
  */
 inline fun <reified T> TemporalValidator<T>.pastOrPresent(
-    message: MessageProvider = Message.resource(),
+    message: MessageProvider = MessageProvider.resource(),
 ): TemporalValidator<T>
         where T : Temporal, T : Comparable<T> =
     constrain("kova.temporal.pastOrPresent") {

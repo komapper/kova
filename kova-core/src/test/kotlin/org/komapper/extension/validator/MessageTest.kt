@@ -18,16 +18,16 @@ class MessageTest :
             val vc = ValidationContext()
 
             val cc1 = vc.createConstraintContext(input, "kova.charSequence.min")
-            val mc1 = cc1.createMessageContext(listOf(1))
+            val mc1 = cc1.createMessageContext(listOf("length" to 1))
             val resource1 = Message.Resource(mc1)
 
             val cc2 = vc.createConstraintContext(input, "kova.charSequence.max")
-            val mc2 = cc2.createMessageContext(listOf(5))
+            val mc2 = cc2.createMessageContext(listOf("length" to 5))
             val resource2 = Message.Resource(mc2)
 
             val cc3 = vc.createConstraintContext(input, "kova.or")
             val mc3 =
-                cc3.createMessageContext(listOf(listOf(resource1), resource2))
+                cc3.createMessageContext(listOf("first" to listOf(resource1), "second" to resource2))
             val resource3 = Message.Resource(mc3)
 
             resource3.text shouldBe
