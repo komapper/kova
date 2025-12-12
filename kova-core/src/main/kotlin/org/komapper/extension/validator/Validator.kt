@@ -193,7 +193,7 @@ infix fun <IN, OUT> Validator<IN, OUT>.or(other: Validator<IN, OUT>): Validator<
                     is Failure -> {
                         val constraintContext = context.createConstraintContext(input, "kova.or")
                         val messageContext =
-                            constraintContext.createMessageContext(listOf(selfResult.messages, otherResult.messages))
+                            constraintContext.createMessageContext(listOf("first" to selfResult.messages, "second" to otherResult.messages))
                         Failure(otherResult.value, listOf(Message.Or(messageContext, selfResult, otherResult)))
                     }
                 }
@@ -462,13 +462,13 @@ fun <T : Any, S : Any> Validator<T, S>.asNullable(withDefault: () -> S): NullCoa
  * Example - Simple custom message ignoring original errors:
  * ```kotlin
  * val validator = Kova.string().notEmpty().min(3).max(10)
- *     .withMessage { Message.text { "Invalid username format" } }
+ *     .withMessage { MessageProvider.text { "Invalid username format" } }
  * ```
  *
  * Example - Internationalization with resource messages:
  * ```kotlin
  * val validator = Kova.string().notEmpty().min(3)
- *     .withMessage { Message.resource() }
+ *     .withMessage { MessageProvider.resource() }
  * // Uses the constraint ID "kova.withMessage" to load from kova.properties
  * ```
  *
@@ -484,7 +484,7 @@ fun <T, S> Validator<T, S>.withMessage(block: (List<Message>) -> MessageProvider
             is Failure -> {
                 val constraintContext = context.createConstraintContext(input, "kova.withMessage")
                 val messageProvider = block(result.messages)
-                val messageGenerator = messageProvider(result.messages)
+                val messageGenerator = messageProvider("messages" to result.messages)
                 val message = messageGenerator(constraintContext)
                 Failure(result.value, listOf(message))
             }

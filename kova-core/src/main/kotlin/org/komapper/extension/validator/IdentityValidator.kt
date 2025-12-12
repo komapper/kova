@@ -99,7 +99,7 @@ fun <T> IdentityValidator<T>.literal(
     value: T,
     message: MessageProvider = MessageProvider.resource(),
 ) = constrain("kova.literal.single") {
-    satisfies(it.input == value, message(value))
+    satisfies(it.input == value, message("value" to value))
 }
 
 /**
@@ -120,7 +120,7 @@ fun <T> IdentityValidator<T>.literal(
     values: List<T>,
     message: MessageProvider = MessageProvider.resource(),
 ) = constrain("kova.literal.list") {
-    satisfies(it.input in values, message(values))
+    satisfies(it.input in values, message("values" to values))
 }
 
 /**

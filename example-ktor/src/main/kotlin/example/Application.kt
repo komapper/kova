@@ -11,6 +11,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 import org.komapper.extension.validator.Message
+import org.komapper.extension.validator.MessageProvider
 import org.komapper.extension.validator.ObjectSchema
 import org.komapper.extension.validator.ktor.server.SchemaValidator
 import org.komapper.extension.validator.ktor.server.ValidatedWith
@@ -21,7 +22,7 @@ import org.komapper.extension.validator.positive
 data class Customer(val id: Int, val firstName: String, val lastName: String)
 
 object CustomerSchema : ObjectSchema<Customer>({
-    Customer::id { it.positive(Message.text { "A customer ID should be greater than 0" })}
+    Customer::id { it.positive(MessageProvider.text { "A customer ID should be greater than 0" })}
 })
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)

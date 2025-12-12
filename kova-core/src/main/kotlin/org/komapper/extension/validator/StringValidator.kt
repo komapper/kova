@@ -197,7 +197,7 @@ fun <E : Enum<E>> StringValidator.isEnum(
     val enumValues = klass.java.enumConstants
     val validNames = enumValues.map { it.name }
     return this.constrain("kova.string.isEnum") { ctx ->
-        satisfies(validNames.contains(ctx.input), message(validNames))
+        satisfies(validNames.contains(ctx.input), message("validNames" to validNames))
     }
 }
 

@@ -26,7 +26,7 @@ fun <T : CharSequence> CharSequenceValidator<T>.min(
     length: Int,
     message: MessageProvider = MessageProvider.resource(),
 ) = constrain("kova.charSequence.min") {
-    satisfies(it.input.length >= length, message(length))
+    satisfies(it.input.length >= length, message("length" to length))
 }
 
 /**
@@ -47,7 +47,7 @@ fun <T : CharSequence> CharSequenceValidator<T>.max(
     length: Int,
     message: MessageProvider = MessageProvider.resource(),
 ) = constrain("kova.charSequence.max") {
-    satisfies(it.input.length <= length, message(length))
+    satisfies(it.input.length <= length, message("length" to length))
 }
 
 /**
@@ -144,7 +144,7 @@ fun <T : CharSequence> CharSequenceValidator<T>.length(
     length: Int,
     message: MessageProvider = MessageProvider.resource(),
 ) = constrain("kova.charSequence.length") {
-    satisfies(it.input.length == length, message(length))
+    satisfies(it.input.length == length, message("length" to length))
 }
 
 /**
@@ -165,7 +165,7 @@ fun <T : CharSequence> CharSequenceValidator<T>.startsWith(
     prefix: CharSequence,
     message: MessageProvider = MessageProvider.resource(),
 ) = constrain("kova.charSequence.startsWith") {
-    satisfies(it.input.startsWith(prefix), message(prefix))
+    satisfies(it.input.startsWith(prefix), message("prefix" to prefix))
 }
 
 /**
@@ -186,7 +186,7 @@ fun <T : CharSequence> CharSequenceValidator<T>.notStartsWith(
     prefix: CharSequence,
     message: MessageProvider = MessageProvider.resource(),
 ) = constrain("kova.charSequence.notStartsWith") {
-    satisfies(!it.input.startsWith(prefix), message(prefix))
+    satisfies(!it.input.startsWith(prefix), message("prefix" to prefix))
 }
 
 /**
@@ -207,7 +207,7 @@ fun <T : CharSequence> CharSequenceValidator<T>.endsWith(
     suffix: CharSequence,
     message: MessageProvider = MessageProvider.resource(),
 ) = constrain("kova.charSequence.endsWith") {
-    satisfies(it.input.endsWith(suffix), message(suffix))
+    satisfies(it.input.endsWith(suffix), message("suffix" to suffix))
 }
 
 /**
@@ -228,7 +228,7 @@ fun <T : CharSequence> CharSequenceValidator<T>.notEndsWith(
     suffix: CharSequence,
     message: MessageProvider = MessageProvider.resource(),
 ) = constrain("kova.charSequence.notEndsWith") {
-    satisfies(!it.input.endsWith(suffix), message(suffix))
+    satisfies(!it.input.endsWith(suffix), message("suffix" to suffix))
 }
 
 /**
@@ -249,7 +249,7 @@ fun <T : CharSequence> CharSequenceValidator<T>.contains(
     infix: CharSequence,
     message: MessageProvider = MessageProvider.resource(),
 ) = constrain("kova.charSequence.contains") {
-    satisfies(it.input.contains(infix), message(infix))
+    satisfies(it.input.contains(infix), message("infix" to infix))
 }
 
 /**
@@ -270,7 +270,7 @@ fun <T : CharSequence> CharSequenceValidator<T>.notContains(
     infix: CharSequence,
     message: MessageProvider = MessageProvider.resource(),
 ) = constrain("kova.charSequence.notContains") {
-    satisfies(!it.input.contains(infix), message(infix))
+    satisfies(!it.input.contains(infix), message("infix" to infix))
 }
 
 /**
@@ -291,7 +291,7 @@ fun <T : CharSequence> CharSequenceValidator<T>.matches(
     pattern: Regex,
     message: MessageProvider = MessageProvider.resource(),
 ) = constrain("kova.charSequence.matches") {
-    satisfies(pattern.matches(it.input), message(pattern))
+    satisfies(pattern.matches(it.input), message("pattern" to pattern))
 }
 
 /**
@@ -312,5 +312,5 @@ fun <T : CharSequence> CharSequenceValidator<T>.notMatches(
     pattern: Regex,
     message: MessageProvider = MessageProvider.resource(),
 ) = constrain("kova.charSequence.notMatches") {
-    satisfies(!pattern.matches(it.input), message(pattern))
+    satisfies(!pattern.matches(it.input), message("pattern" to pattern))
 }
