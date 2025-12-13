@@ -260,7 +260,14 @@ class ValidatorTest :
 
                 logs shouldBe
                     listOf(
-                        LogEntry.Violated(constraintId = "kova.charSequence.min", root = "", path = "", input = "ab"),
+                        LogEntry.Violated(
+                            constraintId = "kova.charSequence.min",
+                            root = "",
+                            path = "",
+                            input = "ab",
+                            args =
+                                listOf("length" to 3),
+                        ),
                         LogEntry.Satisfied(constraintId = "kova.charSequence.max", root = "", path = "", input = "ab"),
                     )
             }
@@ -383,7 +390,14 @@ class ValidatorTest :
                 result.isFailure().mustBeTrue()
                 logs shouldBe
                     listOf(
-                        LogEntry.Violated(constraintId = "kova.charSequence.min", root = "", path = "", input = "ab"),
+                        LogEntry.Violated(
+                            constraintId = "kova.charSequence.min",
+                            root = "",
+                            path = "",
+                            input = "ab",
+                            args =
+                                listOf("length" to 3),
+                        ),
                         LogEntry.Satisfied(constraintId = "kova.charSequence.max", root = "", path = "", input = "AB"),
                     )
             }

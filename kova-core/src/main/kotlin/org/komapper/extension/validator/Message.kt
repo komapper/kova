@@ -34,6 +34,8 @@ sealed interface Message {
     /** The formatted message text */
     val text: String
 
+    val args: List<Pair<String, Any?>> get() = context.args
+
     /**
      * A simple text message without i18n support.
      *
@@ -187,7 +189,7 @@ sealed interface Message {
 }
 
 private fun Message.toDescription() =
-    "Message(constraintId=$constraintId, text='$text', root=$root, path=${path.fullName}, input=${context.input})"
+    "Message(constraintId=$constraintId, text='$text', root=$root, path=${path.fullName}, input=${context.input}, args=$args)"
 
 private const val RESOURCE_BUNDLE_BASE_NAME = "kova"
 
