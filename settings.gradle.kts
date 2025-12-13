@@ -5,7 +5,9 @@ plugins {
 rootProject.name = "kova"
 
 include("kova-core")
+include("kova-factory")
 include("kova-ktor")
 
 include("example-core")
+include("example-factory")
 include("example-ktor")
