@@ -77,13 +77,10 @@ fun <T : Any, S : Any> NullableValidator<T, S>.isNull(message: MessageProvider =
  * ```
  *
  * @param block A function that builds a validator from a success validator
- * @param message Custom error message provider for the null check
  * @return A new validator that accepts null or values satisfying the block validator
  */
-fun <T : Any, S : Any> NullableValidator<T, S>.isNullOr(
-    block: (Validator<T, T>) -> Validator<T, S>,
-    message: MessageProvider = MessageProvider.resource(),
-): NullableValidator<T, S> = isNull(message).or(block(Validator.success()).asNullable())
+fun <T : Any, S : Any> NullableValidator<T, S>.isNullOr(block: (Validator<T, T>) -> Validator<T, S>): NullableValidator<T, S> =
+    isNull().or(block(Validator.success()).asNullable())
 
 /**
  * Validates that the input is not null.
@@ -122,13 +119,10 @@ fun <T : Any, S : Any> NullableValidator<T, S>.notNull(message: MessageProvider 
  * ```
  *
  * @param block A function that builds a validator from a success validator
- * @param message Custom error message provider for the null check
  * @return A new validator that rejects null and validates non-null values with the block validator
  */
-fun <T : Any, S : Any> NullableValidator<T, S>.notNullAnd(
-    block: (Validator<T, T>) -> Validator<T, S>,
-    message: MessageProvider = MessageProvider.resource(),
-): NullableValidator<T, S> = notNull(message).and(block(Validator.success()).asNullable())
+fun <T : Any, S : Any> NullableValidator<T, S>.notNullAnd(block: (Validator<T, T>) -> Validator<T, S>): NullableValidator<T, S> =
+    notNull().and(block(Validator.success()).asNullable())
 
 /**
  * Converts a nullable validator to a validator with non-nullable output.

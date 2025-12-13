@@ -103,7 +103,7 @@ class NullableValidatorTest :
         }
 
         context("isNullOr") {
-            val isNullOrMin3Max3 = Kova.nullable<Int>().isNullOr({ it.min(3).max(3) })
+            val isNullOrMin3Max3 = Kova.nullable<Int>().isNullOr { it.min(3).max(3) }
 
             test("success with null value") {
                 val result = isNullOrMin3Max3.tryValidate(null)
@@ -141,7 +141,7 @@ class NullableValidatorTest :
         }
 
         context("notNullAnd") {
-            val notNullAndMin3 = Kova.nullable<Int>().notNullAnd({ it.min(3) })
+            val notNullAndMin3 = Kova.nullable<Int>().notNullAnd { it.min(3) }
 
             test("success") {
                 val result = notNullAndMin3.tryValidate(4)
@@ -266,7 +266,7 @@ class NullableValidatorTest :
         }
 
         context("logs") {
-            val isNullOrMin3Max3 = Kova.nullable<Int>().isNullOr({ it.min(3) })
+            val isNullOrMin3Max3 = Kova.nullable<Int>().isNullOr { it.min(3) }
 
             test("success: 3") {
                 val logs = mutableListOf<LogEntry>()
