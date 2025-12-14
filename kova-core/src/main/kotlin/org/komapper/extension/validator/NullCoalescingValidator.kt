@@ -101,6 +101,6 @@ fun <T : Any, S : Any> NullCoalescingValidator<T, S>.or(other: Validator<T, S>):
  * This is used internally by [and] and [or] to properly handle null values in composed validators.
  */
 private fun <T : Any, S : Any> NullCoalescingValidator<T, S>.coalesce(other: Validator<T, S>): NullCoalescingValidator<T, S> =
-    NullCoalescingValidator { input, context ->
-        if (input == null) execute(input, context) else other.execute(input, context)
+    NullCoalescingValidator { input ->
+        if (input == null) execute(input) else other.execute(input)
     }

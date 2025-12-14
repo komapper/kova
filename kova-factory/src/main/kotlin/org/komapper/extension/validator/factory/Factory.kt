@@ -13,6 +13,8 @@ import org.komapper.extension.validator.addRoot
 import org.komapper.extension.validator.isFailure
 import org.komapper.extension.validator.isSuccess
 import org.komapper.extension.validator.name
+import org.komapper.extension.validator.tryValidate
+import org.komapper.extension.validator.validate
 
 /**
  * A factory that produces validated instances of type [R].
@@ -35,7 +37,7 @@ typealias Factory<R> = Validator<Unit, R>
  *         [ValidationResult.Failure] with validation errors otherwise
  */
 fun <R : Any> Factory<R>.tryCreate(config: ValidationConfig = ValidationConfig()): ValidationResult<R> =
-    execute(Unit, ValidationContext(config = config))
+    tryValidate(Unit, config)
 
 /**
  * Creates an instance using this factory and returns the result.
@@ -45,10 +47,7 @@ fun <R : Any> Factory<R>.tryCreate(config: ValidationConfig = ValidationConfig()
  * @throws ValidationException if validation fails
  */
 fun <R : Any> Factory<R>.create(config: ValidationConfig = ValidationConfig()): R =
-    when (val result = execute(Unit, ValidationContext(config = config))) {
-        is ValidationResult.Success -> result.value
-        is ValidationResult.Failure -> throw ValidationException(result.messages)
-    }
+    validate(Unit, config)
 
 /**
  * Generates a factory from this validator.
@@ -64,11 +63,12 @@ fun <R : Any> IdentityValidator<R>.generateFactory(
     root: String = "factory",
     block: FactoryScope<R>.() -> ValidationResult<R>,
 ): Factory<R> =
-    Factory { _, context ->
-        val rootContext = context.addRoot(root, null)
-        val factories = mutableListOf<Factory<*>>()
-        val factoryScope = FactoryScope<R>(rootContext, factories, this)
-        block(factoryScope)
+    Factory { _ ->
+        addRoot(root, null) {
+            val factories = mutableListOf<Factory<*>>()
+            val factoryScope = FactoryScope(this, factories, this@generateFactory)
+            block(factoryScope)
+        }
     }
 
 /**
@@ -127,9 +127,9 @@ class FactoryScope<R>(
         block: (Validator<T, T>) -> Validator<T, S>,
     ): ValueRef<S> {
         val factory =
-            Factory { _, context ->
+            Factory { _ ->
                 val validator = block(Validator.success())
-                validator.execute(value, context.addPath(name, value))
+                context.addPath(name, value) { validator.execute(value) }
             }
         factories.add(factory)
         return ValueRef(factory)
@@ -163,10 +163,10 @@ class FactoryScope<R>(
      * @param block construction block that creates the object using validated values
      * @return validation result containing the constructed and validated object
      */
-    fun create(block: CreationScope.() -> R): ValidationResult<R> {
+    fun create(block: CreationScope.() -> R): ValidationResult<R> = with(context) {
         val resultMap = mutableMapOf<Factory<*>, ValidationResult<*>>()
         for (factory in factories) {
-            val result = factory.execute(Unit, context)
+            val result = factory.execute(Unit)
             if (result.isFailure()) {
                 if (context.failFast) {
                     return ValidationResult.Failure(Input.Unusable(Unit), result.messages)
@@ -178,8 +178,8 @@ class FactoryScope<R>(
         return if (valid) {
             val scope = CreationScope(resultMap.mapValues { (_, value) -> value as ValidationResult.Success<*> })
             val obj = scope.block()
-            val newContext = ValidationContext(config = context.config) // reset context
-            validator.execute(obj, newContext)
+            // reset context
+            with(ValidationContext(config = context.config)) { validator.execute(obj) }
         } else {
             val messages = resultMap.values.filterIsInstance<ValidationResult.Failure<*>>().flatMap { it.messages }
             ValidationResult.Failure(Input.Unusable(Unit), messages)

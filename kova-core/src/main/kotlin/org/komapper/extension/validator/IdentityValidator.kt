@@ -62,18 +62,18 @@ fun <T> IdentityValidator<T>.constrain(
  * @return A new validator that chains both validators
  */
 fun <T> IdentityValidator<T>.chain(next: IdentityValidator<T>): IdentityValidator<T> =
-    IdentityValidator { input, context ->
-        when (val result = execute(input, context)) {
+    IdentityValidator { input ->
+        when (val result = execute(input)) {
             is Success -> {
-                next.execute(result.value, context)
+                next.execute(result.value)
             }
 
             is Failure -> {
-                if (context.failFast) {
+                if (failFast) {
                     result
                 } else {
                     when (val v = result.value) {
-                        is Input.Available -> result + next.execute(v.value, context)
+                        is Input.Available -> result + next.execute(v.value)
                         is Input.Unusable -> result
                     }
                 }
@@ -146,9 +146,9 @@ fun <T> IdentityValidator<T>.literal(
  * @return A new validator that conditionally validates
  */
 fun <T> IdentityValidator<T>.onlyIf(condition: (T) -> Boolean) =
-    IdentityValidator<T> { input, context ->
+    IdentityValidator<T> { input ->
         if (condition(input)) {
-            execute(input, context)
+            execute(input)
         } else {
             Success(input)
         }
@@ -182,6 +182,6 @@ fun <T> IdentityValidator<T>.onlyIf(condition: (T) -> Boolean) =
  * @see Validator.asNullable for the base version that works with any validator type
  */
 fun <T : Any> IdentityValidator<T>.asNullable(): NullableValidator<T, T> =
-    Validator { input, context ->
-        if (input == null) Success(null) else execute(input, context)
+    Validator { input ->
+        if (input == null) Success(null) else execute(input)
     }

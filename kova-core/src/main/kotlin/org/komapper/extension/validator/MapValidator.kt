@@ -199,8 +199,7 @@ fun <K, V> MapValidator<K, V>.notContainsValue(
 fun <K, V> MapValidator<K, V>.onEach(validator: Validator<Map.Entry<K, V>, *>) =
     constrain("kova.map.onEach") {
         validateOnEach(it) { entry, validationContext ->
-            val path = "<map entry>"
-            validator.execute(entry, validationContext.appendPath(text = path))
+            validationContext.appendPath(text = "<map entry>") { validator.execute(entry) }
         }
     }
 
@@ -249,8 +248,7 @@ fun <K, V> MapValidator<K, V>.onEach(block: (IdentityValidator<Map.Entry<K, V>>)
 fun <K, V> MapValidator<K, V>.onEachKey(validator: Validator<K, *>) =
     constrain("kova.map.onEachKey") {
         validateOnEach(it) { entry, validationContext ->
-            val path = "<map key>"
-            validator.execute(entry.key, validationContext.appendPath(text = path))
+            validationContext.appendPath(text = "<map key>") { validator.execute(entry.key) }
         }
     }
 
@@ -297,8 +295,7 @@ fun <K, V> MapValidator<K, V>.onEachKey(block: (IdentityValidator<K>) -> Validat
 fun <K, V> MapValidator<K, V>.onEachValue(validator: Validator<V, *>) =
     constrain("kova.map.onEachValue") {
         validateOnEach(it) { entry, validationContext ->
-            val path = "[${entry.key}]<map value>"
-            validator.execute(entry.value, validationContext.appendPath(text = path))
+            validationContext.appendPath(text = "[${entry.key}]<map value>") { validator.execute(entry.value) }
         }
     }
 
