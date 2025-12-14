@@ -111,45 +111,46 @@ class FactoryScope<R>(
     private val validator: Validator<R, R>,
 ) {
     /**
-     * Validates a value using the provided validator definition.
+     * Registers a value to be validated when [create] is called.
      *
-     * The validated value can be accessed in the [create] block by invoking the returned factory.
+     * The validation is deferred until [create] is invoked. The resulting value can be
+     * accessed in the [create] block by invoking the returned [ValueRef].
      *
      * @param name the field name for error reporting
      * @param value the value to validate
      * @param block validator definition that transforms the value
-     * @return a factory that produces the validated value
+     * @return a reference to the value that will be validated and accessible in [create]
      */
     fun <T, S> check(
         name: String,
         value: T,
         block: (Validator<T, T>) -> Validator<T, S>,
-    ): Factory<S> {
+    ): ValueRef<S> {
         val factory =
             Factory { _, context ->
                 val validator = block(Validator.success())
                 validator.execute(value, context.addPath(name, value))
             }
         factories.add(factory)
-        return CheckedFactory(factory)
+        return ValueRef(factory)
     }
 
     /**
-     * Registers an existing factory for validation.
+     * Registers an existing factory to be executed when [create] is called.
      *
-     * The factory's result can be accessed in the [create] block by invoking the returned factory.
+     * The factory's result can be accessed in the [create] block by invoking the returned [ValueRef].
      *
      * @param name the field name for error reporting
      * @param factory the factory to register
-     * @return a factory that produces the validated value
+     * @return a reference to the value that will be produced by the factory
      */
     fun <S> check(
         name: String,
         factory: Factory<S>,
-    ): Factory<S> {
+    ): ValueRef<S> {
         val namedFactory = factory.name(name)
         factories.add(namedFactory)
-        return CheckedFactory(namedFactory)
+        return ValueRef(namedFactory)
     }
 
     /**
@@ -187,32 +188,52 @@ class FactoryScope<R>(
 }
 
 /**
- * Scope for constructing objects using validated field values.
+ * Scope for constructing objects using validated values.
  *
- * Within this scope, factories returned from [FactoryScope.check] can be invoked
+ * Within this scope, [ValueRef] instances returned from [FactoryScope.check] can be invoked
  * to retrieve their validated values for object construction.
  */
 class CreationScope(
     private val resultMap: Map<Factory<*>, ValidationResult.Success<*>>,
 ) {
     /**
-     * Retrieves the validated value from a checked factory.
+     * Retrieves the validated value from a [ValueRef].
      *
-     * This operator allows invoking factories as functions to access their validated values.
+     * This operator allows invoking [ValueRef] instances as functions to access their validated values.
      *
-     * @return the validated value produced by the factory
-     * @throws IllegalStateException if the factory was not registered via [FactoryScope.check]
+     * @return the validated value
+     * @throws IllegalStateException if the value reference was not created via [FactoryScope.check]
      */
-    operator fun <T> Factory<T>.invoke(): T {
-        if (this !is CheckedFactory<*>) error("Factory must be wrapped with check() before invocation. Did you forget to use check()?")
+    operator fun <T> ValueRef<T>.invoke(): T {
         val result =
-            resultMap[original]
-                ?: error("ValidationResult not found for factory '$original'. This is an internal error.")
+            resultMap[factory]
+                ?: error("ValidationResult not found for factory '$factory'. This is an internal error.")
         @Suppress("UNCHECKED_CAST")
         return result.value as T
     }
 }
 
-private class CheckedFactory<R>(
-    val original: Factory<R>,
-) : Factory<R> by original
+/**
+ * A reference to a value that will be validated when the factory is executed.
+ *
+ * ValueRef is returned by [FactoryScope.check] and represents a value that has been
+ * registered for validation but not yet validated. The actual validation occurs when
+ * [FactoryScope.create] is called. Within the [CreationScope], a ValueRef can be invoked
+ * as a function to retrieve the validated value.
+ *
+ * Example:
+ * ```kotlin
+ * val userFactory = Kova.factory<User> {
+ *     val name: ValueRef<String> = check("name", rawName) { it.min(1).max(50) }
+ *     val age: ValueRef<Int> = check("age", rawAge) { it.positive() }
+ *     create {
+ *         User(name(), age()) // Invoke ValueRefs to get validated values
+ *     }
+ * }
+ * ```
+ *
+ * @param R the type of value referenced
+ */
+class ValueRef<R> internal constructor(
+    internal val factory: Factory<R>,
+)
