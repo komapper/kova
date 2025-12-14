@@ -19,21 +19,25 @@ import java.util.ResourceBundle
  * - [Or]: Composite messages for failures from both branches of an `or` validator
  */
 sealed interface Message {
-    /** The constraint identifier for this message */
-    val constraintId: String
-
-    /** The root object identifier in the validation hierarchy */
-    val root: String
-
-    /** The path to the validated value in the object graph */
-    val path: Path
-
     /** The message context containing constraint metadata and validation state */
     val context: MessageContext<*>
 
     /** The formatted message text */
     val text: String
 
+    /** The constraint identifier for this message */
+    val constraintId: String get() = context.constraintId
+
+    /** The root object identifier in the validation hierarchy */
+    val root: String get() = context.root
+
+    /** The path to the validated value in the object graph */
+    val path: Path get() = context.path
+
+    /** The input value being validated */
+    val input: Any? get() = context.input
+
+    /** Named arguments passed to the message provider as pairs of (name, value) */
     val args: List<Pair<String, Any?>> get() = context.args
 
     /**
@@ -51,15 +55,6 @@ sealed interface Message {
         override val context: MessageContext<*>,
         override val text: String,
     ) : Message {
-        override val constraintId: String
-            get() = context.constraintId
-
-        override val root: String
-            get() = context.root
-
-        override val path: Path
-            get() = context.path
-
         override fun toString(): String = toDescription()
     }
 
@@ -90,14 +85,6 @@ sealed interface Message {
             val newArgs = context.args.map { resolveArg(it.second) }
             MessageFormat.format(pattern, *newArgs.toTypedArray())
         }
-        override val constraintId: String
-            get() = context.constraintId
-
-        override val root: String
-            get() = context.root
-
-        override val path: Path
-            get() = context.path
 
         private fun resolveArg(arg: Any?): Any? =
             when (arg) {
@@ -135,14 +122,6 @@ sealed interface Message {
         val elements: List<ValidationResult.Failure<*>>,
     ) : Message {
         override val text: String get() = Resource(context).text
-        override val constraintId: String
-            get() = context.constraintId
-
-        override val root: String
-            get() = context.root
-
-        override val path: Path
-            get() = context.path
 
         override fun toString(): String = toDescription()
     }
@@ -175,21 +154,13 @@ sealed interface Message {
         val second: ValidationResult.Failure<*>,
     ) : Message {
         override val text: String get() = Resource(context).text
-        override val constraintId: String
-            get() = context.constraintId
-
-        override val root: String
-            get() = context.root
-
-        override val path: Path
-            get() = context.path
 
         override fun toString(): String = toDescription()
     }
 }
 
 private fun Message.toDescription() =
-    "Message(constraintId=$constraintId, text='$text', root=$root, path=${path.fullName}, input=${context.input}, args=$args)"
+    "Message(constraintId=$constraintId, text='$text', root=$root, path=${path.fullName}, input=$input, args=$args)"
 
 private const val RESOURCE_BUNDLE_BASE_NAME = "kova"
 
