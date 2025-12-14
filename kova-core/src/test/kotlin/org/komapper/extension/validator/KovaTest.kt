@@ -63,9 +63,9 @@ class KovaTest :
             val nullable = Kova.nullable<String>()
             val notNull = nullable.notNull()
             val notNullAndMin3 = nullable.notNullAnd { it.min(3) }.toNonNullable()
-            val requestKey = Kova.generic<Request>().name("Request[key]").map { it["key"] }
-            val requestKeyIsNotNull = requestKey.then(notNull)
-            val requestKeyIsNotNullAndMin3 = requestKey.then(notNullAndMin3)
+            val requestKey = Kova.generic<Request>().map { it["key"] }
+            val requestKeyIsNotNull = requestKey.then(notNull).name("Request[key]")
+            val requestKeyIsNotNullAndMin3 = requestKey.then(notNullAndMin3).name("Request[key]")
 
             test("success when requestKey is not null") {
                 val result = requestKeyIsNotNull.tryValidate(Request(mapOf("key" to "abc")))

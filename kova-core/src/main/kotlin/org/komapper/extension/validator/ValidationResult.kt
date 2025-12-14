@@ -29,10 +29,7 @@ sealed interface ValidationResult<out T> {
      * @param value The validated value
      * @param context The validation context after validation completed
      */
-    data class Success<T>(
-        val value: T,
-        val context: ValidationContext,
-    ) : ValidationResult<T>
+    data class Success<T>(val value: T) : ValidationResult<T>
 
     /**
      * Represents a failed validation with detailed error information.

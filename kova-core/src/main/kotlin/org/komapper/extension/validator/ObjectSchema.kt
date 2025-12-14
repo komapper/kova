@@ -82,7 +82,7 @@ open class ObjectSchema<T : Any>(
             }
             results.add(result)
         }
-        return results.fold(ValidationResult.Success(input, context), ValidationResult<T>::plus)
+        return results.fold(ValidationResult.Success(input), ValidationResult<T>::plus)
     }
 
     private fun applyRule(
@@ -96,13 +96,13 @@ open class ObjectSchema<T : Any>(
         val pathResult = context.addPathChecked(key.name, value)
         return when (pathResult) {
             is ValidationResult.Success -> {
-                when (val result = validator.execute(pathResult.value, pathResult.context)) {
-                    is ValidationResult.Success -> ValidationResult.Success(input, result.context)
+                when (val result = validator.execute(value, pathResult.value)) {
+                    is ValidationResult.Success -> ValidationResult.Success(input)
                     is ValidationResult.Failure -> ValidationResult.Failure(Input.Available(input), result.messages)
                 }
             }
             // If circular reference detected, terminate validation early with success
-            is ValidationResult.Failure -> ValidationResult.Success(input, context)
+            is ValidationResult.Failure -> ValidationResult.Success(input)
         }
     }
 

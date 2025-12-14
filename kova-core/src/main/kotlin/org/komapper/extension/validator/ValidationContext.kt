@@ -174,7 +174,7 @@ fun ValidationContext.bindObject(obj: Any?): ValidationContext {
 fun <T> ValidationContext.addPathChecked(
     name: String,
     obj: T,
-): ValidationResult<T> {
+): ValidationResult<ValidationContext> {
     val parent = this.path
     // Check for circular reference
     if (obj != null && parent.containsObject(obj)) {
@@ -183,9 +183,9 @@ fun <T> ValidationContext.addPathChecked(
         val constraintContext = createConstraintContext(obj, "kova.circularReference")
         val messageContext = constraintContext.createMessageContext(emptyList())
         val message = Message.Text(messageContext, "Circular reference detected.")
-        return ValidationResult.Failure(Input.Available(obj), listOf(message))
+        return ValidationResult.Failure(Input.Available(this), listOf(message))
     }
-    return ValidationResult.Success(obj, addPath(name, obj))
+    return ValidationResult.Success(addPath(name, obj))
 }
 
 /**

@@ -42,7 +42,7 @@ fun <T> ConstraintValidator(constraint: Constraint<T>): ConstraintValidator<T> =
                         input = input,
                     )
                 }
-                ValidationResult.Success(input, context)
+                ValidationResult.Success(input)
             }
 
             is ConstraintResult.Violated -> {

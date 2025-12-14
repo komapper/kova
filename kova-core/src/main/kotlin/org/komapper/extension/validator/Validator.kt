@@ -43,7 +43,7 @@ fun interface Validator<IN, OUT> {
          *
          * @return An identity validator that always succeeds
          */
-        fun <T> success() = IdentityValidator<T> { input, context -> Success(input, context) }
+        fun <T> success() = IdentityValidator<T> { input, context -> Success(input) }
     }
 }
 
@@ -243,7 +243,7 @@ inline fun <IN, reified OUT, reified NEW> Validator<IN, OUT>.map(noinline transf
     val newClass = NEW::class
     return Validator { input, context ->
         when (val result = self.execute(input, context)) {
-            is Success -> Success(transform(result.value), result.context)
+            is Success -> Success(transform(result.value))
             is Failure -> {
                 val failureValue =
                     when (val v = result.value) {
@@ -282,7 +282,7 @@ fun <IN, OUT> Validator<IN, OUT>.name(name: String): Validator<IN, OUT> {
     return Validator { input, context ->
         val context = context.addPath(name, input)
         when (val result = self.execute(input, context)) {
-            is Success -> Success(result.value, result.context)
+            is Success -> Success(result.value)
             is Failure -> result
         }
     }
@@ -342,7 +342,7 @@ fun <IN, OUT, NEW> Validator<IN, OUT>.then(after: Validator<OUT, NEW>): Validato
     val before = this
     return Validator { input, context ->
         when (val result = before.execute(input, context)) {
-            is Success -> after.execute(result.value, result.context)
+            is Success -> after.execute(result.value, context)
             is Failure -> {
                 val value =
                     when (val v = result.value) {
@@ -396,7 +396,7 @@ fun <IN, OUT, NEW> Validator<IN, OUT>.then(block: (Validator<OUT, OUT>) -> Valid
  */
 fun <T : Any, S : Any> Validator<T, S>.asNullable(): NullableValidator<T, S> =
     Validator { input, context ->
-        if (input == null) Success(null, context) else execute(input, context)
+        if (input == null) Success(null) else execute(input, context)
     }
 
 /**
@@ -436,7 +436,7 @@ fun <T : Any, S : Any> Validator<T, S>.asNullable(defaultValue: S): NullCoalesci
  */
 fun <T : Any, S : Any> Validator<T, S>.asNullable(withDefault: () -> S): NullCoalescingValidator<T, S> =
     Validator { input, context ->
-        if (input == null) Success(withDefault(), context) else execute(input, context)
+        if (input == null) Success(withDefault()) else execute(input, context)
     }
 
 /**
