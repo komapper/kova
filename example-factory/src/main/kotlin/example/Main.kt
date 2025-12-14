@@ -80,7 +80,7 @@ fun main() {
         error("never happens")
     } else {
         result2.messages.joinToString("\n").let { println(it) }
-        // Message(constraintId=kova.comparable.max, text='must be less than or equal to 120', root=example.User, path=age, input=130)
+        // Message(constraintId=kova.comparable.max, text='must be less than or equal to 120', root=example.User, path=age, input=130, args=[(value, 120)])
     }
 
     println("\n#Creation(nested object)")
@@ -98,7 +98,7 @@ fun main() {
         error("never happens")
     } else {
         result4.messages.joinToString("\n").let { println(it) }
-        // Message(constraintId=kova.charSequence.notBlank, text='must not be blank', root=, path=name, input=  )
-        // Message(constraintId=kova.string.isInt, text='must be a valid integer', root=, path=age.value, input=abc)
+        // Message(constraintId=kova.charSequence.notBlank, text='must not be blank', root=factory, path=name, input=   , args=[])
+        // Message(constraintId=kova.string.isInt, text='must be a valid integer', root=factory, path=age.value, input=abc, args=[])
     }
 }

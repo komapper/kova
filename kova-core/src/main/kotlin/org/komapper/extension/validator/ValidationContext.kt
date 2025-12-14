@@ -305,5 +305,6 @@ sealed interface LogEntry {
         val root: String,
         val path: String,
         val input: Any?,
+        val args: List<Pair<String, Any?>>,
     ) : LogEntry
 }

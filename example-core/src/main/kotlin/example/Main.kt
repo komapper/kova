@@ -50,8 +50,8 @@ fun main() {
         is ValidationResult.Success -> error("never happens")
         is ValidationResult.Failure -> {
             result.messages.joinToString("\n").let { println(it) }
-            // Message(constraintId=kova.string.notBlank, text='must not be blank', root=example.User, path=name, input=)
-            // Message(constraintId=kova.comparable.min, text='must be greater than or equal to 0', root=example.User, path=age, input=-1)
+            // Message(constraintId=kova.charSequence.notBlank, text='must not be blank', root=example.User, path=name, input=  , args=[])
+            // Message(constraintId=kova.comparable.min, text='must be greater than or equal to 0', root=example.User, path=age, input=-1, args=[(value, 0)])
         }
     }
 
@@ -69,8 +69,8 @@ fun main() {
         is ValidationResult.Success -> error("never happens")
         is ValidationResult.Failure -> {
             result.messages.joinToString("\n").let { println(it) }
-            // Message(constraintId=kova.string.notBlank, text='must not be blank', root=example.Person, path=name, input=)
-            // Message(constraintId=kova.comparable.min, text='must be greater than or equal to 0', root=example.Person, path=age.value, input=-1)
+            // Message(constraintId=kova.charSequence.notBlank, text='must not be blank', root=example.Person, path=name, input=  , args=[])
+            // Message(constraintId=kova.comparable.min, text='must be greater than or equal to 0', root=example.Person, path=age.value, input=-1, args=[(value, 0)])
         }
     }
 }

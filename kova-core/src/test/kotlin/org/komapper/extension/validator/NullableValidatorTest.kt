@@ -275,7 +275,7 @@ class NullableValidatorTest :
                 result.isSuccess().mustBeTrue()
                 logs shouldBe
                     listOf(
-                        LogEntry.Violated(constraintId = "kova.nullable.isNull", root = "", path = "", input = 3),
+                        LogEntry.Violated(constraintId = "kova.nullable.isNull", root = "", path = "", input = 3, args = listOf()),
                         LogEntry.Satisfied(constraintId = "kova.comparable.min", root = "", path = "", input = 3),
                     )
             }

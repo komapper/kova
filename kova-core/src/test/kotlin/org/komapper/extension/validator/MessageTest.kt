@@ -41,7 +41,7 @@ class MessageTest :
             result.isFailure().mustBeTrue()
             result.messages.size shouldBe 1
             result.messages[0].toString() shouldBe
-                "Message(constraintId=kova.charSequence.min, text='must be at least 5 characters', root=, path=, input=abc)"
+                "Message(constraintId=kova.charSequence.min, text='must be at least 5 characters', root=, path=, input=abc, args=[(length, 5)])"
         }
 
         test("toString: object") {
@@ -58,6 +58,6 @@ class MessageTest :
             result.isFailure().mustBeTrue()
             result.messages.size shouldBe 1
             result.messages[0].toString() shouldBe
-                "Message(constraintId=kova.charSequence.min, text='must be at least 5 characters', root=Person, path=name, input=abc)"
+                "Message(constraintId=kova.charSequence.min, text='must be at least 5 characters', root=Person, path=name, input=abc, args=[(length, 5)])"
         }
     })

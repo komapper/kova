@@ -194,7 +194,13 @@ class NullCoalescingValidatorTest :
                 result.value shouldBe 6
                 logs shouldBe
                     listOf(
-                        LogEntry.Violated(constraintId = "kova.comparable.max", root = "", path = "", input = 6),
+                        LogEntry.Violated(
+                            constraintId = "kova.comparable.max",
+                            root = "",
+                            path = "",
+                            input = 6,
+                            args = listOf("value" to 5),
+                        ),
                         LogEntry.Satisfied(constraintId = "kova.comparable.min", root = "", path = "", input = 6),
                     )
             }
