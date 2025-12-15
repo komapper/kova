@@ -45,8 +45,8 @@ fun interface MessageProvider {
      * It accepts named arguments as pairs (name to value) for message formatting and returns a
      * function that generates a [Message] from a [ConstraintContext].
      *
-     * The arguments can be accessed in message templates either by name using [MessageContext.get]
-     * with a String key, or by index using [MessageContext.get] with an Int. Both access methods
+     * The arguments can be accessed in message templates either by name using [Array.get]
+     * with a String key, or by index using [Array.get] with an Int. Both access methods
      * are fully supported.
      *
      * @param args Named arguments for message formatting as pairs of (name, value)
@@ -79,11 +79,11 @@ interface MessageProviderFactory {
      * Creates a message provider that generates text messages.
      *
      * Text messages are created dynamically using the provided lambda function,
-     * which receives a [MessageContext] with access to the input value, named arguments,
+     * which receives a [MessageArguments] with access to the input value, named arguments,
      * and validation state.
      *
-     * Arguments passed to the provider can be accessed either by name using [MessageContext.get]
-     * with a String key, or by index using [MessageContext.get] with an Int. Both access methods
+     * Arguments passed to the provider can be accessed either by name using [MessageArguments.get]
+     * with a String key, or by index using [MessageArguments.get] with an Int. Both access methods
      * are fully supported, and you can choose the one that best fits your use case.
      *
      * Example with named argument access:
@@ -105,8 +105,11 @@ interface MessageProviderFactory {
      * @param format Lambda that formats the message text from the context
      * @return A MessageProvider that creates Text messages
      */
-    fun text(format: MessageContext<*>.() -> String): MessageProvider = MessageProvider {
-        { with(createMessageContext(*it)) { Message.Text(this, format()) } }
+    fun text(format: ConstraintContext<*>.(MessageArguments) -> String): MessageProvider = MessageProvider {
+        {
+            val args = it.asList()
+            Message.Text(this, args, format(MessageArguments(args)))
+        }
     }
 
     /**
@@ -139,13 +142,13 @@ interface MessageProviderFactory {
      *
      * @return A MessageProvider that creates Resource messages
      */
-    fun resource(): MessageProvider = MessageProvider { { Message.Resource(createMessageContext(*it)) } }
+    fun resource(): MessageProvider = MessageProvider { { Message.Resource(this, it.asList()) } }
 }
 
 /**
  * Context information available when generating error messages.
  *
- * MessageContext provides access to the input value, named arguments, constraint ID,
+ * MessageArguments provides access to the input value, named arguments, constraint ID,
  * and validation state. It is passed to message provider lambdas to enable
  * contextual error message generation.
  *
@@ -173,25 +176,14 @@ interface MessageProviderFactory {
  * Example usage with index access:
  * ```kotlin
  * val provider = MessageProvider.text { ctx ->
- *     "Value '${ctx.input}' must be at least ${ctx[0]} characters"
+ *     "Value '${input}' must be at least ${ctx[0]} characters"
  * }
  * // Usage: provider("minLength" to 5)
  * ```
  *
- * @param T The type of the input value being validated
  * @property args Named arguments passed to the message provider as pairs of (name, value)
- * @property constraintContext The underlying constraint context
  */
-data class MessageContext<T>(
-    val args: List<Pair<String, Any?>> = emptyList(),
-    private val constraintContext: ConstraintContext<T>,
-): ValidationContext by constraintContext {
-    /** The input value being validated */
-    val input: T get() = constraintContext.input
-
-    /** The constraint identifier (e.g., "kova.string.min") */
-    val constraintId: String get() = constraintContext.constraintId
-
+class MessageArguments(val args: List<Pair<String, Any?>> = emptyList()) {
     /**
      * Retrieves an argument by index with safe bounds checking.
      *

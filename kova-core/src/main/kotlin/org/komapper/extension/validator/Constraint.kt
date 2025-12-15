@@ -162,12 +162,6 @@ sealed interface ConstraintResult {
     ) : ConstraintResult
 }
 
-fun <T> ConstraintContext<T>.createMessageContext(args: List<Pair<String, Any?>>): MessageContext<T> =
-    MessageContext(args, this)
-
-fun <T> ConstraintContext<T>.createMessageContext(vararg args: Pair<String, Any?>): MessageContext<T> =
-    MessageContext(args.toList(), this)
-
 /**
  * Creates a text-based validation message.
  *
@@ -187,10 +181,7 @@ fun <T> ConstraintContext<T>.createMessageContext(vararg args: Pair<String, Any?
  * @param content The text content of the error message
  * @return A [Message.Text] instance with the given content
  */
-fun <T> ConstraintContext<T>.text(content: String): Message {
-    val messageContext = createMessageContext(emptyList())
-    return Message.Text(messageContext, content)
-}
+fun <T> ConstraintContext<T>.text(content: String): Message = Message.Text(this, emptyList(), content)
 
 /**
  * Creates a resource-based validation message.
@@ -236,7 +227,5 @@ fun <T> ConstraintContext<T>.text(content: String): Message {
  * @param args Arguments to be interpolated into the message template using MessageFormat
  * @return A [Message.Resource] instance configured with the provided arguments
  */
-fun <T> ConstraintContext<T>.resource(vararg args: Any?): Message {
-    val messageContext = createMessageContext(args.withIndex().map { (index, arg) -> "{$index}" to arg })
-    return Message.Resource(messageContext)
-}
+fun <T> ConstraintContext<T>.resource(vararg args: Any?): Message =
+    Message.Resource(this, args.mapIndexed { index, arg -> "{$index}" to arg })

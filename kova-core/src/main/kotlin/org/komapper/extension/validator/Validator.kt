@@ -178,12 +178,8 @@ infix fun <IN, OUT> Validator<IN, OUT>.or(other: Validator<IN, OUT>): Validator<
                     is Success -> otherResult
                     is Failure -> {
                         val constraintContext = createConstraintContext(input, "kova.or")
-                        val messageContext =
-                            constraintContext.createMessageContext(
-                                "first" to selfResult.messages,
-                                "second" to otherResult.messages
-                            )
-                        Failure(otherResult.value, listOf(Message.Or(messageContext, selfResult, otherResult)))
+                        val args = listOf("first" to selfResult.messages, "second" to otherResult.messages)
+                        Failure(otherResult.value, listOf(Message.Or(Message.Resource(constraintContext, args), selfResult, otherResult)))
                     }
                 }
             }

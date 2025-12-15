@@ -331,6 +331,6 @@ private fun <K, V> ConstraintContext<Map<K, V>>.validateOnEach(
     }
     val messages = failures.flatMap { it.messages }
     return satisfies(messages.isEmpty()) {
-        Message.Collection(createMessageContext("messages" to messages), failures)
+        Message.Collection(Message.Resource(this, listOf("messages" to messages)), failures)
     }
 }

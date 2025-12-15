@@ -19,7 +19,7 @@ class KovaPropertiesTest :
                 val result =
                     Kova
                         .string()
-                        .min(5, MessageProvider.text { "must be at least ${this["length"]} characters" })
+                        .min(5, MessageProvider.text { "must be at least ${it["length"]} characters" })
                         .tryValidate("abc")
                 result.isFailure().mustBeTrue()
                 val message = result.messages.single()
@@ -37,7 +37,7 @@ class KovaPropertiesTest :
                 val result =
                     Kova
                         .string()
-                        .max(5, MessageProvider.text { "must be at most ${this["length"]} characters" })
+                        .max(5, MessageProvider.text { "must be at most ${it["length"]} characters" })
                         .tryValidate("abcdef")
                 result.isFailure().mustBeTrue()
                 val message = result.messages.single()
@@ -55,7 +55,7 @@ class KovaPropertiesTest :
                 val result =
                     Kova
                         .string()
-                        .length(5, MessageProvider.text { "must be exactly ${this["length"]} characters" })
+                        .length(5, MessageProvider.text { "must be exactly ${it["length"]} characters" })
                         .tryValidate("abc")
                 result.isFailure().mustBeTrue()
                 val message = result.messages.single()
@@ -101,7 +101,7 @@ class KovaPropertiesTest :
                 val result =
                     Kova
                         .string()
-                        .startsWith("hello", MessageProvider.text { "must start with \"${this["prefix"]}\"" })
+                        .startsWith("hello", MessageProvider.text { "must start with \"${it["prefix"]}\"" })
                         .tryValidate("world")
                 result.isFailure().mustBeTrue()
                 val message = result.messages.single()
@@ -119,7 +119,7 @@ class KovaPropertiesTest :
                 val result =
                     Kova
                         .string()
-                        .notStartsWith("hello", MessageProvider.text { "must not start with \"${this["prefix"]}\"" })
+                        .notStartsWith("hello", MessageProvider.text { "must not start with \"${it["prefix"]}\"" })
                         .tryValidate("hello world")
                 result.isFailure().mustBeTrue()
                 val message = result.messages.single()
@@ -137,7 +137,7 @@ class KovaPropertiesTest :
                 val result =
                     Kova
                         .string()
-                        .endsWith("world", MessageProvider.text { "must end with \"${this["suffix"]}\"" })
+                        .endsWith("world", MessageProvider.text { "must end with \"${it["suffix"]}\"" })
                         .tryValidate("hello")
                 result.isFailure().mustBeTrue()
                 val message = result.messages.single()
@@ -155,7 +155,7 @@ class KovaPropertiesTest :
                 val result =
                     Kova
                         .string()
-                        .notEndsWith("world", MessageProvider.text { "must not end with \"${this["suffix"]}\"" })
+                        .notEndsWith("world", MessageProvider.text { "must not end with \"${it["suffix"]}\"" })
                         .tryValidate("hello world")
                 result.isFailure().mustBeTrue()
                 val message = result.messages.single()
@@ -173,7 +173,7 @@ class KovaPropertiesTest :
                 val result =
                     Kova
                         .string()
-                        .contains("test", MessageProvider.text { "must contain \"${this["infix"]}\"" })
+                        .contains("test", MessageProvider.text { "must contain \"${it["infix"]}\"" })
                         .tryValidate("hello")
                 result.isFailure().mustBeTrue()
                 val message = result.messages.single()
@@ -191,7 +191,7 @@ class KovaPropertiesTest :
                 val result =
                     Kova
                         .string()
-                        .notContains("test", MessageProvider.text { "must not contain \"${this["infix"]}\"" })
+                        .notContains("test", MessageProvider.text { "must not contain \"${it["infix"]}\"" })
                         .tryValidate("test value")
                 result.isFailure().mustBeTrue()
                 val message = result.messages.single()
@@ -209,7 +209,7 @@ class KovaPropertiesTest :
                 val result =
                     Kova
                         .string()
-                        .matches(Regex("[0-9]+"), MessageProvider.text { "must match pattern: ${this["pattern"]}" })
+                        .matches(Regex("[0-9]+"), MessageProvider.text { "must match pattern: ${it["pattern"]}" })
                         .tryValidate("abc")
                 result.isFailure().mustBeTrue()
                 val message = result.messages.single()
@@ -227,7 +227,7 @@ class KovaPropertiesTest :
                 val result =
                     Kova
                         .string()
-                        .notMatches(Regex("[0-9]+"), MessageProvider.text { "must not match pattern: ${this["pattern"]}" })
+                        .notMatches(Regex("[0-9]+"), MessageProvider.text { "must not match pattern: ${it["pattern"]}" })
                         .tryValidate("123")
                 result.isFailure().mustBeTrue()
                 val message = result.messages.single()
@@ -249,7 +249,7 @@ class KovaPropertiesTest :
                         .list<String>()
                         .min(
                             3,
-                            MessageProvider.text { "Collection (size ${this["actualSize"]}) must have at least ${this["minSize"]} elements" },
+                            MessageProvider.text { "Collection (size ${it["actualSize"]}) must have at least ${it["minSize"]} elements" },
                         ).tryValidate(listOf("a", "b"))
                 result.isFailure().mustBeTrue()
                 val message = result.messages.single()
@@ -269,7 +269,7 @@ class KovaPropertiesTest :
                         .list<String>()
                         .max(
                             3,
-                            MessageProvider.text { "Collection (size ${this["actualSize"]}) must have at most ${this["maxSize"]} elements" },
+                            MessageProvider.text { "Collection (size ${it["actualSize"]}) must have at most ${it["maxSize"]} elements" },
                         ).tryValidate(listOf("a", "b", "c", "d"))
                 result.isFailure().mustBeTrue()
                 val message = result.messages.single()
@@ -290,7 +290,7 @@ class KovaPropertiesTest :
                         .length(
                             3,
                             MessageProvider.text {
-                                "Collection (size ${this["actualSize"]}) must have exactly ${this["expectedSize"]} elements"
+                                "Collection (size ${it["actualSize"]}) must have exactly ${it["expectedSize"]} elements"
                             },
                         ).tryValidate(listOf("a", "b"))
                 result.isFailure().mustBeTrue()
@@ -323,7 +323,7 @@ class KovaPropertiesTest :
                 val result =
                     Kova
                         .list<String>()
-                        .contains("foo", MessageProvider.text { "must contain ${this["element"]}" })
+                        .contains("foo", MessageProvider.text { "must contain ${it["element"]}" })
                         .tryValidate(listOf("bar", "baz"))
                 result.isFailure().mustBeTrue()
                 val message = result.messages.single()
@@ -341,7 +341,7 @@ class KovaPropertiesTest :
                 val result =
                     Kova
                         .list<String>()
-                        .notContains("foo", MessageProvider.text { "must not contain ${this["element"]}" })
+                        .notContains("foo", MessageProvider.text { "must not contain ${it["element"]}" })
                         .tryValidate(listOf("foo", "bar"))
                 result.isFailure().mustBeTrue()
                 val message = result.messages.single()
@@ -361,7 +361,7 @@ class KovaPropertiesTest :
                 val result =
                     Kova
                         .int()
-                        .min(10, MessageProvider.text { "must be greater than or equal to ${this["value"]}" })
+                        .min(10, MessageProvider.text { "must be greater than or equal to ${it["value"]}" })
                         .tryValidate(5)
                 result.isFailure().mustBeTrue()
                 val message = result.messages.single()
@@ -379,7 +379,7 @@ class KovaPropertiesTest :
                 val result =
                     Kova
                         .int()
-                        .max(10, MessageProvider.text { "must be less than or equal to ${this["value"]}" })
+                        .max(10, MessageProvider.text { "must be less than or equal to ${it["value"]}" })
                         .tryValidate(15)
                 result.isFailure().mustBeTrue()
                 val message = result.messages.single()
@@ -395,7 +395,7 @@ class KovaPropertiesTest :
 
             test("gt with message") {
                 val result =
-                    Kova.int().gt(10, MessageProvider.text { "must be greater than ${this["value"]}" }).tryValidate(10)
+                    Kova.int().gt(10, MessageProvider.text { "must be greater than ${it["value"]}" }).tryValidate(10)
                 result.isFailure().mustBeTrue()
                 val message = result.messages.single()
                 message.text shouldBe "must be greater than 10"
@@ -412,7 +412,7 @@ class KovaPropertiesTest :
                 val result =
                     Kova
                         .int()
-                        .gte(10, MessageProvider.text { "must be greater than or equal to ${this["value"]}" })
+                        .gte(10, MessageProvider.text { "must be greater than or equal to ${it["value"]}" })
                         .tryValidate(9)
                 result.isFailure().mustBeTrue()
                 val message = result.messages.single()
@@ -428,7 +428,7 @@ class KovaPropertiesTest :
 
             test("lt with message") {
                 val result =
-                    Kova.int().lt(10, MessageProvider.text { "must be less than ${this["value"]}" }).tryValidate(10)
+                    Kova.int().lt(10, MessageProvider.text { "must be less than ${it["value"]}" }).tryValidate(10)
                 result.isFailure().mustBeTrue()
                 val message = result.messages.single()
                 message.text shouldBe "must be less than 10"
@@ -445,7 +445,7 @@ class KovaPropertiesTest :
                 val result =
                     Kova
                         .int()
-                        .lte(10, MessageProvider.text { "must be less than or equal to ${this["value"]}" })
+                        .lte(10, MessageProvider.text { "must be less than or equal to ${it["value"]}" })
                         .tryValidate(11)
                 result.isFailure().mustBeTrue()
                 val message = result.messages.single()
@@ -461,7 +461,7 @@ class KovaPropertiesTest :
 
             test("eq with message") {
                 val result =
-                    Kova.int().eq(42, MessageProvider.text { "must be equal to ${this["value"]}" }).tryValidate(10)
+                    Kova.int().eq(42, MessageProvider.text { "must be equal to ${it["value"]}" }).tryValidate(10)
                 result.isFailure().mustBeTrue()
                 val message = result.messages.single()
                 message.text shouldBe "must be equal to 42"
@@ -476,7 +476,7 @@ class KovaPropertiesTest :
 
             test("notEq with message") {
                 val result =
-                    Kova.int().notEq(0, MessageProvider.text { "must not be equal to ${this["value"]}" }).tryValidate(0)
+                    Kova.int().notEq(0, MessageProvider.text { "must not be equal to ${it["value"]}" }).tryValidate(0)
                 result.isFailure().mustBeTrue()
                 val message = result.messages.single()
                 message.text shouldBe "must not be equal to 0"
@@ -493,7 +493,7 @@ class KovaPropertiesTest :
 
             test("single with message") {
                 val result =
-                    Kova.int().literal(42, MessageProvider.text { "must be ${this["value"]}" }).tryValidate(10)
+                    Kova.int().literal(42, MessageProvider.text { "must be ${it["value"]}" }).tryValidate(10)
                 result.isFailure().mustBeTrue()
                 val message = result.messages.single()
                 message.text shouldBe "must be 42"
@@ -510,7 +510,7 @@ class KovaPropertiesTest :
                 val result =
                     Kova
                         .int()
-                        .literal(listOf(1, 2, 3), MessageProvider.text { "must be one of: ${this["values"]}" })
+                        .literal(listOf(1, 2, 3), MessageProvider.text { "must be one of: ${it["values"]}" })
                         .tryValidate(5)
                 result.isFailure().mustBeTrue()
                 val message = result.messages.single()
@@ -530,7 +530,7 @@ class KovaPropertiesTest :
                 val result =
                     Kova
                         .map<String, Int>()
-                        .min(3, MessageProvider.text { "Map (size ${this["actualSize"]}) must have at least ${this["minSize"]} entries" })
+                        .min(3, MessageProvider.text { "Map (size ${it["actualSize"]}) must have at least ${it["minSize"]} entries" })
                         .tryValidate(mapOf("a" to 1, "b" to 2))
                 result.isFailure().mustBeTrue()
                 val message = result.messages.single()
@@ -548,7 +548,7 @@ class KovaPropertiesTest :
                 val result =
                     Kova
                         .map<String, Int>()
-                        .max(2, MessageProvider.text { "Map (size ${this["actualSize"]}) must have at most ${this["maxSize"]} entries" })
+                        .max(2, MessageProvider.text { "Map (size ${it["actualSize"]}) must have at most ${it["maxSize"]} entries" })
                         .tryValidate(mapOf("a" to 1, "b" to 2, "c" to 3))
                 result.isFailure().mustBeTrue()
                 val message = result.messages.single()
@@ -568,7 +568,7 @@ class KovaPropertiesTest :
                         .map<String, Int>()
                         .length(
                             3,
-                            MessageProvider.text { "Map (size ${this["actualSize"]}) must have exactly ${this["expectedSize"]} entries" },
+                            MessageProvider.text { "Map (size ${it["actualSize"]}) must have exactly ${it["expectedSize"]} entries" },
                         ).tryValidate(mapOf("a" to 1, "b" to 2))
                 result.isFailure().mustBeTrue()
                 val message = result.messages.single()
@@ -615,7 +615,7 @@ class KovaPropertiesTest :
                 val result =
                     Kova
                         .map<String, Int>()
-                        .containsKey("foo", MessageProvider.text { "must contain key ${this["key"]}" })
+                        .containsKey("foo", MessageProvider.text { "must contain key ${it["key"]}" })
                         .tryValidate(mapOf("bar" to 2, "baz" to 3))
                 result.isFailure().mustBeTrue()
                 val message = result.messages.single()
@@ -633,7 +633,7 @@ class KovaPropertiesTest :
                 val result =
                     Kova
                         .map<String, Int>()
-                        .notContainsKey("foo", MessageProvider.text { "must not contain key ${this["key"]}" })
+                        .notContainsKey("foo", MessageProvider.text { "must not contain key ${it["key"]}" })
                         .tryValidate(mapOf("foo" to 1, "bar" to 2))
                 result.isFailure().mustBeTrue()
                 val message = result.messages.single()
@@ -651,7 +651,7 @@ class KovaPropertiesTest :
                 val result =
                     Kova
                         .map<String, Int>()
-                        .containsValue(42, MessageProvider.text { "must contain value ${this["value"]}" })
+                        .containsValue(42, MessageProvider.text { "must contain value ${it["value"]}" })
                         .tryValidate(mapOf("foo" to 1, "bar" to 2))
                 result.isFailure().mustBeTrue()
                 val message = result.messages.single()
@@ -669,7 +669,7 @@ class KovaPropertiesTest :
                 val result =
                     Kova
                         .map<String, Int>()
-                        .notContainsValue(42, MessageProvider.text { "must not contain value ${this["value"]}" })
+                        .notContainsValue(42, MessageProvider.text { "must not contain value ${it["value"]}" })
                         .tryValidate(mapOf("foo" to 42, "bar" to 2))
                 result.isFailure().mustBeTrue()
                 val message = result.messages.single()

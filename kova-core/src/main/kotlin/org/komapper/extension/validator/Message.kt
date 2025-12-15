@@ -9,7 +9,7 @@ import java.util.ResourceBundle
  * Messages can be simple text, resource bundle entries (i18n), or contain nested validation failures
  * from collection/map element validation or the `or` operator.
  *
- * All message types require a [MessageContext] which provides constraint metadata (constraintId, input, args)
+ * All message types require a [MessageArguments] which provides constraint metadata (constraintId, input, args)
  * and validation state (root, path). Messages are typically created internally by the validation framework.
  *
  * There are four message types:
@@ -19,8 +19,8 @@ import java.util.ResourceBundle
  * - [Or]: Composite messages for failures from both branches of an `or` validator
  */
 sealed interface Message {
-    /** The message context containing constraint metadata and validation state */
-    val context: MessageContext<*>
+    /** The constraint context containing constraint metadata and validation state */
+    val context: ConstraintContext<*>
 
     /** The formatted message text */
     val text: String
@@ -38,7 +38,7 @@ sealed interface Message {
     val input: Any? get() = context.input
 
     /** Named arguments passed to the message provider as pairs of (name, value) */
-    val args: List<Pair<String, Any?>> get() = context.args
+    val args: List<Pair<String, Any?>>
 
     /**
      * A simple text message without i18n support.
@@ -52,7 +52,8 @@ sealed interface Message {
     @ConsistentCopyVisibility
     data class Text internal constructor(
         /** The message context containing constraint metadata and validation state */
-        override val context: MessageContext<*>,
+        override val context: ConstraintContext<*>,
+        override val args: List<Pair<String, Any?>>,
         override val text: String,
     ) : Message {
         override fun toString(): String = toDescription()
@@ -77,12 +78,14 @@ sealed interface Message {
      */
     @ConsistentCopyVisibility
     data class Resource internal constructor(
-        /** The message context containing the constraint ID (used as resource key) and arguments for message formatting */
-        override val context: MessageContext<*>,
+        /** The message context containing the constraint ID (used as resource key) */
+        override val context: ConstraintContext<*>,
+        /** The message context containing arguments for formatting the resource message */
+        override val args: List<Pair<String, Any?>>,
     ) : Message {
         override val text: String by lazy {
             val pattern = getPattern(context.constraintId)
-            val newArgs = context.args.map { resolveArg(it.second) }
+            val newArgs = args.map { resolveArg(it.second) }
             MessageFormat.format(pattern, *newArgs.toTypedArray())
         }
 
@@ -113,18 +116,8 @@ sealed interface Message {
      * // Collection message with 2 element failures for "ab" at [0] and "cd" at [1]
      * ```
      *
-     * @property context The message context containing the constraint ID and validation state
-     * @property elements List of validation failures for individual elements that failed validation
      */
-    data class Collection(
-        /** The message context containing the constraint ID and validation state for the collection constraint */
-        override val context: MessageContext<*>,
-        val elements: List<ValidationResult.Failure<*>>,
-    ) : Message {
-        override val text: String get() = Resource(context).text
-
-        override fun toString(): String = toDescription()
-    }
+    data class Collection(val resource: Resource, val elements: List<ValidationResult.Failure<*>>) : Message by resource
 
     /**
      * A composite message representing a validation failure from the `or` operator.
@@ -148,15 +141,10 @@ sealed interface Message {
      * @property second The validation failure from the second branch of the `or` validator
      */
     data class Or(
-        /** The message context containing the constraint ID (typically "kova.or") and validation state */
-        override val context: MessageContext<*>,
+        val resource: Resource,
         val first: ValidationResult.Failure<*>,
         val second: ValidationResult.Failure<*>,
-    ) : Message {
-        override val text: String get() = Resource(context).text
-
-        override fun toString(): String = toDescription()
-    }
+    ) : Message by resource
 }
 
 private fun Message.toDescription() =

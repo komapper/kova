@@ -28,19 +28,19 @@ class MessageProviderTest :
             val input = "abc"
 
             test("text - index access") {
-                val provider = MessageProvider.text { "input=${input}, a0=${this[0]}" }
+                val provider = MessageProvider.text { "input=${input}, a0=${it[0]}" }
                 val message = provider("a0" to 10)(ConstraintContext(input = input))
                 message.text shouldBe "input=abc, a0=10"
             }
 
             test("text - key access") {
-                val provider = MessageProvider.text { "input=${input}, a0=${this["a0"]}" }
+                val provider = MessageProvider.text { "input=${input}, a0=${it["a0"]}" }
                 val message = provider("a0" to 10)(ConstraintContext(input = input))
                 message.text shouldBe "input=abc, a0=10"
             }
 
             test("text - key access - with validator") {
-                val validator = Kova.list<Int>().contains(10, MessageProvider.text { "must contain ${this["element"]}" })
+                val validator = Kova.list<Int>().contains(10, MessageProvider.text { "must contain ${it["element"]}" })
                 val result = validator.tryValidate(listOf(1, 2, 3, 4, 5))
                 result.isFailure().mustBeTrue()
                 result.messages.single().text shouldBe "must contain 10"
@@ -55,13 +55,13 @@ class MessageProviderTest :
 
         context("MessageProvider - 2 arguments") {
             test("text - index access") {
-                val provider = MessageProvider.text { "input=${input}, a0=${this[0]}, a1=${this[1]}" }
+                val provider = MessageProvider.text { "input=${input}, a0=${it[0]}, a1=${it[1]}" }
                 val message = provider("a0" to 10, "a1" to true)(ConstraintContext(input = "abc"))
                 message.text shouldBe "input=abc, a0=10, a1=true"
             }
 
             test("text - key access") {
-                val provider = MessageProvider.text { "input=${input}, a0=${this["a0"]}, a1=${this["a1"]}" }
+                val provider = MessageProvider.text { "input=${input}, a0=${it["a0"]}, a1=${it["a1"]}" }
                 val message = provider("a0" to 10, "a1" to true)(ConstraintContext(input = "abc"))
                 message.text shouldBe "input=abc, a0=10, a1=true"
             }
@@ -71,7 +71,7 @@ class MessageProviderTest :
                     Kova.list<Int>().min(
                         10,
                         MessageProvider.text {
-                            "Collection (actualSize ${this["actualSize"]}) must have at least ${this["minSize"]} elements"
+                            "Collection (actualSize ${it["actualSize"]}) must have at least ${it["minSize"]} elements"
                         },
                     )
                 val result = validator.tryValidate(listOf(1, 2, 3, 4, 5))

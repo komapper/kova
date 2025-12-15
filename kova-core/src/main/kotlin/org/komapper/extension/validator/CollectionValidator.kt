@@ -164,8 +164,7 @@ fun <E, C : Collection<E>> CollectionValidator<C>.onEach(validator: Validator<E,
         }
         val messages = failures.flatMap { it.messages }
         satisfies(messages.isEmpty()) {
-            val messageContext = createMessageContext("messages" to messages)
-            Message.Collection(messageContext, failures)
+            Message.Collection(Message.Resource(this, listOf("messages" to messages)), failures)
         }
     }
 
