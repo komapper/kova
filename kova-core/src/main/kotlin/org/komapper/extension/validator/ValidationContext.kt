@@ -27,6 +27,17 @@ data class ValidationContext(
      * Delegates to [ValidationConfig.clock].
      */
     val clock: Clock get() = config.clock
+
+    /**
+     * Executes the validation on the given input.
+     *
+     * @param input The value to validate
+     * @param this@execute The validation context tracking state and configuration
+     * @return A [ValidationResult] containing either the validated value or failure details
+     */
+    fun <IN, OUT> Validator<IN, OUT>.execute(input: IN): ValidationResult<OUT> = with(this) {
+        this@ValidationContext.execute(input)
+    }
 }
 
 /**
@@ -81,16 +92,18 @@ data class ValidationConfig(
  * @param obj The root object instance (used for circular reference detection)
  * @return A new context with the root initialized, or the same context if already set
  */
-fun ValidationContext.addRoot(
+inline fun <R> ValidationContext.addRoot(
     name: String,
     obj: Any?,
-): ValidationContext =
+    block: ValidationContext.() -> R
+): R = block(
     if (root.isEmpty()) {
         // initialize root
         copy(root = name, path = Path(name = "", obj = obj, parent = null))
     } else {
         this
     }
+)
 
 /**
  * Adds a path segment for nested validation.
@@ -112,10 +125,11 @@ fun ValidationContext.addRoot(
  * @param obj The object at this path (used for circular reference detection)
  * @return A new context with the extended path
  */
-fun ValidationContext.addPath(
+inline fun <R> ValidationContext.addPath(
     name: String,
     obj: Any?,
-): ValidationContext {
+    block: ValidationContext.() -> R
+): R {
     val parent = this.path
     val path =
         parent.copy(
@@ -123,7 +137,7 @@ fun ValidationContext.addPath(
             obj = obj,
             parent = parent,
         )
-    return copy(path = path)
+    return block(copy(path = path))
 }
 
 /**
@@ -171,21 +185,15 @@ fun ValidationContext.bindObject(obj: Any?): ValidationContext {
  * @param obj The object at this path (checked for circular references)
  * @return Success with extended path, or Failure if circular reference detected
  */
-fun <T> ValidationContext.addPathChecked(
+inline fun <T, R> ValidationContext.addPathChecked(
     name: String,
     obj: T,
-): ValidationResult<ValidationContext> {
+    block: ValidationContext.() -> R
+): R? {
     val parent = this.path
     // Check for circular reference
-    if (obj != null && parent.containsObject(obj)) {
-        // Return failure to signal circular reference detection
-        // The caller will convert this to success and terminate validation
-        val constraintContext = createConstraintContext(obj, "kova.circularReference")
-        val messageContext = constraintContext.createMessageContext(emptyList())
-        val message = Message.Text(messageContext, "Circular reference detected.")
-        return ValidationResult.Failure(Input.Available(this), listOf(message))
-    }
-    return ValidationResult.Success(addPath(name, obj))
+    if (obj != null && parent.containsObject(obj)) return null
+    return addPath(name, obj, block)
 }
 
 /**
@@ -203,9 +211,9 @@ fun <T> ValidationContext.addPathChecked(
  * @param text The text to append to the current path name
  * @return A new context with the modified path name
  */
-fun ValidationContext.appendPath(text: String): ValidationContext {
+inline fun <R> ValidationContext.appendPath(text: String, block: ValidationContext.() -> R): R {
     val path = this.path.copy(name = this.path.name + text)
-    return copy(path = path)
+    return block(copy(path = path))
 }
 
 /**

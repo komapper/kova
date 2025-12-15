@@ -30,15 +30,15 @@ typealias ConstraintValidator<T> = IdentityValidator<T>
  * @return A validator that checks the constraint and returns the input unchanged if satisfied
  */
 fun <T> ConstraintValidator(constraint: Constraint<T>): ConstraintValidator<T> =
-    Validator { input, context ->
-        val constraintContext = context.createConstraintContext(input, constraint.id)
+    Validator { input ->
+        val constraintContext = createConstraintContext(input, constraint.id)
         when (val result = constraint.apply(constraintContext)) {
             is ConstraintResult.Satisfied -> {
-                context.log {
+                log {
                     LogEntry.Satisfied(
                         constraintId = constraint.id,
-                        root = context.root,
-                        path = context.path.fullName,
+                        root = root,
+                        path = path.fullName,
                         input = input,
                     )
                 }
@@ -46,11 +46,11 @@ fun <T> ConstraintValidator(constraint: Constraint<T>): ConstraintValidator<T> =
             }
 
             is ConstraintResult.Violated -> {
-                context.log {
+                log {
                     LogEntry.Violated(
                         constraintId = constraint.id,
-                        root = context.root,
-                        path = context.path.fullName,
+                        root = root,
+                        path = path.fullName,
                         input = input,
                         args = result.message.args,
                     )

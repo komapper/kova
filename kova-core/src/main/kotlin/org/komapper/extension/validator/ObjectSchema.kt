@@ -51,33 +51,27 @@ open class ObjectSchema<T : Any>(
         this.ruleMap = ruleMap
     }
 
-    override fun execute(
-        input: T,
-        context: ValidationContext,
-    ): ValidationResult<T> {
+    override fun ValidationContext.execute(input: T): ValidationResult<T> {
         val klass = input::class
         val rootName = klass.qualifiedName ?: klass.simpleName ?: klass.toString()
-        val context = context.addRoot(rootName, input)
-        val ruleResult = applyRules(input, context, ruleMap)
-        val constraintResult = applyConstraints(input, context, constraints)
-        if (context.failFast && ruleResult.isFailure()) {
-            return ruleResult
+        addRoot(rootName, input) {
+            val ruleResult = applyRules(input, ruleMap)
+            val constraintResult = applyConstraints(input, constraints)
+            if (failFast && ruleResult.isFailure()) {
+                return ruleResult
+            }
+            if (failFast && constraintResult.isFailure()) {
+                return constraintResult
+            }
+            return ruleResult + constraintResult
         }
-        if (context.failFast && constraintResult.isFailure()) {
-            return constraintResult
-        }
-        return ruleResult + constraintResult
     }
 
-    private fun applyRules(
-        input: T,
-        context: ValidationContext,
-        ruleMap: Map<KProperty1<T, *>, Rule>,
-    ): ValidationResult<T> {
+    private fun ValidationContext.applyRules(input: T, ruleMap: Map<KProperty1<T, *>, Rule>): ValidationResult<T> {
         val results = mutableListOf<ValidationResult<T>>()
         for ((key, rule) in ruleMap) {
-            val result = applyRule(input, context, key, rule)
-            if (result.isFailure() && context.failFast) {
+            val result = applyRule(input, key, rule)
+            if (result.isFailure() && failFast) {
                 return result
             }
             results.add(result)
@@ -85,37 +79,23 @@ open class ObjectSchema<T : Any>(
         return results.fold(ValidationResult.Success(input), ValidationResult<T>::plus)
     }
 
-    private fun applyRule(
-        input: T,
-        context: ValidationContext,
-        key: KProperty1<T, *>,
-        rule: Rule,
-    ): ValidationResult<T> {
+    private fun ValidationContext.applyRule(input: T, key: KProperty1<T, *>, rule: Rule): ValidationResult<T> {
         val value = rule.transform(input)
         val validator = rule.choose(input)
-        val pathResult = context.addPathChecked(key.name, value)
-        return when (pathResult) {
-            is ValidationResult.Success -> {
-                when (val result = validator.execute(value, pathResult.value)) {
-                    is ValidationResult.Success -> ValidationResult.Success(input)
-                    is ValidationResult.Failure -> ValidationResult.Failure(Input.Available(input), result.messages)
-                }
+        return addPathChecked(key.name, value) {
+            when (val result = validator.execute(value)) {
+                is ValidationResult.Success -> ValidationResult.Success(input)
+                is ValidationResult.Failure -> ValidationResult.Failure(Input.Available(input), result.messages)
             }
-            // If circular reference detected, terminate validation early with success
-            is ValidationResult.Failure -> ValidationResult.Success(input)
-        }
+        } ?: ValidationResult.Success(input) // If circular reference detected, terminate validation early with success
     }
 
-    private fun applyConstraints(
-        input: T,
-        context: ValidationContext,
-        constraints: List<Constraint<T>>,
-    ): ValidationResult<T> {
+    private fun ValidationContext.applyConstraints(input: T, constraints: List<Constraint<T>>): ValidationResult<T> {
         val validator =
             constraints
                 .map { ConstraintValidator(it) }
                 .fold(Validator.success<T>()) { acc, v -> acc + v }
-        return validator.execute(input, context)
+        return validator.execute(input)
     }
 
     /**
@@ -191,10 +171,7 @@ open class ObjectSchema<T : Any>(
     infix fun and(other: ObjectSchema<T>): ObjectSchema<T> {
         val composed = (this as IdentityValidator<T>) and other
         return object : ObjectSchema<T>() {
-            override fun execute(
-                input: T,
-                context: ValidationContext,
-            ): ValidationResult<T> = composed.execute(input, context)
+            override fun ValidationContext.execute(input: T): ValidationResult<T> = composed.execute(input)
         }
     }
 
@@ -225,10 +202,7 @@ open class ObjectSchema<T : Any>(
     infix fun or(other: ObjectSchema<T>): ObjectSchema<T> {
         val composed = (this as IdentityValidator<T>) or other
         return object : ObjectSchema<T>() {
-            override fun execute(
-                input: T,
-                context: ValidationContext,
-            ): ValidationResult<T> = composed.execute(input, context)
+            override fun ValidationContext.execute(input: T): ValidationResult<T> = composed.execute(input)
         }
     }
 }

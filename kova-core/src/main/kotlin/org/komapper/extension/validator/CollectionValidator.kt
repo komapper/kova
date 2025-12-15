@@ -157,7 +157,7 @@ fun <E, C : Collection<E>> CollectionValidator<C>.onEach(validator: Validator<E,
         val failures = mutableListOf<ValidationResult.Failure<*>>()
         for ((i, element) in constraintContext.input.withIndex()) {
             val path = "[$i]<collection element>"
-            val result = validator.execute(element, validationContext.appendPath(path))
+            val result = validationContext.appendPath(path) { validator.execute(element) }
             if (result.isFailure()) {
                 failures.add(result)
                 if (validationContext.failFast) {

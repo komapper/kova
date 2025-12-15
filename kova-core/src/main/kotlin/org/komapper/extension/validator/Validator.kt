@@ -23,10 +23,7 @@ fun interface Validator<IN, OUT> {
      * @param context The validation context tracking state and configuration
      * @return A [ValidationResult] containing either the validated value or failure details
      */
-    fun execute(
-        input: IN,
-        context: ValidationContext,
-    ): ValidationResult<OUT>
+    fun ValidationContext.execute(input: IN): ValidationResult<OUT>
 
     companion object {
         /**
@@ -43,7 +40,7 @@ fun interface Validator<IN, OUT> {
          *
          * @return An identity validator that always succeeds
          */
-        fun <T> success() = IdentityValidator<T> { input, context -> Success(input) }
+        fun <T> success() = IdentityValidator<T> { input -> Success(input) }
     }
 }
 
@@ -69,7 +66,7 @@ fun interface Validator<IN, OUT> {
 fun <IN, OUT> Validator<IN, OUT>.tryValidate(
     input: IN,
     config: ValidationConfig = ValidationConfig(),
-): ValidationResult<OUT> = execute(input, ValidationContext(config = config))
+): ValidationResult<OUT> = ValidationContext(config = config).execute(input)
 
 /**
  * Validates the input and returns the validated value, or throws an exception on failure.
@@ -97,7 +94,7 @@ fun <IN, OUT> Validator<IN, OUT>.validate(
     input: IN,
     config: ValidationConfig = ValidationConfig(),
 ): OUT =
-    when (val result = execute(input, ValidationContext(config = config))) {
+    when (val result = ValidationContext(config = config).execute(input)) {
         is Success<OUT> -> result.value
         is Failure<*> -> throw ValidationException(result.messages)
     }
@@ -130,21 +127,10 @@ operator fun <IN, OUT> Validator<IN, OUT>.plus(other: Validator<IN, OUT>): Valid
  */
 infix fun <IN, OUT> Validator<IN, OUT>.and(other: Validator<IN, OUT>): Validator<IN, OUT> {
     val self = this
-    return Validator { input, context ->
-        when (val selfResult = self.execute(input, context)) {
-            is Success -> {
-                val otherResult = other.execute(input, context)
-                selfResult + otherResult
-            }
-
-            is Failure -> {
-                if (context.failFast) {
-                    selfResult
-                } else {
-                    val otherResult = other.execute(input, context)
-                    selfResult + otherResult
-                }
-            }
+    return Validator { input ->
+        when (val selfResult = self.execute(input)) {
+            is Failure if failFast -> selfResult
+            else -> selfResult + other.execute(input)
         }
     }
 }
@@ -184,14 +170,14 @@ fun <IN, OUT> Validator<IN, OUT>.and(block: (Validator<IN, IN>) -> Validator<IN,
  */
 infix fun <IN, OUT> Validator<IN, OUT>.or(other: Validator<IN, OUT>): Validator<IN, OUT> {
     val self = this
-    return Validator { input, context ->
-        when (val selfResult = self.execute(input, context)) {
+    return Validator { input ->
+        when (val selfResult = self.execute(input)) {
             is Success -> selfResult
             is Failure -> {
-                when (val otherResult = other.execute(input, context)) {
+                when (val otherResult = other.execute(input)) {
                     is Success -> otherResult
                     is Failure -> {
-                        val constraintContext = context.createConstraintContext(input, "kova.or")
+                        val constraintContext = createConstraintContext(input, "kova.or")
                         val messageContext =
                             constraintContext.createMessageContext(listOf("first" to selfResult.messages, "second" to otherResult.messages))
                         Failure(otherResult.value, listOf(Message.Or(messageContext, selfResult, otherResult)))
@@ -241,8 +227,8 @@ inline fun <IN, reified OUT, reified NEW> Validator<IN, OUT>.map(noinline transf
     val self = this
     val outClass = OUT::class
     val newClass = NEW::class
-    return Validator { input, context ->
-        when (val result = self.execute(input, context)) {
+    return Validator { input ->
+        when (val result = self.execute(input)) {
             is Success -> Success(transform(result.value))
             is Failure -> {
                 val failureValue =
@@ -279,12 +265,8 @@ inline fun <IN, reified OUT, reified NEW> Validator<IN, OUT>.map(noinline transf
  */
 fun <IN, OUT> Validator<IN, OUT>.name(name: String): Validator<IN, OUT> {
     val self = this
-    return Validator { input, context ->
-        val context = context.addPath(name, input)
-        when (val result = self.execute(input, context)) {
-            is Success -> Success(result.value)
-            is Failure -> result
-        }
+    return Validator { input ->
+        addPath(name, input) { self.execute(input) }
     }
 }
 
@@ -340,9 +322,9 @@ fun <IN, OUT, NEW> Validator<OUT, NEW>.compose(block: (Validator<IN, IN>) -> Val
  */
 fun <IN, OUT, NEW> Validator<IN, OUT>.then(after: Validator<OUT, NEW>): Validator<IN, NEW> {
     val before = this
-    return Validator { input, context ->
-        when (val result = before.execute(input, context)) {
-            is Success -> after.execute(result.value, context)
+    return Validator { input ->
+        when (val result = before.execute(input)) {
+            is Success -> after.execute(result.value)
             is Failure -> {
                 val value =
                     when (val v = result.value) {
@@ -395,8 +377,8 @@ fun <IN, OUT, NEW> Validator<IN, OUT>.then(block: (Validator<OUT, OUT>) -> Valid
  * @return A new nullable validator that accepts null input
  */
 fun <T : Any, S : Any> Validator<T, S>.asNullable(): NullableValidator<T, S> =
-    Validator { input, context ->
-        if (input == null) Success(null) else execute(input, context)
+    Validator { input ->
+        if (input == null) Success(null) else execute(input)
     }
 
 /**
@@ -435,8 +417,8 @@ fun <T : Any, S : Any> Validator<T, S>.asNullable(defaultValue: S): NullCoalesci
  * @return A new validator that accepts null input but produces non-nullable output
  */
 fun <T : Any, S : Any> Validator<T, S>.asNullable(withDefault: () -> S): NullCoalescingValidator<T, S> =
-    Validator { input, context ->
-        if (input == null) Success(withDefault()) else execute(input, context)
+    Validator { input ->
+        if (input == null) Success(withDefault()) else execute(input)
     }
 
 /**
@@ -478,11 +460,11 @@ fun <T : Any, S : Any> Validator<T, S>.asNullable(withDefault: () -> S): NullCoa
  * @see withMessage for a simpler overload that accepts a static string message
  */
 fun <T, S> Validator<T, S>.withMessage(block: (List<Message>) -> MessageProvider): Validator<T, S> =
-    Validator { input, context ->
-        when (val result = execute(input, context)) {
+    Validator { input ->
+        when (val result = execute(input)) {
             is Success -> result
             is Failure -> {
-                val constraintContext = context.createConstraintContext(input, "kova.withMessage")
+                val constraintContext = createConstraintContext(input, "kova.withMessage")
                 val messageProvider = block(result.messages)
                 val messageGenerator = messageProvider("messages" to result.messages)
                 val message = messageGenerator(constraintContext)
