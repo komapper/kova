@@ -1,7 +1,5 @@
 package org.komapper.extension.validator
 
-import java.time.Clock
-
 /**
  * Represents a validation constraint that can be applied to a value.
  *
@@ -31,19 +29,8 @@ import java.time.Clock
  */
 data class Constraint<T>(
     val id: String,
-    val check: ConstraintScope<T>.(ConstraintContext<T>) -> ConstraintResult,
+    val check: ConstraintContext<T>.() -> ConstraintResult,
 ) {
-    /**
-     * Applies this constraint to the given context.
-     *
-     * @param context The constraint context containing the input value
-     * @return The result of the constraint check
-     */
-    fun apply(context: ConstraintContext<T>): ConstraintResult {
-        val scope = ConstraintScope(context)
-        return scope.check(context)
-    }
-
     companion object {
         /**
          * Creates a constraint that is always satisfied.
@@ -74,76 +61,11 @@ data class Constraint<T>(
  * @property constraintId Optional identifier for this specific constraint check
  * @property validationContext The broader validation context
  */
-data class ConstraintContext<T>(
+class ConstraintContext<T>(
     val input: T,
-    val constraintId: String = "",
-    val validationContext: ValidationContext = ValidationContext(),
-) {
-    /** The root object's qualified class name */
-    val root: String get() = validationContext.root
-
-    /** The current validation path */
-    val path: Path get() = validationContext.path
-
-    /** Whether validation should stop at the first failure */
-    val failFast: Boolean get() = validationContext.failFast
-
-    /**
-     * The clock used for temporal validation constraints.
-     *
-     * This clock is used by temporal extension functions (past, future, pastOrPresent, futureOrPresent)
-     * to determine the current time for comparison. Defaults to the system clock, but can be configured
-     * via [ValidationConfig] for testing purposes.
-     *
-     * Example usage in temporal constraints:
-     * ```kotlin
-     * constrain("kova.temporal.future") { ctx ->
-     *     satisfies(ctx.input > LocalDate.now(ctx.clock), "Date must be in the future")
-     * }
-     * ```
-     */
-    val clock: Clock get() = validationContext.clock
-}
-
-/**
- * Result of applying a constraint to a value.
- *
- * Either [Satisfied] if the constraint passes, or [Violated] if it fails.
- */
-sealed interface ConstraintResult {
-    /**
-     * Indicates that the constraint was satisfied.
-     */
-    object Satisfied : ConstraintResult
-
-    /**
-     * Indicates that the constraint was violated.
-     *
-     * @property message The error message describing why the constraint failed
-     */
-    data class Violated(
-        val message: Message,
-    ) : ConstraintResult
-}
-
-/**
- * Scope available within constraint validation logic.
- *
- * Provides helper methods for evaluating conditions and producing constraint results.
- *
- * Example usage:
- * ```kotlin
- * constrain("range") { context ->
- *     satisfies(
- *         context.input in 1..100,
- *         "Value must be between 1 and 100"
- *     )
- * }
- * ```
- */
-class ConstraintScope<T>(
-    private val context: ConstraintContext<T>,
-) {
+    val constraintId: String,
+    validationContext: ValidationContext
+): ValidationContext by validationContext {
     /**
      * Evaluates a condition and returns the appropriate constraint result.
      *
@@ -174,12 +96,12 @@ class ConstraintScope<T>(
      */
     fun satisfies(
         condition: Boolean,
-        message: (ConstraintContext<*>) -> Message,
+        message: ConstraintContext<*>.() -> Message,
     ): ConstraintResult =
         if (condition) {
             ConstraintResult.Satisfied
         } else {
-            ConstraintResult.Violated(message(context))
+            ConstraintResult.Violated(message())
         }
 
     /**
@@ -219,7 +141,32 @@ class ConstraintScope<T>(
         }
 }
 
-fun <T> ConstraintContext<T>.createMessageContext(args: List<Pair<String, Any?>>): MessageContext<T> = MessageContext(args, this)
+/**
+ * Result of applying a constraint to a value.
+ *
+ * Either [Satisfied] if the constraint passes, or [Violated] if it fails.
+ */
+sealed interface ConstraintResult {
+    /**
+     * Indicates that the constraint was satisfied.
+     */
+    object Satisfied : ConstraintResult
+
+    /**
+     * Indicates that the constraint was violated.
+     *
+     * @property message The error message describing why the constraint failed
+     */
+    data class Violated(
+        val message: Message,
+    ) : ConstraintResult
+}
+
+fun <T> ConstraintContext<T>.createMessageContext(args: List<Pair<String, Any?>>): MessageContext<T> =
+    MessageContext(args, this)
+
+fun <T> ConstraintContext<T>.createMessageContext(vararg args: Pair<String, Any?>): MessageContext<T> =
+    MessageContext(args.toList(), this)
 
 /**
  * Creates a text-based validation message.

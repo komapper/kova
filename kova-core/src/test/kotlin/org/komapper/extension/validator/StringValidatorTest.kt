@@ -32,7 +32,7 @@ class StringValidatorTest :
         context("constrain") {
             val validator =
                 Kova.string().constrain("test") {
-                    satisfies(it.input == "OK", it.text("Constraint failed"))
+                    satisfies(input == "OK", text("Constraint failed"))
                 }
 
             test("success") {

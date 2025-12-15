@@ -33,7 +33,7 @@ typealias NumberValidator<T> = IdentityValidator<T>
  */
 fun <T : Number> NumberValidator<T>.positive(message: MessageProvider = MessageProvider.resource()): NumberValidator<T> =
     constrain("kova.number.positive") {
-        satisfies(it.input.toDouble() > 0.0, message())
+        satisfies(input.toDouble() > 0.0, message())
     }
 
 /**
@@ -52,7 +52,7 @@ fun <T : Number> NumberValidator<T>.positive(message: MessageProvider = MessageP
  */
 fun <T : Number> NumberValidator<T>.negative(message: MessageProvider = MessageProvider.resource()): NumberValidator<T> =
     constrain("kova.number.negative") {
-        satisfies(it.input.toDouble() < 0.0, message())
+        satisfies(input.toDouble() < 0.0, message())
     }
 
 /**
@@ -71,7 +71,7 @@ fun <T : Number> NumberValidator<T>.negative(message: MessageProvider = MessageP
  */
 fun <T : Number> NumberValidator<T>.notPositive(message: MessageProvider = MessageProvider.resource()): NumberValidator<T> =
     constrain("kova.number.notPositive") {
-        satisfies(it.input.toDouble() <= 0.0, message())
+        satisfies(input.toDouble() <= 0.0, message())
     }
 
 /**
@@ -90,5 +90,5 @@ fun <T : Number> NumberValidator<T>.notPositive(message: MessageProvider = Messa
  */
 fun <T : Number> NumberValidator<T>.notNegative(message: MessageProvider = MessageProvider.resource()): NumberValidator<T> =
     constrain("kova.number.notNegative") {
-        satisfies(it.input.toDouble() >= 0.0, message())
+        satisfies(input.toDouble() >= 0.0, message())
     }

@@ -26,7 +26,7 @@ typealias IdentityValidator<T> = Validator<T, T>
  * Example:
  * ```kotlin
  * val validator = Kova.string().constrain("alphanumeric") {
- *     satisfies(it.input.all { c -> c.isLetterOrDigit() }, "Must be alphanumeric")
+ *     satisfies(input.all { c -> c.isLetterOrDigit() }, "Must be alphanumeric")
  * }
  * ```
  *
@@ -36,7 +36,7 @@ typealias IdentityValidator<T> = Validator<T, T>
  */
 fun <T> IdentityValidator<T>.constrain(
     id: String,
-    check: ConstraintScope<T>.(ConstraintContext<T>) -> ConstraintResult,
+    check: ConstraintContext<T>.() -> ConstraintResult,
 ): IdentityValidator<T> = chain(ConstraintValidator(Constraint(id, check)))
 
 /**
@@ -99,7 +99,7 @@ fun <T> IdentityValidator<T>.literal(
     value: T,
     message: MessageProvider = MessageProvider.resource(),
 ) = constrain("kova.literal.single") {
-    satisfies(it.input == value, message("value" to value))
+    satisfies(input == value, message("value" to value))
 }
 
 /**
@@ -120,7 +120,7 @@ fun <T> IdentityValidator<T>.literal(
     values: List<T>,
     message: MessageProvider = MessageProvider.resource(),
 ) = constrain("kova.literal.list") {
-    satisfies(it.input in values, message("values" to values))
+    satisfies(input in values, message("values" to values))
 }
 
 /**

@@ -13,11 +13,11 @@ import java.time.Clock
  * @property path The current validation path, tracking nested objects and circular references
  * @property config Validation configuration settings
  */
-data class ValidationContext(
-    val root: String = "",
-    val path: Path = Path(name = "", obj = null, parent = null),
-    val config: ValidationConfig = ValidationConfig(),
-) {
+interface ValidationContext {
+    val root: String
+    val path: Path
+    val config: ValidationConfig
+
     /** Whether validation should stop at the first failure. */
     val failFast: Boolean get() = config.failFast
 
@@ -38,6 +38,23 @@ data class ValidationContext(
     fun <IN, OUT> Validator<IN, OUT>.execute(input: IN): ValidationResult<OUT> = with(this) {
         this@ValidationContext.execute(input)
     }
+
+    fun copy(root: String = this.root, path: Path = this.path): ValidationContext =
+        ValidationContext(root, path, config)
+
+    companion object {
+        operator fun invoke(
+            root: String = "",
+            path: Path = Path(name = "", obj = null, parent = null),
+            config: ValidationConfig = ValidationConfig(),
+        ): ValidationContext = Impl(root, path, config)
+    }
+
+    data class Impl(
+        override val root: String,
+        override val path: Path,
+        override val config: ValidationConfig,
+    ) : ValidationContext
 }
 
 /**

@@ -164,8 +164,8 @@ class ObjectSchemaTest :
                 object : ObjectSchema<Period>({
                     constrain("test") {
                         satisfies(
-                            it.input.startDate <= it.input.endDate,
-                            it.text("startDate must be less than or equal to endDate"),
+                            input.startDate <= input.endDate,
+                            text("startDate must be less than or equal to endDate"),
                         )
                     }
                 }) {}

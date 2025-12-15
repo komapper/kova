@@ -31,8 +31,7 @@ typealias ConstraintValidator<T> = IdentityValidator<T>
  */
 fun <T> ConstraintValidator(constraint: Constraint<T>): ConstraintValidator<T> =
     Validator { input ->
-        val constraintContext = createConstraintContext(input, constraint.id)
-        when (val result = constraint.apply(constraintContext)) {
+        when (val result = constraint.check(createConstraintContext(input, constraint.id))) {
             is ConstraintResult.Satisfied -> {
                 log {
                     LogEntry.Satisfied(

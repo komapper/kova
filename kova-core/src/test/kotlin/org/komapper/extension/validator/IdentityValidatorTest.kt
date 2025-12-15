@@ -131,7 +131,7 @@ class IdentityValidatorTest :
         context("constrain") {
             val validator =
                 Kova.int().constrain("even") {
-                    satisfies(it.input % 2 == 0, it.text("input must be even"))
+                    satisfies(input % 2 == 0, text("input must be even"))
                 }
 
             test("failure") {
@@ -145,7 +145,7 @@ class IdentityValidatorTest :
         context("constrain with extension function") {
             fun IdentityValidator<Int>.even() =
                 constrain("even") {
-                    satisfies(it.input % 2 == 0, it.text("input must be even"))
+                    satisfies(input % 2 == 0, text("input must be even"))
                 }
             val validator = Kova.int().even()
 

@@ -27,7 +27,7 @@ fun <C : Collection<*>> CollectionValidator<C>.min(
     size: Int,
     message: MessageProvider = MessageProvider.resource(),
 ) = constrain("kova.collection.min") {
-    satisfies(it.input.size >= size, message("actualSize" to it.input.size, "minSize" to size))
+    satisfies(input.size >= size, message("actualSize" to input.size, "minSize" to size))
 }
 
 /**
@@ -48,7 +48,7 @@ fun <C : Collection<*>> CollectionValidator<C>.max(
     size: Int,
     message: MessageProvider = MessageProvider.resource(),
 ) = constrain("kova.collection.max") {
-    satisfies(it.input.size <= size, message("actualSize" to it.input.size, "maxSize" to size))
+    satisfies(input.size <= size, message("actualSize" to input.size, "maxSize" to size))
 }
 
 /**
@@ -66,7 +66,7 @@ fun <C : Collection<*>> CollectionValidator<C>.max(
  */
 fun <C : Collection<*>> CollectionValidator<C>.notEmpty(message: MessageProvider = MessageProvider.resource()) =
     constrain("kova.collection.notEmpty") {
-        satisfies(it.input.isNotEmpty(), message())
+        satisfies(input.isNotEmpty(), message())
     }
 
 /**
@@ -87,7 +87,7 @@ fun <C : Collection<*>> CollectionValidator<C>.length(
     size: Int,
     message: MessageProvider = MessageProvider.resource(),
 ) = constrain("kova.collection.length") {
-    satisfies(it.input.size == size, message("actualSize" to it.input.size, "expectedSize" to size))
+    satisfies(input.size == size, message("actualSize" to input.size, "expectedSize" to size))
 }
 
 /**
@@ -108,7 +108,7 @@ fun <E, C : Collection<E>> CollectionValidator<C>.contains(
     element: E,
     message: MessageProvider = MessageProvider.resource(),
 ) = constrain("kova.collection.contains") {
-    satisfies(it.input.contains(element), message("element" to element))
+    satisfies(input.contains(element), message("element" to element))
 }
 
 /**
@@ -129,7 +129,7 @@ fun <E, C : Collection<E>> CollectionValidator<C>.notContains(
     element: E,
     message: MessageProvider = MessageProvider.resource(),
 ) = constrain("kova.collection.notContains") {
-    satisfies(!it.input.contains(element), message("element" to element))
+    satisfies(!input.contains(element), message("element" to element))
 }
 
 /**
@@ -152,22 +152,19 @@ fun <E, C : Collection<E>> CollectionValidator<C>.notContains(
  * @return A new validator with per-element validation
  */
 fun <E, C : Collection<E>> CollectionValidator<C>.onEach(validator: Validator<E, *>) =
-    constrain("kova.collection.onEach") { constraintContext ->
-        val validationContext = constraintContext.validationContext
+    constrain("kova.collection.onEach") {
         val failures = mutableListOf<ValidationResult.Failure<*>>()
-        for ((i, element) in constraintContext.input.withIndex()) {
+        for ((i, element) in input.withIndex()) {
             val path = "[$i]<collection element>"
-            val result = validationContext.appendPath(path) { validator.execute(element) }
+            val result = appendPath(path) { validator.execute(element) }
             if (result.isFailure()) {
                 failures.add(result)
-                if (validationContext.failFast) {
-                    break
-                }
+                if (failFast) break
             }
         }
         val messages = failures.flatMap { it.messages }
         satisfies(messages.isEmpty()) {
-            val messageContext = it.createMessageContext(listOf("messages" to messages))
+            val messageContext = createMessageContext("messages" to messages)
             Message.Collection(messageContext, failures)
         }
     }

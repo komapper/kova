@@ -27,7 +27,7 @@ typealias NullableValidator<T, S> = Validator<T?, S?>
  * ```kotlin
  * val validator = Kova.string().asNullable()
  *     .constrain("custom") {
- *         satisfies(it.input == null || it.input.length >= 3, "Must be null or at least 3 chars")
+ *         satisfies(input == null || input.length >= 3, "Must be null or at least 3 chars")
  *     }
  * ```
  *
@@ -37,7 +37,7 @@ typealias NullableValidator<T, S> = Validator<T?, S?>
  */
 fun <T : Any, S : Any> NullableValidator<T, S>.constrain(
     id: String,
-    check: ConstraintScope<T?>.(ConstraintContext<T?>) -> ConstraintResult,
+    check: ConstraintContext<T?>.() -> ConstraintResult,
 ): NullableValidator<T, S> = compose(ConstraintValidator(Constraint(id, check)))
 
 /**
@@ -57,7 +57,7 @@ fun <T : Any, S : Any> NullableValidator<T, S>.constrain(
  */
 fun <T : Any, S : Any> NullableValidator<T, S>.isNull(message: MessageProvider = MessageProvider.resource()): NullableValidator<T, S> =
     constrain("kova.nullable.isNull") {
-        satisfies(it.input == null, message())
+        satisfies(input == null, message())
     }
 
 /**
@@ -99,7 +99,7 @@ fun <T : Any, S : Any> NullableValidator<T, S>.isNullOr(block: (Validator<T, T>)
  */
 fun <T : Any, S : Any> NullableValidator<T, S>.notNull(message: MessageProvider = MessageProvider.resource()): NullableValidator<T, S> =
     constrain("kova.nullable.notNull") {
-        satisfies(it.input != null, message())
+        satisfies(input != null, message())
     }
 
 /**
