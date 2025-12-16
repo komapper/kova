@@ -17,7 +17,7 @@ package org.komapper.extension.validator
  *     length: Int,
  *     message: MessageProvider = MessageProvider.resource()
  * ) = constrain("kova.string.min") {
- *     satisfies(it.input.length >= length, message("input" to it.input, "length" to length))
+ *     satisfies(input.length >= length, message("input" to input, "length" to length))
  * }
  *
  * // Using custom text message provider with named argument access
@@ -27,7 +27,7 @@ package org.komapper.extension.validator
  *         "String '${ctx.input}' is too short. Minimum length is ${ctx["length"]}"
  *     }
  * ) = constrain("custom.min") {
- *     satisfies(it.input.length >= length, message("length" to length))
+ *     satisfies(input.length >= length, message("length" to length))
  * }
  *
  * // Arguments can also be accessed by index
@@ -37,7 +37,7 @@ package org.komapper.extension.validator
  * ```
  *
  */
-interface MessageProvider {
+fun interface MessageProvider {
     /**
      * Creates a message factory for a constraint violation.
      *
@@ -45,14 +45,14 @@ interface MessageProvider {
      * It accepts named arguments as pairs (name to value) for message formatting and returns a
      * function that generates a [Message] from a [ConstraintContext].
      *
-     * The arguments can be accessed in message templates either by name using [MessageContext.get]
-     * with a String key, or by index using [MessageContext.get] with an Int. Both access methods
+     * The arguments can be accessed in message templates either by name using [Array.get]
+     * with a String key, or by index using [Array.get] with an Int. Both access methods
      * are fully supported.
      *
      * @param args Named arguments for message formatting as pairs of (name, value)
      * @return A function that accepts a ConstraintContext and returns a Message object
      */
-    operator fun invoke(vararg args: Pair<String, Any?>): (ConstraintContext<*>) -> Message
+    operator fun invoke(vararg args: Pair<String, Any?>): ConstraintContext<*>.() -> Message
 
     companion object : MessageProviderFactory
 }
@@ -79,11 +79,11 @@ interface MessageProviderFactory {
      * Creates a message provider that generates text messages.
      *
      * Text messages are created dynamically using the provided lambda function,
-     * which receives a [MessageContext] with access to the input value, named arguments,
+     * which receives a [MessageArguments] with access to the input value, named arguments,
      * and validation state.
      *
-     * Arguments passed to the provider can be accessed either by name using [MessageContext.get]
-     * with a String key, or by index using [MessageContext.get] with an Int. Both access methods
+     * Arguments passed to the provider can be accessed either by name using [MessageArguments.get]
+     * with a String key, or by index using [MessageArguments.get] with an Int. Both access methods
      * are fully supported, and you can choose the one that best fits your use case.
      *
      * Example with named argument access:
@@ -105,14 +105,12 @@ interface MessageProviderFactory {
      * @param format Lambda that formats the message text from the context
      * @return A MessageProvider that creates Text messages
      */
-    fun text(format: (MessageContext<*>) -> String): MessageProvider =
-        object : MessageProvider {
-            override fun invoke(vararg args: Pair<String, Any?>): (ConstraintContext<*>) -> Message =
-                {
-                    val messageContext = it.createMessageContext(args.toList())
-                    Message.Text(messageContext, format(messageContext))
-                }
+    fun text(format: ConstraintContext<*>.(MessageArguments) -> String): MessageProvider = MessageProvider {
+        {
+            val args = it.asList()
+            Message.Text(this, args, format(MessageArguments(args)))
         }
+    }
 
     /**
      * Creates a message provider that loads messages from resource bundles.
@@ -144,21 +142,13 @@ interface MessageProviderFactory {
      *
      * @return A MessageProvider that creates Resource messages
      */
-    fun resource(): MessageProvider =
-        object : MessageProvider {
-            override fun invoke(vararg args: Pair<String, Any?>): (ConstraintContext<*>) -> Message =
-                {
-                    it
-                    val messageContext = it.createMessageContext(args.toList())
-                    Message.Resource(messageContext)
-                }
-        }
+    fun resource(): MessageProvider = MessageProvider { { Message.Resource(this, it.asList()) } }
 }
 
 /**
  * Context information available when generating error messages.
  *
- * MessageContext provides access to the input value, named arguments, constraint ID,
+ * MessageArguments provides access to the input value, named arguments, constraint ID,
  * and validation state. It is passed to message provider lambdas to enable
  * contextual error message generation.
  *
@@ -186,31 +176,14 @@ interface MessageProviderFactory {
  * Example usage with index access:
  * ```kotlin
  * val provider = MessageProvider.text { ctx ->
- *     "Value '${ctx.input}' must be at least ${ctx[0]} characters"
+ *     "Value '${input}' must be at least ${ctx[0]} characters"
  * }
  * // Usage: provider("minLength" to 5)
  * ```
  *
- * @param T The type of the input value being validated
  * @property args Named arguments passed to the message provider as pairs of (name, value)
- * @property constraintContext The underlying constraint context
  */
-data class MessageContext<T>(
-    val args: List<Pair<String, Any?>> = emptyList(),
-    private val constraintContext: ConstraintContext<T>,
-) {
-    /** The input value being validated */
-    val input: T get() = constraintContext.input
-
-    /** The constraint identifier (e.g., "kova.string.min") */
-    val constraintId: String get() = constraintContext.constraintId
-
-    /** The root object's qualified class name */
-    val root: String get() = constraintContext.validationContext.root
-
-    /** The current validation path */
-    val path: Path get() = constraintContext.validationContext.path
-
+class MessageArguments(val args: List<Pair<String, Any?>> = emptyList()) {
     /**
      * Retrieves an argument by index with safe bounds checking.
      *

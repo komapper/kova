@@ -25,7 +25,7 @@ typealias StringValidator = IdentityValidator<String>
  */
 fun StringValidator.isInt(message: MessageProvider = MessageProvider.resource()) =
     constrain("kova.string.isInt") {
-        satisfies(it.input.toIntOrNull() != null, message())
+        satisfies(input.toIntOrNull() != null, message())
     }
 
 /**
@@ -43,7 +43,7 @@ fun StringValidator.isInt(message: MessageProvider = MessageProvider.resource())
  */
 fun StringValidator.isLong(message: MessageProvider = MessageProvider.resource()) =
     constrain("kova.string.isLong") {
-        satisfies(it.input.toLongOrNull() != null, message())
+        satisfies(input.toLongOrNull() != null, message())
     }
 
 /**
@@ -61,7 +61,7 @@ fun StringValidator.isLong(message: MessageProvider = MessageProvider.resource()
  */
 fun StringValidator.isShort(message: MessageProvider = MessageProvider.resource()) =
     constrain("kova.string.isShort") {
-        satisfies(it.input.toShortOrNull() != null, message())
+        satisfies(input.toShortOrNull() != null, message())
     }
 
 /**
@@ -79,7 +79,7 @@ fun StringValidator.isShort(message: MessageProvider = MessageProvider.resource(
  */
 fun StringValidator.isByte(message: MessageProvider = MessageProvider.resource()) =
     constrain("kova.string.isByte") {
-        satisfies(it.input.toByteOrNull() != null, message())
+        satisfies(input.toByteOrNull() != null, message())
     }
 
 /**
@@ -97,7 +97,7 @@ fun StringValidator.isByte(message: MessageProvider = MessageProvider.resource()
  */
 fun StringValidator.isDouble(message: MessageProvider = MessageProvider.resource()) =
     constrain("kova.string.isDouble") {
-        satisfies(it.input.toDoubleOrNull() != null, message())
+        satisfies(input.toDoubleOrNull() != null, message())
     }
 
 /**
@@ -115,7 +115,7 @@ fun StringValidator.isDouble(message: MessageProvider = MessageProvider.resource
  */
 fun StringValidator.isFloat(message: MessageProvider = MessageProvider.resource()) =
     constrain("kova.string.isFloat") {
-        satisfies(it.input.toFloatOrNull() != null, message())
+        satisfies(input.toFloatOrNull() != null, message())
     }
 
 /**
@@ -133,7 +133,7 @@ fun StringValidator.isFloat(message: MessageProvider = MessageProvider.resource(
  */
 fun StringValidator.isBigDecimal(message: MessageProvider = MessageProvider.resource()) =
     constrain("kova.string.isBigDecimal") {
-        satisfies(it.input.toBigDecimalOrNull() != null, message())
+        satisfies(input.toBigDecimalOrNull() != null, message())
     }
 
 /**
@@ -151,7 +151,7 @@ fun StringValidator.isBigDecimal(message: MessageProvider = MessageProvider.reso
  */
 fun StringValidator.isBigInteger(message: MessageProvider = MessageProvider.resource()) =
     constrain("kova.string.isBigInteger") {
-        satisfies(it.input.toBigIntegerOrNull() != null, message())
+        satisfies(input.toBigIntegerOrNull() != null, message())
     }
 
 /**
@@ -172,7 +172,7 @@ fun StringValidator.isBigInteger(message: MessageProvider = MessageProvider.reso
  */
 fun StringValidator.isBoolean(message: MessageProvider = MessageProvider.resource()) =
     constrain("kova.string.isBoolean") {
-        satisfies(it.input.toBooleanStrictOrNull() != null, message())
+        satisfies(input.toBooleanStrictOrNull() != null, message())
     }
 
 /**
@@ -196,8 +196,8 @@ fun <E : Enum<E>> StringValidator.isEnum(
 ): StringValidator {
     val enumValues = klass.java.enumConstants
     val validNames = enumValues.map { it.name }
-    return this.constrain("kova.string.isEnum") { ctx ->
-        satisfies(validNames.contains(ctx.input), message("validNames" to validNames))
+    return this.constrain("kova.string.isEnum") {
+        satisfies(validNames.contains(input), message("validNames" to validNames))
     }
 }
 
@@ -250,7 +250,7 @@ inline fun <reified E : Enum<E>> StringValidator.toEnum(): Validator<String, E> 
  */
 fun StringValidator.uppercase(message: MessageProvider = MessageProvider.resource()) =
     constrain("kova.string.uppercase") {
-        satisfies(it.input == it.input.uppercase(), message())
+        satisfies(input == input.uppercase(), message())
     }
 
 /**
@@ -268,7 +268,7 @@ fun StringValidator.uppercase(message: MessageProvider = MessageProvider.resourc
  */
 fun StringValidator.lowercase(message: MessageProvider = MessageProvider.resource()) =
     constrain("kova.string.lowercase") {
-        satisfies(it.input == it.input.lowercase(), message())
+        satisfies(input == input.lowercase(), message())
     }
 
 /**

@@ -29,7 +29,7 @@ import kotlin.reflect.KProperty1
  *     Period::startDate { it.min(LocalDate.of(2025, 1, 1)) }
  *     Period::endDate { it.max(LocalDate.of(2025, 12, 31)) }
  *     constrain("dateRange") {
- *         satisfies(it.input.startDate <= it.input.endDate, "Start date must be before end date")
+ *         satisfies(input.startDate <= input.endDate, "Start date must be before end date")
  *     }
  * })
  * ```
@@ -245,7 +245,7 @@ internal data class Rule(
  *     Period::startDate { it }
  *     Period::endDate { it }
  *     constrain("dateRange") {
- *         satisfies(it.input.startDate <= it.input.endDate, "Start date must be before or equal to end date")
+ *         satisfies(input.startDate <= input.endDate, "Start date must be before or equal to end date")
  *     }
  * })
  * ```
@@ -265,7 +265,7 @@ class ObjectSchemaScope<T : Any> internal constructor(
      */
     fun constrain(
         id: String,
-        check: ConstraintScope<T>.(ConstraintContext<T>) -> ConstraintResult,
+        check: ConstraintContext<T>.() -> ConstraintResult,
     ) {
         constraints.add(Constraint(id, check))
     }

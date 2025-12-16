@@ -178,9 +178,8 @@ infix fun <IN, OUT> Validator<IN, OUT>.or(other: Validator<IN, OUT>): Validator<
                     is Success -> otherResult
                     is Failure -> {
                         val constraintContext = createConstraintContext(input, "kova.or")
-                        val messageContext =
-                            constraintContext.createMessageContext(listOf("first" to selfResult.messages, "second" to otherResult.messages))
-                        Failure(otherResult.value, listOf(Message.Or(messageContext, selfResult, otherResult)))
+                        val args = listOf("first" to selfResult.messages, "second" to otherResult.messages)
+                        Failure(otherResult.value, listOf(Message.Or(Message.Resource(constraintContext, args), selfResult, otherResult)))
                     }
                 }
             }
@@ -500,4 +499,4 @@ fun <T, S> Validator<T, S>.withMessage(block: (List<Message>) -> MessageProvider
  * @return A new validator that returns the custom message on validation failure
  * @see withMessage for an advanced overload that can access the original error messages
  */
-fun <T, S> Validator<T, S>.withMessage(message: String): Validator<T, S> = withMessage { _ -> MessageProvider.text { _ -> message } }
+fun <T, S> Validator<T, S>.withMessage(message: String): Validator<T, S> = withMessage { MessageProvider.text { message } }

@@ -59,7 +59,7 @@ inline fun <reified T> TemporalValidator<T>.future(
 ): TemporalValidator<T>
         where T : Temporal, T : Comparable<T> =
     constrain("kova.temporal.future") {
-        satisfies(it.input > now(T::class, it.clock), message())
+        satisfies(input > now(clock), message())
     }
 
 /**
@@ -85,7 +85,7 @@ inline fun <reified T> TemporalValidator<T>.futureOrPresent(
 ): TemporalValidator<T>
         where T : Temporal, T : Comparable<T> =
     constrain("kova.temporal.futureOrPresent") {
-        satisfies(it.input >= now(T::class, it.clock), message())
+        satisfies(input >= now(clock), message())
     }
 
 /**
@@ -111,7 +111,7 @@ inline fun <reified T> TemporalValidator<T>.past(
 ): TemporalValidator<T>
         where T : Temporal, T : Comparable<T> =
     constrain("kova.temporal.past") {
-        satisfies(it.input < now(T::class, it.clock), message())
+        satisfies(input < now(clock), message())
     }
 
 /**
@@ -137,7 +137,7 @@ inline fun <reified T> TemporalValidator<T>.pastOrPresent(
 ): TemporalValidator<T>
         where T : Temporal, T : Comparable<T> =
     constrain("kova.temporal.pastOrPresent") {
-        satisfies(it.input <= now(T::class, it.clock), message())
+        satisfies(input <= now(clock), message())
     }
 
 /**
@@ -152,18 +152,14 @@ inline fun <reified T> TemporalValidator<T>.pastOrPresent(
  * value's type matches the requested [KClass].
  *
  * @param T The temporal type to obtain the current value for
- * @param klass The KClass representing the temporal type
  * @param clock The clock to use for determining the current time
  * @return The current temporal value
  * @throws IllegalStateException if the temporal type is not supported
  */
 @PublishedApi
-internal fun <T : Temporal> now(
-    klass: KClass<T>,
-    clock: Clock,
-): T {
+internal inline fun <reified T : Temporal> now(clock: Clock): T {
     val now =
-        when (klass) {
+        when (T::class) {
             Instant::class -> Instant.now(clock)
             LocalDate::class -> LocalDate.now(clock)
             LocalDateTime::class -> LocalDateTime.now(clock)
@@ -173,7 +169,7 @@ internal fun <T : Temporal> now(
             Year::class -> Year.now(clock)
             YearMonth::class -> YearMonth.now(clock)
             ZonedDateTime::class -> ZonedDateTime.now(clock)
-            else -> error("Unsupported temporal type: $klass")
+            else -> error("Unsupported temporal type: ${T::class}")
         }
     @Suppress("UNCHECKED_CAST")
     return now as T
