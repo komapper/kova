@@ -9,6 +9,8 @@ package org.komapper.extension.validator
  */
 typealias CollectionValidator<C> = IdentityValidator<C>
 
+typealias LengthMessageProvider<T> = ConstraintContext<T>.(actualSize: Int) -> Message
+
 /**
  * Validates that the collection size is at least the specified minimum.
  *
@@ -25,9 +27,9 @@ typealias CollectionValidator<C> = IdentityValidator<C>
  */
 fun <C : Collection<*>> CollectionValidator<C>.min(
     size: Int,
-    message: ConstraintContext<C>.(actualSize: Int, minSize: Int) -> Message = Message::Resource,
+    message: LengthMessageProvider<C> = { resource(it, size) },
 ) = constrain("kova.collection.min") {
-    satisfies(input.size >= size) { message(input.size, size) }
+    satisfies(input.size >= size) { message(input.size) }
 }
 
 /**
@@ -46,9 +48,9 @@ fun <C : Collection<*>> CollectionValidator<C>.min(
  */
 fun <C : Collection<*>> CollectionValidator<C>.max(
     size: Int,
-    message: ConstraintContext<C>.(actualSize: Int, maxSize: Int) -> Message = Message::Resource,
+    message: LengthMessageProvider<C> = { resource(it, size) },
 ) = constrain("kova.collection.max") {
-    satisfies(input.size <= size) { message(input.size, size) }
+    satisfies(input.size <= size) { message(input.size) }
 }
 
 /**
@@ -85,9 +87,9 @@ fun <C : Collection<*>> CollectionValidator<C>.notEmpty(message: MessageProvider
  */
 fun <C : Collection<*>> CollectionValidator<C>.length(
     size: Int,
-    message: ConstraintContext<C>.(actualSize: Int, expectedSize: Int) -> Message = Message::Resource,
+    message: LengthMessageProvider<C> = { resource(it, size) },
 ) = constrain("kova.collection.length") {
-    satisfies(input.size == size) { message(input.size, size) }
+    satisfies(input.size == size) { message(input.size) }
 }
 
 /**
@@ -106,9 +108,9 @@ fun <C : Collection<*>> CollectionValidator<C>.length(
  */
 fun <E, C : Collection<E>> CollectionValidator<C>.contains(
     element: E,
-    message: ConstraintContext<C>.(element: E) -> Message = Message::Resource,
+    message: MessageProvider<C> = { resource(element) },
 ) = constrain("kova.collection.contains") {
-    satisfies(input.contains(element)) { message(element) }
+    satisfies(input.contains(element), message)
 }
 
 /**
@@ -127,9 +129,9 @@ fun <E, C : Collection<E>> CollectionValidator<C>.contains(
  */
 fun <E, C : Collection<E>> CollectionValidator<C>.notContains(
     element: E,
-    message: ConstraintContext<C>.(element: E) -> Message = Message::Resource,
+    message: MessageProvider<C> = { resource(element) },
 ) = constrain("kova.collection.notContains") {
-    satisfies(!input.contains(element)) { message(element) }
+    satisfies(!input.contains(element), message)
 }
 
 /**

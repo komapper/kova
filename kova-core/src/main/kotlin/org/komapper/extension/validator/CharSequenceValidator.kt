@@ -24,9 +24,9 @@ typealias CharSequenceValidator<T> = IdentityValidator<T>
  */
 fun <T : CharSequence> CharSequenceValidator<T>.min(
     length: Int,
-    message: ConstraintContext<T>.(length: Int) -> Message = Message::Resource,
+    message: MessageProvider<T> = { resource(length) },
 ) = constrain("kova.charSequence.min") {
-    satisfies(input.length >= length) { message(length) }
+    satisfies(input.length >= length, message)
 }
 
 /**
@@ -45,9 +45,9 @@ fun <T : CharSequence> CharSequenceValidator<T>.min(
  */
 fun <T : CharSequence> CharSequenceValidator<T>.max(
     length: Int,
-    message: ConstraintContext<T>.(length: Int) -> Message = Message::Resource,
+    message: MessageProvider<T> = { resource(length) },
 ) = constrain("kova.charSequence.max") {
-    satisfies(input.length <= length) { message(length) }
+    satisfies(input.length <= length, message)
 }
 
 /**
@@ -142,9 +142,9 @@ fun <T : CharSequence> CharSequenceValidator<T>.empty(message: MessageProvider<T
  */
 fun <T : CharSequence> CharSequenceValidator<T>.length(
     length: Int,
-    message: ConstraintContext<T>.(length: Int) -> Message = Message::Resource,
+    message: MessageProvider<T> = { resource(length) },
 ) = constrain("kova.charSequence.length") {
-    satisfies(input.length == length) { message(length) }
+    satisfies(input.length == length, message)
 }
 
 /**
@@ -163,9 +163,9 @@ fun <T : CharSequence> CharSequenceValidator<T>.length(
  */
 fun <T : CharSequence> CharSequenceValidator<T>.startsWith(
     prefix: CharSequence,
-    message: ConstraintContext<T>.(prefix: CharSequence) -> Message = Message::Resource,
+    message: MessageProvider<T> = { resource(prefix) },
 ) = constrain("kova.charSequence.startsWith") {
-    satisfies(input.startsWith(prefix)) { message(prefix) }
+    satisfies(input.startsWith(prefix), message)
 }
 
 /**
@@ -184,9 +184,9 @@ fun <T : CharSequence> CharSequenceValidator<T>.startsWith(
  */
 fun <T : CharSequence> CharSequenceValidator<T>.notStartsWith(
     prefix: CharSequence,
-    message: ConstraintContext<T>.(prefix: CharSequence) -> Message = Message::Resource,
+    message: MessageProvider<T> = { resource(prefix) },
 ) = constrain("kova.charSequence.notStartsWith") {
-    satisfies(!input.startsWith(prefix)) { message(prefix) }
+    satisfies(!input.startsWith(prefix), message)
 }
 
 /**
@@ -205,9 +205,9 @@ fun <T : CharSequence> CharSequenceValidator<T>.notStartsWith(
  */
 fun <T : CharSequence> CharSequenceValidator<T>.endsWith(
     suffix: CharSequence,
-    message: ConstraintContext<T>.(suffix: CharSequence) -> Message = Message::Resource,
+    message: MessageProvider<T> = { resource(suffix) },
 ) = constrain("kova.charSequence.endsWith") {
-    satisfies(input.endsWith(suffix)) { message(suffix) }
+    satisfies(input.endsWith(suffix), message)
 }
 
 /**
@@ -226,9 +226,9 @@ fun <T : CharSequence> CharSequenceValidator<T>.endsWith(
  */
 fun <T : CharSequence> CharSequenceValidator<T>.notEndsWith(
     suffix: CharSequence,
-    message: ConstraintContext<T>.(suffix: CharSequence) -> Message = Message::Resource,
+    message: MessageProvider<T> = { resource(suffix) },
 ) = constrain("kova.charSequence.notEndsWith") {
-    satisfies(!input.endsWith(suffix)) { message(suffix) }
+    satisfies(!input.endsWith(suffix), message)
 }
 
 /**
@@ -247,9 +247,9 @@ fun <T : CharSequence> CharSequenceValidator<T>.notEndsWith(
  */
 fun <T : CharSequence> CharSequenceValidator<T>.contains(
     infix: CharSequence,
-    message: ConstraintContext<T>.(infix: CharSequence) -> Message = Message::Resource,
+    message: MessageProvider<T> = { resource(infix) },
 ) = constrain("kova.charSequence.contains") {
-    satisfies(input.contains(infix)) { message(infix) }
+    satisfies(input.contains(infix), message)
 }
 
 /**
@@ -268,9 +268,9 @@ fun <T : CharSequence> CharSequenceValidator<T>.contains(
  */
 fun <T : CharSequence> CharSequenceValidator<T>.notContains(
     infix: CharSequence,
-    message: ConstraintContext<T>.(infix: CharSequence) -> Message = Message::Resource,
+    message: MessageProvider<T> = { resource(infix) },
 ) = constrain("kova.charSequence.notContains") {
-    satisfies(!input.contains(infix)) { message(infix) }
+    satisfies(!input.contains(infix), message)
 }
 
 /**
@@ -289,9 +289,9 @@ fun <T : CharSequence> CharSequenceValidator<T>.notContains(
  */
 fun <T : CharSequence> CharSequenceValidator<T>.matches(
     pattern: Regex,
-    message: ConstraintContext<T>.(pattern: Regex) -> Message = Message::Resource,
+    message: MessageProvider<T> = { resource(pattern) },
 ) = constrain("kova.charSequence.matches") {
-    satisfies(pattern.matches(input)) { message(pattern) }
+    satisfies(pattern.matches(input), message)
 }
 
 /**
@@ -310,7 +310,7 @@ fun <T : CharSequence> CharSequenceValidator<T>.matches(
  */
 fun <T : CharSequence> CharSequenceValidator<T>.notMatches(
     pattern: Regex,
-    message: ConstraintContext<T>.(pattern: Regex) -> Message = Message::Resource,
+    message: MessageProvider<T> = { resource(pattern) },
 ) = constrain("kova.charSequence.notMatches") {
-    satisfies(!pattern.matches(input)) { message(pattern) }
+    satisfies(!pattern.matches(input), message)
 }

@@ -26,9 +26,9 @@ typealias MapValidator<K, V> = IdentityValidator<Map<K, V>>
  */
 fun <K, V> MapValidator<K, V>.min(
     size: Int,
-    message: ConstraintContext<Map<K, V>>.(actualSize: Int, minSize: Int) -> Message = Message::Resource,
+    message: LengthMessageProvider<Map<K, V>> = { resource(it, size) },
 ) = constrain("kova.map.min") {
-    satisfies(input.size >= size) { message(input.size, size) }
+    satisfies(input.size >= size) { message(input.size) }
 }
 
 /**
@@ -47,9 +47,9 @@ fun <K, V> MapValidator<K, V>.min(
  */
 fun <K, V> MapValidator<K, V>.max(
     size: Int,
-    message: ConstraintContext<Map<K, V>>.(actualSize: Int, minSize: Int) -> Message = Message::Resource,
+    message: LengthMessageProvider<Map<K, V>> = { resource(it, size) },
 ) = constrain("kova.map.max") {
-    satisfies(input.size <= size) { message(input.size, size) }
+    satisfies(input.size <= size) { message(input.size) }
 }
 
 /**
@@ -86,9 +86,9 @@ fun <K, V> MapValidator<K, V>.notEmpty(message: MessageProvider<Map<K, V>> = Mes
  */
 fun <K, V> MapValidator<K, V>.length(
     size: Int,
-    message: ConstraintContext<Map<K, V>>.(actualSize: Int, expectedSize: Int) -> Message = Message::Resource,
+    message: LengthMessageProvider<Map<K, V>> = { resource(it, size) },
 ) = constrain("kova.map.length") {
-    satisfies(input.size == size) { message(input.size, size) }
+    satisfies(input.size == size) { message(input.size) }
 }
 
 /**
@@ -107,9 +107,9 @@ fun <K, V> MapValidator<K, V>.length(
  */
 fun <K, V> MapValidator<K, V>.containsKey(
     key: K,
-    message: ConstraintContext<Map<K, V>>.(key: K) -> Message = Message::Resource,
+    message: MessageProvider<Map<K, V>> = { resource(key) },
 ) = constrain("kova.map.containsKey") {
-    satisfies(input.containsKey(key)) { message(key) }
+    satisfies(input.containsKey(key), message)
 }
 
 /**
@@ -128,9 +128,9 @@ fun <K, V> MapValidator<K, V>.containsKey(
  */
 fun <K, V> MapValidator<K, V>.notContainsKey(
     key: K,
-    message: ConstraintContext<Map<K, V>>.(key: K) -> Message = Message::Resource,
+    message: MessageProvider<Map<K, V>> = { resource(key) },
 ) = constrain("kova.map.notContainsKey") {
-    satisfies(!input.containsKey(key)) { message(key) }
+    satisfies(!input.containsKey(key), message)
 }
 
 /**
@@ -149,9 +149,9 @@ fun <K, V> MapValidator<K, V>.notContainsKey(
  */
 fun <K, V> MapValidator<K, V>.containsValue(
     value: V,
-    message: ConstraintContext<Map<K, V>>.(value: V) -> Message = Message::Resource,
+    message: MessageProvider<Map<K, V>> = { resource(value) },
 ) = constrain("kova.map.containsValue") {
-    satisfies(input.containsValue(value)) { message(value) }
+    satisfies(input.containsValue(value), message)
 }
 
 /**
@@ -170,9 +170,9 @@ fun <K, V> MapValidator<K, V>.containsValue(
  */
 fun <K, V> MapValidator<K, V>.notContainsValue(
     value: V,
-    message: ConstraintContext<Map<K, V>>.(value: V) -> Message = Message::Resource,
+    message: MessageProvider<Map<K, V>> = { resource(value) },
 ) = constrain("kova.map.notContainsValue") {
-    satisfies(!input.containsValue(value)) { message(value) }
+    satisfies(!input.containsValue(value), message)
 }
 
 /**

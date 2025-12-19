@@ -97,9 +97,9 @@ fun <T> IdentityValidator<T>.chain(next: IdentityValidator<T>): IdentityValidato
  */
 fun <T> IdentityValidator<T>.literal(
     value: T,
-    message: ConstraintContext<T>.(value: T) -> Message = Message::Resource,
+    message: MessageProvider<T> = { resource(value) },
 ) = constrain("kova.literal.single") {
-    satisfies(input == value) { message(value) }
+    satisfies(input == value, message)
 }
 
 /**
@@ -118,9 +118,9 @@ fun <T> IdentityValidator<T>.literal(
  */
 fun <T> IdentityValidator<T>.literal(
     values: List<T>,
-    message: ConstraintContext<T>.(values: List<T>) -> Message = Message::Resource,
+    message: MessageProvider<T> = { resource(values) },
 ) = constrain("kova.literal.list") {
-    satisfies(input in values) { message(values) }
+    satisfies(input in values, message)
 }
 
 /**
