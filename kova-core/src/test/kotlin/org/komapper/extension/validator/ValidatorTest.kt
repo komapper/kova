@@ -265,8 +265,7 @@ class ValidatorTest :
                             root = "",
                             path = "",
                             input = "ab",
-                            args =
-                                listOf("length" to 3),
+                            args = listOf(3),
                         ),
                         LogEntry.Satisfied(constraintId = "kova.charSequence.max", root = "", path = "", input = "ab"),
                     )
@@ -276,7 +275,7 @@ class ValidatorTest :
         context("message - provider - text") {
             val validator =
                 Kova.string().uppercase().min(3).withMessage { messages ->
-                    MessageProvider.text { "Invalid: consolidates messages=(${messages.joinToString { it.text }})" }
+                    text("Invalid: consolidates messages=(${messages.joinToString { it.text }})")
                 }
 
             test("success") {
@@ -301,7 +300,7 @@ class ValidatorTest :
                     .string()
                     .uppercase()
                     .min(3)
-                    .withMessage { MessageProvider.resource() }
+                    .withMessage(Message::Resource)
 
             test("success") {
                 val result = validator.tryValidate("ABCDE")
@@ -354,7 +353,7 @@ class ValidatorTest :
                     User::id { it }
                     User::name {
                         it.uppercase().min(3).withMessage {
-                            MessageProvider.text { "Must be uppercase and at least 3 characters long" }
+                            text("Must be uppercase and at least 3 characters long")
                         }
                     }
                 }) {}
@@ -395,8 +394,7 @@ class ValidatorTest :
                             root = "",
                             path = "",
                             input = "ab",
-                            args =
-                                listOf("length" to 3),
+                            args = listOf(3),
                         ),
                         LogEntry.Satisfied(constraintId = "kova.charSequence.max", root = "", path = "", input = "AB"),
                     )

@@ -96,7 +96,7 @@ class ConstraintContext<T>(
      */
     fun satisfies(
         condition: Boolean,
-        message: ConstraintContext<*>.() -> Message,
+        message: MessageProvider<T>,
     ): ConstraintResult =
         if (condition) {
             ConstraintResult.Satisfied
@@ -133,12 +133,7 @@ class ConstraintContext<T>(
     fun satisfies(
         condition: Boolean,
         message: Message,
-    ): ConstraintResult =
-        if (condition) {
-            ConstraintResult.Satisfied
-        } else {
-            ConstraintResult.Violated(message)
-        }
+    ): ConstraintResult = satisfies(condition) { message }
 }
 
 /**
@@ -181,7 +176,7 @@ sealed interface ConstraintResult {
  * @param content The text content of the error message
  * @return A [Message.Text] instance with the given content
  */
-fun <T> ConstraintContext<T>.text(content: String): Message = Message.Text(this, emptyList(), content)
+fun <T> ConstraintContext<T>.text(content: String): Message = Message.Text(this, content)
 
 /**
  * Creates a resource-based validation message.
@@ -228,4 +223,4 @@ fun <T> ConstraintContext<T>.text(content: String): Message = Message.Text(this,
  * @return A [Message.Resource] instance configured with the provided arguments
  */
 fun <T> ConstraintContext<T>.resource(vararg args: Any?): Message =
-    Message.Resource(this, args.mapIndexed { index, arg -> "{$index}" to arg })
+    Message.Resource(this, args = args)

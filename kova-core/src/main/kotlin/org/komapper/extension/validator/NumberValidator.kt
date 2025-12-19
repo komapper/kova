@@ -31,9 +31,9 @@ typealias NumberValidator<T> = IdentityValidator<T>
  * @param message Custom error message provider
  * @return A new validator with the positive constraint
  */
-fun <T : Number> NumberValidator<T>.positive(message: MessageProvider = MessageProvider.resource()): NumberValidator<T> =
+fun <T : Number> NumberValidator<T>.positive(message: MessageProvider<T> = Message::Resource): NumberValidator<T> =
     constrain("kova.number.positive") {
-        satisfies(input.toDouble() > 0.0, message())
+        satisfies(input.toDouble() > 0.0, message)
     }
 
 /**
@@ -50,9 +50,9 @@ fun <T : Number> NumberValidator<T>.positive(message: MessageProvider = MessageP
  * @param message Custom error message provider
  * @return A new validator with the negative constraint
  */
-fun <T : Number> NumberValidator<T>.negative(message: MessageProvider = MessageProvider.resource()): NumberValidator<T> =
+fun <T : Number> NumberValidator<T>.negative(message: MessageProvider<T> = Message::Resource): NumberValidator<T> =
     constrain("kova.number.negative") {
-        satisfies(input.toDouble() < 0.0, message())
+        satisfies(input.toDouble() < 0.0, message)
     }
 
 /**
@@ -69,9 +69,9 @@ fun <T : Number> NumberValidator<T>.negative(message: MessageProvider = MessageP
  * @param message Custom error message provider
  * @return A new validator with the not-positive constraint
  */
-fun <T : Number> NumberValidator<T>.notPositive(message: MessageProvider = MessageProvider.resource()): NumberValidator<T> =
+fun <T : Number> NumberValidator<T>.notPositive(message: MessageProvider<T> = Message::Resource): NumberValidator<T> =
     constrain("kova.number.notPositive") {
-        satisfies(input.toDouble() <= 0.0, message())
+        satisfies(input.toDouble() <= 0.0, message)
     }
 
 /**
@@ -88,7 +88,7 @@ fun <T : Number> NumberValidator<T>.notPositive(message: MessageProvider = Messa
  * @param message Custom error message provider
  * @return A new validator with the not-negative constraint
  */
-fun <T : Number> NumberValidator<T>.notNegative(message: MessageProvider = MessageProvider.resource()): NumberValidator<T> =
+fun <T : Number> NumberValidator<T>.notNegative(message: MessageProvider<T> = Message::Resource): NumberValidator<T> =
     constrain("kova.number.notNegative") {
-        satisfies(input.toDouble() >= 0.0, message())
+        satisfies(input.toDouble() >= 0.0, message)
     }

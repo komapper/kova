@@ -178,8 +178,7 @@ infix fun <IN, OUT> Validator<IN, OUT>.or(other: Validator<IN, OUT>): Validator<
                     is Success -> otherResult
                     is Failure -> {
                         val constraintContext = createConstraintContext(input, "kova.or")
-                        val args = listOf("first" to selfResult.messages, "second" to otherResult.messages)
-                        Failure(otherResult.value, listOf(Message.Or(Message.Resource(constraintContext, args), selfResult, otherResult)))
+                        Failure(otherResult.value, listOf(Message.Or(constraintContext, selfResult, otherResult)))
                     }
                 }
             }
@@ -458,15 +457,13 @@ fun <T : Any, S : Any> Validator<T, S>.asNullable(withDefault: () -> S): NullCoa
  * @return A new validator that returns a single custom message on validation failure
  * @see withMessage for a simpler overload that accepts a static string message
  */
-fun <T, S> Validator<T, S>.withMessage(block: (List<Message>) -> MessageProvider): Validator<T, S> =
+fun <T, S> Validator<T, S>.withMessage(block: ConstraintContext<T>.(List<Message>) -> Message): Validator<T, S> =
     Validator { input ->
         when (val result = execute(input)) {
             is Success -> result
             is Failure -> {
                 val constraintContext = createConstraintContext(input, "kova.withMessage")
-                val messageProvider = block(result.messages)
-                val messageGenerator = messageProvider("messages" to result.messages)
-                val message = messageGenerator(constraintContext)
+                val message = constraintContext.block(result.messages)
                 Failure(result.value, listOf(message))
             }
         }
@@ -499,4 +496,4 @@ fun <T, S> Validator<T, S>.withMessage(block: (List<Message>) -> MessageProvider
  * @return A new validator that returns the custom message on validation failure
  * @see withMessage for an advanced overload that can access the original error messages
  */
-fun <T, S> Validator<T, S>.withMessage(message: String): Validator<T, S> = withMessage { MessageProvider.text { message } }
+fun <T, S> Validator<T, S>.withMessage(message: String): Validator<T, S> = withMessage { text(message) }

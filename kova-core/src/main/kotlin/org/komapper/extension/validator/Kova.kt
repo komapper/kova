@@ -250,7 +250,7 @@ interface Kova {
      */
     fun <T : Any> literal(
         value: T,
-        message: MessageProvider = MessageProvider.resource(),
+        message: ConstraintContext<T>.(value: T) -> Message = Message::Resource,
     ): IdentityValidator<T> = generic<T>().literal(value, message)
 
     /**
@@ -262,7 +262,7 @@ interface Kova {
      */
     fun <T : Any> literal(
         values: List<T>,
-        message: MessageProvider = MessageProvider.resource(),
+        message: ConstraintContext<T>.(values: List<T>) -> Message = Message::Resource,
     ): IdentityValidator<T> = generic<T>().literal(values, message)
 
     /**
@@ -274,7 +274,7 @@ interface Kova {
      */
     fun <T : Any> literal(
         vararg values: T,
-        message: MessageProvider = MessageProvider.resource(),
+        message: ConstraintContext<T>.(values: List<T>) -> Message = Message::Resource,
     ): IdentityValidator<T> = literal(values.toList(), message)
 
     companion object : Kova

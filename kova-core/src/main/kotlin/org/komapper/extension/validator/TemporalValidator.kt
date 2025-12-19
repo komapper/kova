@@ -55,11 +55,11 @@ typealias TemporalValidator<T> = IdentityValidator<T>
  * @return A new validator with the future constraint
  */
 inline fun <reified T> TemporalValidator<T>.future(
-    message: MessageProvider = MessageProvider.resource(),
+    noinline message: MessageProvider<T> = Message::Resource,
 ): TemporalValidator<T>
         where T : Temporal, T : Comparable<T> =
     constrain("kova.temporal.future") {
-        satisfies(input > now(clock), message())
+        satisfies(input > now(clock), message)
     }
 
 /**
@@ -81,11 +81,11 @@ inline fun <reified T> TemporalValidator<T>.future(
  * @return A new validator with the future-or-present constraint
  */
 inline fun <reified T> TemporalValidator<T>.futureOrPresent(
-    message: MessageProvider = MessageProvider.resource(),
+    noinline message: MessageProvider<T> = Message::Resource,
 ): TemporalValidator<T>
         where T : Temporal, T : Comparable<T> =
     constrain("kova.temporal.futureOrPresent") {
-        satisfies(input >= now(clock), message())
+        satisfies(input >= now(clock), message)
     }
 
 /**
@@ -107,11 +107,11 @@ inline fun <reified T> TemporalValidator<T>.futureOrPresent(
  * @return A new validator with the past constraint
  */
 inline fun <reified T> TemporalValidator<T>.past(
-    message: MessageProvider = MessageProvider.resource(),
+    noinline message: MessageProvider<T> = Message::Resource,
 ): TemporalValidator<T>
         where T : Temporal, T : Comparable<T> =
     constrain("kova.temporal.past") {
-        satisfies(input < now(clock), message())
+        satisfies(input < now(clock), message)
     }
 
 /**
@@ -133,11 +133,11 @@ inline fun <reified T> TemporalValidator<T>.past(
  * @return A new validator with the past-or-present constraint
  */
 inline fun <reified T> TemporalValidator<T>.pastOrPresent(
-    message: MessageProvider = MessageProvider.resource(),
+    noinline message: MessageProvider<T> = Message::Resource,
 ): TemporalValidator<T>
         where T : Temporal, T : Comparable<T> =
     constrain("kova.temporal.pastOrPresent") {
-        satisfies(input <= now(clock), message())
+        satisfies(input <= now(clock), message)
     }
 
 /**

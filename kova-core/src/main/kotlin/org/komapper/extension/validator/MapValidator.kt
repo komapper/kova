@@ -26,9 +26,9 @@ typealias MapValidator<K, V> = IdentityValidator<Map<K, V>>
  */
 fun <K, V> MapValidator<K, V>.min(
     size: Int,
-    message: MessageProvider = MessageProvider.resource(),
+    message: ConstraintContext<Map<K, V>>.(actualSize: Int, minSize: Int) -> Message = Message::Resource,
 ) = constrain("kova.map.min") {
-    satisfies(input.size >= size, message("actualSize" to input.size, "minSize" to size))
+    satisfies(input.size >= size) { message(input.size, size) }
 }
 
 /**
@@ -47,9 +47,9 @@ fun <K, V> MapValidator<K, V>.min(
  */
 fun <K, V> MapValidator<K, V>.max(
     size: Int,
-    message: MessageProvider = MessageProvider.resource(),
+    message: ConstraintContext<Map<K, V>>.(actualSize: Int, minSize: Int) -> Message = Message::Resource,
 ) = constrain("kova.map.max") {
-    satisfies(input.size <= size, message("actualSize" to input.size, "maxSize" to size))
+    satisfies(input.size <= size) { message(input.size, size) }
 }
 
 /**
@@ -65,9 +65,9 @@ fun <K, V> MapValidator<K, V>.max(
  * @param message Custom error message provider
  * @return A new validator with the not-empty constraint
  */
-fun <K, V> MapValidator<K, V>.notEmpty(message: MessageProvider = MessageProvider.resource()) =
+fun <K, V> MapValidator<K, V>.notEmpty(message: MessageProvider<Map<K, V>> = Message::Resource) =
     constrain("kova.map.notEmpty") {
-        satisfies(input.isNotEmpty(), message())
+        satisfies(input.isNotEmpty(), message)
     }
 
 /**
@@ -86,9 +86,9 @@ fun <K, V> MapValidator<K, V>.notEmpty(message: MessageProvider = MessageProvide
  */
 fun <K, V> MapValidator<K, V>.length(
     size: Int,
-    message: MessageProvider = MessageProvider.resource(),
+    message: ConstraintContext<Map<K, V>>.(actualSize: Int, expectedSize: Int) -> Message = Message::Resource,
 ) = constrain("kova.map.length") {
-    satisfies(input.size == size, message("actualSize" to input.size, "expectedSize" to size))
+    satisfies(input.size == size) { message(input.size, size) }
 }
 
 /**
@@ -107,9 +107,9 @@ fun <K, V> MapValidator<K, V>.length(
  */
 fun <K, V> MapValidator<K, V>.containsKey(
     key: K,
-    message: MessageProvider = MessageProvider.resource(),
+    message: ConstraintContext<Map<K, V>>.(key: K) -> Message = Message::Resource,
 ) = constrain("kova.map.containsKey") {
-    satisfies(input.containsKey(key), message("key" to key))
+    satisfies(input.containsKey(key)) { message(key) }
 }
 
 /**
@@ -128,9 +128,9 @@ fun <K, V> MapValidator<K, V>.containsKey(
  */
 fun <K, V> MapValidator<K, V>.notContainsKey(
     key: K,
-    message: MessageProvider = MessageProvider.resource(),
+    message: ConstraintContext<Map<K, V>>.(key: K) -> Message = Message::Resource,
 ) = constrain("kova.map.notContainsKey") {
-    satisfies(!input.containsKey(key), message("key" to key))
+    satisfies(!input.containsKey(key)) { message(key) }
 }
 
 /**
@@ -149,9 +149,9 @@ fun <K, V> MapValidator<K, V>.notContainsKey(
  */
 fun <K, V> MapValidator<K, V>.containsValue(
     value: V,
-    message: MessageProvider = MessageProvider.resource(),
+    message: ConstraintContext<Map<K, V>>.(value: V) -> Message = Message::Resource,
 ) = constrain("kova.map.containsValue") {
-    satisfies(input.containsValue(value), message("value" to value))
+    satisfies(input.containsValue(value)) { message(value) }
 }
 
 /**
@@ -170,9 +170,9 @@ fun <K, V> MapValidator<K, V>.containsValue(
  */
 fun <K, V> MapValidator<K, V>.notContainsValue(
     value: V,
-    message: MessageProvider = MessageProvider.resource(),
+    message: ConstraintContext<Map<K, V>>.(value: V) -> Message = Message::Resource,
 ) = constrain("kova.map.notContainsValue") {
-    satisfies(!input.containsValue(value), message("value" to value))
+    satisfies(!input.containsValue(value)) { message(value) }
 }
 
 /**
@@ -331,6 +331,6 @@ private fun <K, V> ConstraintContext<Map<K, V>>.validateOnEach(
     }
     val messages = failures.flatMap { it.messages }
     return satisfies(messages.isEmpty()) {
-        Message.Collection(Message.Resource(this, listOf("messages" to messages)), failures)
+        Message.Collection(Message.Resource(this, messages), failures)
     }
 }
