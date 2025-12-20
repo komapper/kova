@@ -87,8 +87,14 @@ class ValidatorTest :
                 result.messages[0].let {
                     it.constraintId shouldBe "kova.or"
                     it.args.size shouldBe 2
-                    it.args[0].shouldBeInstanceOf<List<Message>>().single().constraintId shouldBe "kova.charSequence.length"
-                    it.args[1].shouldBeInstanceOf<List<Message>>().single().constraintId shouldBe "kova.charSequence.length"
+                    it.args[0]
+                        .shouldBeInstanceOf<List<Message>>()
+                        .single()
+                        .constraintId shouldBe "kova.charSequence.length"
+                    it.args[1]
+                        .shouldBeInstanceOf<List<Message>>()
+                        .single()
+                        .constraintId shouldBe "kova.charSequence.length"
                 }
             }
         }
@@ -106,8 +112,14 @@ class ValidatorTest :
                 result.messages[0].let {
                     it.constraintId shouldBe "kova.or"
                     it.args.size shouldBe 2
-                    it.args[0].shouldBeInstanceOf<List<Message>>().single().constraintId shouldBe "kova.or"
-                    it.args[1].shouldBeInstanceOf<List<Message>>().single().constraintId shouldBe "kova.charSequence.length"
+                    it.args[0]
+                        .shouldBeInstanceOf<List<Message>>()
+                        .single()
+                        .constraintId shouldBe "kova.or"
+                    it.args[1]
+                        .shouldBeInstanceOf<List<Message>>()
+                        .single()
+                        .constraintId shouldBe "kova.charSequence.length"
                     println(it)
                 }
             }
@@ -128,8 +140,14 @@ class ValidatorTest :
                 result.messages[0].let {
                     it.constraintId shouldBe "kova.or"
                     it.args.size shouldBe 2
-                    it.args[0].shouldBeInstanceOf<List<Message>>().single().constraintId shouldBe "kova.or"
-                    it.args[1].shouldBeInstanceOf<List<Message>>().single().constraintId shouldBe "kova.charSequence.length"
+                    it.args[0]
+                        .shouldBeInstanceOf<List<Message>>()
+                        .single()
+                        .constraintId shouldBe "kova.or"
+                    it.args[1]
+                        .shouldBeInstanceOf<List<Message>>()
+                        .single()
+                        .constraintId shouldBe "kova.charSequence.length"
                     println(it)
                 }
             }

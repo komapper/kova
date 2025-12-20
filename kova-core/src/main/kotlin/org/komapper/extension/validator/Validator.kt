@@ -176,10 +176,11 @@ infix fun <IN, OUT> Validator<IN, OUT>.or(other: Validator<IN, OUT>): Validator<
             is Failure -> {
                 when (val otherResult = other.execute(input)) {
                     is Success -> otherResult
-                    is Failure -> Failure(
-                        otherResult.value,
-                        listOf("kova.or".resource(selfResult.messages, otherResult.messages))
-                    )
+                    is Failure ->
+                        Failure(
+                            otherResult.value,
+                            listOf("kova.or".resource(selfResult.messages, otherResult.messages)),
+                        )
                 }
             }
         }
@@ -458,7 +459,7 @@ fun <T : Any, S : Any> Validator<T, S>.asNullable(withDefault: () -> S): ElvisVa
  * @see withMessage for a simpler overload that accepts a static string message
  */
 fun <T, S> Validator<T, S>.withMessage(
-    block: ValidationContext.(messages: List<Message>) -> Message = { "kova.withMessage".resource(it) }
+    block: ValidationContext.(messages: List<Message>) -> Message = { "kova.withMessage".resource(it) },
 ): Validator<T, S> =
     Validator { input ->
         when (val result = execute(input)) {

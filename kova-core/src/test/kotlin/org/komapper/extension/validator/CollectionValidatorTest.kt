@@ -114,7 +114,11 @@ class CollectionValidatorTest :
                     it.constraintId shouldBe "kova.collection.onEach"
                     it.text shouldBe
                         "Some elements do not satisfy the constraint: [must be exactly 3 characters]"
-                    it.args.single().shouldBeInstanceOf<List<Message>>().single().constraintId shouldBe "kova.charSequence.length"
+                    it.args
+                        .single()
+                        .shouldBeInstanceOf<List<Message>>()
+                        .single()
+                        .constraintId shouldBe "kova.charSequence.length"
                 }
             }
         }

@@ -44,14 +44,16 @@ fun <T> ConstraintValidator(constraint: Constraint<T>): ConstraintValidator<T> =
             }
 
             is ValidationResult.Failure -> {
-                for (message in result.messages) log {
-                    LogEntry.Violated(
-                        constraintId = if (message is Message.Resource) message.constraintId else null,
-                        root = message.root,
-                        path = message.path.fullName,
-                        input = input,
-                        args = if (message is Message.Resource) message.args.asList() else emptyList(),
-                    )
+                for (message in result.messages) {
+                    log {
+                        LogEntry.Violated(
+                            constraintId = if (message is Message.Resource) message.constraintId else null,
+                            root = message.root,
+                            path = message.path.fullName,
+                            input = input,
+                            args = if (message is Message.Resource) message.args.asList() else emptyList(),
+                        )
+                    }
                 }
                 ValidationResult.Failure(Input.Available(input), result.messages)
             }

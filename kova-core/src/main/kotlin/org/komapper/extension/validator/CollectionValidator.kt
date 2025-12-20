@@ -141,19 +141,20 @@ fun <E, C : Collection<E>> CollectionValidator<C>.notContains(
  * @param validator The validator to apply to each element
  * @return A new validator with per-element validation
  */
-fun <E, C : Collection<E>> CollectionValidator<C>.onEach(validator: Validator<E, *>) = constrain {
-    val failures = mutableListOf<ValidationResult.Failure<*>>()
-    for ((i, element) in it.withIndex()) {
-        val path = "[$i]<collection element>"
-        val result = appendPath(path) { validator.execute(element) }
-        if (result.isFailure()) {
-            failures.add(result)
-            if (failFast) break
+fun <E, C : Collection<E>> CollectionValidator<C>.onEach(validator: Validator<E, *>) =
+    constrain {
+        val failures = mutableListOf<ValidationResult.Failure<*>>()
+        for ((i, element) in it.withIndex()) {
+            val path = "[$i]<collection element>"
+            val result = appendPath(path) { validator.execute(element) }
+            if (result.isFailure()) {
+                failures.add(result)
+                if (failFast) break
+            }
         }
+        val messages = failures.flatMap { it.messages }
+        satisfies(messages.isEmpty()) { "kova.collection.onEach".resource(messages) }
     }
-    val messages = failures.flatMap { it.messages }
-    satisfies(messages.isEmpty()) { "kova.collection.onEach".resource(messages) }
-}
 
 /**
  * Lambda-based overload of [onEach] for more fluent validation composition.

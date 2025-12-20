@@ -39,7 +39,7 @@ sealed interface Message {
      */
     class Text internal constructor(
         /** The message context containing constraint metadata and validation state */
-        override val root : String,
+        override val root: String,
         override val path: Path,
         override val text: String,
     ) : Message {
@@ -84,7 +84,8 @@ sealed interface Message {
                 else -> arg
             }
 
-        override fun toString(): String = "Message(constraintId=$constraintId, text='$text', root=$root, path=${path.fullName}, args=${args.contentToString()})"
+        override fun toString(): String =
+            "Message(constraintId=$constraintId, text='$text', root=$root, path=${path.fullName}, args=${args.contentToString()})"
     }
 }
 

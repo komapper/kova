@@ -18,7 +18,6 @@ data class ValidationContext(
     val path: Path = Path(name = "", obj = null, parent = null),
     val config: ValidationConfig = ValidationConfig(),
 ) {
-
     /** Whether validation should stop at the first failure. */
     val failFast: Boolean get() = config.failFast
 
@@ -124,6 +123,7 @@ data class ValidationContext(
      * @return A [Message.Resource] instance configured with the provided arguments
      */
     fun String.resource(vararg args: Any?): Message.Resource = Message.Resource(root, path, this, args = args)
+
     val String.resource: Message.Resource get() = resource()
 }
 

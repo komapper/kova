@@ -300,7 +300,11 @@ fun <K, V> MapValidator<K, V>.onEachValue(validator: Validator<V, *>) =
  */
 fun <K, V> MapValidator<K, V>.onEachValue(block: (IdentityValidator<V>) -> Validator<V, *>) = onEachValue(block(Validator.success()))
 
-private fun <K, V> ValidationContext.validateOnEach(constraintId: String, map: Map<K, V>, validate: Validator<Map.Entry<K, V>, *>): ConstraintResult {
+private fun <K, V> ValidationContext.validateOnEach(
+    constraintId: String,
+    map: Map<K, V>,
+    validate: Validator<Map.Entry<K, V>, *>,
+): ConstraintResult {
     val failures = mutableListOf<ValidationResult.Failure<*>>()
     for (entry in map.entries) {
         val result = validate.execute(entry)
@@ -310,6 +314,7 @@ private fun <K, V> ValidationContext.validateOnEach(constraintId: String, map: M
         }
     }
     val messages = failures.flatMap { it.messages }
-    return satisfies(messages.isEmpty()) { constraintId.resource(messages)
+    return satisfies(messages.isEmpty()) {
+        constraintId.resource(messages)
     }
 }
