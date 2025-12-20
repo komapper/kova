@@ -2,6 +2,7 @@ package example
 
 import org.komapper.extension.validator.ObjectSchema
 import org.komapper.extension.validator.ValidationResult
+import org.komapper.extension.validator.isSuccess
 import org.komapper.extension.validator.max
 import org.komapper.extension.validator.min
 import org.komapper.extension.validator.notBlank
@@ -36,41 +37,35 @@ object PersonSchema : ObjectSchema<Person>({
 })
 
 fun main() {
-    println("\n#Validation")
-    println("##Success")
-    when (val result = UserSchema.tryValidate(User("a", 10))) {
-        is ValidationResult.Success -> {
-            println("Success: ${result.value}") // Success: User(name=a, age=10)
-        }
+    println("\n# Validation")
 
-        is ValidationResult.Failure -> error("never happens")
-    }
-    println("##Failure")
-    when (val result = UserSchema.tryValidate(User("  ", -1))) {
-        is ValidationResult.Success -> error("never happens")
-        is ValidationResult.Failure -> {
-            result.messages.joinToString("\n").let { println(it) }
-            // Message(constraintId=kova.charSequence.notBlank, text='must not be blank', root=example.User, path=name, input=  , args=[])
-            // Message(constraintId=kova.comparable.min, text='must be greater than or equal to 0', root=example.User, path=age, input=-1, args=[(value, 0)])
-        }
-    }
+    UserSchema.tryValidate(User("a", 10)).let { printResult(it) }
+    // ## Success
+    // User(name=a, age=10)
 
-    println("\n#Validation(nested object schema)")
-    println("##Success")
-    when (val result = PersonSchema.tryValidate(Person("a", Age(10)))) {
-        is ValidationResult.Success -> {
-            println("Success: ${result.value}") // Person(name=a, age=Age(value=10))
-        }
+    UserSchema.tryValidate(User("  ", -1)).let { printResult(it) }
+    // ## Failure
+    // Message(constraintId=kova.charSequence.notBlank, text='must not be blank', root=example.User, path=name, input=  , args=[])
+    // Message(constraintId=kova.comparable.min, text='must be greater than or equal to 0', root=example.User, path=age, input=-1, args=[0])
 
-        is ValidationResult.Failure -> error("never happens")
-    }
-    println("##Failure")
-    when (val result = PersonSchema.tryValidate(Person("  ", Age(-1)))) {
-        is ValidationResult.Success -> error("never happens")
-        is ValidationResult.Failure -> {
-            result.messages.joinToString("\n").let { println(it) }
-            // Message(constraintId=kova.charSequence.notBlank, text='must not be blank', root=example.Person, path=name, input=  , args=[])
-            // Message(constraintId=kova.comparable.min, text='must be greater than or equal to 0', root=example.Person, path=age.value, input=-1, args=[(value, 0)])
-        }
+    println("\n# Validation(nested object schema)")
+
+    PersonSchema.tryValidate(Person("a", Age(10))).let { printResult(it) }
+    // ## Success
+    // Person(name=a, age=Age(value=10))
+
+    PersonSchema.tryValidate(Person("  ", Age(-1))).let { printResult(it) }
+    // ## Failure
+    // Message(constraintId=kova.charSequence.notBlank, text='must not be blank', root=example.Person, path=name, input=  , args=[])
+    // Message(constraintId=kova.comparable.min, text='must be greater than or equal to 0', root=example.Person, path=age.value, input=-1, args=[0])
+}
+
+private fun printResult(result: ValidationResult<*>) {
+    if (result.isSuccess()) {
+        println("## Success")
+        println("${result.value}")
+    } else {
+        println("## Failure")
+        println(result.messages.joinToString("\n"))
     }
 }

@@ -36,33 +36,37 @@ object Users : IntIdTable() {
 class City(
     id: EntityID<Int>,
 ) : IntEntity(id) {
-    companion object : IntEntityClass<City>(Cities) {
-        val hook = subscribe(Schema)
-    }
+    var name by Cities.name
+    val users by User referrersOn Users.city
 
     object Schema : ObjectSchema<City>({
         City::name { it.notEmpty() }
     })
 
-    var name by Cities.name
-    val users by User referrersOn Users.city
+    companion object : IntEntityClass<City>(Cities) {
+        init {
+            subscribe(Schema)
+        }
+    }
 }
 
 class User(
     id: EntityID<Int>,
 ) : IntEntity(id) {
-    companion object : IntEntityClass<User>(Users) {
-        val hook = subscribe(Schema)
-    }
+    var name by Users.name
+    var city by City referencedOn Users.city
+    var age by Users.age
 
     object Schema : ObjectSchema<User>({
         User::name { it.min(1).notBlank() }
         User::age { it.min(0).max(120) }
     })
 
-    var name by Users.name
-    var city by City referencedOn Users.city
-    var age by Users.age
+    companion object : IntEntityClass<User>(Users) {
+        init {
+            subscribe(Schema)
+        }
+    }
 }
 
 fun <ID : Any, T : Entity<ID>> EntityClass<ID, T>.subscribe(validator: Validator<T, T>): (EntityChange) -> Unit {
@@ -82,35 +86,39 @@ fun main() {
         driver = "org.h2.Driver",
     )
 
+    println("\n# Create tables")
     transaction {
         addLogger(StdOutSqlLogger)
         SchemaUtils.create(Cities, Users)
     }
 
+    println("\n# Success")
     try {
         success()
     } catch (_: Exception) {
         assert(false) { "Validation should not fail" }
     }
 
+    println("\n# Failure with invalid city")
     try {
         failWithInvalidCity()
         assert(false) { "Validation should fail" }
     } catch (e: ValidationException) {
-        println("Validation failed:")
+        println("## Validation failed:")
         e.messages.joinToString("\n").let { println(it) }
         // Message(constraintId=kova.charSequence.notEmpty, text='must not be empty', root=example.City, path=name, input=, args=[])
     }
 
+    println("\n# Failure with invalid user")
     try {
         failWithInvalidUser()
         assert(false) { "Validation should fail" }
     } catch (e: ValidationException) {
-        println("Validation failed:")
+        println("## Validation failed:")
         e.messages.joinToString("\n").let { println(it) }
-        // Message(constraintId=kova.charSequence.min, text='must be at least 1 characters', root=example.User, path=name, input=, args=[(length, 1)])
+        // Message(constraintId=kova.charSequence.min, text='must be at least 1 characters', root=example.User, path=name, input=, args=[1])
         // Message(constraintId=kova.charSequence.notBlank, text='must not be blank', root=example.User, path=name, input=, args=[])
-        // Message(constraintId=kova.comparable.min, text='must be greater than or equal to 0', root=example.User, path=age, input=-1, args=[(value, 0)])
+        // Message(constraintId=kova.comparable.min, text='must be greater than or equal to 0', root=example.User, path=age, input=-1, args=[0])
     }
 }
 
