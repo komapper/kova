@@ -125,6 +125,28 @@ fun <T : Any, S : Any> NullableValidator<T, S>.notNullAnd(block: (Validator<T, T
     notNull().and(block(Validator.success()).asNullable())
 
 /**
+ * Validates that the input is not null, then applies a transformation.
+ *
+ * This method rejects null inputs and applies the transformation built by the block to non-null values.
+ * The result is a [NullCoalescingValidator] with non-nullable output.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.string().asNullable()
+ *     .notNullThen { it.toInt() }
+ *
+ * validator.validate("123")  // Success: 123 (Int, non-null)
+ * validator.validate(null)   // Failure: is null
+ * validator.validate("abc")  // Failure: invalid number format
+ * ```
+ *
+ * @param block A function that builds a validator transformation from a success validator
+ * @return A new validator that rejects null and transforms non-null values
+ */
+inline fun <T : Any, reified S : Any, U : Any> NullableValidator<T, S>.notNullThen(block: (Validator<S, S>) -> Validator<S, U>): NullCoalescingValidator<T, U> =
+    notNull().toNonNullable().then(block(Validator.success()))
+
+/**
  * Converts a nullable validator to a validator with non-nullable output.
  *
  * This adds a `notNull()` constraint and converts the output type from `S?` to `S`.
@@ -182,6 +204,58 @@ inline fun <T : Any, reified S : Any> NullableValidator<T, S>.withDefault(defaul
  */
 inline fun <T : Any, reified S : Any> NullableValidator<T, S>.withDefault(noinline provide: () -> S): NullCoalescingValidator<T, S> =
     map { it ?: provide() }
+
+/**
+ * Provides a default value for null inputs, then applies a transformation.
+ *
+ * If the input is null, the default value is used. The transformation built by the block is then applied.
+ * This converts the validator to a [NullCoalescingValidator] with non-nullable output.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.string().asNullable()
+ *     .withDefaultThen("1") { it.toInt().positive() }
+ *
+ * validator.validate(null)    // Success: 1 (uses default, then converts to Int)
+ * validator.validate("123")   // Success: 123
+ * validator.validate("-5")    // Failure: not positive
+ * ```
+ *
+ * @param defaultValue The value to use when input is null
+ * @param block A function that builds a validator transformation from a success validator
+ * @return A new validator with non-nullable output that uses the default for null inputs and transforms values
+ */
+inline fun <T : Any, reified S : Any, U : Any> NullableValidator<T, S>.withDefaultThen(
+    defaultValue: S,
+    block: (Validator<S, S>) -> Validator<S, U>
+): NullCoalescingValidator<T, U> =
+    withDefaultThen({ defaultValue }, block)
+
+/**
+ * Provides a lazily-evaluated default value for null inputs, then applies a transformation.
+ *
+ * If the input is null, the provider function is called to generate the default value.
+ * The transformation built by the block is then applied.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.string().asNullable()
+ *     .withDefaultThen({ "1" }) { it.toInt().positive() }
+ *
+ * validator.validate(null)    // Success: 1 (uses default, then converted to Int)
+ * validator.validate("123")   // Success: 123
+ * validator.validate("-5")    // Failure: not positive
+ * ```
+ *
+ * @param provide Function that generates the default value
+ * @param block A function that builds a validator transformation from a success validator
+ * @return A new validator with non-nullable output that uses the provided default for null inputs and transforms values
+ */
+inline fun <T : Any, reified S : Any, U : Any> NullableValidator<T, S>.withDefaultThen(
+    noinline provide: () -> S,
+    block: (Validator<S, S>) -> Validator<S, U>
+): NullCoalescingValidator<T, U> =
+    withDefault(provide).then(block(Validator.success()))
 
 /**
  * Operator overload for [and]. Combines this nullable validator with a non-nullable validator.
