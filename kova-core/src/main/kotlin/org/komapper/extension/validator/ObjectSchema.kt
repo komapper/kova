@@ -40,11 +40,11 @@ import kotlin.reflect.KProperty1
 open class ObjectSchema<T : Any>(
     private val block: ObjectSchemaScope<T>.() -> Unit = {},
 ) : Validator<T, T> {
-    private val constraints: List<Constraint<T>>
+    private val constraints: List<Pair<String, Constraint<T>>>
     private val ruleMap: Map<KProperty1<T, *>, Rule>
 
     init {
-        val constraints: MutableList<Constraint<T>> = mutableListOf()
+        val constraints: MutableList<Pair<String, Constraint<T>>> = mutableListOf()
         val ruleMap: MutableMap<KProperty1<T, *>, Rule> = mutableMapOf()
         block(ObjectSchemaScope(this, constraints, ruleMap))
         this.constraints = constraints
@@ -99,11 +99,11 @@ open class ObjectSchema<T : Any>(
 
     private fun ValidationContext.applyConstraints(
         input: T,
-        constraints: List<Constraint<T>>,
+        constraints: List<Pair<String, Constraint<T>>>,
     ): ValidationResult<T> {
         val validator =
             constraints
-                .map { ConstraintValidator(it) }
+                .map { (id, constraint) -> ConstraintValidator(id, constraint) }
                 .fold(Validator.success<T>()) { acc, v -> acc + v }
         return validator.execute(input)
     }
@@ -123,7 +123,7 @@ open class ObjectSchema<T : Any>(
     ): ObjectSchema<T> {
         val choose = { _: T -> validator }
         return ObjectSchema {
-            constraints.forEach { constrain(it) }
+            constraints.forEach { (id, constraint) -> constrain(id, constraint) }
             ruleMap.forEach { addRule(it.key, it.value.choose) }
             addRule(key, choose)
         }
@@ -264,16 +264,20 @@ internal data class Rule(
  */
 class ObjectSchemaScope<T : Any> internal constructor(
     val self: Validator<T, T>,
-    private val constraints: MutableList<Constraint<T>>,
+    private val constraints: MutableList<Pair<String, Constraint<T>>>,
     private val ruleMap: MutableMap<KProperty1<T, *>, Rule>,
 ) {
     /**
      * Defines an object-level constraint.
      *
+     * @param id Unique identifier for this constraint (used in error messages)
      * @param check Lambda that performs the validation using ConstraintScope
      */
-    fun constrain(check: Constraint<T>) {
-        constraints.add(check)
+    fun constrain(
+        id: String,
+        check: Constraint<T>,
+    ) {
+        constraints.add(id to check)
     }
 
     /**

@@ -19,14 +19,25 @@ typealias MessageProvider = ValidationContext.() -> Message
  * - [Resource]: I18n messages loaded from `kova.properties` resource bundles
  */
 sealed interface Message {
+    fun withDetails(
+        input: Any?,
+        constraintId: String,
+    ): Message
+
     /** The formatted message text */
     val text: String
+
+    /** The constraint identifier for this message */
+    val constraintId: String
 
     /** The root object identifier in the validation hierarchy */
     val root: String
 
     /** The path to the validated value in the object graph */
     val path: Path
+
+    /** The input value being validated */
+    val input: Any?
 
     /**
      * A simple text message without i18n support.
@@ -37,13 +48,20 @@ sealed interface Message {
      * @property context The message context containing constraint metadata and validation state
      * @property text The formatted message text
      */
-    class Text internal constructor(
-        /** The message context containing constraint metadata and validation state */
+    @ConsistentCopyVisibility
+    data class Text internal constructor(
+        override val constraintId: String,
         override val root: String,
         override val path: Path,
         override val text: String,
+        override val input: Any?,
     ) : Message {
         override fun toString(): String = "Message(text='$text', root=$root, path=${path.fullName})"
+
+        override fun withDetails(
+            input: Any?,
+            constraintId: String,
+        ) = copy(input = input, constraintId = constraintId)
     }
 
     /**
@@ -64,10 +82,11 @@ sealed interface Message {
      * @property context The message context
      */
     class Resource internal constructor(
+        /** the constraint ID (used as resource key) */
+        override val constraintId: String,
         override val root: String,
         override val path: Path,
-        /** the constraint ID (used as resource key) */
-        val constraintId: String,
+        override val input: Any?,
         /** The message context containing arguments for formatting the resource message */
         vararg val args: Any?,
     ) : Message {
@@ -86,6 +105,18 @@ sealed interface Message {
 
         override fun toString(): String =
             "Message(constraintId=$constraintId, text='$text', root=$root, path=${path.fullName}, args=${args.contentToString()})"
+
+        override fun withDetails(
+            input: Any?,
+            constraintId: String,
+        ): Message =
+            Resource(
+                constraintId = this.constraintId,
+                root = root,
+                path = path,
+                input = input,
+                args = args,
+            )
     }
 }
 

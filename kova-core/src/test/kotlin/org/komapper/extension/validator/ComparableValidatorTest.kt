@@ -48,7 +48,7 @@ class ComparableValidatorTest :
 
         context("constrain") {
             val validator =
-                Kova.uInt().constrain { satisfies(it == 10u) { text("Constraint failed") } }
+                Kova.uInt().constrain("test") { satisfies(it == 10u) { text("Constraint failed") } }
 
             test("success") {
                 val result = validator.tryValidate(10u)

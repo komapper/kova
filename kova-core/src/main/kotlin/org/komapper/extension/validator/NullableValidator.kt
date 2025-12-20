@@ -31,11 +31,14 @@ typealias NullableValidator<T, S> = Validator<T?, S?>
  *     }
  * ```
  *
+ * @param id Unique identifier for the constraint
  * @param check Constraint logic that produces a [ConstraintResult]
  * @return A new nullable validator with the constraint applied
  */
-fun <T : Any, S : Any> NullableValidator<T, S>.constrain(check: Constraint<T?>): NullableValidator<T, S> =
-    compose(ConstraintValidator(check))
+fun <T : Any, S : Any> NullableValidator<T, S>.constrain(
+    id: String,
+    check: Constraint<T?>,
+): NullableValidator<T, S> = compose(ConstraintValidator(id, check))
 
 /**
  * Validates that the input is null.
@@ -54,7 +57,7 @@ fun <T : Any, S : Any> NullableValidator<T, S>.constrain(check: Constraint<T?>):
  */
 fun <T : Any, S : Any> NullableValidator<T, S>.isNull(
     message: MessageProvider = { "kova.nullable.isNull".resource },
-): NullableValidator<T, S> = constrain { satisfies(it == null, message) }
+): NullableValidator<T, S> = constrain("kova.nullable.isNull") { satisfies(it == null, message) }
 
 /**
  * Validates that the input is null OR satisfies a custom validator.
@@ -95,7 +98,7 @@ fun <T : Any, S : Any> NullableValidator<T, S>.isNullOr(block: (Validator<T, T>)
  */
 fun <T : Any, S : Any> NullableValidator<T, S>.notNull(
     message: MessageProvider = { "kova.nullable.notNull".resource },
-): NullableValidator<T, S> = constrain { satisfies(it != null, message) }
+): NullableValidator<T, S> = constrain("kova.nullable.notNull") { satisfies(it != null, message) }
 
 /**
  * Validates that the input is not null AND satisfies a custom validator.

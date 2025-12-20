@@ -53,4 +53,4 @@ typealias ConstraintResult = ValidationResult<Unit>
  * @param content The text content of the error message
  * @return A [Message.Text] instance with the given content
  */
-fun ValidationContext.text(content: String): Message = Message.Text(root, path, content)
+fun ValidationContext.text(content: String): Message = Message.Text("", root, path, content, null)

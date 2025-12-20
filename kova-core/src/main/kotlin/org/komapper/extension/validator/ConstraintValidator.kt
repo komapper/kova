@@ -29,12 +29,16 @@ typealias ConstraintValidator<T> = IdentityValidator<T>
  * @param constraint The constraint to apply
  * @return A validator that checks the constraint and returns the input unchanged if satisfied
  */
-fun <T> ConstraintValidator(constraint: Constraint<T>): ConstraintValidator<T> =
+fun <T> ConstraintValidator(
+    id: String,
+    constraint: Constraint<T>,
+): ConstraintValidator<T> =
     Validator { input ->
         when (val result = constraint.execute(input)) {
             is ValidationResult.Success -> {
                 log {
                     LogEntry.Satisfied(
+                        constraintId = id,
                         root = root,
                         path = path.fullName,
                         input = input,
@@ -47,7 +51,7 @@ fun <T> ConstraintValidator(constraint: Constraint<T>): ConstraintValidator<T> =
                 for (message in result.messages) {
                     log {
                         LogEntry.Violated(
-                            constraintId = if (message is Message.Resource) message.constraintId else null,
+                            constraintId = id,
                             root = message.root,
                             path = message.path.fullName,
                             input = input,
@@ -55,7 +59,12 @@ fun <T> ConstraintValidator(constraint: Constraint<T>): ConstraintValidator<T> =
                         )
                     }
                 }
-                ValidationResult.Failure(Input.Available(input), result.messages)
+                ValidationResult.Failure(
+                    Input.Available(input),
+                    result.messages.map {
+                        it.withDetails(input = input, constraintId = id)
+                    },
+                )
             }
         }
     }

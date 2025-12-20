@@ -122,7 +122,7 @@ data class ValidationContext(
      * @param args Arguments to be interpolated into the message template using MessageFormat
      * @return A [Message.Resource] instance configured with the provided arguments
      */
-    fun String.resource(vararg args: Any?): Message.Resource = Message.Resource(root, path, this, args = args)
+    fun String.resource(vararg args: Any?): Message.Resource = Message.Resource(this, root, path, null, args = args)
 
     val String.resource: Message.Resource get() = resource()
 }
@@ -371,13 +371,14 @@ data class Path(
 
 sealed interface LogEntry {
     data class Satisfied(
+        val constraintId: String,
         val root: String,
         val path: String,
         val input: Any?,
     ) : LogEntry
 
     data class Violated(
-        val constraintId: String?,
+        val constraintId: String,
         val root: String,
         val path: String,
         val input: Any?,

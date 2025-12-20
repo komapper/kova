@@ -57,7 +57,8 @@ typealias TemporalValidator<T> = IdentityValidator<T>
 inline fun <reified T> TemporalValidator<T>.future(
     noinline message: MessageProvider = { "kova.temporal.future".resource },
 ): TemporalValidator<T>
-        where T : Temporal, T : Comparable<T> = constrain { satisfies(it > now(clock), message) }
+        where T : Temporal, T : Comparable<T> =
+    constrain("kova.temporal.future") { satisfies(it > now(clock), message) }
 
 /**
  * Validates that the temporal value is in the future or present (greater than or equal to now).
@@ -80,7 +81,8 @@ inline fun <reified T> TemporalValidator<T>.future(
 inline fun <reified T> TemporalValidator<T>.futureOrPresent(
     noinline message: MessageProvider = { "kova.temporal.futureOrPresent".resource },
 ): TemporalValidator<T>
-        where T : Temporal, T : Comparable<T> = constrain { satisfies(it >= now(clock), message) }
+        where T : Temporal, T : Comparable<T> =
+    constrain("kova.temporal.futureOrPresent") { satisfies(it >= now(clock), message) }
 
 /**
  * Validates that the temporal value is in the past (strictly less than now).
@@ -103,7 +105,8 @@ inline fun <reified T> TemporalValidator<T>.futureOrPresent(
 inline fun <reified T> TemporalValidator<T>.past(
     noinline message: MessageProvider = { "kova.temporal.past".resource },
 ): TemporalValidator<T>
-        where T : Temporal, T : Comparable<T> = constrain { satisfies(it < now(clock), message) }
+        where T : Temporal, T : Comparable<T> =
+    constrain("kova.temporal.past") { satisfies(it < now(clock), message) }
 
 /**
  * Validates that the temporal value is in the past or present (less than or equal to now).
@@ -126,7 +129,8 @@ inline fun <reified T> TemporalValidator<T>.past(
 inline fun <reified T> TemporalValidator<T>.pastOrPresent(
     noinline message: MessageProvider = { "kova.temporal.pastOrPresent".resource },
 ): TemporalValidator<T>
-        where T : Temporal, T : Comparable<T> = constrain { satisfies(it <= now(clock), message) }
+        where T : Temporal, T : Comparable<T> =
+    constrain("kova.temporal.pastOrPresent") { satisfies(it <= now(clock), message) }
 
 /**
  * Obtains the current temporal value for the specified type using the provided clock.

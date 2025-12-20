@@ -348,7 +348,7 @@ class NullableValidatorTest :
                 logs shouldBe
                     listOf(
                         LogEntry.Violated(constraintId = "kova.nullable.isNull", root = "", path = "", input = 3, args = listOf()),
-                        LogEntry.Satisfied(root = "", path = "", input = 3),
+                        LogEntry.Satisfied(constraintId = "kova.comparable.min", root = "", path = "", input = 3),
                     )
             }
 
@@ -357,7 +357,15 @@ class NullableValidatorTest :
                 val config = ValidationConfig(logger = { logs.add(it) })
                 val result = isNullOrMin3Max3.tryValidate(null, config = config)
                 result.isSuccess().mustBeTrue()
-                logs shouldBe listOf(LogEntry.Satisfied(root = "", path = "", input = null))
+                logs shouldBe
+                    listOf(
+                        LogEntry.Satisfied(
+                            constraintId = "kova.nullable.isNull",
+                            root = "",
+                            path = "",
+                            input = null,
+                        ),
+                    )
             }
         }
     })

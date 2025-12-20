@@ -67,7 +67,7 @@ class CollectionValidatorTest :
 
         context("constrain") {
             val validator =
-                Kova.list<String>().constrain {
+                Kova.list<String>().constrain("test") {
                     satisfies(it.size == 1) { text("Constraint failed") }
                 }
 

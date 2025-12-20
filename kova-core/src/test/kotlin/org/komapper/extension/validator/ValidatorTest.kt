@@ -266,8 +266,8 @@ class ValidatorTest :
 
                 logs shouldBe
                     listOf(
-                        LogEntry.Satisfied(root = "", path = "", input = "abcde"),
-                        LogEntry.Satisfied(root = "", path = "", input = "abcde"),
+                        LogEntry.Satisfied(constraintId = "kova.charSequence.min", root = "", path = "", input = "abcde"),
+                        LogEntry.Satisfied(constraintId = "kova.charSequence.max", root = "", path = "", input = "abcde"),
                     )
             }
 
@@ -285,7 +285,7 @@ class ValidatorTest :
                             input = "ab",
                             args = listOf(3),
                         ),
-                        LogEntry.Satisfied(root = "", path = "", input = "ab"),
+                        LogEntry.Satisfied(constraintId = "kova.charSequence.max", root = "", path = "", input = "ab"),
                     )
             }
         }
@@ -414,7 +414,7 @@ class ValidatorTest :
                             input = "ab",
                             args = listOf(3),
                         ),
-                        LogEntry.Satisfied(root = "", path = "", input = "AB"),
+                        LogEntry.Satisfied(constraintId = "kova.charSequence.max", root = "", path = "", input = "AB"),
                     )
             }
         }

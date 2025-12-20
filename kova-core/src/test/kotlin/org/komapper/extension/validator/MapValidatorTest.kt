@@ -85,7 +85,7 @@ class MapValidatorTest :
 
         context("constrain") {
             val validator =
-                Kova.map<String, String>().constrain {
+                Kova.map<String, String>().constrain("test") {
                     satisfies(it.size == 1) { text("Constraint failed") }
                 }
 
@@ -105,7 +105,7 @@ class MapValidatorTest :
         context("onEach") {
             val validator =
                 Kova.map<String, String>().onEach { v ->
-                    v.constrain { (key, value) ->
+                    v.constrain("test") { (key, value) ->
                         satisfies(key != value) { text("Constraint failed: $key") }
                     }
                 }

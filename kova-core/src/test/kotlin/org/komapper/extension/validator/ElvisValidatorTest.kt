@@ -158,7 +158,7 @@ class ElvisValidatorTest :
                 val result = nullableMax5OrMin3.tryValidate(3, config = config)
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe 3
-                logs shouldBe listOf(LogEntry.Satisfied(root = "", path = "", input = 3))
+                logs shouldBe listOf(LogEntry.Satisfied(constraintId = "kova.comparable.max", root = "", path = "", input = 3))
             }
 
             test("success: 2") {
@@ -167,7 +167,7 @@ class ElvisValidatorTest :
                 val result = nullableMax5OrMin3.tryValidate(2, config = config)
                 result.isSuccess().mustBeTrue()
                 result.value shouldBe 2
-                logs shouldBe listOf(LogEntry.Satisfied(root = "", path = "", input = 2))
+                logs shouldBe listOf(LogEntry.Satisfied(constraintId = "kova.comparable.max", root = "", path = "", input = 2))
             }
 
             test("success: 6") {
@@ -185,7 +185,7 @@ class ElvisValidatorTest :
                             input = 6,
                             args = listOf(5),
                         ),
-                        LogEntry.Satisfied(root = "", path = "", input = 6),
+                        LogEntry.Satisfied(constraintId = "kova.comparable.min", root = "", path = "", input = 6),
                     )
             }
 

@@ -163,7 +163,7 @@ class ObjectSchemaTest :
 
             val periodSchema =
                 object : ObjectSchema<Period>({
-                    constrain {
+                    constrain("test") {
                         satisfies(it.startDate <= it.endDate) {
                             text("startDate must be less than or equal to endDate")
                         }

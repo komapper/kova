@@ -34,7 +34,10 @@ typealias IdentityValidator<T> = Validator<T, T>
  * @param check Constraint logic that produces a [ConstraintResult]
  * @return A new validator with the constraint applied
  */
-fun <T> IdentityValidator<T>.constrain(check: Constraint<T>): IdentityValidator<T> = chain(ConstraintValidator(check))
+fun <T> IdentityValidator<T>.constrain(
+    id: String,
+    check: Constraint<T>,
+): IdentityValidator<T> = chain(ConstraintValidator(id, check))
 
 /**
  * Chains two validators where the second validator receives the output of the first if it succeeds.
@@ -95,7 +98,7 @@ fun <T> IdentityValidator<T>.chain(next: IdentityValidator<T>): IdentityValidato
 fun <T> IdentityValidator<T>.literal(
     value: T,
     message: MessageProvider = { "kova.literal.single".resource(value) },
-) = constrain { satisfies(it == value, message) }
+) = constrain("kova.literal.single") { satisfies(it == value, message) }
 
 /**
  * Validates that the input is one of the specified values.
@@ -114,7 +117,7 @@ fun <T> IdentityValidator<T>.literal(
 fun <T> IdentityValidator<T>.literal(
     values: List<T>,
     message: MessageProvider = { "kova.literal.list".resource(values) },
-) = constrain { satisfies(it in values, message) }
+) = constrain("kova.literal.list") { satisfies(it in values, message) }
 
 /**
  * Conditionally applies this validator based on a predicate.
