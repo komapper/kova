@@ -296,12 +296,9 @@ class ObjectSchemaScope<T : Any> internal constructor(
      * ```
      *
      * @param block Lambda that receives a base validator and creates the validator for this property
-     * @return The validator created by the block
      */
-    operator fun <V, VALIDATOR : Validator<V, V>> KProperty1<T, V>.invoke(block: (Validator<V, V>) -> VALIDATOR): VALIDATOR {
-        val validator = block(Validator.success())
-        addRule(this) { _ -> validator }
-        return validator
+    operator fun <V, VALIDATOR : Validator<V, V>> KProperty1<T, V>.invoke(block: (Validator<V, V>) -> VALIDATOR) {
+        addRule(this) { _ -> block(Validator.success()) }
     }
 
     /**
@@ -328,12 +325,10 @@ class ObjectSchemaScope<T : Any> internal constructor(
      * ```
      *
      * @param resolve Lambda that receives the object and a base validator, and chooses a validator
-     * @return The resolution function for further use
      */
-    infix fun <V, VALIDATOR : IdentityValidator<V>> KProperty1<T, V>.choose(resolve: (T, Validator<V, V>) -> VALIDATOR): (T) -> VALIDATOR {
+    infix fun <V, VALIDATOR : IdentityValidator<V>> KProperty1<T, V>.choose(resolve: (T, Validator<V, V>) -> VALIDATOR) {
         val chooser = { receiver: T -> resolve(receiver, Validator.success()) }
         addRule(this, chooser)
-        return chooser
     }
 
     internal fun <V> addRule(
