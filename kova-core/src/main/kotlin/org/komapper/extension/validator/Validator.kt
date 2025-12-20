@@ -396,7 +396,7 @@ fun <T : Any, S : Any> Validator<T, S>.asNullable(): NullableValidator<T, S> =
  * @param defaultValue The value to use when input is null
  * @return A new validator that accepts null input but produces non-nullable output
  */
-fun <T : Any, S : Any> Validator<T, S>.asNullable(defaultValue: S): NullCoalescingValidator<T, S> = asNullable { defaultValue }
+fun <T : Any, S : Any> Validator<T, S>.asNullable(defaultValue: S): ElvisValidator<T, S> = asNullable { defaultValue }
 
 /**
  * Converts a non-nullable validator to a nullable validator with a lazily-evaluated default value.
@@ -414,7 +414,7 @@ fun <T : Any, S : Any> Validator<T, S>.asNullable(defaultValue: S): NullCoalesci
  * @param withDefault Function that generates the default value when input is null
  * @return A new validator that accepts null input but produces non-nullable output
  */
-fun <T : Any, S : Any> Validator<T, S>.asNullable(withDefault: () -> S): NullCoalescingValidator<T, S> =
+fun <T : Any, S : Any> Validator<T, S>.asNullable(withDefault: () -> S): ElvisValidator<T, S> =
     Validator { input ->
         if (input == null) Success(withDefault()) else execute(input)
     }

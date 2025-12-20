@@ -192,7 +192,7 @@ class NullableValidatorTest :
             test("success") {
                 val result = notNullAndMin3.tryValidate(4)
                 result.isSuccess().mustBeTrue()
-                val actual : Int? = result.value
+                val actual: Int? = result.value
                 actual shouldBe 4
             }
 

@@ -128,7 +128,7 @@ fun <T : Any, S : Any> NullableValidator<T, S>.notNullAnd(block: (Validator<T, T
  * Validates that the input is not null, then applies a transformation.
  *
  * This method rejects null inputs and applies the transformation built by the block to non-null values.
- * The result is a [NullCoalescingValidator] with non-nullable output.
+ * The result is an [ElvisValidator] with non-nullable output.
  *
  * Example:
  * ```kotlin
@@ -143,8 +143,9 @@ fun <T : Any, S : Any> NullableValidator<T, S>.notNullAnd(block: (Validator<T, T
  * @param block A function that builds a validator transformation from a success validator
  * @return A new validator that rejects null and transforms non-null values
  */
-inline fun <T : Any, reified S : Any, U : Any> NullableValidator<T, S>.notNullThen(block: (Validator<S, S>) -> Validator<S, U>): NullCoalescingValidator<T, U> =
-    notNull().toNonNullable().then(block(Validator.success()))
+inline fun <T : Any, reified S : Any, U : Any> NullableValidator<T, S>.notNullThen(
+    block: (Validator<S, S>) -> Validator<S, U>,
+): ElvisValidator<T, U> = notNull().toNonNullable().then(block(Validator.success()))
 
 /**
  * Converts a nullable validator to a validator with non-nullable output.
@@ -162,13 +163,13 @@ inline fun <T : Any, reified S : Any, U : Any> NullableValidator<T, S>.notNullTh
  *
  * @return A validator that rejects null and produces non-nullable output
  */
-inline fun <T : Any, reified S : Any> NullableValidator<T, S>.toNonNullable(): Validator<T?, S> = notNull().map { it!! }
+inline fun <T : Any, reified S : Any> NullableValidator<T, S>.toNonNullable(): ElvisValidator<T, S> = notNull().map { it!! }
 
 /**
  * Provides a default value for null inputs.
  *
  * If the input is null, the validator returns the default value instead.
- * This converts the validator to a [NullCoalescingValidator] that produces non-nullable output.
+ * This converts the validator to an [ElvisValidator] that produces non-nullable output.
  *
  * Example:
  * ```kotlin
@@ -181,7 +182,7 @@ inline fun <T : Any, reified S : Any> NullableValidator<T, S>.toNonNullable(): V
  * @param defaultValue The value to use when input is null
  * @return A new validator with non-nullable output that uses the default for null inputs
  */
-inline fun <T : Any, reified S : Any> NullableValidator<T, S>.withDefault(defaultValue: S): NullCoalescingValidator<T, S> =
+inline fun <T : Any, reified S : Any> NullableValidator<T, S>.withDefault(defaultValue: S): ElvisValidator<T, S> =
     withDefault { defaultValue }
 
 /**
@@ -202,14 +203,14 @@ inline fun <T : Any, reified S : Any> NullableValidator<T, S>.withDefault(defaul
  * @param provide Function that generates the default value
  * @return A new validator with non-nullable output that uses the provided default for null inputs
  */
-inline fun <T : Any, reified S : Any> NullableValidator<T, S>.withDefault(noinline provide: () -> S): NullCoalescingValidator<T, S> =
+inline fun <T : Any, reified S : Any> NullableValidator<T, S>.withDefault(noinline provide: () -> S): ElvisValidator<T, S> =
     map { it ?: provide() }
 
 /**
  * Provides a default value for null inputs, then applies a transformation.
  *
  * If the input is null, the default value is used. The transformation built by the block is then applied.
- * This converts the validator to a [NullCoalescingValidator] with non-nullable output.
+ * This converts the validator to an [ElvisValidator] with non-nullable output.
  *
  * Example:
  * ```kotlin
@@ -227,9 +228,8 @@ inline fun <T : Any, reified S : Any> NullableValidator<T, S>.withDefault(noinli
  */
 inline fun <T : Any, reified S : Any, U : Any> NullableValidator<T, S>.withDefaultThen(
     defaultValue: S,
-    block: (Validator<S, S>) -> Validator<S, U>
-): NullCoalescingValidator<T, U> =
-    withDefaultThen({ defaultValue }, block)
+    block: (Validator<S, S>) -> Validator<S, U>,
+): ElvisValidator<T, U> = withDefaultThen({ defaultValue }, block)
 
 /**
  * Provides a lazily-evaluated default value for null inputs, then applies a transformation.
@@ -253,9 +253,8 @@ inline fun <T : Any, reified S : Any, U : Any> NullableValidator<T, S>.withDefau
  */
 inline fun <T : Any, reified S : Any, U : Any> NullableValidator<T, S>.withDefaultThen(
     noinline provide: () -> S,
-    block: (Validator<S, S>) -> Validator<S, U>
-): NullCoalescingValidator<T, U> =
-    withDefault(provide).then(block(Validator.success()))
+    block: (Validator<S, S>) -> Validator<S, U>,
+): ElvisValidator<T, U> = withDefault(provide).then(block(Validator.success()))
 
 /**
  * Operator overload for [and]. Combines this nullable validator with a non-nullable validator.
