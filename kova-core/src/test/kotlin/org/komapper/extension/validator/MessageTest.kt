@@ -15,19 +15,14 @@ class MessageTest :
 
         test("resolve arguments") {
             val input = "abc"
-            val vc = ValidationContext()
+            with(ValidationContext()) {
+                val resource1 = "kova.charSequence.min".resource(1)
+                val resource2 = "kova.charSequence.max".resource(5)
+                val resource3 = "kova.or".resource(listOf(resource1), resource2)
 
-            val cc1 = vc.createConstraintContext(input, "kova.charSequence.min")
-            val resource1 = Message.Resource(cc1, 1)
-
-            val cc2 = vc.createConstraintContext(input, "kova.charSequence.max")
-            val resource2 = Message.Resource(cc2, 5)
-
-            val cc3 = vc.createConstraintContext(input, "kova.or")
-            val resource3 = Message.Resource(cc3, listOf(resource1), resource2)
-
-            resource3.text shouldBe
-                "at least one constraint must be satisfied: [[must be at least 1 characters], must be at most 5 characters]"
+                resource3.text shouldBe
+                    "at least one constraint must be satisfied: [[must be at least 1 characters], must be at most 5 characters]"
+            }
         }
 
         test("toString: string") {
@@ -37,7 +32,7 @@ class MessageTest :
             result.isFailure().mustBeTrue()
             result.messages.size shouldBe 1
             result.messages[0].toString() shouldBe
-                "Message(constraintId=kova.charSequence.min, text='must be at least 5 characters', root=, path=, input=abc, args=[5])"
+                "Message(constraintId=kova.charSequence.min, text='must be at least 5 characters', root=, path=, args=[5])"
         }
 
         test("toString: object") {
@@ -54,6 +49,6 @@ class MessageTest :
             result.isFailure().mustBeTrue()
             result.messages.size shouldBe 1
             result.messages[0].toString() shouldBe
-                "Message(constraintId=kova.charSequence.min, text='must be at least 5 characters', root=Person, path=name, input=abc, args=[5])"
+                "Message(constraintId=kova.charSequence.min, text='must be at least 5 characters', root=Person, path=name, args=[5])"
         }
     })

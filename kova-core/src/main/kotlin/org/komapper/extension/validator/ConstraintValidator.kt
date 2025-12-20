@@ -31,11 +31,10 @@ typealias ConstraintValidator<T> = IdentityValidator<T>
  */
 fun <T> ConstraintValidator(constraint: Constraint<T>): ConstraintValidator<T> =
     Validator { input ->
-        when (val result = constraint.check(createConstraintContext(input, constraint.id))) {
+        when (val result = constraint.execute(input)) {
             is ValidationResult.Success -> {
                 log {
                     LogEntry.Satisfied(
-                        constraintId = constraint.id,
                         root = root,
                         path = path.fullName,
                         input = input,
@@ -47,11 +46,11 @@ fun <T> ConstraintValidator(constraint: Constraint<T>): ConstraintValidator<T> =
             is ValidationResult.Failure -> {
                 for (message in result.messages) log {
                     LogEntry.Violated(
-                        constraintId = constraint.id,
+                        constraintId = if (message is Message.Resource) message.constraintId else null,
                         root = message.root,
                         path = message.path.fullName,
                         input = input,
-                        args = message.args.asList(),
+                        args = if (message is Message.Resource) message.args.asList() else emptyList(),
                     )
                 }
                 ValidationResult.Failure(Input.Available(input), result.messages)

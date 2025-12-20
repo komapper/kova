@@ -29,7 +29,7 @@ import kotlin.reflect.KProperty1
  *     Period::startDate { it.min(LocalDate.of(2025, 1, 1)) }
  *     Period::endDate { it.max(LocalDate.of(2025, 12, 31)) }
  *     constrain("dateRange") {
- *         satisfies(input.startDate <= input.endDate, "Start date must be before end date")
+ *         satisfies(it.startDate <= input.endDate, "Start date must be before end date")
  *     }
  * })
  * ```
@@ -122,11 +122,11 @@ open class ObjectSchema<T : Any>(
         validator: IdentityValidator<V>,
     ): ObjectSchema<T> {
         val choose = { _: T -> validator }
-        return ObjectSchema({
-            constraints.forEach { constrain(it.id, it.check) }
+        return ObjectSchema {
+            constraints.forEach { constrain(it) }
             ruleMap.forEach { addRule(it.key, it.value.choose) }
             addRule(key, choose)
-        })
+        }
     }
 
     /**
@@ -255,7 +255,7 @@ internal data class Rule(
  *     Period::startDate { it }
  *     Period::endDate { it }
  *     constrain("dateRange") {
- *         satisfies(input.startDate <= input.endDate, "Start date must be before or equal to end date")
+ *         satisfies(it.startDate <= input.endDate, "Start date must be before or equal to end date")
  *     }
  * })
  * ```
@@ -270,14 +270,10 @@ class ObjectSchemaScope<T : Any> internal constructor(
     /**
      * Defines an object-level constraint.
      *
-     * @param id Unique identifier for this constraint (used in error messages)
      * @param check Lambda that performs the validation using ConstraintScope
      */
-    fun constrain(
-        id: String,
-        check: ConstraintContext<T>.() -> ConstraintResult,
-    ) {
-        constraints.add(Constraint(id, check))
+    fun constrain(check: Constraint<T>) {
+        constraints.add(check)
     }
 
     /**

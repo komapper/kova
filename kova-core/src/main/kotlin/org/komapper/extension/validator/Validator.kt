@@ -176,10 +176,10 @@ infix fun <IN, OUT> Validator<IN, OUT>.or(other: Validator<IN, OUT>): Validator<
             is Failure -> {
                 when (val otherResult = other.execute(input)) {
                     is Success -> otherResult
-                    is Failure -> {
-                        val constraintContext = createConstraintContext(input, "kova.or")
-                        Failure(otherResult.value, listOf(Message.Or(constraintContext, selfResult, otherResult)))
-                    }
+                    is Failure -> Failure(
+                        otherResult.value,
+                        listOf("kova.or".resource(selfResult.messages, otherResult.messages))
+                    )
                 }
             }
         }
@@ -457,15 +457,13 @@ fun <T : Any, S : Any> Validator<T, S>.asNullable(withDefault: () -> S): ElvisVa
  * @return A new validator that returns a single custom message on validation failure
  * @see withMessage for a simpler overload that accepts a static string message
  */
-fun <T, S> Validator<T, S>.withMessage(block: ConstraintContext<T>.(messages: List<Message>) -> Message): Validator<T, S> =
+fun <T, S> Validator<T, S>.withMessage(
+    block: ValidationContext.(messages: List<Message>) -> Message = { "kova.withMessage".resource(it) }
+): Validator<T, S> =
     Validator { input ->
         when (val result = execute(input)) {
             is Success -> result
-            is Failure -> {
-                val constraintContext = createConstraintContext(input, "kova.withMessage")
-                val message = constraintContext.block(result.messages)
-                Failure(result.value, listOf(message))
-            }
+            is Failure -> Failure(result.value, listOf(block(result.messages)))
         }
     }
 
