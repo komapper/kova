@@ -10,6 +10,4 @@ fun Boolean.mustBeTrue(message: Any? = null) {
     if (!this) throw AssertionError(message ?: "Expected value to be true.")
 }
 
-val Message.constraintId get() = shouldBeInstanceOf<Message.Resource>().constraintId
-
 val Message.args get() = shouldBeInstanceOf<Message.Resource>().args

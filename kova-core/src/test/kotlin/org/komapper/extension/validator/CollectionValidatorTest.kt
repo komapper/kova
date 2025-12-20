@@ -102,7 +102,9 @@ class CollectionValidatorTest :
                     it.args.single().shouldBeInstanceOf<List<Message>> { messages ->
                         messages.size shouldBe 2
                         messages[0].constraintId shouldBe "kova.charSequence.length"
+                        messages[0].input shouldBe "4567"
                         messages[1].constraintId shouldBe "kova.charSequence.length"
+                        messages[1].input shouldBe "8910"
                     }
                 }
             }
