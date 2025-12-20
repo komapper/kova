@@ -3,8 +3,10 @@ package org.komapper.extension.validator
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-fun <T> ConstraintContext(input: T, constraintId: String = "") =
-    ConstraintContext(input, constraintId, ValidationContext())
+fun <T> ConstraintContext(
+    input: T,
+    constraintId: String = "",
+) = ConstraintContext(input, constraintId, ValidationContext())
 
 class MessageProviderTest :
     FunSpec({
@@ -12,7 +14,7 @@ class MessageProviderTest :
             val input = "abc"
 
             test("text") {
-                val message = ConstraintContext(input = input).text("input=${input}")
+                val message = ConstraintContext(input = input).text("input=$input")
                 message.text shouldBe "input=abc"
             }
 

@@ -35,12 +35,15 @@ interface ValidationContext {
      * @param this@execute The validation context tracking state and configuration
      * @return A [ValidationResult] containing either the validated value or failure details
      */
-    fun <IN, OUT> Validator<IN, OUT>.execute(input: IN): ValidationResult<OUT> = with(this) {
-        this@ValidationContext.execute(input)
-    }
+    fun <IN, OUT> Validator<IN, OUT>.execute(input: IN): ValidationResult<OUT> =
+        with(this) {
+            this@ValidationContext.execute(input)
+        }
 
-    fun copy(root: String = this.root, path: Path = this.path): ValidationContext =
-        ValidationContext(root, path, config)
+    fun copy(
+        root: String = this.root,
+        path: Path = this.path,
+    ): ValidationContext = ValidationContext(root, path, config)
 
     companion object {
         operator fun invoke(
@@ -112,15 +115,16 @@ data class ValidationConfig(
 inline fun <R> ValidationContext.addRoot(
     name: String,
     obj: Any?,
-    block: ValidationContext.() -> R
-): R = block(
-    if (root.isEmpty()) {
-        // initialize root
-        copy(root = name, path = Path(name = "", obj = obj, parent = null))
-    } else {
-        this
-    }
-)
+    block: ValidationContext.() -> R,
+): R =
+    block(
+        if (root.isEmpty()) {
+            // initialize root
+            copy(root = name, path = Path(name = "", obj = obj, parent = null))
+        } else {
+            this
+        },
+    )
 
 /**
  * Adds a path segment for nested validation.
@@ -145,7 +149,7 @@ inline fun <R> ValidationContext.addRoot(
 inline fun <R> ValidationContext.addPath(
     name: String,
     obj: Any?,
-    block: ValidationContext.() -> R
+    block: ValidationContext.() -> R,
 ): R {
     val parent = this.path
     val path =
@@ -205,7 +209,7 @@ fun ValidationContext.bindObject(obj: Any?): ValidationContext {
 inline fun <T, R> ValidationContext.addPathChecked(
     name: String,
     obj: T,
-    block: ValidationContext.() -> R
+    block: ValidationContext.() -> R,
 ): R? {
     val parent = this.path
     // Check for circular reference
@@ -228,7 +232,10 @@ inline fun <T, R> ValidationContext.addPathChecked(
  * @param text The text to append to the current path name
  * @return A new context with the modified path name
  */
-inline fun <R> ValidationContext.appendPath(text: String, block: ValidationContext.() -> R): R {
+inline fun <R> ValidationContext.appendPath(
+    text: String,
+    block: ValidationContext.() -> R,
+): R {
     val path = this.path.copy(name = this.path.name + text)
     return block(copy(path = path))
 }

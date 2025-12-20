@@ -67,7 +67,10 @@ open class ObjectSchema<T : Any>(
         }
     }
 
-    private fun ValidationContext.applyRules(input: T, ruleMap: Map<KProperty1<T, *>, Rule>): ValidationResult<T> {
+    private fun ValidationContext.applyRules(
+        input: T,
+        ruleMap: Map<KProperty1<T, *>, Rule>,
+    ): ValidationResult<T> {
         val results = mutableListOf<ValidationResult<T>>()
         for ((key, rule) in ruleMap) {
             val result = applyRule(input, key, rule)
@@ -79,7 +82,11 @@ open class ObjectSchema<T : Any>(
         return results.fold(ValidationResult.Success(input), ValidationResult<T>::plus)
     }
 
-    private fun ValidationContext.applyRule(input: T, key: KProperty1<T, *>, rule: Rule): ValidationResult<T> {
+    private fun ValidationContext.applyRule(
+        input: T,
+        key: KProperty1<T, *>,
+        rule: Rule,
+    ): ValidationResult<T> {
         val value = rule.transform(input)
         val validator = rule.choose(input)
         return addPathChecked(key.name, value) {
@@ -90,7 +97,10 @@ open class ObjectSchema<T : Any>(
         } ?: ValidationResult.Success(input) // If circular reference detected, terminate validation early with success
     }
 
-    private fun ValidationContext.applyConstraints(input: T, constraints: List<Constraint<T>>): ValidationResult<T> {
+    private fun ValidationContext.applyConstraints(
+        input: T,
+        constraints: List<Constraint<T>>,
+    ): ValidationResult<T> {
         val validator =
             constraints
                 .map { ConstraintValidator(it) }

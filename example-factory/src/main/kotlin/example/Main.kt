@@ -1,8 +1,9 @@
 package example
 
+import org.komapper.extension.validator.Kova
 import org.komapper.extension.validator.ObjectSchema
-import org.komapper.extension.validator.ValidationResult
-import org.komapper.extension.validator.factory.generateFactory
+import org.komapper.extension.validator.factory.Factory
+import org.komapper.extension.validator.factory.factory
 import org.komapper.extension.validator.factory.tryCreate
 import org.komapper.extension.validator.isSuccess
 import org.komapper.extension.validator.max
@@ -26,48 +27,44 @@ data class Person(
 
 object UserSchema : ObjectSchema<User>({
     User::age { it.min(0).max(120) } // property validator
-}) {
-    fun tryCreate(
+})
+
+object UserFactory {
+    operator fun invoke(
         name: String,
         age: String,
-    ): ValidationResult<User> {
-        val factory =
-            generateFactory {
-                val name = check("name", name) { it.min(1).notBlank() } // argument validator
-                val age = check("age", age) { it.toInt() } // argument validator
-                create { User(name(), age()) }
-            }
-        return factory.tryCreate()
-    }
+    ): Factory<User> =
+        UserSchema.factory {
+            val name = check("name", name) { it.min(1).notBlank() } // argument validator
+            val age = check("age", age) { it.toInt() } // argument validator
+            create { User(name(), age()) }
+        }
 }
 
-object AgeSchema : ObjectSchema<Age>({}) {
-    fun factory(age: String) =
-        generateFactory {
+object AgeFactory {
+    operator fun invoke(age: String) =
+        Kova.factory {
             val age = check("value", age) { it.toInt() } // argument validator
             create { Age(age()) }
         }
 }
 
-object PersonSchema : ObjectSchema<Person>({}) {
-    fun tryCreate(
+object PersonFactory {
+    operator fun invoke(
         name: String,
         age: String,
-    ): ValidationResult<Person> {
-        val factory =
-            PersonSchema.generateFactory {
-                val name = check("name", name) { it.min(1).notBlank() } // argument validator
-                val age = check("age", AgeSchema.factory(age)) // argument validator
-                create { Person(name(), age()) }
-            }
-        return factory.tryCreate()
-    }
+    ): Factory<Person> =
+        Kova.factory {
+            val name = check("name", name) { it.min(1).notBlank() } // argument validator
+            val age = check("age", AgeFactory(age)) // argument validator
+            create { Person(name(), age()) }
+        }
 }
 
 fun main() {
     println("\n#Creation")
     println("##Success")
-    val result = UserSchema.tryCreate("a", "10")
+    val result = UserFactory("a", "10").tryCreate()
     if (result.isSuccess()) {
         println("Success: ${result.value}") // Success: User(name=a, age=10)
     } else {
@@ -75,7 +72,7 @@ fun main() {
     }
 
     println("##Failure")
-    val result2 = UserSchema.tryCreate("a", "130")
+    val result2 = UserFactory("a", "130").tryCreate()
     if (result2.isSuccess()) {
         error("never happens")
     } else {
@@ -85,7 +82,7 @@ fun main() {
 
     println("\n#Creation(nested object)")
     println("##Success")
-    val result3 = PersonSchema.tryCreate("a", "10")
+    val result3 = PersonFactory("a", "10").tryCreate()
     if (result3.isSuccess()) {
         println("Success: ${result.value}") // Person(name=a, age=Age(value=10))
     } else {
@@ -93,7 +90,7 @@ fun main() {
     }
 
     println("##Failure")
-    val result4 = PersonSchema.tryCreate("   ", "abc")
+    val result4 = PersonFactory("   ", "abc").tryCreate()
     if (result4.isSuccess()) {
         error("never happens")
     } else {
