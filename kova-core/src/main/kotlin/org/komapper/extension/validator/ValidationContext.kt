@@ -80,37 +80,6 @@ data class ValidationContext(
         }
 
     /**
-     * Evaluates a condition and returns the appropriate constraint result.
-     *
-     * Returns [ValidationResult.Success] if the condition is true,
-     * or [ValidationResult.Failure] with the given message if false.
-     *
-     * Example with text message:
-     * ```kotlin
-     * satisfies(
-     *     value > 0,
-     *     context.text("Value must be positive")
-     * )
-     * ```
-     *
-     * Example with resource message:
-     * ```kotlin
-     * satisfies(
-     *     value > 0,
-     *     context.resource(value)
-     * )
-     * ```
-     *
-     * @param condition The condition to evaluate
-     * @param message The Message to use if the condition is false
-     * @return The constraint result
-     */
-    fun satisfies(
-        condition: Boolean,
-        message: Message,
-    ): ConstraintResult = satisfies(condition) { message }
-
-    /**
      * Creates a resource-based validation message.
      *
      * Use this method to create internationalized messages that load text from `kova.properties`.
