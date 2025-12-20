@@ -37,7 +37,7 @@ data class Constraint<T>(
          *
          * Used internally as a default constraint.
          */
-        fun <T> satisfied(): Constraint<T> = Constraint("kova.satisfied") { ConstraintResult.Satisfied }
+        fun <T> satisfied(): Constraint<T> = Constraint("kova.satisfied") { ValidationResult.Success(Unit) }
     }
 }
 
@@ -99,16 +99,16 @@ class ConstraintContext<T>(
         message: MessageProvider<T>,
     ): ConstraintResult =
         if (condition) {
-            ConstraintResult.Satisfied
+            ValidationResult.Success(Unit)
         } else {
-            ConstraintResult.Violated(message())
+            ValidationResult.Failure(Input.Available(Unit), listOf(message()))
         }
 
     /**
      * Evaluates a condition and returns the appropriate constraint result.
      *
-     * Returns [ConstraintResult.Satisfied] if the condition is true,
-     * or [ConstraintResult.Violated] with the given message if false.
+     * Returns [ValidationResult.Success] if the condition is true,
+     * or [ValidationResult.Failure] with the given message if false.
      *
      * Example with text message:
      * ```kotlin
@@ -139,23 +139,9 @@ class ConstraintContext<T>(
 /**
  * Result of applying a constraint to a value.
  *
- * Either [Satisfied] if the constraint passes, or [Violated] if it fails.
+ * Either [ValidationResult.Success] if the constraint passes, or [ValidationResult.Failure] if it fails.
  */
-sealed interface ConstraintResult {
-    /**
-     * Indicates that the constraint was satisfied.
-     */
-    object Satisfied : ConstraintResult
-
-    /**
-     * Indicates that the constraint was violated.
-     *
-     * @property message The error message describing why the constraint failed
-     */
-    data class Violated(
-        val message: Message,
-    ) : ConstraintResult
-}
+typealias ConstraintResult = ValidationResult<Unit>
 
 /**
  * Creates a text-based validation message.
