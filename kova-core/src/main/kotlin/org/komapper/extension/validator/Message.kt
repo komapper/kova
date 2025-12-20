@@ -57,6 +57,7 @@ sealed interface Message {
         override val text: String,
     ) : Message {
         override val args get() = emptyArray<Any?>()
+
         override fun toString(): String = toDescription()
     }
 
@@ -121,7 +122,10 @@ sealed interface Message {
      * ```
      *
      */
-    data class Collection(val resource: Resource, val elements: List<ValidationResult.Failure<*>>) : Message by resource
+    data class Collection(
+        val resource: Resource,
+        val elements: List<ValidationResult.Failure<*>>,
+    ) : Message by resource
 
     /**
      * A composite message representing a validation failure from the `or` operator.

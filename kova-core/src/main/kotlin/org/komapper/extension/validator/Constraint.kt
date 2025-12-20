@@ -64,8 +64,8 @@ data class Constraint<T>(
 class ConstraintContext<T>(
     val input: T,
     val constraintId: String,
-    validationContext: ValidationContext
-): ValidationContext by validationContext {
+    validationContext: ValidationContext,
+) : ValidationContext by validationContext {
     /**
      * Evaluates a condition and returns the appropriate constraint result.
      *
@@ -222,5 +222,4 @@ fun <T> ConstraintContext<T>.text(content: String): Message = Message.Text(this,
  * @param args Arguments to be interpolated into the message template using MessageFormat
  * @return A [Message.Resource] instance configured with the provided arguments
  */
-fun <T> ConstraintContext<T>.resource(vararg args: Any?): Message =
-    Message.Resource(this, args = args)
+fun <T> ConstraintContext<T>.resource(vararg args: Any?): Message = Message.Resource(this, args = args)

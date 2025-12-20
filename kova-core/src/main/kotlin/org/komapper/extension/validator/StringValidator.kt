@@ -216,9 +216,8 @@ fun <E : Enum<E>> StringValidator.isEnum(
  * @return A new validator with the is-enum constraint
  */
 inline fun <reified E : Enum<E>> StringValidator.isEnum(
-    noinline message: ConstraintContext<String>.(validNames: List<String>) -> Message = Message::Resource
-): StringValidator =
-    isEnum(E::class, message)
+    noinline message: ConstraintContext<String>.(validNames: List<String>) -> Message = Message::Resource,
+): StringValidator = isEnum(E::class, message)
 
 /**
  * Validates that the string is a valid enum name and converts it to the enum value.

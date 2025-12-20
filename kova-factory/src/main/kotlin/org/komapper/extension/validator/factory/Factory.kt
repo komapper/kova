@@ -36,8 +36,7 @@ typealias Factory<R> = Validator<Unit, R>
  * @return [ValidationResult.Success] with the created instance if validation passes,
  *         [ValidationResult.Failure] with validation errors otherwise
  */
-fun <R : Any> Factory<R>.tryCreate(config: ValidationConfig = ValidationConfig()): ValidationResult<R> =
-    tryValidate(Unit, config)
+fun <R : Any> Factory<R>.tryCreate(config: ValidationConfig = ValidationConfig()): ValidationResult<R> = tryValidate(Unit, config)
 
 /**
  * Creates an instance using this factory and returns the result.
@@ -46,8 +45,7 @@ fun <R : Any> Factory<R>.tryCreate(config: ValidationConfig = ValidationConfig()
  * @return the created instance if validation passes
  * @throws ValidationException if validation fails
  */
-fun <R : Any> Factory<R>.create(config: ValidationConfig = ValidationConfig()): R =
-    validate(Unit, config)
+fun <R : Any> Factory<R>.create(config: ValidationConfig = ValidationConfig()): R = validate(Unit, config)
 
 /**
  * Generates a factory from this validator.
@@ -59,14 +57,14 @@ fun <R : Any> Factory<R>.create(config: ValidationConfig = ValidationConfig()): 
  * @param block the factory definition block that produces a validation result
  * @return a factory that validates according to the defined logic
  */
-fun <R : Any> IdentityValidator<R>.generateFactory(
+fun <R : Any> IdentityValidator<R>.factory(
     root: String = "factory",
     block: FactoryScope<R>.() -> ValidationResult<R>,
 ): Factory<R> =
     Factory { _ ->
         addRoot(root, null) {
             val factories = mutableListOf<Factory<*>>()
-            val factoryScope = FactoryScope(this, factories, this@generateFactory)
+            val factoryScope = FactoryScope(this, factories, this@factory)
             block(factoryScope)
         }
     }
@@ -95,7 +93,7 @@ fun <R : Any> IdentityValidator<R>.generateFactory(
 fun <R : Any> Kova.factory(
     root: String = "factory",
     block: FactoryScope<R>.() -> ValidationResult<R>,
-): Factory<R> = Validator.success<R>().generateFactory(root, block)
+): Factory<R> = Validator.success<R>().factory(root, block)
 
 /**
  * Scope for defining factory validation logic.
@@ -163,28 +161,29 @@ class FactoryScope<R>(
      * @param block construction block that creates the object using validated values
      * @return validation result containing the constructed and validated object
      */
-    fun create(block: CreationScope.() -> R): ValidationResult<R> = with(context) {
-        val resultMap = mutableMapOf<Factory<*>, ValidationResult<*>>()
-        for (factory in factories) {
-            val result = factory.execute(Unit)
-            if (result.isFailure()) {
-                if (context.failFast) {
-                    return ValidationResult.Failure(Input.Unusable(Unit), result.messages)
+    fun create(block: CreationScope.() -> R): ValidationResult<R> =
+        with(context) {
+            val resultMap = mutableMapOf<Factory<*>, ValidationResult<*>>()
+            for (factory in factories) {
+                val result = factory.execute(Unit)
+                if (result.isFailure()) {
+                    if (context.failFast) {
+                        return ValidationResult.Failure(Input.Unusable(Unit), result.messages)
+                    }
                 }
+                resultMap[factory] = result
             }
-            resultMap[factory] = result
+            val valid = resultMap.values.all { it.isSuccess() }
+            return if (valid) {
+                val scope = CreationScope(resultMap.mapValues { (_, value) -> value as ValidationResult.Success<*> })
+                val obj = scope.block()
+                // reset context
+                with(ValidationContext(config = context.config)) { validator.execute(obj) }
+            } else {
+                val messages = resultMap.values.filterIsInstance<ValidationResult.Failure<*>>().flatMap { it.messages }
+                ValidationResult.Failure(Input.Unusable(Unit), messages)
+            }
         }
-        val valid = resultMap.values.all { it.isSuccess() }
-        return if (valid) {
-            val scope = CreationScope(resultMap.mapValues { (_, value) -> value as ValidationResult.Success<*> })
-            val obj = scope.block()
-            // reset context
-            with(ValidationContext(config = context.config)) { validator.execute(obj) }
-        } else {
-            val messages = resultMap.values.filterIsInstance<ValidationResult.Failure<*>>().flatMap { it.messages }
-            ValidationResult.Failure(Input.Unusable(Unit), messages)
-        }
-    }
 }
 
 /**
