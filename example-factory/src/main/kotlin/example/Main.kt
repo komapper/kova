@@ -2,7 +2,7 @@ package example
 
 import org.komapper.extension.validator.Kova
 import org.komapper.extension.validator.ObjectSchema
-import org.komapper.extension.validator.factory.Factory
+import org.komapper.extension.validator.ValidationResult
 import org.komapper.extension.validator.factory.factory
 import org.komapper.extension.validator.factory.tryCreate
 import org.komapper.extension.validator.isSuccess
@@ -33,12 +33,11 @@ object UserFactory {
     operator fun invoke(
         name: String,
         age: String,
-    ): Factory<User> =
-        UserSchema.factory {
-            val name = check("name", name) { it.min(1).notBlank() } // argument validator
-            val age = check("age", age) { it.toInt() } // argument validator
-            create { User(name(), age()) }
-        }
+    ) = UserSchema.factory {
+        val name = check("name", name) { it.min(1).notBlank() } // argument validator
+        val age = check("age", age) { it.toInt() } // argument validator
+        create { User(name(), age()) }
+    }
 }
 
 object AgeFactory {
@@ -53,49 +52,42 @@ object PersonFactory {
     operator fun invoke(
         name: String,
         age: String,
-    ): Factory<Person> =
-        Kova.factory {
-            val name = check("name", name) { it.min(1).notBlank() } // argument validator
-            val age = check("age", AgeFactory(age)) // argument validator
-            create { Person(name(), age()) }
-        }
+    ) = Kova.factory {
+        val name = check("name", name) { it.min(1).notBlank() } // argument validator
+        val age = check("age", AgeFactory(age)) // argument validator
+        create { Person(name(), age()) }
+    }
 }
 
 fun main() {
-    println("\n#Creation")
-    println("##Success")
-    val result = UserFactory("a", "10").tryCreate()
+    println("\n# Creation")
+
+    UserFactory("a", "10").tryCreate().let { printResult(it) }
+    // ## Success
+    // User(name=a, age=10)
+
+    UserFactory("a", "130").tryCreate().let { printResult(it) }
+    // ## Failure
+    // Message(constraintId=kova.comparable.max, text='must be less than or equal to 120', root=example.User, path=age, input=130, args=[120])
+
+    println("\n# Creation(nested object)")
+
+    PersonFactory("a", "10").tryCreate().let { printResult(it) }
+    // ## Success
+    // Person(name=a, age=Age(value=10))
+
+    PersonFactory("   ", "abc").tryCreate().let { printResult(it) }
+    // ## Failure
+    // Message(constraintId=kova.charSequence.notBlank, text='must not be blank', root=factory, path=name, input=   , args=[])
+    // Message(constraintId=kova.string.isInt, text='must be a valid integer', root=factory, path=age.value, input=abc, args=[])
+}
+
+private fun printResult(result: ValidationResult<*>) {
     if (result.isSuccess()) {
-        println("Success: ${result.value}") // Success: User(name=a, age=10)
+        println("## Success")
+        println("${result.value}")
     } else {
-        error("never happens")
-    }
-
-    println("##Failure")
-    val result2 = UserFactory("a", "130").tryCreate()
-    if (result2.isSuccess()) {
-        error("never happens")
-    } else {
-        result2.messages.joinToString("\n").let { println(it) }
-        // Message(constraintId=kova.comparable.max, text='must be less than or equal to 120', root=example.User, path=age, input=130, args=[(value, 120)])
-    }
-
-    println("\n#Creation(nested object)")
-    println("##Success")
-    val result3 = PersonFactory("a", "10").tryCreate()
-    if (result3.isSuccess()) {
-        println("Success: ${result.value}") // Person(name=a, age=Age(value=10))
-    } else {
-        error("never happens")
-    }
-
-    println("##Failure")
-    val result4 = PersonFactory("   ", "abc").tryCreate()
-    if (result4.isSuccess()) {
-        error("never happens")
-    } else {
-        result4.messages.joinToString("\n").let { println(it) }
-        // Message(constraintId=kova.charSequence.notBlank, text='must not be blank', root=factory, path=name, input=   , args=[])
-        // Message(constraintId=kova.string.isInt, text='must be a valid integer', root=factory, path=age.value, input=abc, args=[])
+        println("## Failure")
+        println(result.messages.joinToString("\n"))
     }
 }
