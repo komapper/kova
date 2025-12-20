@@ -105,11 +105,11 @@ class CollectionValidatorTest :
                     it.elements[0].messages[0].constraintId shouldBe "kova.charSequence.length"
                     it.elements[0]
                         .messages[0]
-                        .context.input shouldBe "4567"
+                        .input shouldBe "4567"
                     it.elements[1].messages[0].constraintId shouldBe "kova.charSequence.length"
                     it.elements[1]
                         .messages[0]
-                        .context.input shouldBe "8910"
+                        .input shouldBe "8910"
                 }
             }
 

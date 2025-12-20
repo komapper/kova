@@ -797,7 +797,7 @@ You can create reusable validation logic by defining extension methods on valida
 ```kotlin
 // Define a custom extension method for StringValidator
 fun StringValidator.isPhoneNumber(
-    message: MessageProvider = MessageProvider.resource()
+    message: MessageProvider<String> = Message::Resource
 ): StringValidator = constrain("custom.phoneNumber") { ctx ->
         val phonePattern = Regex("""^\+?[1-9]\d{1,14}$""")
         satisfies(
@@ -812,8 +812,8 @@ val result = phoneValidator.tryValidate("+1234567890")  // Success
 
 // Define extension with custom message provider
 fun StringValidator.isStrongPassword(
-    message: MessageProvider = MessageProvider.text { ctx ->
-        "Password must be at least ${ctx[0]} characters with uppercase, lowercase, and digits"
+    message: ConstraintContext<T>.(minLength: Int) -> Message = {
+        text("Password must be at least $it characters with uppercase, lowercase, and digits")
     }
 ): StringValidator = constrain("custom.strongPassword") { ctx ->
         val input = ctx.input
@@ -822,9 +822,8 @@ fun StringValidator.isStrongPassword(
             input.length >= minLength &&
             input.any { it.isUpperCase() } &&
             input.any { it.isLowerCase() } &&
-            input.any { it.isDigit() },
-            message("minLength" to minLength)
-        )
+            input.any { it.isDigit() }
+        ) { message(minLength) }
     }
 
 val passwordValidator = Kova.string().isStrongPassword()

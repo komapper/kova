@@ -51,7 +51,7 @@ fun <T> ConstraintValidator(constraint: Constraint<T>): ConstraintValidator<T> =
                         root = root,
                         path = path.fullName,
                         input = input,
-                        args = result.message.args,
+                        args = result.message.args.asList(),
                     )
                 }
                 ValidationResult.Failure(Input.Available(input), listOf(result.message))

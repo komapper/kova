@@ -3,6 +3,8 @@ package org.komapper.extension.validator
 import java.text.MessageFormat
 import java.util.ResourceBundle
 
+typealias MessageProvider<T> = ConstraintContext<T>.() -> Message
+
 /**
  * Represents an error message for validation failures.
  *
@@ -38,7 +40,7 @@ sealed interface Message {
     val input: Any? get() = context.input
 
     /** Named arguments passed to the message provider as pairs of (name, value) */
-    val args: List<Pair<String, Any?>>
+    val args: Array<out Any?>
 
     /**
      * A simple text message without i18n support.
@@ -49,13 +51,12 @@ sealed interface Message {
      * @property context The message context containing constraint metadata and validation state
      * @property text The formatted message text
      */
-    @ConsistentCopyVisibility
-    data class Text internal constructor(
+    class Text internal constructor(
         /** The message context containing constraint metadata and validation state */
         override val context: ConstraintContext<*>,
-        override val args: List<Pair<String, Any?>>,
         override val text: String,
     ) : Message {
+        override val args get() = emptyArray<Any?>()
         override fun toString(): String = toDescription()
     }
 
@@ -76,16 +77,15 @@ sealed interface Message {
      *
      * @property context The message context containing the constraint ID (used as resource key) and arguments
      */
-    @ConsistentCopyVisibility
-    data class Resource internal constructor(
+    class Resource internal constructor(
         /** The message context containing the constraint ID (used as resource key) */
         override val context: ConstraintContext<*>,
         /** The message context containing arguments for formatting the resource message */
-        override val args: List<Pair<String, Any?>>,
+        override vararg val args: Any?,
     ) : Message {
         override val text: String by lazy {
-            val pattern = getPattern(context.constraintId)
-            val newArgs = args.map { resolveArg(it.second) }
+            val pattern = getPattern(constraintId)
+            val newArgs = args.map(::resolveArg)
             MessageFormat.format(pattern, *newArgs.toTypedArray())
         }
 
@@ -97,6 +97,10 @@ sealed interface Message {
             }
 
         override fun toString(): String = toDescription()
+
+        constructor(context: ConstraintContext<*>) : this(context, *emptyArray())
+        constructor(context: ConstraintContext<*>, arg: Any?) : this(context, arg, *emptyArray())
+        constructor(context: ConstraintContext<*>, arg1: Any?, arg2: Any?) : this(context, arg1, arg2, *emptyArray())
     }
 
     /**
@@ -141,14 +145,14 @@ sealed interface Message {
      * @property second The validation failure from the second branch of the `or` validator
      */
     data class Or(
-        val resource: Resource,
+        val constraintContext: ConstraintContext<*>,
         val first: ValidationResult.Failure<*>,
         val second: ValidationResult.Failure<*>,
-    ) : Message by resource
+    ) : Message by constraintContext.resource(first.messages, second.messages)
 }
 
 private fun Message.toDescription() =
-    "Message(constraintId=$constraintId, text='$text', root=$root, path=${path.fullName}, input=$input, args=$args)"
+    "Message(constraintId=$constraintId, text='$text', root=$root, path=${path.fullName}, input=$input, args=${args.contentToString()})"
 
 private const val RESOURCE_BUNDLE_BASE_NAME = "kova"
 

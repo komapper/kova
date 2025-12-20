@@ -199,7 +199,7 @@ class NullCoalescingValidatorTest :
                             root = "",
                             path = "",
                             input = 6,
-                            args = listOf("value" to 5),
+                            args = listOf(5),
                         ),
                         LogEntry.Satisfied(constraintId = "kova.comparable.min", root = "", path = "", input = 6),
                     )
