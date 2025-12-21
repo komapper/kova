@@ -527,7 +527,7 @@ class StringValidatorTest :
         }
 
         context("isEnum with Type") {
-            val isEnum = Kova.string().isEnum<Status>()
+            val isEnum = Kova.string().isEnum<Status, _>()
 
             test("success with ACTIVE") {
                 val result = isEnum.tryValidate("ACTIVE")
@@ -587,7 +587,7 @@ class StringValidatorTest :
         }
 
         context("toEnum") {
-            val toEnum = Kova.string().toEnum<Status>()
+            val toEnum = Kova.string().toEnum<Status, _>()
 
             test("success with ACTIVE") {
                 val result = toEnum.tryValidate("ACTIVE")

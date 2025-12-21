@@ -54,7 +54,7 @@ object PersonFactory {
         age: String,
     ) = Kova.factory {
         val name by bind(name) { it.min(1).notBlank() } // argument validator
-        val age by bind(AgeFactory(age)) // argument validator
+        val age by AgeFactory(age) // argument validator
         create { Person(name(), age()) }
     }
 }

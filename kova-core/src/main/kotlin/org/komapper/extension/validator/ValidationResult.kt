@@ -1,7 +1,8 @@
 package org.komapper.extension.validator
 
+import org.komapper.extension.validator.ValidationResult.Both
+import org.komapper.extension.validator.ValidationResult.Failed
 import org.komapper.extension.validator.ValidationResult.Failure
-import org.komapper.extension.validator.ValidationResult.Success
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
@@ -22,46 +23,66 @@ import kotlin.contracts.contract
  *
  * @param T The type of the validated value on success
  */
-sealed interface ValidationResult<out T> {
+sealed class ValidationResult<out T> {
+    sealed class Failure<out T> : ValidationResult<T>() {
+        abstract val messages: List<Message>
+    }
+
+    inline fun mapMessages(transform: (List<Message>) -> List<Message>): ValidationResult<T> =
+        when (this) {
+            is Success -> this
+            is Failed -> copy(messages = transform(messages))
+            is Both -> copy(messages = transform(messages))
+        }
+
+    inline fun <R> map(transform: (T) -> R): ValidationResult<R> =
+        when (this) {
+            is Success -> Success(transform(value))
+            is Failed -> this
+            is Both -> Both(transform(value), messages)
+        }
+
+    inline fun <R> then(transform: (T) -> ValidationResult<R>): ValidationResult<R> =
+        when (this) {
+            is Failed -> this
+            is Success -> transform(value)
+            is Both ->
+                when (val result = transform(value)) {
+                    is Success -> Both(result.value, messages)
+                    is Failed -> Failed(messages + result.messages)
+                    is Both -> Both(result.value, messages + result.messages)
+                }
+        }
+
     /**
      * Represents a successful validation with the validated value.
      *
      * @param value The validated value
      * @param context The validation context after validation completed
      */
-    data class Success<T>(
+    data class Success<out T>(
         val value: T,
-    ) : ValidationResult<T>
+    ) : ValidationResult<T>()
 
     /**
      * Represents a failed validation with detailed error information.
      *
      * @property messages List of error messages describing what went wrong
      */
-    data class Failure<T>(
-        val value: Input<T>,
-        val messages: List<Message>,
-    ) : ValidationResult<T>
+    data class Failed(
+        override val messages: List<Message>,
+    ) : Failure<Nothing>()
+
+    data class Both<out T>(
+        val value: T,
+        override val messages: List<Message>,
+    ) : Failure<T>()
 }
 
-/**
- * Combines two validation results.
- *
- * - If this is [Success], returns [other]
- * - If this is [Failure] and [other] is [Success], returns this failure
- * - If both are [Failure], combines their messages
- *
- * This is used internally by the [and] operator to accumulate failures.
- */
-operator fun <T> ValidationResult<T>.plus(other: ValidationResult<T>): ValidationResult<T> =
-    when (this) {
-        is Success -> other
-        is Failure ->
-            when (other) {
-                is Success -> Failure(value = Input.Available(other.value), messages = this.messages)
-                is Failure -> Failure(other.value, messages = this.messages + other.messages)
-            }
-    }
+fun <T> ValidationContext.both(
+    value: T,
+    messages: List<Message>,
+): Failure<T> = if (failFast) Failed(messages) else Both(value, messages)
 
 /**
  * Type-safe check if this result is a success.
@@ -109,40 +130,4 @@ fun <T> ValidationResult<T>.isFailure(): Boolean {
         returns(false) implies (this@isFailure is ValidationResult.Success)
     }
     return this is ValidationResult.Failure
-}
-
-/**
- * Represents the input value state in a validation failure.
- *
- * This sealed interface captures the state of the input value when validation fails:
- * - [Available]: The input value is present and can be accessed
- * - [Unusable]: The input value could not be used (e.g., type conversion failure)
- *
- * @param T The expected type of the input value
- */
-sealed interface Input<out T> {
-    /**
-     * Represents an available input value in a validation failure.
-     *
-     * This is used when validation fails but the input value is still accessible.
-     * For example, when a string fails a length constraint, the string value is still available.
-     *
-     * @param value The input value that failed validation
-     */
-    data class Available<T>(
-        val value: T,
-    ) : Input<T>
-
-    /**
-     * Represents an unusable input value in a validation failure.
-     *
-     * This is used when the input value could not be used for validation, typically
-     * when a type conversion or transformation fails. For example, when attempting
-     * to parse "abc" as an integer, the original string value is unusable as an integer.
-     *
-     * @param value The original value before the failed conversion attempt
-     */
-    data class Unusable(
-        val value: Any?,
-    ) : Input<Nothing>
 }

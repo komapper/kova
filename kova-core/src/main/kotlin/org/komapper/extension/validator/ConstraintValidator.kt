@@ -9,10 +9,32 @@ package org.komapper.extension.validator
 typealias ConstraintValidator<T> = IdentityValidator<T>
 
 /**
+ * Adds a custom constraint to this validator.
+ *
+ * This is a fundamental building block for creating custom validation rules.
+ * The constraint is chained to the existing validator, executing after it succeeds.
+ *
+ * Example:
+ * ```kotlin
+ * val validator = Kova.string().constrain("alphanumeric") {
+ *     satisfies(it.all { c -> c.isLetterOrDigit() }, "Must be alphanumeric")
+ * }
+ * ```
+ *
+ * @param id Unique identifier for the constraint
+ * @param check Constraint logic that produces a [ValidationResult]
+ * @return A new validator with the constraint applied
+ */
+fun <IN, OUT> Validator<IN, OUT>.constrain(
+    id: String,
+    check: Constraint<OUT>,
+): Validator<IN, OUT> = then(ConstraintValidator(id, check))
+
+/**
  * Creates a ConstraintValidator from a [Constraint].
  *
  * This factory function converts a constraint into a validator that executes the constraint
- * and converts the [ConstraintResult] into a [ValidationResult]. It also logs the validation
+ * and softens the [ValidationResult]. It also logs the validation
  * result if logging is enabled in the [ValidationConfig].
  *
  * When a constraint is satisfied, the input value is returned unchanged wrapped in a Success.
@@ -59,12 +81,7 @@ fun <T> ConstraintValidator(
                         )
                     }
                 }
-                ValidationResult.Failure(
-                    Input.Available(input),
-                    result.messages.map {
-                        it.withDetails(input = input, constraintId = id)
-                    },
-                )
+                both(input, result.messages.map { it.withDetails(input, id) })
             }
         }
     }

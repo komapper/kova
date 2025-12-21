@@ -5,9 +5,10 @@ package org.komapper.extension.validator
  *
  * Provides a convenient type for validators that work with Collection types.
  *
+ * @param T The input type of the validator
  * @param C The collection type being validated
  */
-typealias CollectionValidator<C> = IdentityValidator<C>
+typealias CollectionValidator<T, C> = Validator<T, C>
 
 typealias LengthMessageProvider = ValidationContext.(actualSize: Int) -> Message
 
@@ -25,7 +26,7 @@ typealias LengthMessageProvider = ValidationContext.(actualSize: Int) -> Message
  * @param message Custom error message provider
  * @return A new validator with the minimum size constraint
  */
-fun <C : Collection<*>> CollectionValidator<C>.min(
+fun <T, C : Collection<*>> CollectionValidator<T, C>.min(
     size: Int,
     message: LengthMessageProvider = { "kova.collection.min".resource(it, size) },
 ) = constrain("kova.collection.min") { satisfies(it.size >= size) { message(it.size) } }
@@ -44,7 +45,7 @@ fun <C : Collection<*>> CollectionValidator<C>.min(
  * @param message Custom error message provider
  * @return A new validator with the maximum size constraint
  */
-fun <C : Collection<*>> CollectionValidator<C>.max(
+fun <T, C : Collection<*>> CollectionValidator<T, C>.max(
     size: Int,
     message: LengthMessageProvider = { "kova.collection.max".resource(it, size) },
 ) = constrain("kova.collection.max") { satisfies(it.size <= size) { message(it.size) } }
@@ -62,7 +63,7 @@ fun <C : Collection<*>> CollectionValidator<C>.max(
  * @param message Custom error message provider
  * @return A new validator with the not-empty constraint
  */
-fun <C : Collection<*>> CollectionValidator<C>.notEmpty(message: MessageProvider = { "kova.collection.notEmpty".resource }) =
+fun <T, C : Collection<*>> CollectionValidator<T, C>.notEmpty(message: MessageProvider = { "kova.collection.notEmpty".resource }) =
     constrain("kova.collection.notEmpty") { satisfies(it.isNotEmpty(), message) }
 
 /**
@@ -79,7 +80,7 @@ fun <C : Collection<*>> CollectionValidator<C>.notEmpty(message: MessageProvider
  * @param message Custom error message provider
  * @return A new validator with the exact size constraint
  */
-fun <C : Collection<*>> CollectionValidator<C>.length(
+fun <T, C : Collection<*>> CollectionValidator<T, C>.length(
     size: Int,
     message: LengthMessageProvider = { "kova.collection.length".resource(it, size) },
 ) = constrain("kova.collection.length") { satisfies(it.size == size) { message(it.size) } }
@@ -98,7 +99,7 @@ fun <C : Collection<*>> CollectionValidator<C>.length(
  * @param message Custom error message provider
  * @return A new validator with the contains constraint
  */
-fun <E, C : Collection<E>> CollectionValidator<C>.contains(
+fun <T, E, C : Collection<E>> CollectionValidator<T, C>.contains(
     element: E,
     message: MessageProvider = { "kova.collection.contains".resource(element) },
 ) = constrain("kova.collection.contains") { satisfies(it.contains(element), message) }
@@ -117,7 +118,7 @@ fun <E, C : Collection<E>> CollectionValidator<C>.contains(
  * @param message Custom error message provider
  * @return A new validator with the notContains constraint
  */
-fun <E, C : Collection<E>> CollectionValidator<C>.notContains(
+fun <T, E, C : Collection<E>> CollectionValidator<T, C>.notContains(
     element: E,
     message: MessageProvider = { "kova.collection.notContains".resource(element) },
 ) = constrain("kova.collection.notContains") { satisfies(!it.contains(element), message) }
@@ -141,18 +142,17 @@ fun <E, C : Collection<E>> CollectionValidator<C>.notContains(
  * @param validator The validator to apply to each element
  * @return A new validator with per-element validation
  */
-fun <E, C : Collection<E>> CollectionValidator<C>.onEach(validator: Validator<E, *>) =
+fun <T, E, C : Collection<E>> CollectionValidator<T, C>.onEach(validator: Constraint<E>) =
     constrain("kova.collection.onEach") {
-        val failures = mutableListOf<ValidationResult.Failure<*>>()
+        val messages = mutableListOf<Message>()
         for ((i, element) in it.withIndex()) {
             val path = "[$i]<collection element>"
             val result = appendPath(path) { validator.execute(element) }
             if (result.isFailure()) {
-                failures.add(result)
+                messages.addAll(result.messages)
                 if (failFast) break
             }
         }
-        val messages = failures.flatMap { it.messages }
         satisfies(messages.isEmpty()) { "kova.collection.onEach".resource(messages) }
     }
 
@@ -175,5 +175,5 @@ fun <E, C : Collection<E>> CollectionValidator<C>.onEach(validator: Validator<E,
  * @param block A function that builds an element validator from a success validator
  * @return A new validator with per-element validation
  */
-fun <E, C : Collection<E>> CollectionValidator<C>.onEach(block: (IdentityValidator<E>) -> Validator<E, *>) =
+fun <T, E, C : Collection<E>> CollectionValidator<T, C>.onEach(block: (IdentityValidator<E>) -> Constraint<E>) =
     onEach(block(Validator.success()))

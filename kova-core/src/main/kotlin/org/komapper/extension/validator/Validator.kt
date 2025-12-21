@@ -10,7 +10,7 @@ import org.komapper.extension.validator.ValidationResult.Success
  * or produces a validation failure with detailed error information.
  *
  * Validators are immutable and composable using operators like [plus], [and], [orNullable],
- * [map], [then], and [chain].
+ * [map], and [then]
  *
  * @param IN The input type to validate
  * @param OUT The output type after successful validation
@@ -125,15 +125,13 @@ operator fun <IN, OUT> Validator<IN, OUT>.plus(other: Validator<IN, OUT>): Valid
  * @param other The second validator to apply
  * @return A new validator that succeeds only if both validators succeed
  */
-infix fun <IN, OUT> Validator<IN, OUT>.and(other: Validator<IN, OUT>): Validator<IN, OUT> {
-    val self = this
-    return Validator { input ->
-        when (val selfResult = self.execute(input)) {
-            is Failure if failFast -> selfResult
-            else -> selfResult + other.execute(input)
+infix fun <IN, OUT> Constraint<IN>.and(other: Validator<IN, OUT>): Validator<IN, OUT> =
+    Validator { input: IN ->
+        when (val result = execute(input)) {
+            is Success -> Success(input)
+            is Failure -> both(input, result.messages)
         }
-    }
-}
+    }.then(other)
 
 /**
  * Lambda-based overload of [and] for more fluent composition.
@@ -150,7 +148,7 @@ infix fun <IN, OUT> Validator<IN, OUT>.and(other: Validator<IN, OUT>): Validator
  * @param block A function that builds a validator from a success validator
  * @return A new validator combining both with AND logic
  */
-fun <IN, OUT> Validator<IN, OUT>.and(block: (Validator<IN, IN>) -> Validator<IN, OUT>): Validator<IN, OUT> = and(block(Validator.success()))
+fun <IN, OUT> Constraint<IN>.and(block: (Validator<IN, IN>) -> Validator<IN, OUT>): Validator<IN, OUT> = and(block(Validator.success()))
 
 /**
  * Combines two validators where at least one must succeed for the overall validation to succeed.
@@ -173,16 +171,7 @@ infix fun <IN, OUT> Validator<IN, OUT>.or(other: Validator<IN, OUT>): Validator<
     return Validator { input ->
         when (val selfResult = self.execute(input)) {
             is Success -> selfResult
-            is Failure -> {
-                when (val otherResult = other.execute(input)) {
-                    is Success -> otherResult
-                    is Failure ->
-                        Failure(
-                            otherResult.value,
-                            listOf("kova.or".resource(selfResult.messages, otherResult.messages)),
-                        )
-                }
-            }
+            is Failure -> other.execute(input).mapMessages { listOf("kova.or".resource(selfResult.messages, it)) }
         }
     }
 }
@@ -208,10 +197,7 @@ fun <IN, OUT> Validator<IN, OUT>.or(block: (Validator<IN, IN>) -> Validator<IN, 
  * Transforms the output value on successful validation.
  *
  * When validation succeeds, the transform function is applied to the validated value.
- * When validation fails, the behavior depends on the type compatibility:
- * - If [OUT] and [NEW] are the same type and the failure value is available,
- *   the transform is applied so that subsequent validators can use the transformed value.
- * - Otherwise, the failure value is marked as unusable.
+ * When validation fails, the transform is applied so that subsequent validators can use the transformed value.
  *
  * Example:
  * ```kotlin
@@ -222,31 +208,8 @@ fun <IN, OUT> Validator<IN, OUT>.or(block: (Validator<IN, IN>) -> Validator<IN, 
  * @param transform Function to transform the validated value
  * @return A new validator with the transformed output type
  */
-inline fun <IN, reified OUT, reified NEW> Validator<IN, OUT>.map(noinline transform: (OUT) -> NEW): Validator<IN, NEW> {
-    val self = this
-    val outClass = OUT::class
-    val newClass = NEW::class
-    return Validator { input ->
-        when (val result = self.execute(input)) {
-            is Success -> Success(transform(result.value))
-            is Failure -> {
-                val failureValue =
-                    when (val v = result.value) {
-                        is Input.Available -> {
-                            val value = v.value
-                            if (outClass == newClass && outClass.isInstance(value)) {
-                                Input.Available(transform(value)) // subsequent validators can use this value
-                            } else {
-                                Input.Unusable(value)
-                            }
-                        }
-                        is Input.Unusable -> v
-                    }
-                Failure(failureValue, result.messages)
-            }
-        }
-    }
-}
+fun <IN, OUT, NEW> Validator<IN, OUT>.map(transform: ValidationContext.(OUT) -> NEW): Validator<IN, NEW> =
+    Validator { input -> execute(input).map { transform(it) } }
 
 /**
  * Adds a name to the validation path for better error reporting.
@@ -319,43 +282,8 @@ fun <IN, OUT, NEW> Validator<OUT, NEW>.compose(block: (Validator<IN, IN>) -> Val
  * @param after The validator to apply to the output of this validator
  * @return A new validator that applies both validators in sequence
  */
-fun <IN, OUT, NEW> Validator<IN, OUT>.then(after: Validator<OUT, NEW>): Validator<IN, NEW> {
-    val before = this
-    return Validator { input ->
-        when (val result = before.execute(input)) {
-            is Success -> after.execute(result.value)
-            is Failure -> {
-                val value =
-                    when (val v = result.value) {
-                        is Input.Available -> Input.Unusable(v.value)
-                        is Input.Unusable -> Input.Unusable(v.value)
-                    }
-                Failure(value, result.messages)
-            }
-        }
-    }
-}
-
-/**
- * Lambda-based overload of [then] for more fluent composition.
- *
- * This allows building the subsequent validator using a lambda function instead
- * of providing a pre-built validator instance.
- *
- * Example:
- * ```kotlin
- * val parseAndValidate = Kova.string()
- *     .isInt()
- *     .map { it.toInt() }
- *     .then { it.min(0).max(100) }
- * // Equivalent to: Kova.string().isInt().map { it.toInt() }.then(Kova.int().min(0).max(100))
- * ```
- *
- * @param block A function that builds the validator to apply after this one
- * @return A new validator that applies both validators in sequence (this first, then block)
- */
-fun <IN, OUT, NEW> Validator<IN, OUT>.then(block: (Validator<OUT, OUT>) -> Validator<OUT, NEW>): Validator<IN, NEW> =
-    then(block(Validator.success()))
+fun <IN, OUT, NEW> Validator<IN, OUT>.then(after: Validator<OUT, NEW>): Validator<IN, NEW> =
+    Validator { input -> execute(input).then { after.execute(it) } }
 
 /**
  * Converts a non-nullable validator to a nullable validator.
@@ -460,13 +388,7 @@ fun <T : Any, S : Any> Validator<T, S>.asNullable(withDefault: () -> S): ElvisVa
  */
 fun <T, S> Validator<T, S>.withMessage(
     block: ValidationContext.(messages: List<Message>) -> Message = { "kova.withMessage".resource(it) },
-): Validator<T, S> =
-    Validator { input ->
-        when (val result = execute(input)) {
-            is Success -> result
-            is Failure -> Failure(result.value, listOf(block(result.messages)))
-        }
-    }
+): Validator<T, S> = Validator { input -> execute(input).mapMessages { listOf(block(it)) } }
 
 /**
  * Replaces all validation error messages with a static text message.

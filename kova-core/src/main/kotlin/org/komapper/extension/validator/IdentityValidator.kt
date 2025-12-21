@@ -1,6 +1,5 @@
 package org.komapper.extension.validator
 
-import org.komapper.extension.validator.ValidationResult.Failure
 import org.komapper.extension.validator.ValidationResult.Success
 
 /**
@@ -18,70 +17,6 @@ import org.komapper.extension.validator.ValidationResult.Success
 typealias IdentityValidator<T> = Validator<T, T>
 
 /**
- * Adds a custom constraint to this validator.
- *
- * This is a fundamental building block for creating custom validation rules.
- * The constraint is chained to the existing validator, executing after it succeeds.
- *
- * Example:
- * ```kotlin
- * val validator = Kova.string().constrain("alphanumeric") {
- *     satisfies(it.all { c -> c.isLetterOrDigit() }, "Must be alphanumeric")
- * }
- * ```
- *
- * @param id Unique identifier for the constraint (used for error tracking)
- * @param check Constraint logic that produces a [ConstraintResult]
- * @return A new validator with the constraint applied
- */
-fun <T> IdentityValidator<T>.constrain(
-    id: String,
-    check: Constraint<T>,
-): IdentityValidator<T> = chain(ConstraintValidator(id, check))
-
-/**
- * Chains two validators where the second validator receives the output of the first if it succeeds.
- *
- * **Key characteristic**: Both input and output must be the same type (T).
- * This is designed for validators that don't transform the type.
- *
- * Unlike [then]:
- * - Requires IN == OUT (same type)
- * - If the first validator fails and failFast is disabled, both validators
- *   are executed and their failures are combined
- *
- * Example with same type:
- * ```kotlin
- * val normalizeValidator = Kova.string().map { it.trim() }
- * val validateValidator = Kova.string().min(1).max(10)
- * val validator = normalizeValidator.chain(validateValidator)
- * // Input: String, Output: String (same type)
- * ```
- *
- * @param next The validator to apply next
- * @return A new validator that chains both validators
- */
-fun <T> IdentityValidator<T>.chain(next: IdentityValidator<T>): IdentityValidator<T> =
-    IdentityValidator { input ->
-        when (val result = execute(input)) {
-            is Success -> {
-                next.execute(result.value)
-            }
-
-            is Failure -> {
-                if (failFast) {
-                    result
-                } else {
-                    when (val v = result.value) {
-                        is Input.Available -> result + next.execute(v.value)
-                        is Input.Unusable -> result
-                    }
-                }
-            }
-        }
-    }
-
-/**
  * Validates that the input equals the specified value.
  *
  * Example:
@@ -95,8 +30,8 @@ fun <T> IdentityValidator<T>.chain(next: IdentityValidator<T>): IdentityValidato
  * @param message Custom error message provider
  * @return A new validator that accepts only the specified value
  */
-fun <T> IdentityValidator<T>.literal(
-    value: T,
+fun <T, S> Validator<T, S>.literal(
+    value: S,
     message: MessageProvider = { "kova.literal.single".resource(value) },
 ) = constrain("kova.literal.single") { satisfies(it == value, message) }
 
@@ -114,8 +49,8 @@ fun <T> IdentityValidator<T>.literal(
  * @param message Custom error message provider
  * @return A new validator that accepts only values from the list
  */
-fun <T> IdentityValidator<T>.literal(
-    values: List<T>,
+fun <T, S> Validator<T, S>.literal(
+    values: List<S>,
     message: MessageProvider = { "kova.literal.list".resource(values) },
 ) = constrain("kova.literal.list") { satisfies(it in values, message) }
 
@@ -177,7 +112,5 @@ fun <T> IdentityValidator<T>.onlyIf(condition: (T) -> Boolean) =
  * @return A new nullable validator that accepts null input
  * @see Validator.asNullable for the base version that works with any validator type
  */
-fun <T : Any> IdentityValidator<T>.asNullable(): NullableValidator<T, T> =
-    Validator { input ->
-        if (input == null) Success(null) else execute(input)
-    }
+fun <T, S : Any> Validator<T, S>.asNullable(): NullableValidator<T, S> =
+    Validator { input -> if (input == null) Success(null) else execute(input) }
