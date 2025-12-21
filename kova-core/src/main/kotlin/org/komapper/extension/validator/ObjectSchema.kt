@@ -55,15 +55,7 @@ open class ObjectSchema<T : Any>(
         val klass = input::class
         val rootName = klass.qualifiedName ?: klass.simpleName ?: klass.toString()
         addRoot(rootName, input) {
-            val ruleResult = applyRules(input, ruleMap)
-            val constraintResult = applyConstraints(input, constraints)
-            if (failFast && ruleResult.isFailure()) {
-                return ruleResult
-            }
-            if (failFast && constraintResult.isFailure()) {
-                return constraintResult
-            }
-            return ruleResult + constraintResult
+            return applyRules(input, ruleMap).then { applyConstraints(it, constraints) }
         }
     }
 
@@ -71,41 +63,40 @@ open class ObjectSchema<T : Any>(
         input: T,
         ruleMap: Map<KProperty1<T, *>, Rule>,
     ): ValidationResult<T> {
-        val results = mutableListOf<ValidationResult<T>>()
+        val results = mutableListOf<Message>()
         for ((key, rule) in ruleMap) {
-            val result = applyRule(input, key, rule)
-            if (result.isFailure() && failFast) {
-                return result
+            val result = applyRule(input, key, rule) ?: continue
+            if (result.isFailure()) {
+                results.addAll(result.messages)
+                if (failFast) break
             }
-            results.add(result)
         }
-        return results.fold(ValidationResult.Success(input), ValidationResult<T>::plus)
+        return if (results.isEmpty()) ValidationResult.Success(input) else both(input, results)
     }
 
     private fun ValidationContext.applyRule(
         input: T,
         key: KProperty1<T, *>,
         rule: Rule,
-    ): ValidationResult<T> {
+    ): ValidationResult<*>? {
         val value = rule.transform(input)
         val validator = rule.choose(input)
-        return addPathChecked(key.name, value) {
-            when (val result = validator.execute(value)) {
-                is ValidationResult.Success -> ValidationResult.Success(input)
-                is ValidationResult.Failure -> ValidationResult.Failure(Input.Available(input), result.messages)
-            }
-        } ?: ValidationResult.Success(input) // If circular reference detected, terminate validation early with success
+        return addPathChecked(key.name, value) { validator.execute(value) }
     }
 
     private fun ValidationContext.applyConstraints(
         input: T,
         constraints: List<Pair<String, Constraint<T>>>,
     ): ValidationResult<T> {
-        val validator =
-            constraints
-                .map { (id, constraint) -> ConstraintValidator(id, constraint) }
-                .fold(Validator.success<T>()) { acc, v -> acc + v }
-        return validator.execute(input)
+        val results = mutableListOf<Message>()
+        for ((id, constraint) in constraints) {
+            val result = ConstraintValidator(id, constraint).execute(input)
+            if (result.isFailure()) {
+                results.addAll(result.messages)
+                if (failFast) break
+            }
+        }
+        return if (results.isEmpty()) ValidationResult.Success(input) else both(input, results)
     }
 
     /**

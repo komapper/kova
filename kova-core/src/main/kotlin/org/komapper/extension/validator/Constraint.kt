@@ -25,14 +25,7 @@ package org.komapper.extension.validator
  *
  * @param T The type of value this constraint validates
  */
-typealias Constraint<T> = Validator<T, Unit>
-
-/**
- * Result of applying a constraint to a value.
- *
- * Either [ValidationResult.Success] if the constraint passes, or [ValidationResult.Failure] if it fails.
- */
-typealias ConstraintResult = ValidationResult<Unit>
+typealias Constraint<T> = Validator<T, *>
 
 /**
  * Creates a text-based validation message.

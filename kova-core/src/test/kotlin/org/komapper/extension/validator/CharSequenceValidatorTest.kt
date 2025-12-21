@@ -42,13 +42,13 @@ class CharSequenceValidatorTest :
             }
         }
 
-        context("chain") {
+        context("then") {
             val length = Kova.string().length(3)
             val validator =
                 Kova
                     .string()
                     .trim()
-                    .chain(length)
+                    .then(length)
                     .toUppercase()
 
             test("success") {

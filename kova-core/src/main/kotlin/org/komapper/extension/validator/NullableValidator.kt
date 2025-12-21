@@ -19,28 +19,6 @@ package org.komapper.extension.validator
 typealias NullableValidator<T, S> = Validator<T?, S?>
 
 /**
- * Adds a custom constraint to this nullable validator.
- *
- * The constraint can check both null and non-null values.
- *
- * Example:
- * ```kotlin
- * val validator = Kova.string().asNullable()
- *     .constrain("custom") {
- *         satisfies(it == null || input.length >= 3, "Must be null or at least 3 chars")
- *     }
- * ```
- *
- * @param id Unique identifier for the constraint
- * @param check Constraint logic that produces a [ConstraintResult]
- * @return A new nullable validator with the constraint applied
- */
-fun <T : Any, S : Any> NullableValidator<T, S>.constrain(
-    id: String,
-    check: Constraint<T?>,
-): NullableValidator<T, S> = compose(ConstraintValidator(id, check))
-
-/**
  * Validates that the input is null.
  *
  * This constraint fails if the input is non-null.
@@ -98,7 +76,7 @@ fun <T : Any, S : Any> NullableValidator<T, S>.isNullOr(block: (Validator<T, T>)
  */
 fun <T : Any, S : Any> NullableValidator<T, S>.notNull(
     message: MessageProvider = { "kova.nullable.notNull".resource },
-): NullableValidator<T, S> = constrain("kova.nullable.notNull") { satisfies(it != null, message) }
+): NullableValidator<T, S> = constrain("kova.nullable.notNull", Validator.success<S?>().toNonNullable(message))
 
 /**
  * Validates that the input is not null AND satisfies a custom validator.
@@ -141,9 +119,9 @@ fun <T : Any, S : Any> NullableValidator<T, S>.notNullAnd(block: (Validator<T, T
  * @param block A function that builds a validator transformation from a success validator
  * @return A new validator that rejects null and transforms non-null values
  */
-inline fun <T : Any, reified S : Any, U : Any> NullableValidator<T, S>.notNullThen(
+inline fun <T : Any, S : Any, U : Any> NullableValidator<T, S>.notNullThen(
     block: (Validator<S, S>) -> Validator<S, U>,
-): ElvisValidator<T, U> = notNull().toNonNullable().then(block(Validator.success()))
+): ElvisValidator<T, U> = toNonNullable().then(block(Validator.success()))
 
 /**
  * Converts a nullable validator to a validator with non-nullable output.
@@ -161,7 +139,9 @@ inline fun <T : Any, reified S : Any, U : Any> NullableValidator<T, S>.notNullTh
  *
  * @return A validator that rejects null and produces non-nullable output
  */
-inline fun <T : Any, reified S : Any> NullableValidator<T, S>.toNonNullable(): ElvisValidator<T, S> = notNull().map { it!! }
+fun <T : Any, S : Any> NullableValidator<T, S>.toNonNullable(
+    message: MessageProvider = { "kova.nullable.notNull".resource },
+): ElvisValidator<T, S> = then { it.satisfiesNotNull(message) }
 
 /**
  * Provides a default value for null inputs.
@@ -180,8 +160,7 @@ inline fun <T : Any, reified S : Any> NullableValidator<T, S>.toNonNullable(): E
  * @param defaultValue The value to use when input is null
  * @return A new validator with non-nullable output that uses the default for null inputs
  */
-inline fun <T : Any, reified S : Any> NullableValidator<T, S>.withDefault(defaultValue: S): ElvisValidator<T, S> =
-    withDefault { defaultValue }
+fun <T : Any, S : Any> NullableValidator<T, S>.withDefault(defaultValue: S): ElvisValidator<T, S> = withDefault { defaultValue }
 
 /**
  * Provides a lazily-evaluated default value for null inputs.
@@ -201,8 +180,7 @@ inline fun <T : Any, reified S : Any> NullableValidator<T, S>.withDefault(defaul
  * @param provide Function that generates the default value
  * @return A new validator with non-nullable output that uses the provided default for null inputs
  */
-inline fun <T : Any, reified S : Any> NullableValidator<T, S>.withDefault(noinline provide: () -> S): ElvisValidator<T, S> =
-    map { it ?: provide() }
+fun <T : Any, S : Any> NullableValidator<T, S>.withDefault(provide: () -> S): ElvisValidator<T, S> = map { it ?: provide() }
 
 /**
  * Provides a default value for null inputs, then applies a transformation.
@@ -224,7 +202,7 @@ inline fun <T : Any, reified S : Any> NullableValidator<T, S>.withDefault(noinli
  * @param block A function that builds a validator transformation from a success validator
  * @return A new validator with non-nullable output that uses the default for null inputs and transforms values
  */
-inline fun <T : Any, reified S : Any, U : Any> NullableValidator<T, S>.withDefaultThen(
+inline fun <T : Any, S : Any, U : Any> NullableValidator<T, S>.withDefaultThen(
     defaultValue: S,
     block: (Validator<S, S>) -> Validator<S, U>,
 ): ElvisValidator<T, U> = withDefaultThen({ defaultValue }, block)
@@ -249,7 +227,7 @@ inline fun <T : Any, reified S : Any, U : Any> NullableValidator<T, S>.withDefau
  * @param block A function that builds a validator transformation from a success validator
  * @return A new validator with non-nullable output that uses the provided default for null inputs and transforms values
  */
-inline fun <T : Any, reified S : Any, U : Any> NullableValidator<T, S>.withDefaultThen(
+inline fun <T : Any, S : Any, U : Any> NullableValidator<T, S>.withDefaultThen(
     noinline provide: () -> S,
     block: (Validator<S, S>) -> Validator<S, U>,
 ): ElvisValidator<T, U> = withDefault(provide).then(block(Validator.success()))

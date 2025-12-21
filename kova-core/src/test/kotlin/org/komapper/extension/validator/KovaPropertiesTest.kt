@@ -793,7 +793,7 @@ class KovaPropertiesTest :
             }
 
             test("isEnum") {
-                val result = Kova.string().isEnum<TestEnum>().tryValidate("INVALID")
+                val result = Kova.string().isEnum<TestEnum, _>().tryValidate("INVALID")
                 result.isFailure().mustBeTrue()
                 val message = result.messages.single()
                 message.text shouldBe "must be one of: [A, B, C]"

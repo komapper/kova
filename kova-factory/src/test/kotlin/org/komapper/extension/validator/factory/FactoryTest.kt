@@ -114,8 +114,8 @@ class FactoryTest :
                 first: String,
                 last: String,
             ) = Kova.factory {
-                val first by bind(createNameFactory(first))
-                val last by bind(createNameFactory(last))
+                val first by createNameFactory(first)
+                val last by createNameFactory(last)
                 create { FullName(first(), last()) }
             }
 
@@ -128,7 +128,7 @@ class FactoryTest :
                 Kova
                     .factory {
                         val id by bind(id) { it.toInt() }
-                        val fullName by bind(createFullNameFactory(firstName, lastName))
+                        val fullName by createFullNameFactory(firstName, lastName)
                         create { User(id(), fullName()) }
                     }.tryCreate(config)
 

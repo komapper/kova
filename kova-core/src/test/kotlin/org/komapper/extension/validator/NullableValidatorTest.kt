@@ -308,7 +308,12 @@ class NullableValidatorTest :
         }
 
         context("toNonNullable - then") {
-            val notNullAndMin3AndMax3 = Kova.nullable<Int>().toNonNullable().then { it.max(5).min(3) }
+            val notNullAndMin3AndMax3 =
+                Kova
+                    .nullable<Int>()
+                    .toNonNullable()
+                    .max(5)
+                    .min(3)
 
             test("success") {
                 val result = notNullAndMin3AndMax3.tryValidate(4)

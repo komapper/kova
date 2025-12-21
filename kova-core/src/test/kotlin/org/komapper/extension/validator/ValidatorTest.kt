@@ -236,7 +236,7 @@ class ValidatorTest :
                     .int()
                     .min(3)
                     .map { it.toString() }
-                    .then { it.max(1) }
+                    .max(1)
             test("success") {
                 val result = validator.tryValidate(3)
                 result.isSuccess().mustBeTrue()

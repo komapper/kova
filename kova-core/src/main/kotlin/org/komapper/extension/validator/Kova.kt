@@ -53,43 +53,43 @@ interface Kova {
     fun boolean(): IdentityValidator<Boolean> = generic()
 
     /** Creates a validator for String values with string-specific constraints. */
-    fun string(): StringValidator = generic()
+    fun string(): StringValidator<String> = generic()
 
     /** Creates a validator for Int values with numeric constraints. */
-    fun int(): NumberValidator<Int> = generic()
+    fun int(): NumberValidator<Int, Int> = generic()
 
     /** Creates a validator for Long values with numeric constraints. */
-    fun long(): NumberValidator<Long> = generic()
+    fun long(): NumberValidator<Long, Long> = generic()
 
     /** Creates a validator for Double values with numeric constraints. */
-    fun double(): NumberValidator<Double> = generic()
+    fun double(): NumberValidator<Double, Double> = generic()
 
     /** Creates a validator for Float values with numeric constraints. */
-    fun float(): NumberValidator<Float> = generic()
+    fun float(): NumberValidator<Float, Float> = generic()
 
     /** Creates a validator for Byte values with numeric constraints. */
-    fun byte(): NumberValidator<Byte> = generic()
+    fun byte(): NumberValidator<Byte, Byte> = generic()
 
     /** Creates a validator for Short values with numeric constraints. */
-    fun short(): NumberValidator<Short> = generic()
+    fun short(): NumberValidator<Short, Short> = generic()
 
     /** Creates a validator for BigDecimal values with numeric constraints. */
-    fun bigDecimal(): NumberValidator<BigDecimal> = generic()
+    fun bigDecimal(): NumberValidator<BigDecimal, BigDecimal> = generic()
 
     /** Creates a validator for BigInteger values with numeric constraints. */
-    fun bigInteger(): NumberValidator<BigInteger> = generic()
+    fun bigInteger(): NumberValidator<BigInteger, BigInteger> = generic()
 
     /** Creates a validator for UInt values with unsigned integer constraints. */
-    fun uInt(): NumberValidator<UInt> = generic()
+    fun uInt(): NumberValidator<UInt, UInt> = generic()
 
     /** Creates a validator for ULong values with unsigned integer constraints. */
-    fun uLong(): NumberValidator<ULong> = generic()
+    fun uLong(): NumberValidator<ULong, ULong> = generic()
 
     /** Creates a validator for UByte values with unsigned integer constraints. */
-    fun uByte(): NumberValidator<UByte> = generic()
+    fun uByte(): NumberValidator<UByte, UByte> = generic()
 
     /** Creates a validator for UShort values with unsigned integer constraints. */
-    fun uShort(): NumberValidator<UShort> = generic()
+    fun uShort(): NumberValidator<UShort, UShort> = generic()
 
     /**
      * Creates a validator for LocalDate values with temporal constraints.
@@ -110,7 +110,7 @@ interface Kova {
      * validator.tryValidate(LocalDate.of(2024, 12, 31), config = config)
      * ```
      */
-    fun localDate(): TemporalValidator<LocalDate> = generic()
+    fun localDate(): TemporalValidator<LocalDate, LocalDate> = generic()
 
     /**
      * Creates a validator for LocalTime values with temporal constraints.
@@ -118,7 +118,7 @@ interface Kova {
      * Temporal constraints use the clock from [ValidationConfig].
      * See [localDate] for clock configuration details.
      */
-    fun localTime(): TemporalValidator<LocalTime> = generic()
+    fun localTime(): TemporalValidator<LocalTime, LocalTime> = generic()
 
     /**
      * Creates a validator for LocalDateTime values with temporal constraints.
@@ -126,7 +126,7 @@ interface Kova {
      * Temporal constraints use the clock from [ValidationConfig].
      * See [localDate] for clock configuration details.
      */
-    fun localDateTime(): TemporalValidator<LocalDateTime> = generic()
+    fun localDateTime(): TemporalValidator<LocalDateTime, LocalDateTime> = generic()
 
     /**
      * Creates a validator for Instant values with temporal constraints.
@@ -134,7 +134,7 @@ interface Kova {
      * Temporal constraints use the clock from [ValidationConfig].
      * See [localDate] for clock configuration details.
      */
-    fun instant(): TemporalValidator<Instant> = generic()
+    fun instant(): TemporalValidator<Instant, Instant> = generic()
 
     /**
      * Creates a validator for MonthDay values.
@@ -143,7 +143,7 @@ interface Kova {
      * constraints (past, future, pastOrPresent, futureOrPresent). However, it does implement
      * [Comparable], so comparison constraints (min, max, gt, gte, lt, lte) are available.
      */
-    fun monthDay(): ComparableValidator<MonthDay> = generic()
+    fun monthDay(): ComparableValidator<MonthDay, MonthDay> = generic()
 
     /**
      * Creates a validator for OffsetDateTime values with temporal constraints.
@@ -151,7 +151,7 @@ interface Kova {
      * Temporal constraints use the clock from [ValidationConfig].
      * See [localDate] for clock configuration details.
      */
-    fun offsetDateTime(): TemporalValidator<OffsetDateTime> = generic()
+    fun offsetDateTime(): TemporalValidator<OffsetDateTime, OffsetDateTime> = generic()
 
     /**
      * Creates a validator for OffsetTime values with temporal constraints.
@@ -159,7 +159,7 @@ interface Kova {
      * Temporal constraints use the clock from [ValidationConfig].
      * See [localDate] for clock configuration details.
      */
-    fun offsetTime(): TemporalValidator<OffsetTime> = generic()
+    fun offsetTime(): TemporalValidator<OffsetTime, OffsetTime> = generic()
 
     /**
      * Creates a validator for Year values with temporal constraints.
@@ -167,7 +167,7 @@ interface Kova {
      * Temporal constraints use the clock from [ValidationConfig].
      * See [localDate] for clock configuration details.
      */
-    fun year(): TemporalValidator<Year> = generic()
+    fun year(): TemporalValidator<Year, Year> = generic()
 
     /**
      * Creates a validator for YearMonth values with temporal constraints.
@@ -175,7 +175,7 @@ interface Kova {
      * Temporal constraints use the clock from [ValidationConfig].
      * See [localDate] for clock configuration details.
      */
-    fun yearMonth(): TemporalValidator<YearMonth> = generic()
+    fun yearMonth(): TemporalValidator<YearMonth, YearMonth> = generic()
 
     /**
      * Creates a validator for ZonedDateTime values with temporal constraints.
@@ -183,19 +183,19 @@ interface Kova {
      * Temporal constraints use the clock from [ValidationConfig].
      * See [localDate] for clock configuration details.
      */
-    fun zonedDateTime(): TemporalValidator<ZonedDateTime> = generic()
+    fun zonedDateTime(): TemporalValidator<ZonedDateTime, ZonedDateTime> = generic()
 
     /** Creates a validator for Collection values with size and element validation. */
-    fun <E> collection(): CollectionValidator<Collection<E>> = generic()
+    fun <E> collection(): CollectionValidator<Collection<E>, Collection<E>> = generic()
 
     /** Creates a validator for List values with size and element validation. */
-    fun <E> list(): CollectionValidator<List<E>> = generic()
+    fun <E> list(): CollectionValidator<List<E>, List<E>> = generic()
 
     /** Creates a validator for Set values with size and element validation. */
-    fun <E> set(): CollectionValidator<Set<E>> = generic()
+    fun <E> set(): CollectionValidator<Set<E>, Set<E>> = generic()
 
     /** Creates a validator for Map values with size, key, and value validation. */
-    fun <K, V> map(): MapValidator<K, V> = generic()
+    fun <K, V> map(): MapValidator<Map<K, V>, K, V> = generic()
 
     /**
      * Creates a generic validator that accepts any value of type T.

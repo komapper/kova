@@ -1,22 +1,18 @@
 package org.komapper.extension.validator.factory
 
 import org.komapper.extension.validator.IdentityValidator
-import org.komapper.extension.validator.Input
 import org.komapper.extension.validator.Kova
+import org.komapper.extension.validator.Message
 import org.komapper.extension.validator.ValidationConfig
 import org.komapper.extension.validator.ValidationContext
 import org.komapper.extension.validator.ValidationException
 import org.komapper.extension.validator.ValidationResult
 import org.komapper.extension.validator.Validator
-import org.komapper.extension.validator.addPath
 import org.komapper.extension.validator.addRoot
-import org.komapper.extension.validator.isFailure
-import org.komapper.extension.validator.isSuccess
+import org.komapper.extension.validator.bindObject
 import org.komapper.extension.validator.name
 import org.komapper.extension.validator.tryValidate
 import org.komapper.extension.validator.validate
-import kotlin.properties.PropertyDelegateProvider
-import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
 /**
@@ -136,7 +132,7 @@ class FactoryScope<R>(
     private val context: ValidationContext,
     private val validator: Validator<R, R>,
 ) {
-    private val results = mutableListOf<ValidationResult<*>>()
+    private val messages = mutableListOf<Message>()
 
     /**
      * Binds a value to a validator, returning a [ValueRef] that can be invoked in [create].
@@ -158,8 +154,8 @@ class FactoryScope<R>(
     fun <T, S> bind(
         value: T,
         block: (Validator<T, T>) -> Validator<T, S>,
-    ) = createPropertyDelegateProvider {
-        context.addPath(it.name, value) {
+    ) = Factory {
+        bindObject(value) {
             val validator = block(Validator.success())
             validator.execute(value)
         }
@@ -173,30 +169,29 @@ class FactoryScope<R>(
      *
      * Example:
      * ```kotlin
-     * val address by bind(addressFactory)
+     * val address by addressFactory
      * ```
      *
      * @param S the type produced by the factory
-     * @param factory the factory to bind
-     * @return a property delegate provider that creates a [ValueRef] for accessing the factory's result
+     * @param this the factory to bind
+     * @return a [ValueRef] for accessing the factory's result
      */
-    fun <S> bind(factory: Factory<S>) =
-        createPropertyDelegateProvider {
-            with(context) {
-                factory.name(it.name).execute(Unit)
-            }
-        }
-
-    private fun <S> createPropertyDelegateProvider(execute: (KProperty<*>) -> ValidationResult<S>) =
-        PropertyDelegateProvider<Any?, ReadOnlyProperty<Any?, ValueRef<S>>> { _, property ->
-            val result =
-                if (context.failFast && results.any { it.isFailure() }) {
-                    null
-                } else {
-                    execute(property)
+    operator fun <S> Factory<S>.provideDelegate(
+        thisRef: Any?,
+        property: KProperty<*>,
+    ): ValueRef<S> =
+        with(context) {
+            if (failFast && messages.isNotEmpty()) {
+                FailureValueRef
+            } else {
+                when (val result = name(property.name).execute(Unit)) {
+                    is ValidationResult.Success -> SuccessValueRef(result.value)
+                    is ValidationResult.Failure -> {
+                        messages.addAll(result.messages)
+                        FailureValueRef
+                    }
                 }
-            if (result != null) results.add(result)
-            ReadOnlyProperty { _, _ -> ValueRef(result) }
+            }
         }
 
     /**
@@ -214,13 +209,12 @@ class FactoryScope<R>(
      *         validation failure with aggregated error messages if any validation fails
      */
     fun create(block: CreationScope.() -> R): ValidationResult<R> =
-        if (results.all { it.isSuccess() }) {
+        if (messages.isEmpty()) {
             val obj = block(CreationScope())
             // reset context
             with(ValidationContext(config = context.config)) { validator.execute(obj) }
         } else {
-            val messages = results.filterIsInstance<ValidationResult.Failure<*>>().flatMap { it.messages }
-            ValidationResult.Failure(Input.Unusable(Unit), messages)
+            ValidationResult.Failed(messages)
         }
 }
 
@@ -248,10 +242,7 @@ class CreationScope {
      * @return the validated value
      * @throws IllegalStateException if the value reference is null or validation failed
      */
-    operator fun <T> ValueRef<T>.invoke(): T {
-        if (validationResult == null || validationResult.isFailure()) error("ValueRef is illegal.")
-        return validationResult.value
-    }
+    operator fun <T> ValueRef<T>.invoke(): T = value
 }
 
 /**
@@ -275,6 +266,20 @@ class CreationScope {
  *
  * @param R the type of value referenced
  */
-class ValueRef<R> internal constructor(
-    internal val validationResult: ValidationResult<R>?,
-)
+sealed interface ValueRef<out R> {
+    val value: R
+
+    operator fun getValue(
+        instance: Any?,
+        property: KProperty<*>,
+    ): ValueRef<R> = this
+}
+
+internal data class SuccessValueRef<out R>(
+    override val value: R,
+) : ValueRef<R>
+
+internal data object FailureValueRef : ValueRef<Nothing> {
+    override val value: Nothing
+        get() = error("ValueRef is illegal.")
+}

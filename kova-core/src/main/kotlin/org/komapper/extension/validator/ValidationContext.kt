@@ -71,12 +71,14 @@ data class ValidationContext(
     fun satisfies(
         condition: Boolean,
         message: MessageProvider,
-    ): ConstraintResult =
+    ): ValidationResult<Unit> =
         if (condition) {
             ValidationResult.Success(Unit)
         } else {
-            ValidationResult.Failure(Input.Available(Unit), listOf(message()))
+            ValidationResult.Failed(listOf(message()))
         }
+
+    fun <A> A.satisfiesNotNull(message: MessageProvider): ValidationResult<A & Any> = satisfies(this != null, message).map { this!! }
 
     /**
      * Creates a resource-based validation message.
@@ -243,9 +245,12 @@ inline fun <R> ValidationContext.addPath(
  * @param obj The object to bind to the current path
  * @return A new context with the updated object reference
  */
-fun ValidationContext.bindObject(obj: Any?): ValidationContext {
+inline fun <R> ValidationContext.bindObject(
+    obj: Any?,
+    block: ValidationContext.() -> R,
+): R {
     val path = this.path.copy(obj = obj)
-    return copy(path = path)
+    return block(copy(path = path))
 }
 
 /**
