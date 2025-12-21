@@ -15,6 +15,9 @@ import org.komapper.extension.validator.isSuccess
 import org.komapper.extension.validator.name
 import org.komapper.extension.validator.tryValidate
 import org.komapper.extension.validator.validate
+import kotlin.properties.PropertyDelegateProvider
+import kotlin.properties.ReadOnlyProperty
+import kotlin.reflect.KProperty
 
 /**
  * A factory that produces validated instances of type [R].
@@ -48,14 +51,28 @@ fun <R : Any> Factory<R>.tryCreate(config: ValidationConfig = ValidationConfig()
 fun <R : Any> Factory<R>.create(config: ValidationConfig = ValidationConfig()): R = validate(Unit, config)
 
 /**
- * Generates a factory from this validator.
+ * Creates a factory from this validator.
  *
- * The factory uses a [FactoryScope] to collect and validate individual fields,
- * then applies this validator to the final constructed object.
+ * The factory uses a [FactoryScope] to collect and validate individual fields during construction,
+ * then applies this validator to the final constructed object. This is useful for combining
+ * ObjectSchemas with factory-based construction.
+ *
+ * Example:
+ * ```kotlin
+ * object UserSchema : ObjectSchema<User>({
+ *     User::age { it.min(0).max(120) }
+ * })
+ *
+ * fun createUser(name: String, age: String) = UserSchema.factory {
+ *     val name by bind(name) { it.notBlank() }
+ *     val age by bind(age) { it.toInt() }
+ *     create { User(name(), age()) }
+ * }
+ * ```
  *
  * @param root the root name for the validation context
  * @param block the factory definition block that produces a validation result
- * @return a factory that validates according to the defined logic
+ * @return a factory that validates fields during construction and applies this validator to the result
  */
 fun <R : Any> IdentityValidator<R>.factory(
     root: String = "factory",
@@ -63,8 +80,7 @@ fun <R : Any> IdentityValidator<R>.factory(
 ): Factory<R> =
     Factory { _ ->
         addRoot(root, null) {
-            val factories = mutableListOf<Factory<*>>()
-            val factoryScope = FactoryScope(this, factories, this@factory)
+            val factoryScope = FactoryScope(this, this@factory)
             block(factoryScope)
         }
     }
@@ -73,17 +89,27 @@ fun <R : Any> IdentityValidator<R>.factory(
  * Creates a factory that produces validated instances of type [R].
  *
  * Factories combine construction and validation into a single operation.
- * Use [FactoryScope.check] to validate individual fields, then [FactoryScope.create]
- * to construct the final object.
+ * Use [FactoryScope.bind] to validate individual fields or compose other factories,
+ * then [FactoryScope.create] to construct the final object.
  *
  * Example:
  * ```kotlin
  * val userFactory = Kova.factory<User> {
- *     val name = check("name", rawName) { it.min(1).max(50) }
- *     val age = check("age", rawAge) { it.min(0).max(150) }
+ *     val name by bind(rawName) { it.min(1).max(50) }
+ *     val age by bind(rawAge) { it.min(0).max(150) }
  *     create { User(name(), age()) }
  * }
  * val user = userFactory.create()
+ * ```
+ *
+ * Factories can also be composed:
+ * ```kotlin
+ * val addressFactory = Kova.factory<Address> { /* ... */ }
+ * val userFactory = Kova.factory<User> {
+ *     val name by bind(rawName) { it.notBlank() }
+ *     val address by bind(addressFactory)
+ *     create { User(name(), address()) }
+ * }
  * ```
  *
  * @param root the root name for the validation context
@@ -98,135 +124,151 @@ fun <R : Any> Kova.factory(
 /**
  * Scope for defining factory validation logic.
  *
- * Provides methods to check individual fields and create the final validated object.
- * Fields must be checked using [check] before they can be accessed in the [create] block.
+ * Provides methods to bind individual fields to validators and create the final validated object.
+ * Use [bind] to validate input values or compose other factories, then [create] to construct
+ * the final object using the validated values. All bindings are validated before object construction.
+ *
+ * If failFast mode is enabled in [ValidationConfig], binding stops at the first validation failure.
  *
  * @param R the type of object being constructed
  */
 class FactoryScope<R>(
     private val context: ValidationContext,
-    private val factories: MutableList<Factory<*>>,
     private val validator: Validator<R, R>,
 ) {
+    private val results = mutableListOf<ValidationResult<*>>()
+
     /**
-     * Registers a value to be validated when [create] is called.
+     * Binds a value to a validator, returning a [ValueRef] that can be invoked in [create].
      *
-     * The validation is deferred until [create] is invoked. The resulting value can be
-     * accessed in the [create] block by invoking the returned [ValueRef].
+     * The validator is built by applying the provided block to a base validator.
+     * The property name is automatically used as the validation path.
      *
-     * @param name the field name for error reporting
+     * Example:
+     * ```kotlin
+     * val name by bind(rawName) { it.min(1).max(50) }
+     * ```
+     *
+     * @param T the type of the input value
+     * @param S the type of the validated output value
      * @param value the value to validate
-     * @param block validator definition that transforms the value
-     * @return a reference to the value that will be validated and accessible in [create]
+     * @param block a function that receives a base validator and returns a configured validator
+     * @return a property delegate provider that creates a [ValueRef] for accessing the validated value
      */
-    fun <T, S> check(
-        name: String,
+    fun <T, S> bind(
         value: T,
         block: (Validator<T, T>) -> Validator<T, S>,
-    ): ValueRef<S> {
-        val factory =
-            Factory { _ ->
-                val validator = block(Validator.success())
-                context.addPath(name, value) { validator.execute(value) }
-            }
-        factories.add(factory)
-        return ValueRef(factory)
+    ) = createPropertyDelegateProvider {
+        context.addPath(it.name, value) {
+            val validator = block(Validator.success())
+            validator.execute(value)
+        }
     }
 
     /**
-     * Registers an existing factory to be executed when [create] is called.
+     * Binds a factory to this factory, returning a [ValueRef] for the factory's result.
      *
-     * The factory's result can be accessed in the [create] block by invoking the returned [ValueRef].
+     * This enables composing factories to build complex nested objects.
+     * The property name is automatically used as the validation path.
      *
-     * @param name the field name for error reporting
-     * @param factory the factory to register
-     * @return a reference to the value that will be produced by the factory
+     * Example:
+     * ```kotlin
+     * val address by bind(addressFactory)
+     * ```
+     *
+     * @param S the type produced by the factory
+     * @param factory the factory to bind
+     * @return a property delegate provider that creates a [ValueRef] for accessing the factory's result
      */
-    fun <S> check(
-        name: String,
-        factory: Factory<S>,
-    ): ValueRef<S> {
-        val namedFactory = factory.name(name)
-        factories.add(namedFactory)
-        return ValueRef(namedFactory)
-    }
+    fun <S> bind(factory: Factory<S>) =
+        createPropertyDelegateProvider {
+            with(context) {
+                factory.name(it.name).execute(Unit)
+            }
+        }
+
+    private fun <S> createPropertyDelegateProvider(execute: (KProperty<*>) -> ValidationResult<S>) =
+        PropertyDelegateProvider<Any?, ReadOnlyProperty<Any?, ValueRef<S>>> { _, property ->
+            val result =
+                if (context.failFast && results.any { it.isFailure() }) {
+                    null
+                } else {
+                    execute(property)
+                }
+            if (result != null) results.add(result)
+            ReadOnlyProperty { _, _ -> ValueRef(result) }
+        }
 
     /**
-     * Creates the final object after validating all checked fields.
+     * Creates the final object after validating all bound fields.
      *
-     * All factories registered via [check] are executed. If all validations pass,
+     * All values and factories bound via [bind] are validated. If all validations pass,
      * the provided block is executed to construct the object, which is then validated
-     * by the factory's validator.
+     * by the factory's validator (if one was provided).
+     *
+     * Within the [CreationScope] block, invoke [ValueRef] instances (e.g., `name()`)
+     * to access their validated values.
      *
      * @param block construction block that creates the object using validated values
-     * @return validation result containing the constructed and validated object
+     * @return validation result containing the constructed and validated object, or
+     *         validation failure with aggregated error messages if any validation fails
      */
     fun create(block: CreationScope.() -> R): ValidationResult<R> =
-        with(context) {
-            val resultMap = mutableMapOf<Factory<*>, ValidationResult<*>>()
-            for (factory in factories) {
-                val result = factory.execute(Unit)
-                if (result.isFailure()) {
-                    if (context.failFast) {
-                        return ValidationResult.Failure(Input.Unusable(Unit), result.messages)
-                    }
-                }
-                resultMap[factory] = result
-            }
-            val valid = resultMap.values.all { it.isSuccess() }
-            return if (valid) {
-                val scope = CreationScope(resultMap.mapValues { (_, value) -> value as ValidationResult.Success<*> })
-                val obj = scope.block()
-                // reset context
-                with(ValidationContext(config = context.config)) { validator.execute(obj) }
-            } else {
-                val messages = resultMap.values.filterIsInstance<ValidationResult.Failure<*>>().flatMap { it.messages }
-                ValidationResult.Failure(Input.Unusable(Unit), messages)
-            }
+        if (results.all { it.isSuccess() }) {
+            val obj = block(CreationScope())
+            // reset context
+            with(ValidationContext(config = context.config)) { validator.execute(obj) }
+        } else {
+            val messages = results.filterIsInstance<ValidationResult.Failure<*>>().flatMap { it.messages }
+            ValidationResult.Failure(Input.Unusable(Unit), messages)
         }
 }
 
 /**
  * Scope for constructing objects using validated values.
  *
- * Within this scope, [ValueRef] instances returned from [FactoryScope.check] can be invoked
- * to retrieve their validated values for object construction.
+ * This scope is provided to the [FactoryScope.create] block and allows invoking [ValueRef]
+ * instances as functions to retrieve their validated values. All values are guaranteed to
+ * have passed validation when accessed within this scope.
+ *
+ * Example:
+ * ```kotlin
+ * create {
+ *     User(name(), age())  // Invoke ValueRefs to get validated values
+ * }
+ * ```
  */
-class CreationScope(
-    private val resultMap: Map<Factory<*>, ValidationResult.Success<*>>,
-) {
+class CreationScope {
     /**
      * Retrieves the validated value from a [ValueRef].
      *
      * This operator allows invoking [ValueRef] instances as functions to access their validated values.
+     * This operation is only valid within the [FactoryScope.create] block after all validations have passed.
      *
      * @return the validated value
-     * @throws IllegalStateException if the value reference was not created via [FactoryScope.check]
+     * @throws IllegalStateException if the value reference is null or validation failed
      */
     operator fun <T> ValueRef<T>.invoke(): T {
-        val result =
-            resultMap[factory]
-                ?: error("ValidationResult not found for factory '$factory'. This is an internal error.")
-        @Suppress("UNCHECKED_CAST")
-        return result.value as T
+        if (validationResult == null || validationResult.isFailure()) error("ValueRef is illegal.")
+        return validationResult.value
     }
 }
 
 /**
- * A reference to a value that will be validated when the factory is executed.
+ * A reference to a validated value within a factory.
  *
- * ValueRef is returned by [FactoryScope.check] and represents a value that has been
- * registered for validation but not yet validated. The actual validation occurs when
- * [FactoryScope.create] is called. Within the [CreationScope], a ValueRef can be invoked
- * as a function to retrieve the validated value.
+ * ValueRef is returned by [FactoryScope.bind] and holds the result of a validation.
+ * Validation occurs immediately when [FactoryScope.bind] is called (during property initialization),
+ * not when the ValueRef is invoked. Within the [CreationScope] of [FactoryScope.create],
+ * a ValueRef can be invoked as a function to retrieve its validated value.
  *
  * Example:
  * ```kotlin
  * val userFactory = Kova.factory<User> {
- *     val name: ValueRef<String> = check("name", rawName) { it.min(1).max(50) }
- *     val age: ValueRef<Int> = check("age", rawAge) { it.positive() }
+ *     val name: ValueRef<String> by bind(rawName) { it.min(1).max(50) }  // Validates here
+ *     val age: ValueRef<Int> by bind(rawAge) { it.positive() }           // Validates here
  *     create {
- *         User(name(), age()) // Invoke ValueRefs to get validated values
+ *         User(name(), age())  // Retrieves validated values
  *     }
  * }
  * ```
@@ -234,5 +276,5 @@ class CreationScope(
  * @param R the type of value referenced
  */
 class ValueRef<R> internal constructor(
-    internal val factory: Factory<R>,
+    internal val validationResult: ValidationResult<R>?,
 )
