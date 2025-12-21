@@ -34,8 +34,8 @@ object UserFactory {
         name: String,
         age: String,
     ) = UserSchema.factory {
-        val name = check("name", name) { it.min(1).notBlank() } // argument validator
-        val age = check("age", age) { it.toInt() } // argument validator
+        val name by bind(name) { it.min(1).notBlank() } // argument validator
+        val age by bind(age) { it.toInt() } // argument validator
         create { User(name(), age()) }
     }
 }
@@ -43,8 +43,8 @@ object UserFactory {
 object AgeFactory {
     operator fun invoke(age: String) =
         Kova.factory {
-            val age = check("value", age) { it.toInt() } // argument validator
-            create { Age(age()) }
+            val value by bind(age) { it.toInt() } // argument validator
+            create { Age(value()) }
         }
 }
 
@@ -53,8 +53,8 @@ object PersonFactory {
         name: String,
         age: String,
     ) = Kova.factory {
-        val name = check("name", name) { it.min(1).notBlank() } // argument validator
-        val age = check("age", AgeFactory(age)) // argument validator
+        val name by bind(name) { it.min(1).notBlank() } // argument validator
+        val age by bind(AgeFactory(age)) // argument validator
         create { Person(name(), age()) }
     }
 }
