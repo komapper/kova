@@ -68,7 +68,7 @@ class CollectionValidatorTest :
         context("constrain") {
             val validator =
                 Kova.list<String>().constrain("test") {
-                    satisfies(input.size == 1, text("Constraint failed"))
+                    satisfies(it.size == 1) { text("Constraint failed") }
                 }
 
             test("success") {
@@ -95,21 +95,17 @@ class CollectionValidatorTest :
             test("failure") {
                 val result = validator.tryValidate(listOf("123", "4567", "8910"))
                 result.isFailure().mustBeTrue()
-                result.messages.size shouldBe 1
-                result.messages[0].let {
+                result.messages.single().let {
                     it.constraintId shouldBe "kova.collection.onEach"
                     it.text shouldBe
                         "Some elements do not satisfy the constraint: [must be exactly 3 characters, must be exactly 3 characters]"
-                    it.shouldBeInstanceOf<Message.Collection>()
-                    it.elements.size shouldBe 2
-                    it.elements[0].messages[0].constraintId shouldBe "kova.charSequence.length"
-                    it.elements[0]
-                        .messages[0]
-                        .input shouldBe "4567"
-                    it.elements[1].messages[0].constraintId shouldBe "kova.charSequence.length"
-                    it.elements[1]
-                        .messages[0]
-                        .input shouldBe "8910"
+                    it.args.single().shouldBeInstanceOf<List<Message>> { messages ->
+                        messages.size shouldBe 2
+                        messages[0].constraintId shouldBe "kova.charSequence.length"
+                        messages[0].input shouldBe "4567"
+                        messages[1].constraintId shouldBe "kova.charSequence.length"
+                        messages[1].input shouldBe "8910"
+                    }
                 }
             }
 
@@ -120,9 +116,11 @@ class CollectionValidatorTest :
                     it.constraintId shouldBe "kova.collection.onEach"
                     it.text shouldBe
                         "Some elements do not satisfy the constraint: [must be exactly 3 characters]"
-                    it.shouldBeInstanceOf<Message.Collection>()
-                    it.elements.size shouldBe 1
-                    it.elements[0].messages[0].constraintId shouldBe "kova.charSequence.length"
+                    it.args
+                        .single()
+                        .shouldBeInstanceOf<List<Message>>()
+                        .single()
+                        .constraintId shouldBe "kova.charSequence.length"
                 }
             }
         }
@@ -192,9 +190,7 @@ class CollectionValidatorTest :
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBe 1
                 val message = result.messages[0]
-                message.shouldBeInstanceOf<Message.Collection>()
-                message.elements.size shouldBe 1
-                message.elements[0].messages[0].let {
+                message.args.single().shouldBeInstanceOf<List<Message>>().single().let {
                     it.root shouldBe "ListHolder"
                     it.path.fullName shouldBe "list[1]<collection element>"
                     it.constraintId shouldBe "kova.charSequence.length"

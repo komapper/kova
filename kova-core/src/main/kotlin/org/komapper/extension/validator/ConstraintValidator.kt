@@ -29,13 +29,16 @@ typealias ConstraintValidator<T> = IdentityValidator<T>
  * @param constraint The constraint to apply
  * @return A validator that checks the constraint and returns the input unchanged if satisfied
  */
-fun <T> ConstraintValidator(constraint: Constraint<T>): ConstraintValidator<T> =
+fun <T> ConstraintValidator(
+    id: String,
+    constraint: Constraint<T>,
+): ConstraintValidator<T> =
     Validator { input ->
-        when (val result = constraint.check(createConstraintContext(input, constraint.id))) {
-            is ConstraintResult.Satisfied -> {
+        when (val result = constraint.execute(input)) {
+            is ValidationResult.Success -> {
                 log {
                     LogEntry.Satisfied(
-                        constraintId = constraint.id,
+                        constraintId = id,
                         root = root,
                         path = path.fullName,
                         input = input,
@@ -44,17 +47,24 @@ fun <T> ConstraintValidator(constraint: Constraint<T>): ConstraintValidator<T> =
                 ValidationResult.Success(input)
             }
 
-            is ConstraintResult.Violated -> {
-                log {
-                    LogEntry.Violated(
-                        constraintId = constraint.id,
-                        root = root,
-                        path = path.fullName,
-                        input = input,
-                        args = result.message.args.asList(),
-                    )
+            is ValidationResult.Failure -> {
+                for (message in result.messages) {
+                    log {
+                        LogEntry.Violated(
+                            constraintId = id,
+                            root = message.root,
+                            path = message.path.fullName,
+                            input = input,
+                            args = if (message is Message.Resource) message.args.asList() else emptyList(),
+                        )
+                    }
                 }
-                ValidationResult.Failure(Input.Available(input), listOf(result.message))
+                ValidationResult.Failure(
+                    Input.Available(input),
+                    result.messages.map {
+                        it.withDetails(input = input, constraintId = id)
+                    },
+                )
             }
         }
     }

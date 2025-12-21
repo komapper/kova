@@ -26,10 +26,8 @@ typealias MapValidator<K, V> = IdentityValidator<Map<K, V>>
  */
 fun <K, V> MapValidator<K, V>.min(
     size: Int,
-    message: LengthMessageProvider<Map<K, V>> = { resource(it, size) },
-) = constrain("kova.map.min") {
-    satisfies(input.size >= size) { message(input.size) }
-}
+    message: LengthMessageProvider = { "kova.map.min".resource(it, size) },
+) = constrain("kova.map.min") { satisfies(it.size >= size) { message(it.size) } }
 
 /**
  * Validates that the map size does not exceed the specified maximum.
@@ -47,10 +45,8 @@ fun <K, V> MapValidator<K, V>.min(
  */
 fun <K, V> MapValidator<K, V>.max(
     size: Int,
-    message: LengthMessageProvider<Map<K, V>> = { resource(it, size) },
-) = constrain("kova.map.max") {
-    satisfies(input.size <= size) { message(input.size) }
-}
+    message: LengthMessageProvider = { "kova.map.max".resource(it, size) },
+) = constrain("kova.map.max") { satisfies(it.size <= size) { message(it.size) } }
 
 /**
  * Validates that the map is not empty.
@@ -65,10 +61,8 @@ fun <K, V> MapValidator<K, V>.max(
  * @param message Custom error message provider
  * @return A new validator with the not-empty constraint
  */
-fun <K, V> MapValidator<K, V>.notEmpty(message: MessageProvider<Map<K, V>> = Message::Resource) =
-    constrain("kova.map.notEmpty") {
-        satisfies(input.isNotEmpty(), message)
-    }
+fun <K, V> MapValidator<K, V>.notEmpty(message: MessageProvider = { "kova.map.notEmpty".resource }) =
+    constrain("kova.map.notEmpty") { satisfies(it.isNotEmpty(), message) }
 
 /**
  * Validates that the map size equals exactly the specified value.
@@ -86,10 +80,8 @@ fun <K, V> MapValidator<K, V>.notEmpty(message: MessageProvider<Map<K, V>> = Mes
  */
 fun <K, V> MapValidator<K, V>.length(
     size: Int,
-    message: LengthMessageProvider<Map<K, V>> = { resource(it, size) },
-) = constrain("kova.map.length") {
-    satisfies(input.size == size) { message(input.size) }
-}
+    message: LengthMessageProvider = { "kova.map.length".resource(it, size) },
+) = constrain("kova.map.length") { satisfies(it.size == size) { message(it.size) } }
 
 /**
  * Validates that the map contains the specified key.
@@ -107,10 +99,8 @@ fun <K, V> MapValidator<K, V>.length(
  */
 fun <K, V> MapValidator<K, V>.containsKey(
     key: K,
-    message: MessageProvider<Map<K, V>> = { resource(key) },
-) = constrain("kova.map.containsKey") {
-    satisfies(input.containsKey(key), message)
-}
+    message: MessageProvider = { "kova.map.containsKey".resource(key) },
+) = constrain("kova.map.containsKey") { satisfies(it.containsKey(key), message) }
 
 /**
  * Validates that the map does not contain the specified key.
@@ -128,10 +118,8 @@ fun <K, V> MapValidator<K, V>.containsKey(
  */
 fun <K, V> MapValidator<K, V>.notContainsKey(
     key: K,
-    message: MessageProvider<Map<K, V>> = { resource(key) },
-) = constrain("kova.map.notContainsKey") {
-    satisfies(!input.containsKey(key), message)
-}
+    message: MessageProvider = { "kova.map.notContainsKey".resource(key) },
+) = constrain("kova.map.notContainsKey") { satisfies(!it.containsKey(key), message) }
 
 /**
  * Validates that the map contains the specified value.
@@ -149,10 +137,8 @@ fun <K, V> MapValidator<K, V>.notContainsKey(
  */
 fun <K, V> MapValidator<K, V>.containsValue(
     value: V,
-    message: MessageProvider<Map<K, V>> = { resource(value) },
-) = constrain("kova.map.containsValue") {
-    satisfies(input.containsValue(value), message)
-}
+    message: MessageProvider = { "kova.map.containsValue".resource(value) },
+) = constrain("kova.map.containsValue") { satisfies(it.containsValue(value), message) }
 
 /**
  * Validates that the map does not contain the specified value.
@@ -170,10 +156,8 @@ fun <K, V> MapValidator<K, V>.containsValue(
  */
 fun <K, V> MapValidator<K, V>.notContainsValue(
     value: V,
-    message: MessageProvider<Map<K, V>> = { resource(value) },
-) = constrain("kova.map.notContainsValue") {
-    satisfies(!input.containsValue(value), message)
-}
+    message: MessageProvider = { "kova.map.notContainsValue".resource(value) },
+) = constrain("kova.map.notContainsValue") { satisfies(!it.containsValue(value), message) }
 
 /**
  * Validates each entry (key-value pair) of the map using the specified validator.
@@ -197,9 +181,7 @@ fun <K, V> MapValidator<K, V>.notContainsValue(
  * @return A new validator with per-entry validation
  */
 fun <K, V> MapValidator<K, V>.onEach(validator: Validator<Map.Entry<K, V>, *>) =
-    constrain("kova.map.onEach") {
-        appendPath(text = "<map entry>") { validateOnEach(validator) }
-    }
+    constrain("kova.map.onEach") { appendPath(text = "<map entry>") { validateOnEach("kova.map.onEach", it, validator) } }
 
 /**
  * Lambda-based overload of [onEach] for more fluent validation composition.
@@ -245,7 +227,7 @@ fun <K, V> MapValidator<K, V>.onEach(block: (IdentityValidator<Map.Entry<K, V>>)
  */
 fun <K, V> MapValidator<K, V>.onEachKey(validator: Validator<K, *>) =
     constrain("kova.map.onEachKey") {
-        validateOnEach { entry ->
+        validateOnEach("kova.map.onEachKey", it) { entry ->
             appendPath(text = "<map key>") { validator.execute(entry.key) }
         }
     }
@@ -292,7 +274,7 @@ fun <K, V> MapValidator<K, V>.onEachKey(block: (IdentityValidator<K>) -> Validat
  */
 fun <K, V> MapValidator<K, V>.onEachValue(validator: Validator<V, *>) =
     constrain("kova.map.onEachValue") {
-        validateOnEach { entry ->
+        validateOnEach("kova.map.onEachValue", it) { entry ->
             appendPath(text = "[${entry.key}]<map value>") { validator.execute(entry.value) }
         }
     }
@@ -318,9 +300,13 @@ fun <K, V> MapValidator<K, V>.onEachValue(validator: Validator<V, *>) =
  */
 fun <K, V> MapValidator<K, V>.onEachValue(block: (IdentityValidator<V>) -> Validator<V, *>) = onEachValue(block(Validator.success()))
 
-private fun <K, V> ConstraintContext<Map<K, V>>.validateOnEach(validate: Validator<Map.Entry<K, V>, *>): ConstraintResult {
+private fun <K, V> ValidationContext.validateOnEach(
+    constraintId: String,
+    map: Map<K, V>,
+    validate: Validator<Map.Entry<K, V>, *>,
+): ConstraintResult {
     val failures = mutableListOf<ValidationResult.Failure<*>>()
-    for (entry in input.entries) {
+    for (entry in map.entries) {
         val result = validate.execute(entry)
         if (result.isFailure()) {
             failures.add(result)
@@ -329,6 +315,6 @@ private fun <K, V> ConstraintContext<Map<K, V>>.validateOnEach(validate: Validat
     }
     val messages = failures.flatMap { it.messages }
     return satisfies(messages.isEmpty()) {
-        Message.Collection(Message.Resource(this, messages), failures)
+        constraintId.resource(messages)
     }
 }

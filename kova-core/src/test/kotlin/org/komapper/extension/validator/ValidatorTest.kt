@@ -86,9 +86,15 @@ class ValidatorTest :
                 result.messages.size shouldBe 1
                 result.messages[0].let {
                     it.constraintId shouldBe "kova.or"
-                    it.shouldBeInstanceOf<Message.Or>()
-                    it.first.messages[0].constraintId shouldBe "kova.charSequence.length"
-                    it.second.messages[0].constraintId shouldBe "kova.charSequence.length"
+                    it.args.size shouldBe 2
+                    it.args[0]
+                        .shouldBeInstanceOf<List<Message>>()
+                        .single()
+                        .constraintId shouldBe "kova.charSequence.length"
+                    it.args[1]
+                        .shouldBeInstanceOf<List<Message>>()
+                        .single()
+                        .constraintId shouldBe "kova.charSequence.length"
                 }
             }
         }
@@ -105,9 +111,15 @@ class ValidatorTest :
                 result.messages.size shouldBe 1
                 result.messages[0].let {
                     it.constraintId shouldBe "kova.or"
-                    it.shouldBeInstanceOf<Message.Or>()
-                    it.first.messages[0].constraintId shouldBe "kova.or"
-                    it.second.messages[0].constraintId shouldBe "kova.charSequence.length"
+                    it.args.size shouldBe 2
+                    it.args[0]
+                        .shouldBeInstanceOf<List<Message>>()
+                        .single()
+                        .constraintId shouldBe "kova.or"
+                    it.args[1]
+                        .shouldBeInstanceOf<List<Message>>()
+                        .single()
+                        .constraintId shouldBe "kova.charSequence.length"
                     println(it)
                 }
             }
@@ -127,9 +139,15 @@ class ValidatorTest :
                 result.messages.size shouldBe 1
                 result.messages[0].let {
                     it.constraintId shouldBe "kova.or"
-                    it.shouldBeInstanceOf<Message.Or>()
-                    it.first.messages[0].constraintId shouldBe "kova.or"
-                    it.second.messages[0].constraintId shouldBe "kova.charSequence.length"
+                    it.args.size shouldBe 2
+                    it.args[0]
+                        .shouldBeInstanceOf<List<Message>>()
+                        .single()
+                        .constraintId shouldBe "kova.or"
+                    it.args[1]
+                        .shouldBeInstanceOf<List<Message>>()
+                        .single()
+                        .constraintId shouldBe "kova.charSequence.length"
                     println(it)
                 }
             }
@@ -287,7 +305,7 @@ class ValidatorTest :
                 val result = validator.tryValidate("ab")
                 result.isFailure().mustBeTrue()
                 val message = result.messages.single()
-                message.constraintId shouldBe "kova.withMessage"
+                message.shouldBeInstanceOf<Message.Text>()
                 message.text shouldBe "Invalid: consolidates messages=(must be uppercase, must be at least 3 characters)"
                 message.root shouldBe ""
                 message.path.fullName shouldBe ""
@@ -300,7 +318,7 @@ class ValidatorTest :
                     .string()
                     .uppercase()
                     .min(3)
-                    .withMessage(Message::Resource)
+                    .withMessage()
 
             test("success") {
                 val result = validator.tryValidate("ABCDE")
@@ -335,7 +353,7 @@ class ValidatorTest :
                 val result = validator.tryValidate("ab")
                 result.isFailure().mustBeTrue()
                 val message = result.messages.single()
-                message.constraintId shouldBe "kova.withMessage"
+                message.shouldBeInstanceOf<Message.Text>()
                 message.text shouldBe "Invalid"
                 message.root shouldBe ""
                 message.path.fullName shouldBe ""
@@ -367,7 +385,7 @@ class ValidatorTest :
                 val result = userSchema.tryValidate(User(1, "ab"))
                 result.isFailure().mustBeTrue()
                 val message = result.messages.single()
-                message.constraintId shouldBe "kova.withMessage"
+                message.shouldBeInstanceOf<Message.Text>()
                 message.text shouldBe "Must be uppercase and at least 3 characters long"
                 message.root shouldBe "User"
                 message.path.fullName shouldBe "name"

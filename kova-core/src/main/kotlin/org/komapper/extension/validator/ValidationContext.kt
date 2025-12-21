@@ -13,11 +13,11 @@ import java.time.Clock
  * @property path The current validation path, tracking nested objects and circular references
  * @property config Validation configuration settings
  */
-interface ValidationContext {
-    val root: String
-    val path: Path
-    val config: ValidationConfig
-
+data class ValidationContext(
+    val root: String = "",
+    val path: Path = Path(name = "", obj = null, parent = null),
+    val config: ValidationConfig = ValidationConfig(),
+) {
     /** Whether validation should stop at the first failure. */
     val failFast: Boolean get() = config.failFast
 
@@ -40,24 +40,91 @@ interface ValidationContext {
             this@ValidationContext.execute(input)
         }
 
-    fun copy(
-        root: String = this.root,
-        path: Path = this.path,
-    ): ValidationContext = ValidationContext(root, path, config)
+    /**
+     * Evaluates a condition and returns the appropriate constraint result.
+     *
+     * Returns [ValidationResult.Success] if the condition is true,
+     * or [ValidationResult.Failure] with the given message if false.
+     *
+     * Example with message factory function:
+     * ```kotlin
+     * satisfies(
+     *     value > 0
+     * ) { ctx ->
+     *     Message.Resource(ctx.createMessageContext(listOf(value)))
+     * }
+     * ```
+     *
+     * Example with MessageProvider:
+     * ```kotlin
+     * val messageProvider = MessageProvider.resource()
+     * satisfies(
+     *     value > 0,
+     *     messageProvider(value)
+     * )
+     * ```
+     *
+     * @param condition The condition to evaluate
+     * @param message A function that accepts a ValidationContext and returns a Message
+     * @return The constraint result
+     */
+    fun satisfies(
+        condition: Boolean,
+        message: MessageProvider,
+    ): ConstraintResult =
+        if (condition) {
+            ValidationResult.Success(Unit)
+        } else {
+            ValidationResult.Failure(Input.Available(Unit), listOf(message()))
+        }
 
-    companion object {
-        operator fun invoke(
-            root: String = "",
-            path: Path = Path(name = "", obj = null, parent = null),
-            config: ValidationConfig = ValidationConfig(),
-        ): ValidationContext = Impl(root, path, config)
-    }
+    /**
+     * Creates a resource-based validation message.
+     *
+     * Use this method to create internationalized messages that load text from `kova.properties`.
+     * The message key is determined by the constraint ID in the validation context.
+     * Arguments are provided as a vararg and automatically converted to indexed pairs for
+     * MessageFormat substitution (i.e., the first argument becomes {0}, second becomes {1}, etc.).
+     *
+     * Example usage in a constraint:
+     * ```kotlin
+     * constrain("kova.number.min") { context ->
+     *     val minValue = 0
+     *     satisfies(
+     *         context.input >= minValue,
+     *         context.resource(minValue)
+     *     )
+     * }
+     * ```
+     *
+     * The corresponding entry in `kova.properties` would be:
+     * ```
+     * kova.number.min=The value must be greater than or equal to {0}.
+     * ```
+     *
+     * For multiple arguments:
+     * ```kotlin
+     * constrain("kova.number.range") { context ->
+     *     val minValue = 0
+     *     val maxValue = 100
+     *     satisfies(
+     *         context.input in minValue..maxValue,
+     *         context.resource(minValue, maxValue)
+     *     )
+     * }
+     * ```
+     *
+     * With corresponding resource:
+     * ```
+     * kova.number.range=The value must be between {0} and {1}.
+     * ```
+     *
+     * @param args Arguments to be interpolated into the message template using MessageFormat
+     * @return A [Message.Resource] instance configured with the provided arguments
+     */
+    fun String.resource(vararg args: Any?): Message.Resource = Message.Resource(this, root, path, null, args = args)
 
-    data class Impl(
-        override val root: String,
-        override val path: Path,
-        override val config: ValidationConfig,
-    ) : ValidationContext
+    val String.resource: Message.Resource get() = resource()
 }
 
 /**
@@ -239,28 +306,6 @@ inline fun <R> ValidationContext.appendPath(
     val path = this.path.copy(name = this.path.name + text)
     return block(copy(path = path))
 }
-
-/**
- * Creates a constraint context from the validation context.
- *
- * ConstraintContext packages the validation context together with the input value
- * and constraint ID, providing all the information needed for constraint evaluation
- * and message generation.
- *
- * Example:
- * ```kotlin
- * val constraintContext = context.createConstraintContext(value, "kova.string.min")
- * val result = constraint.apply(constraintContext)
- * ```
- *
- * @param input The value being validated
- * @param constraintId The identifier for the constraint (used for error messages)
- * @return A ConstraintContext wrapping the input and validation state
- */
-fun <T> ValidationContext.createConstraintContext(
-    input: T,
-    constraintId: String,
-): ConstraintContext<T> = ConstraintContext(input = input, constraintId = constraintId, validationContext = this)
 
 /**
  * Logs a debug message if logging is enabled.

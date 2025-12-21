@@ -26,7 +26,7 @@ typealias IdentityValidator<T> = Validator<T, T>
  * Example:
  * ```kotlin
  * val validator = Kova.string().constrain("alphanumeric") {
- *     satisfies(input.all { c -> c.isLetterOrDigit() }, "Must be alphanumeric")
+ *     satisfies(it.all { c -> c.isLetterOrDigit() }, "Must be alphanumeric")
  * }
  * ```
  *
@@ -36,8 +36,8 @@ typealias IdentityValidator<T> = Validator<T, T>
  */
 fun <T> IdentityValidator<T>.constrain(
     id: String,
-    check: ConstraintContext<T>.() -> ConstraintResult,
-): IdentityValidator<T> = chain(ConstraintValidator(Constraint(id, check)))
+    check: Constraint<T>,
+): IdentityValidator<T> = chain(ConstraintValidator(id, check))
 
 /**
  * Chains two validators where the second validator receives the output of the first if it succeeds.
@@ -97,10 +97,8 @@ fun <T> IdentityValidator<T>.chain(next: IdentityValidator<T>): IdentityValidato
  */
 fun <T> IdentityValidator<T>.literal(
     value: T,
-    message: MessageProvider<T> = { resource(value) },
-) = constrain("kova.literal.single") {
-    satisfies(input == value, message)
-}
+    message: MessageProvider = { "kova.literal.single".resource(value) },
+) = constrain("kova.literal.single") { satisfies(it == value, message) }
 
 /**
  * Validates that the input is one of the specified values.
@@ -118,10 +116,8 @@ fun <T> IdentityValidator<T>.literal(
  */
 fun <T> IdentityValidator<T>.literal(
     values: List<T>,
-    message: MessageProvider<T> = { resource(values) },
-) = constrain("kova.literal.list") {
-    satisfies(input in values, message)
-}
+    message: MessageProvider = { "kova.literal.list".resource(values) },
+) = constrain("kova.literal.list") { satisfies(it in values, message) }
 
 /**
  * Conditionally applies this validator based on a predicate.

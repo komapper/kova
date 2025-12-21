@@ -2,6 +2,7 @@ package org.komapper.extension.validator
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.equals.shouldBeEqual
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import java.time.LocalDate
 
@@ -163,10 +164,9 @@ class ObjectSchemaTest :
             val periodSchema =
                 object : ObjectSchema<Period>({
                     constrain("test") {
-                        satisfies(
-                            input.startDate <= input.endDate,
-                            text("startDate must be less than or equal to endDate"),
-                        )
+                        satisfies(it.startDate <= it.endDate) {
+                            text("startDate must be less than or equal to endDate")
+                        }
                     }
                 }) {}
 
@@ -517,7 +517,7 @@ class ObjectSchemaTest :
                 result.isFailure().mustBeTrue()
                 result.messages.size shouldBeEqual 1
                 result.messages[0].path.fullName shouldBeEqual "value"
-                result.messages[0].constraintId shouldBeEqual "kova.comparable.max"
+                result.messages[0].constraintId.shouldNotBeNull() shouldBeEqual "kova.comparable.max"
             }
         }
 

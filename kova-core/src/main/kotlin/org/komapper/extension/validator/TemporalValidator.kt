@@ -55,12 +55,10 @@ typealias TemporalValidator<T> = IdentityValidator<T>
  * @return A new validator with the future constraint
  */
 inline fun <reified T> TemporalValidator<T>.future(
-    noinline message: MessageProvider<T> = Message::Resource,
+    noinline message: MessageProvider = { "kova.temporal.future".resource },
 ): TemporalValidator<T>
         where T : Temporal, T : Comparable<T> =
-    constrain("kova.temporal.future") {
-        satisfies(input > now(clock), message)
-    }
+    constrain("kova.temporal.future") { satisfies(it > now(clock), message) }
 
 /**
  * Validates that the temporal value is in the future or present (greater than or equal to now).
@@ -81,12 +79,10 @@ inline fun <reified T> TemporalValidator<T>.future(
  * @return A new validator with the future-or-present constraint
  */
 inline fun <reified T> TemporalValidator<T>.futureOrPresent(
-    noinline message: MessageProvider<T> = Message::Resource,
+    noinline message: MessageProvider = { "kova.temporal.futureOrPresent".resource },
 ): TemporalValidator<T>
         where T : Temporal, T : Comparable<T> =
-    constrain("kova.temporal.futureOrPresent") {
-        satisfies(input >= now(clock), message)
-    }
+    constrain("kova.temporal.futureOrPresent") { satisfies(it >= now(clock), message) }
 
 /**
  * Validates that the temporal value is in the past (strictly less than now).
@@ -107,12 +103,10 @@ inline fun <reified T> TemporalValidator<T>.futureOrPresent(
  * @return A new validator with the past constraint
  */
 inline fun <reified T> TemporalValidator<T>.past(
-    noinline message: MessageProvider<T> = Message::Resource,
+    noinline message: MessageProvider = { "kova.temporal.past".resource },
 ): TemporalValidator<T>
         where T : Temporal, T : Comparable<T> =
-    constrain("kova.temporal.past") {
-        satisfies(input < now(clock), message)
-    }
+    constrain("kova.temporal.past") { satisfies(it < now(clock), message) }
 
 /**
  * Validates that the temporal value is in the past or present (less than or equal to now).
@@ -133,12 +127,10 @@ inline fun <reified T> TemporalValidator<T>.past(
  * @return A new validator with the past-or-present constraint
  */
 inline fun <reified T> TemporalValidator<T>.pastOrPresent(
-    noinline message: MessageProvider<T> = Message::Resource,
+    noinline message: MessageProvider = { "kova.temporal.pastOrPresent".resource },
 ): TemporalValidator<T>
         where T : Temporal, T : Comparable<T> =
-    constrain("kova.temporal.pastOrPresent") {
-        satisfies(input <= now(clock), message)
-    }
+    constrain("kova.temporal.pastOrPresent") { satisfies(it <= now(clock), message) }
 
 /**
  * Obtains the current temporal value for the specified type using the provided clock.
