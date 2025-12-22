@@ -55,23 +55,16 @@ open class ObjectSchema<T : Any>(
         val klass = input::class
         val rootName = klass.qualifiedName ?: klass.simpleName ?: klass.toString()
         addRoot(rootName, input) {
-            return applyRules(input, ruleMap).then { applyConstraints(it, constraints) }
+            return applyRules(input, ruleMap).then { applyConstraints(input, constraints) }
         }
     }
 
     private fun ValidationContext.applyRules(
         input: T,
         ruleMap: Map<KProperty1<T, *>, Rule>,
-    ): ValidationResult<T> {
-        val results = mutableListOf<Message>()
-        for ((key, rule) in ruleMap) {
-            val result = applyRule(input, key, rule) ?: continue
-            if (result.isFailure()) {
-                results.addAll(result.messages)
-                if (failFast) break
-            }
-        }
-        return if (results.isEmpty()) ValidationResult.Success(input) else both(input, results)
+    ): ValidationResult<Unit> {
+        for ((key, rule) in ruleMap) applyRule(input, key, rule)?.accumulateMessages { return it }
+        return ValidationResult.Success(Unit)
     }
 
     private fun ValidationContext.applyRule(
@@ -88,15 +81,10 @@ open class ObjectSchema<T : Any>(
         input: T,
         constraints: List<Pair<String, Constraint<T>>>,
     ): ValidationResult<T> {
-        val results = mutableListOf<Message>()
         for ((id, constraint) in constraints) {
-            val result = ConstraintValidator(id, constraint).execute(input)
-            if (result.isFailure()) {
-                results.addAll(result.messages)
-                if (failFast) break
-            }
+            ConstraintValidator(id, constraint).execute(input).accumulateMessages { return it }
         }
-        return if (results.isEmpty()) ValidationResult.Success(input) else both(input, results)
+        return ValidationResult.Success(input)
     }
 
     /**

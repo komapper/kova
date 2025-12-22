@@ -22,7 +22,7 @@ class MainTest :
                 val user = User("", -1)
                 val result = UserSchema.tryValidate(user)
 
-                result.shouldBeInstanceOf<ValidationResult.Failure<*>>()
+                result.shouldBeInstanceOf<ValidationResult.Failure>()
                 val messages = result.messages.map { it.text }
                 messages.size shouldBe 3
                 messages.any { it.contains("at least 1 characters") } shouldBe true
@@ -34,7 +34,7 @@ class MainTest :
                 val user = User("Bob", 150)
                 val result = UserSchema.tryValidate(user)
 
-                result.shouldBeInstanceOf<ValidationResult.Failure<*>>()
+                result.shouldBeInstanceOf<ValidationResult.Failure>()
                 val messages = result.messages.map { it.text }
                 messages.any { it.contains("less than or equal to 120") } shouldBe true
             }

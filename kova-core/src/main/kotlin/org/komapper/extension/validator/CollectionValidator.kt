@@ -143,17 +143,14 @@ fun <T, E, C : Collection<E>> CollectionValidator<T, C>.notContains(
  * @return A new validator with per-element validation
  */
 fun <T, E, C : Collection<E>> CollectionValidator<T, C>.onEach(validator: Constraint<E>) =
-    constrain("kova.collection.onEach") {
-        val messages = mutableListOf<Message>()
-        for ((i, element) in it.withIndex()) {
-            val path = "[$i]<collection element>"
-            val result = appendPath(path) { validator.execute(element) }
-            if (result.isFailure()) {
-                messages.addAll(result.messages)
-                if (failFast) break
+    constrain("kova.collection.onEach") { input ->
+        withMessage({ "kova.collection.onEach".resource(it) }) {
+            for ((i, element) in input.withIndex()) {
+                appendPath("[$i]<collection element>") { validator.execute(element) }
+                    .accumulateMessages { return@withMessage it }
             }
+            ValidationResult.Success(Unit)
         }
-        satisfies(messages.isEmpty()) { "kova.collection.onEach".resource(messages) }
     }
 
 /**

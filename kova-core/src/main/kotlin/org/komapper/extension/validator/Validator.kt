@@ -66,7 +66,10 @@ fun interface Validator<IN, OUT> {
 fun <IN, OUT> Validator<IN, OUT>.tryValidate(
     input: IN,
     config: ValidationConfig = ValidationConfig(),
-): ValidationResult<OUT> = ValidationContext(config = config).execute(input)
+): ValidationResult<OUT> =
+    with(ValidationContext(config = config)) {
+        collectMessages({ execute(input) }) { _, messages -> Failure(messages) }
+    }
 
 /**
  * Validates the input and returns the validated value, or throws an exception on failure.
@@ -94,9 +97,9 @@ fun <IN, OUT> Validator<IN, OUT>.validate(
     input: IN,
     config: ValidationConfig = ValidationConfig(),
 ): OUT =
-    when (val result = ValidationContext(config = config).execute(input)) {
+    when (val result = tryValidate(input, config)) {
         is Success<OUT> -> result.value
-        is Failure<*> -> throw ValidationException(result.messages)
+        is Failure -> throw ValidationException(result.messages)
     }
 
 /**
@@ -127,11 +130,9 @@ operator fun <IN, OUT> Validator<IN, OUT>.plus(other: Validator<IN, OUT>): Valid
  */
 infix fun <IN, OUT> Constraint<IN>.and(other: Validator<IN, OUT>): Validator<IN, OUT> =
     Validator { input: IN ->
-        when (val result = execute(input)) {
-            is Success -> Success(input)
-            is Failure -> both(input, result.messages)
-        }
-    }.then(other)
+        execute(input).accumulateMessages { return@Validator it }
+        other.execute(input)
+    }
 
 /**
  * Lambda-based overload of [and] for more fluent composition.
@@ -169,9 +170,23 @@ fun <IN, OUT> Constraint<IN>.and(block: (Validator<IN, IN>) -> Validator<IN, OUT
 infix fun <IN, OUT> Validator<IN, OUT>.or(other: Validator<IN, OUT>): Validator<IN, OUT> {
     val self = this
     return Validator { input ->
-        when (val selfResult = self.execute(input)) {
-            is Success -> selfResult
-            is Failure -> other.execute(input).mapMessages { listOf("kova.or".resource(selfResult.messages, it)) }
+        collectMessages({ self.execute(input) }) { selfResult, selfMessages ->
+            collectMessages({ other.execute(input) }) { otherResult, otherMessages ->
+                // Both branches failed, combine messages
+                val transformedFailure = Failure(listOf("kova.or".resource(selfMessages, otherMessages)))
+                // Return the first success if any, otherwise the combined failure
+                when {
+                    selfResult.isSuccess() -> {
+                        transformedFailure.accumulateMessages { return@Validator it }
+                        selfResult
+                    }
+                    otherResult.isSuccess() -> {
+                        transformedFailure.accumulateMessages { return@Validator it }
+                        otherResult
+                    }
+                    else -> transformedFailure
+                }
+            }
         }
     }
 }
@@ -388,7 +403,7 @@ fun <T : Any, S : Any> Validator<T, S>.asNullable(withDefault: () -> S): ElvisVa
  */
 fun <T, S> Validator<T, S>.withMessage(
     block: ValidationContext.(messages: List<Message>) -> Message = { "kova.withMessage".resource(it) },
-): Validator<T, S> = Validator { input -> execute(input).mapMessages { listOf(block(it)) } }
+): Validator<T, S> = Validator { input -> withMessage({ block(it) }) { execute(input) } }
 
 /**
  * Replaces all validation error messages with a static text message.

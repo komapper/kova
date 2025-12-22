@@ -1,8 +1,7 @@
 package org.komapper.extension.validator
 
-import org.komapper.extension.validator.ValidationResult.Both
-import org.komapper.extension.validator.ValidationResult.Failed
 import org.komapper.extension.validator.ValidationResult.Failure
+import org.komapper.extension.validator.ValidationResult.Success
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
@@ -24,34 +23,12 @@ import kotlin.contracts.contract
  * @param T The type of the validated value on success
  */
 sealed class ValidationResult<out T> {
-    sealed class Failure<out T> : ValidationResult<T>() {
-        abstract val messages: List<Message>
-    }
-
-    inline fun mapMessages(transform: (List<Message>) -> List<Message>): ValidationResult<T> =
-        when (this) {
-            is Success -> this
-            is Failed -> copy(messages = transform(messages))
-            is Both -> copy(messages = transform(messages))
-        }
-
-    inline fun <R> map(transform: (T) -> R): ValidationResult<R> =
-        when (this) {
-            is Success -> Success(transform(value))
-            is Failed -> this
-            is Both -> Both(transform(value), messages)
-        }
+    inline fun <R> map(transform: (T) -> R): ValidationResult<R> = then { Success(transform(it)) }
 
     inline fun <R> then(transform: (T) -> ValidationResult<R>): ValidationResult<R> =
         when (this) {
-            is Failed -> this
             is Success -> transform(value)
-            is Both ->
-                when (val result = transform(value)) {
-                    is Success -> Both(result.value, messages)
-                    is Failed -> Failed(messages + result.messages)
-                    is Both -> Both(result.value, messages + result.messages)
-                }
+            is Failure -> this
         }
 
     /**
@@ -69,20 +46,10 @@ sealed class ValidationResult<out T> {
      *
      * @property messages List of error messages describing what went wrong
      */
-    data class Failed(
-        override val messages: List<Message>,
-    ) : Failure<Nothing>()
-
-    data class Both<out T>(
-        val value: T,
-        override val messages: List<Message>,
-    ) : Failure<T>()
+    data class Failure(
+        val messages: List<Message>,
+    ) : ValidationResult<Nothing>()
 }
-
-fun <T> ValidationContext.both(
-    value: T,
-    messages: List<Message>,
-): Failure<T> = if (failFast) Failed(messages) else Both(value, messages)
 
 /**
  * Type-safe check if this result is a success.
@@ -102,10 +69,10 @@ fun <T> ValidationContext.both(
 @OptIn(ExperimentalContracts::class)
 fun <T> ValidationResult<T>.isSuccess(): Boolean {
     contract {
-        returns(true) implies (this@isSuccess is ValidationResult.Success)
-        returns(false) implies (this@isSuccess is ValidationResult.Failure)
+        returns(true) implies (this@isSuccess is Success)
+        returns(false) implies (this@isSuccess is Failure)
     }
-    return this is ValidationResult.Success
+    return this is Success
 }
 
 /**
@@ -126,8 +93,8 @@ fun <T> ValidationResult<T>.isSuccess(): Boolean {
 @OptIn(ExperimentalContracts::class)
 fun <T> ValidationResult<T>.isFailure(): Boolean {
     contract {
-        returns(true) implies (this@isFailure is ValidationResult.Failure)
-        returns(false) implies (this@isFailure is ValidationResult.Success)
+        returns(true) implies (this@isFailure is Failure)
+        returns(false) implies (this@isFailure is Success)
     }
-    return this is ValidationResult.Failure
+    return this is Failure
 }
