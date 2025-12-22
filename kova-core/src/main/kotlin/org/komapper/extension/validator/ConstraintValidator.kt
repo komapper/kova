@@ -2,6 +2,7 @@ package org.komapper.extension.validator
 
 import org.komapper.extension.validator.ValidationResult.Failure
 import org.komapper.extension.validator.ValidationResult.Success
+import kotlin.collections.map
 
 /**
  * Type alias for validators that validate constraints without transforming the type.
@@ -59,7 +60,7 @@ fun <T> ConstraintValidator(
     constraint: Constraint<T>,
 ): ConstraintValidator<T> =
     Validator { input ->
-        when (val result = constraint.execute(input)) {
+        when (val result = withMessageDetails(input, id) { constraint.execute(input) }) {
             is Success ->
                 log {
                     LogEntry.Satisfied(
@@ -87,3 +88,9 @@ fun <T> ConstraintValidator(
         }
         Success(input)
     }
+
+private inline fun <R> ValidationContext.withMessageDetails(
+    input: Any?,
+    constraintId: String,
+    block: ValidationContext.() -> R,
+): R = copy(accumulate = { messages -> accumulate(messages.map { it.withDetails(input, constraintId) }) }).block()
