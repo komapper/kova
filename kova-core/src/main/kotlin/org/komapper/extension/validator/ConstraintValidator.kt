@@ -1,5 +1,8 @@
 package org.komapper.extension.validator
 
+import org.komapper.extension.validator.ValidationResult.Failure
+import org.komapper.extension.validator.ValidationResult.Success
+
 /**
  * Type alias for validators that validate constraints without transforming the type.
  *
@@ -57,7 +60,7 @@ fun <T> ConstraintValidator(
 ): ConstraintValidator<T> =
     Validator { input ->
         when (val result = constraint.execute(input)) {
-            is ValidationResult.Success -> {
+            is Success ->
                 log {
                     LogEntry.Satisfied(
                         constraintId = id,
@@ -66,10 +69,8 @@ fun <T> ConstraintValidator(
                         input = input,
                     )
                 }
-                ValidationResult.Success(input)
-            }
 
-            is ValidationResult.Failure -> {
+            is Failure -> {
                 for (message in result.messages) {
                     log {
                         LogEntry.Violated(
@@ -81,7 +82,8 @@ fun <T> ConstraintValidator(
                         )
                     }
                 }
-                both(input, result.messages.map { it.withDetails(input, id) })
+                Failure(result.messages.map { it.withDetails(input, id) }).accumulateMessages { return@Validator it }
             }
         }
+        Success(input)
     }

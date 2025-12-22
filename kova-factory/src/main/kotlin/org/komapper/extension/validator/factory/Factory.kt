@@ -3,6 +3,7 @@ package org.komapper.extension.validator.factory
 import org.komapper.extension.validator.IdentityValidator
 import org.komapper.extension.validator.Kova
 import org.komapper.extension.validator.Message
+import org.komapper.extension.validator.Path
 import org.komapper.extension.validator.ValidationConfig
 import org.komapper.extension.validator.ValidationContext
 import org.komapper.extension.validator.ValidationException
@@ -212,9 +213,9 @@ class FactoryScope<R>(
         if (messages.isEmpty()) {
             val obj = block(CreationScope())
             // reset context
-            with(ValidationContext(config = context.config)) { validator.execute(obj) }
+            with(context.copy(root = "", path = Path(name = "", obj = null, parent = null))) { validator.execute(obj) }
         } else {
-            ValidationResult.Failed(messages)
+            ValidationResult.Failure(messages)
         }
 }
 

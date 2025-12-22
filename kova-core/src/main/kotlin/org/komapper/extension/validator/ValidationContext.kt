@@ -17,6 +17,7 @@ data class ValidationContext(
     val root: String = "",
     val path: Path = Path(name = "", obj = null, parent = null),
     val config: ValidationConfig = ValidationConfig(),
+    val accumulate: (List<Message>) -> Unit = { error("Accumulation not supported") },
 ) {
     /** Whether validation should stop at the first failure. */
     val failFast: Boolean get() = config.failFast
@@ -27,6 +28,42 @@ data class ValidationContext(
      * Delegates to [ValidationConfig.clock].
      */
     val clock: Clock get() = config.clock
+
+    inline fun ValidationResult<*>.accumulateMessages(orElse: (ValidationResult.Failure) -> Nothing) {
+        if (isFailure()) {
+            if (failFast) {
+                orElse(this)
+            } else {
+                accumulate(messages)
+            }
+        }
+    }
+
+    inline fun <R> collectMessages(
+        block: ValidationContext.() -> ValidationResult<R>,
+        handle: (ValidationResult<R>, List<Message>) -> ValidationResult<R>,
+    ): ValidationResult<R> {
+        val newMessages = mutableListOf<Message>()
+        val result = copy(accumulate = { newMessages.addAll(it) }).block()
+        if (result.isFailure()) newMessages.addAll(result.messages)
+        return if (newMessages.isEmpty()) result else handle(result, newMessages)
+    }
+
+    inline fun <R> withMessage(
+        transform: (List<Message>) -> Message,
+        block: ValidationContext.() -> ValidationResult<R>,
+    ): ValidationResult<R> =
+        collectMessages(block) { result, messages ->
+            val transformedFailure = ValidationResult.Failure(listOf(transform(messages)))
+            when (result) {
+                is ValidationResult.Success -> {
+                    transformedFailure.accumulateMessages { return it }
+                    result
+                }
+
+                is ValidationResult.Failure -> transformedFailure
+            }
+        }
 
     /**
      * Executes the validation on the given input.
@@ -75,7 +112,7 @@ data class ValidationContext(
         if (condition) {
             ValidationResult.Success(Unit)
         } else {
-            ValidationResult.Failed(listOf(message()))
+            ValidationResult.Failure(listOf(message()))
         }
 
     fun <A> A.satisfiesNotNull(message: MessageProvider): ValidationResult<A & Any> = satisfies(this != null, message).map { this!! }

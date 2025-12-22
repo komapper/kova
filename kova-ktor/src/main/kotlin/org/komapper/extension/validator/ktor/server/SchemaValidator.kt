@@ -87,7 +87,7 @@ class SchemaValidator(
     }
 
     private fun formatValidationErrors(
-        failure: org.komapper.extension.validator.ValidationResult.Failure<*>
+        failure: org.komapper.extension.validator.ValidationResult.Failure
     ): String {
         return errorFormatter(failure.messages)
     }

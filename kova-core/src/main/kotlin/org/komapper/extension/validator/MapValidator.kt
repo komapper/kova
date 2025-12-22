@@ -305,17 +305,8 @@ private fun <K, V> ValidationContext.validateOnEach(
     constraintId: String,
     map: Map<K, V>,
     validate: Constraint<Map.Entry<K, V>>,
-): ValidationResult<Unit> {
-    val failures = mutableListOf<ValidationResult.Failure<*>>()
-    for (entry in map.entries) {
-        val result = validate.execute(entry)
-        if (result.isFailure()) {
-            failures.add(result)
-            if (failFast) break
-        }
+): ValidationResult<Unit> =
+    withMessage({ constraintId.resource(it) }) {
+        for (entry in map.entries) validate.execute(entry).accumulateMessages { return@withMessage it }
+        ValidationResult.Success(Unit)
     }
-    val messages = failures.flatMap { it.messages }
-    return satisfies(messages.isEmpty()) {
-        constraintId.resource(messages)
-    }
-}
