@@ -1,9 +1,26 @@
 package org.komapper.extension.validator
 
+import org.komapper.extension.validator.ValidationIor.Both
+import org.komapper.extension.validator.ValidationIor.FailureLike
 import org.komapper.extension.validator.ValidationResult.Failure
 import org.komapper.extension.validator.ValidationResult.Success
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
+
+sealed interface ValidationIor<out T> {
+    sealed interface FailureLike<out T> : ValidationIor<T> {
+        val messages: List<Message>
+
+        fun withMessages(messages: List<Message>): FailureLike<T>
+    }
+
+    data class Both<out T>(
+        val value: T,
+        override val messages: List<Message>,
+    ) : FailureLike<T> {
+        override fun withMessages(messages: List<Message>): Both<T> = Both(value, messages)
+    }
+}
 
 /**
  * Result of a validation operation, either [Success] or [Failure].
@@ -22,15 +39,7 @@ import kotlin.contracts.contract
  *
  * @param T The type of the validated value on success
  */
-sealed class ValidationResult<out T> {
-    inline fun <R> map(transform: (T) -> R): ValidationResult<R> = then { Success(transform(it)) }
-
-    inline fun <R> then(transform: (T) -> ValidationResult<R>): ValidationResult<R> =
-        when (this) {
-            is Success -> transform(value)
-            is Failure -> this
-        }
-
+sealed interface ValidationResult<out T> : ValidationIor<T> {
     /**
      * Represents a successful validation with the validated value.
      *
@@ -39,7 +48,7 @@ sealed class ValidationResult<out T> {
      */
     data class Success<out T>(
         val value: T,
-    ) : ValidationResult<T>()
+    ) : ValidationResult<T>
 
     /**
      * Represents a failed validation with detailed error information.
@@ -47,9 +56,57 @@ sealed class ValidationResult<out T> {
      * @property messages List of error messages describing what went wrong
      */
     data class Failure(
-        val messages: List<Message>,
-    ) : ValidationResult<Nothing>()
+        override val messages: List<Message>,
+    ) : FailureLike<Nothing>,
+        ValidationResult<Nothing> {
+        override fun withMessages(messages: List<Message>): Failure = Failure(messages)
+    }
 }
+
+fun <T> T.success(): Success<T> = Success(this)
+
+fun Message.failure(): Failure = listOf(this).failure()
+
+fun List<Message>.failure(): Failure = Failure(this)
+
+fun ValidationResult<Unit>?.orSucceed(): ValidationResult<Unit> = this ?: Unit.success()
+
+inline infix fun <T> ValidationResult<T>.getOrElse(defaultValue: (Failure) -> T): T =
+    when (this) {
+        is Success -> value
+        is Failure -> defaultValue(this)
+    }
+
+context(c: ValidationContext)
+fun <T> ValidationIor<T>.bind(): ValidationResult<T> =
+    when (this) {
+        is ValidationResult -> this
+        is Both if failFast -> messages.failure()
+        is Both -> {
+            c.accumulate(messages)
+            value.success()
+        }
+    }
+
+context(_: ValidationContext)
+inline infix fun <T, R> ValidationIor<T>.map(transform: (T) -> R): ValidationResult<R> = then { transform(it).success() }
+
+context(_: ValidationContext)
+inline infix fun <T, R> ValidationIor<T>.then(transform: (T) -> ValidationIor<R>): ValidationResult<R> =
+    when (val res = bind()) {
+        is Success -> transform(res.value).bind()
+        is Failure -> res
+    }
+
+context(_: ValidationContext)
+inline infix fun <T> ValidationIor<T>.alsoThen(transform: (T) -> ValidationIor<Unit>): ValidationResult<T> =
+    then { transform(it).map { _ -> it } }
+
+inline fun <T> ValidationIor<T>.mapMessages(transform: (List<Message>) -> List<Message>): ValidationIor<T> =
+    when (this) {
+        is Success -> this
+        is FailureLike -> withMessages(transform(messages))
+    }
 
 /**
  * Type-safe check if this result is a success.

@@ -1,13 +1,7 @@
 package org.komapper.extension.validator
 
+import java.util.Locale
 import kotlin.reflect.KClass
-
-/**
- * Type alias for string validators.
- *
- * Provides a convenient type for validators that work with String inputs and outputs.
- */
-typealias StringValidator<T> = Validator<T, String>
 
 /**
  * Validates that the string can be parsed as an Int.
@@ -23,8 +17,8 @@ typealias StringValidator<T> = Validator<T, String>
  * @param message Custom error message provider
  * @return A new validator with the is-int constraint
  */
-fun <T> StringValidator<T>.isInt(message: MessageProvider = { "kova.string.isInt".resource }) =
-    constrain("kova.string.isInt", Kova.string().toInt(message))
+context(_: ValidationContext)
+fun String.isInt(message: MessageProvider = { "kova.string.isInt".resource }) = constrain("kova.string.isInt") { toInt(message).map {} }
 
 /**
  * Validates that the string can be parsed as a Long.
@@ -39,8 +33,8 @@ fun <T> StringValidator<T>.isInt(message: MessageProvider = { "kova.string.isInt
  * @param message Custom error message provider
  * @return A new validator with the is-long constraint
  */
-fun <T> StringValidator<T>.isLong(message: MessageProvider = { "kova.string.isLong".resource }) =
-    constrain("kova.string.isLong", Kova.string().toLong(message))
+context(_: ValidationContext)
+fun String.isLong(message: MessageProvider = { "kova.string.isLong".resource }) = constrain("kova.string.isLong") { toLong(message).map {} }
 
 /**
  * Validates that the string can be parsed as a Short.
@@ -55,8 +49,9 @@ fun <T> StringValidator<T>.isLong(message: MessageProvider = { "kova.string.isLo
  * @param message Custom error message provider
  * @return A new validator with the is-short constraint
  */
-fun <T> StringValidator<T>.isShort(message: MessageProvider = { "kova.string.isShort".resource }) =
-    constrain("kova.string.isShort", Kova.string().toShort(message))
+context(_: ValidationContext)
+fun String.isShort(message: MessageProvider = { "kova.string.isShort".resource }) =
+    constrain("kova.string.isShort") { toShort(message).map {} }
 
 /**
  * Validates that the string can be parsed as a Byte.
@@ -71,8 +66,8 @@ fun <T> StringValidator<T>.isShort(message: MessageProvider = { "kova.string.isS
  * @param message Custom error message provider
  * @return A new validator with the is-byte constraint
  */
-fun <T> StringValidator<T>.isByte(message: MessageProvider = { "kova.string.isByte".resource }) =
-    constrain("kova.string.isByte", Kova.string().toByte(message))
+context(_: ValidationContext)
+fun String.isByte(message: MessageProvider = { "kova.string.isByte".resource }) = constrain("kova.string.isByte") { toByte(message).map {} }
 
 /**
  * Validates that the string can be parsed as a Double.
@@ -87,8 +82,9 @@ fun <T> StringValidator<T>.isByte(message: MessageProvider = { "kova.string.isBy
  * @param message Custom error message provider
  * @return A new validator with the is-double constraint
  */
-fun <T> StringValidator<T>.isDouble(message: MessageProvider = { "kova.string.isDouble".resource }) =
-    constrain("kova.string.isDouble", Kova.string().toDouble(message))
+context(_: ValidationContext)
+fun String.isDouble(message: MessageProvider = { "kova.string.isDouble".resource }) =
+    constrain("kova.string.isDouble") { toDouble(message).map {} }
 
 /**
  * Validates that the string can be parsed as a Float.
@@ -103,8 +99,9 @@ fun <T> StringValidator<T>.isDouble(message: MessageProvider = { "kova.string.is
  * @param message Custom error message provider
  * @return A new validator with the is-float constraint
  */
-fun <T> StringValidator<T>.isFloat(message: MessageProvider = { "kova.string.isFloat".resource }) =
-    constrain("kova.string.isFloat", Kova.string().toFloat(message))
+context(_: ValidationContext)
+fun String.isFloat(message: MessageProvider = { "kova.string.isFloat".resource }) =
+    constrain("kova.string.isFloat") { toFloat(message).map {} }
 
 /**
  * Validates that the string can be parsed as a BigDecimal.
@@ -119,8 +116,9 @@ fun <T> StringValidator<T>.isFloat(message: MessageProvider = { "kova.string.isF
  * @param message Custom error message provider
  * @return A new validator with the is-big-decimal constraint
  */
-fun <T> StringValidator<T>.isBigDecimal(message: MessageProvider = { "kova.string.isBigDecimal".resource }) =
-    constrain("kova.string.isBigDecimal", Kova.string().toBigDecimal(message))
+context(_: ValidationContext)
+fun String.isBigDecimal(message: MessageProvider = { "kova.string.isBigDecimal".resource }) =
+    constrain("kova.string.isBigDecimal") { toBigDecimal(message).map {} }
 
 /**
  * Validates that the string can be parsed as a BigInteger.
@@ -135,8 +133,9 @@ fun <T> StringValidator<T>.isBigDecimal(message: MessageProvider = { "kova.strin
  * @param message Custom error message provider
  * @return A new validator with the is-big-integer constraint
  */
-fun <T> StringValidator<T>.isBigInteger(message: MessageProvider = { "kova.string.isBigInteger".resource }) =
-    constrain("kova.string.isBigInteger", Kova.string().toBigInteger(message))
+context(_: ValidationContext)
+fun String.isBigInteger(message: MessageProvider = { "kova.string.isBigInteger".resource }) =
+    constrain("kova.string.isBigInteger") { toBigInteger(message).map {} }
 
 /**
  * Validates that the string can be parsed as a Boolean.
@@ -154,8 +153,9 @@ fun <T> StringValidator<T>.isBigInteger(message: MessageProvider = { "kova.strin
  * @param message Custom error message provider
  * @return A new validator with the is-boolean constraint
  */
-fun <T> StringValidator<T>.isBoolean(message: MessageProvider = { "kova.string.isBoolean".resource }) =
-    constrain("kova.string.isBoolean", Kova.string().toBoolean(message))
+context(_: ValidationContext)
+fun String.isBoolean(message: MessageProvider = { "kova.string.isBoolean".resource }) =
+    constrain("kova.string.isBoolean") { toBoolean(message).map {} }
 
 /**
  * Validates that the string is a valid name for the specified enum type.
@@ -172,10 +172,11 @@ fun <T> StringValidator<T>.isBoolean(message: MessageProvider = { "kova.string.i
  * @param message Custom error message provider
  * @return A new validator with the is-enum constraint
  */
-fun <E : Enum<E>, T> StringValidator<T>.isEnum(
+context(_: ValidationContext)
+fun <E : Enum<E>> String.isEnum(
     klass: KClass<E>,
-    message: ValidationContext.(validNames: List<String>) -> Message = { "kova.string.isEnum".resource(it) },
-) = constrain("kova.string.isEnum", Kova.string().toEnum(klass, message))
+    message: (validNames: List<String>) -> Message = { "kova.string.isEnum".resource(it) },
+) = constrain("kova.string.isEnum") { toEnum(klass, message).map {} }
 
 /**
  * Validates that the string is a valid name for the specified enum type (reified version).
@@ -191,8 +192,9 @@ fun <E : Enum<E>, T> StringValidator<T>.isEnum(
  * @param message Custom error message provider
  * @return A new validator with the is-enum constraint
  */
-inline fun <reified E : Enum<E>, T> StringValidator<T>.isEnum(
-    noinline message: ValidationContext.(validNames: List<String>) -> Message = { "kova.string.isEnum".resource(it) },
+context(_: ValidationContext)
+inline fun <reified E : Enum<E>> String.isEnum(
+    noinline message: (validNames: List<String>) -> Message = { "kova.string.isEnum".resource(it) },
 ) = isEnum(E::class, message)
 
 /**
@@ -210,18 +212,18 @@ inline fun <reified E : Enum<E>, T> StringValidator<T>.isEnum(
  *
  * @return A new validator that transforms string to enum type
  */
-inline fun <reified E : Enum<E>, T> StringValidator<T>.toEnum(
-    noinline message: ValidationContext.(validNames: List<String>) -> Message = { "kova.string.isEnum".resource(it) },
+context(_: ValidationContext)
+inline fun <reified E : Enum<E>> String.toEnum(
+    noinline message: (validNames: List<String>) -> Message = { "kova.string.isEnum".resource(it) },
 ) = toEnum(E::class, message)
 
-fun <E : Enum<E>, T> StringValidator<T>.toEnum(
+context(_: ValidationContext)
+fun <E : Enum<E>> String.toEnum(
     klass: KClass<E>,
-    message: ValidationContext.(validNames: List<String>) -> Message = { "kova.string.isEnum".resource(it) },
-): Validator<T, E> =
-    then {
-        runCatching { java.lang.Enum.valueOf(klass.java, it) }.getOrNull().satisfiesNotNull {
-            message(klass.java.enumConstants.map { enum -> enum.name })
-        }
+    message: (validNames: List<String>) -> Message = { "kova.string.isEnum".resource(it) },
+): ValidationResult<E> =
+    runCatching { java.lang.Enum.valueOf(klass.java, this) }.getOrNull().toNonNullable {
+        message(klass.java.enumConstants.map { enum -> enum.name })
     }
 
 /**
@@ -237,8 +239,9 @@ fun <E : Enum<E>, T> StringValidator<T>.toEnum(
  * @param message Custom error message provider
  * @return A new validator with the uppercase constraint
  */
-fun <T> StringValidator<T>.uppercase(message: MessageProvider = { "kova.string.uppercase".resource }) =
-    constrain("kova.string.uppercase") { satisfies(it == it.uppercase(), message) }
+context(_: ValidationContext)
+fun String.uppercase(message: MessageProvider = { "kova.string.uppercase".resource }) =
+    constrain("kova.string.uppercase") { satisfies(it == it.uppercase(Locale.getDefault()), message) }
 
 /**
  * Validates that the string is in lowercase.
@@ -253,21 +256,9 @@ fun <T> StringValidator<T>.uppercase(message: MessageProvider = { "kova.string.u
  * @param message Custom error message provider
  * @return A new validator with the lowercase constraint
  */
-fun <T> StringValidator<T>.lowercase(message: MessageProvider = { "kova.string.lowercase".resource }) =
-    constrain("kova.string.lowercase") { satisfies(it == it.lowercase(), message) }
-
-/**
- * Transforms the string by trimming leading and trailing whitespace.
- *
- * Example:
- * ```kotlin
- * val validator = Kova.string().trim().min(1)
- * validator.validate("  hello  ") // Success: "hello"
- * ```
- *
- * @return A new validator that trims the string
- */
-fun <T> StringValidator<T>.trim() = map { it.trim() }
+context(_: ValidationContext)
+fun String.lowercase(message: MessageProvider = { "kova.string.lowercase".resource }) =
+    constrain("kova.string.lowercase") { satisfies(it == it.lowercase(Locale.getDefault()), message) }
 
 /**
  * Transforms the string to uppercase.
@@ -280,7 +271,7 @@ fun <T> StringValidator<T>.trim() = map { it.trim() }
  *
  * @return A new validator that transforms to uppercase
  */
-fun <T> StringValidator<T>.toUppercase() = map { it.uppercase() }
+fun String.toUppercase() = uppercase()
 
 /**
  * Transforms the string to lowercase.
@@ -293,7 +284,7 @@ fun <T> StringValidator<T>.toUppercase() = map { it.uppercase() }
  *
  * @return A new validator that transforms to lowercase
  */
-fun <T> StringValidator<T>.toLowercase() = map { it.lowercase() }
+fun String.toLowercase() = lowercase()
 
 /**
  * Validates that the string can be parsed as an Int and converts it.
@@ -309,8 +300,8 @@ fun <T> StringValidator<T>.toLowercase() = map { it.lowercase() }
  *
  * @return A new validator that transforms string to Int
  */
-fun <T> StringValidator<T>.toInt(message: MessageProvider = { "kova.string.isInt".resource }) =
-    then { it.toIntOrNull().satisfiesNotNull(message) }
+context(_: ValidationContext)
+fun String.toInt(message: MessageProvider = { "kova.string.isInt".resource }) = toIntOrNull().toNonNullable(message)
 
 /**
  * Validates that the string can be parsed as a Long and converts it.
@@ -326,8 +317,8 @@ fun <T> StringValidator<T>.toInt(message: MessageProvider = { "kova.string.isInt
  *
  * @return A new validator that transforms string to Long
  */
-fun <T> StringValidator<T>.toLong(message: MessageProvider = { "kova.string.isLong".resource }) =
-    then { it.toLongOrNull().satisfiesNotNull(message) }
+context(_: ValidationContext)
+fun String.toLong(message: MessageProvider = { "kova.string.isLong".resource }) = toLongOrNull().toNonNullable(message)
 
 /**
  * Validates that the string can be parsed as a Short and converts it.
@@ -343,8 +334,8 @@ fun <T> StringValidator<T>.toLong(message: MessageProvider = { "kova.string.isLo
  *
  * @return A new validator that transforms string to Short
  */
-fun <T> StringValidator<T>.toShort(message: MessageProvider = { "kova.string.isShort".resource }) =
-    then { it.toShortOrNull().satisfiesNotNull(message) }
+context(_: ValidationContext)
+fun String.toShort(message: MessageProvider = { "kova.string.isShort".resource }) = toShortOrNull().toNonNullable(message)
 
 /**
  * Validates that the string can be parsed as a Byte and converts it.
@@ -360,8 +351,8 @@ fun <T> StringValidator<T>.toShort(message: MessageProvider = { "kova.string.isS
  *
  * @return A new validator that transforms string to Byte
  */
-fun <T> StringValidator<T>.toByte(message: MessageProvider = { "kova.string.isByte".resource }) =
-    then { it.toByteOrNull().satisfiesNotNull(message) }
+context(_: ValidationContext)
+fun String.toByte(message: MessageProvider = { "kova.string.isByte".resource }) = toByteOrNull().toNonNullable(message)
 
 /**
  * Validates that the string can be parsed as a Double and converts it.
@@ -377,8 +368,8 @@ fun <T> StringValidator<T>.toByte(message: MessageProvider = { "kova.string.isBy
  *
  * @return A new validator that transforms string to Double
  */
-fun <T> StringValidator<T>.toDouble(message: MessageProvider = { "kova.string.isDouble".resource }) =
-    then { it.toDoubleOrNull().satisfiesNotNull(message) }
+context(_: ValidationContext)
+fun String.toDouble(message: MessageProvider = { "kova.string.isDouble".resource }) = toDoubleOrNull().toNonNullable(message)
 
 /**
  * Validates that the string can be parsed as a Float and converts it.
@@ -394,8 +385,8 @@ fun <T> StringValidator<T>.toDouble(message: MessageProvider = { "kova.string.is
  *
  * @return A new validator that transforms string to Float
  */
-fun <T> StringValidator<T>.toFloat(message: MessageProvider = { "kova.string.isFloat".resource }) =
-    then { it.toFloatOrNull().satisfiesNotNull(message) }
+context(_: ValidationContext)
+fun String.toFloat(message: MessageProvider = { "kova.string.isFloat".resource }) = toFloatOrNull().toNonNullable(message)
 
 /**
  * Validates that the string can be parsed as a BigDecimal and converts it.
@@ -411,8 +402,8 @@ fun <T> StringValidator<T>.toFloat(message: MessageProvider = { "kova.string.isF
  *
  * @return A new validator that transforms string to BigDecimal
  */
-fun <T> StringValidator<T>.toBigDecimal(message: MessageProvider = { "kova.string.isBigDecimal".resource }) =
-    then { it.toBigDecimalOrNull().satisfiesNotNull(message) }
+context(_: ValidationContext)
+fun String.toBigDecimal(message: MessageProvider = { "kova.string.isBigDecimal".resource }) = toBigDecimalOrNull().toNonNullable(message)
 
 /**
  * Validates that the string can be parsed as a BigInteger and converts it.
@@ -428,8 +419,8 @@ fun <T> StringValidator<T>.toBigDecimal(message: MessageProvider = { "kova.strin
  *
  * @return A new validator that transforms string to BigInteger
  */
-fun <T> StringValidator<T>.toBigInteger(message: MessageProvider = { "kova.string.isBigInteger".resource }) =
-    then { it.toBigIntegerOrNull().satisfiesNotNull(message) }
+context(_: ValidationContext)
+fun String.toBigInteger(message: MessageProvider = { "kova.string.isBigInteger".resource }) = toBigIntegerOrNull().toNonNullable(message)
 
 /**
  * Validates that the string can be parsed as a Boolean and converts it.
@@ -446,5 +437,5 @@ fun <T> StringValidator<T>.toBigInteger(message: MessageProvider = { "kova.strin
  *
  * @return A new validator that transforms string to Boolean
  */
-fun <T> StringValidator<T>.toBoolean(message: MessageProvider = { "kova.string.isBoolean".resource }) =
-    then { it.toBooleanStrictOrNull().satisfiesNotNull(message) }
+context(_: ValidationContext)
+fun String.toBoolean(message: MessageProvider = { "kova.string.isBoolean".resource }) = toBooleanStrictOrNull().toNonNullable(message)

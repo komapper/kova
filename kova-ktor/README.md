@@ -27,7 +27,7 @@ dependencies {
 ```kotlin
 import kotlinx.serialization.Serializable
 import org.komapper.extension.validator.*
-import org.komapper.extension.validator.ktor.server.ValidatedWith
+import org.komapper.extension.validator.ktor.server.Validated
 
 @ValidatedWith(CustomerSchema::class)
 @Serializable

@@ -3,57 +3,66 @@ package org.komapper.extension.validator
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
-import io.kotest.matchers.shouldBe
 
 data class TestData(
     val value: String,
 )
+
+@IgnorableReturnValue
+context(actual: T)
+fun <T> contextShouldBe(expected: T) = actual shouldBe expected
 
 class ValidationContextTest :
     FunSpec({
 
         context("addRoot") {
             test("no root") {
-                val context = ValidationContext(path = Path("c", null, null))
-                context.addRoot("a", null) {
-                    shouldBe(ValidationContext("a", Path("", null, null)))
+                context(ValidationContext(path = Path("c", null, null))) {
+                    addRoot("a", null) {
+                        contextShouldBe(ValidationContext("a", Path("", null, null)))
+                    }
                 }
             }
 
             test("already has root") {
-                val context = ValidationContext(root = "a", path = Path("c", null, null))
-                context.addRoot("b", null) {
-                    shouldBe(ValidationContext("a", Path("c", null, null)))
+                context(ValidationContext(root = "a", path = Path("c", null, null))) {
+                    addRoot("b", null) {
+                        contextShouldBe(ValidationContext("a", Path("c", null, null)))
+                    }
                 }
             }
 
             test("add empty") {
-                val context = ValidationContext(path = Path("c", null, null))
-                context.addRoot("", null) {
-                    shouldBe(ValidationContext("", Path("", null, null)))
+                context(ValidationContext(path = Path("c", null, null))) {
+                    addRoot("", null) {
+                        contextShouldBe(ValidationContext("", Path("", null, null)))
+                    }
                 }
             }
         }
 
         context("addPath") {
             test("no path") {
-                val context = ValidationContext("a")
-                context.addPath("b", null) {
-                    shouldBe(ValidationContext("a", Path("b", null, Path("", null, null))))
+                context(ValidationContext("a")) {
+                    addPath("b", null) {
+                        contextShouldBe(ValidationContext("a", Path("b", null, Path("", null, null))))
+                    }
                 }
             }
 
             test("already has path") {
-                val context = ValidationContext("a", Path("b", null, null))
-                context.addPath("c", null) {
-                    shouldBe(ValidationContext("a", Path("c", null, Path("b", null, null))))
+                context(ValidationContext("a", Path("b", null, null))) {
+                    addPath("c", null) {
+                        contextShouldBe(ValidationContext("a", Path("c", null, Path("b", null, null))))
+                    }
                 }
             }
 
             test("add empty") {
-                val context = ValidationContext("a")
-                context.addPath("", null) {
-                    shouldBe(ValidationContext("a", Path("", null, Path("", null, null))))
+                context(ValidationContext("a")) {
+                    addPath("", null) {
+                        contextShouldBe(ValidationContext("a", Path("", null, Path("", null, null))))
+                    }
                 }
             }
         }
@@ -61,62 +70,61 @@ class ValidationContextTest :
         context("addPathChecked") {
             test("detect circular reference - direct") {
                 val obj = object {}
-                val context = ValidationContext("a", Path("b", obj, null))
-                context.addPathChecked("c", obj) { error("unreachable") }.shouldBeNull()
+                context(ValidationContext("a", Path("b", obj, null))) {
+                    addPathChecked("c", obj) { error("unreachable") }.shouldBeNull()
+                }
             }
 
             test("detect circular reference - nested") {
                 val obj1 = object {}
                 val obj2 = object {}
-                val obj3 = object {}
                 val grandparent = Path("level1", obj1, null)
                 val parent = Path("level2", obj2, grandparent)
-                val context = ValidationContext("a", parent)
-                context.addPathChecked("level3", obj1) { error("unreachable") }.shouldBeNull()
+                context(ValidationContext("a", parent)) {
+                    addPathChecked("level3", obj1) { error("unreachable") }.shouldBeNull()
+                }
             }
 
             test("no circular reference with different objects") {
                 val obj1 = object {}
                 val obj2 = object {}
-                val context = ValidationContext("a", Path("b", obj1, null))
-                context.addPathChecked("c", obj2) {}.shouldNotBeNull()
+                context(ValidationContext("a", Path("b", obj1, null))) {
+                    addPathChecked("c", obj2) {}.shouldNotBeNull()
+                }
             }
 
             test("no circular reference with null objects") {
-                val context = ValidationContext("a", Path("b", null, null))
-                context.addPathChecked("c", null) {}.shouldNotBeNull()
+                context(ValidationContext("a", Path("b", null, null))) {
+                    addPathChecked("c", null) {}.shouldNotBeNull()
+                }
             }
 
             test("allow same value but different object instances") {
-                val obj1 = "test"
-                val obj2 = "test"
                 // String interning might make these the same reference, so use objects instead
                 val data1 = TestData("test")
                 val data2 = TestData("test")
-                val context = ValidationContext("a", Path("b", data1, null))
-                context.addPathChecked("c", data2) {}.shouldNotBeNull()
+                context(ValidationContext("a", Path("b", data1, null))) {
+                    addPathChecked("c", data2) {}.shouldNotBeNull()
+                }
             }
         }
 
         context("appendPath") {
             test("no path") {
-                val context = ValidationContext("a")
-                context.appendPath("b") {
-                    shouldBe(ValidationContext("a", Path("b", null, null)))
+                context(ValidationContext("a")) {
+                    appendPath("b") { contextShouldBe(ValidationContext("a", Path("b", null, null))) }
                 }
             }
 
             test("already has path") {
-                val context = ValidationContext("a", Path("b", null, null))
-                context.appendPath("c") {
-                    shouldBe(ValidationContext("a", Path("bc", null, null)))
+                context(ValidationContext("a", Path("b", null, null))) {
+                    appendPath("c") { contextShouldBe(ValidationContext("a", Path("bc", null, null))) }
                 }
             }
 
             test("add empty") {
-                val context = ValidationContext("a")
-                context.appendPath("") {
-                    shouldBe(ValidationContext("a", Path("", null, null)))
+                context(ValidationContext("a")) {
+                    appendPath("") { contextShouldBe(ValidationContext("a", Path("", null, null))) }
                 }
             }
         }

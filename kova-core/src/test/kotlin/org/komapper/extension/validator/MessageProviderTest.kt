@@ -1,7 +1,6 @@
 package org.komapper.extension.validator
 
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.shouldBe
 
 class MessageProviderTest :
     FunSpec({
@@ -9,7 +8,7 @@ class MessageProviderTest :
             val input = "abc"
 
             test("text") {
-                val message = ValidationContext().text("input=$input")
+                val message = with(ValidationContext()) { text("input=$input") }
                 message.text shouldBe "input=abc"
             }
 

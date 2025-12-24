@@ -1,23 +1,6 @@
 package org.komapper.extension.validator
 
 /**
- * Type alias for validators that validate number types.
- *
- * This is semantically equivalent to [IdentityValidator] but provides clearer intent
- * that the validator is specifically for numeric validation (Int, Long, Double, etc.).
- *
- * Using this type alias improves code readability by making it explicit that
- * number-specific constraints are being applied.
- *
- * Example:
- * ```kotlin
- * val validator: NumberValidator<Int> = Kova.int().positive().max(100)
- * val priceValidator: NumberValidator<Double> = Kova.double().notNegative()
- * ```
- */
-typealias NumberValidator<T, S> = Validator<T, S>
-
-/**
  * Validates that the number is positive (greater than zero).
  *
  * Example:
@@ -31,7 +14,8 @@ typealias NumberValidator<T, S> = Validator<T, S>
  * @param message Custom error message provider
  * @return A new validator with the positive constraint
  */
-fun <T, S : Number> NumberValidator<T, S>.positive(message: MessageProvider = { "kova.number.positive".resource }) =
+context(_: ValidationContext)
+fun Number.positive(message: MessageProvider = { "kova.number.positive".resource }) =
     constrain("kova.number.positive") { satisfies(it.toDouble() > 0.0, message) }
 
 /**
@@ -48,7 +32,8 @@ fun <T, S : Number> NumberValidator<T, S>.positive(message: MessageProvider = { 
  * @param message Custom error message provider
  * @return A new validator with the negative constraint
  */
-fun <T, S : Number> NumberValidator<T, S>.negative(message: MessageProvider = { "kova.number.negative".resource }) =
+context(_: ValidationContext)
+fun Number.negative(message: MessageProvider = { "kova.number.negative".resource }) =
     constrain("kova.number.negative") { satisfies(it.toDouble() < 0.0, message) }
 
 /**
@@ -65,7 +50,8 @@ fun <T, S : Number> NumberValidator<T, S>.negative(message: MessageProvider = { 
  * @param message Custom error message provider
  * @return A new validator with the not-positive constraint
  */
-fun <T, S : Number> NumberValidator<T, S>.notPositive(message: MessageProvider = { "kova.number.notPositive".resource }) =
+context(_: ValidationContext)
+fun Number.notPositive(message: MessageProvider = { "kova.number.notPositive".resource }) =
     constrain("kova.number.notPositive") { satisfies(it.toDouble() <= 0.0, message) }
 
 /**
@@ -82,5 +68,6 @@ fun <T, S : Number> NumberValidator<T, S>.notPositive(message: MessageProvider =
  * @param message Custom error message provider
  * @return A new validator with the not-negative constraint
  */
-fun <T, S : Number> NumberValidator<T, S>.notNegative(message: MessageProvider = { "kova.number.notNegative".resource }) =
+context(_: ValidationContext)
+fun Number.notNegative(message: MessageProvider = { "kova.number.notNegative".resource }) =
     constrain("kova.number.notNegative") { satisfies(it.toDouble() >= 0.0, message) }

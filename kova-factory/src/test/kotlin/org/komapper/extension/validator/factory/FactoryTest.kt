@@ -2,15 +2,14 @@ package org.komapper.extension.validator.factory
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.shouldBe
-import org.komapper.extension.validator.Kova
 import org.komapper.extension.validator.ValidationConfig
+import org.komapper.extension.validator.ValidationContext
 import org.komapper.extension.validator.ValidationException
-import org.komapper.extension.validator.ValidationResult
-import org.komapper.extension.validator.isFailure
-import org.komapper.extension.validator.isSuccess
+import org.komapper.extension.validator.andMap
 import org.komapper.extension.validator.notBlank
 import org.komapper.extension.validator.toInt
+import org.komapper.extension.validator.tryValidate
+import org.komapper.extension.validator.validate
 
 class FactoryTest :
     FunSpec({
@@ -20,22 +19,23 @@ class FactoryTest :
                 val name: String,
             )
 
-            fun createFactory(name: String) =
-                Kova.factory<User> {
-                    val name by bind(name) { it.notBlank() }
+            context(_: ValidationContext)
+            fun build(name: String) =
+                factory {
+                    val name by bind(name) { it.notBlank() andMap { it } }
                     create { User(name()) }
                 }
 
             context("tryCreate") {
                 test("success") {
-                    val result = createFactory("abc").tryCreate()
-                    result.isSuccess().mustBeTrue()
+                    val result = tryValidate { build("abc") }
+                    result.shouldBeSuccess()
                     result.value shouldBe User("abc")
                 }
 
                 test("failure") {
-                    val result = createFactory("").tryCreate()
-                    result.isFailure().mustBeTrue()
+                    val result = tryValidate { build("") }
+                    result.shouldBeFailure()
                     result.messages.size shouldBe 1
                     result.messages[0].constraintId shouldBe "kova.charSequence.notBlank"
                     result.messages[0].root shouldBe "factory"
@@ -46,44 +46,38 @@ class FactoryTest :
             context("create") {
 
                 test("success") {
-                    val user = createFactory("abc").create()
+                    val user = validate { build("abc") }
                     user shouldBe User("abc")
                 }
 
                 test("failure") {
-                    val ex =
-                        shouldThrow<ValidationException> {
-                            createFactory("").create()
-                        }
+                    val ex = shouldThrow<ValidationException> { validate { build("") } }
                     ex.messages.single().constraintId shouldBe "kova.charSequence.notBlank"
                 }
             }
 
             context("generateFactory and tryCreate") {
                 test("success") {
-                    val result = createFactory("abc").tryCreate()
-                    result.isSuccess().mustBeTrue()
+                    val result = tryValidate { build("abc") }
+                    result.shouldBeSuccess()
                     result.value shouldBe User("abc")
                 }
 
                 test("failure") {
-                    val result = createFactory("").tryCreate()
-                    result.isFailure().mustBeTrue()
+                    val result = tryValidate { build("") }
+                    result.shouldBeFailure()
                     result.messages.single().constraintId shouldBe "kova.charSequence.notBlank"
                 }
             }
 
             context("generateFactory and create") {
                 test("success") {
-                    val user = createFactory("abc").create()
+                    val user = validate { build("abc") }
                     user shouldBe User("abc")
                 }
 
                 test("failure") {
-                    val ex =
-                        shouldThrow<ValidationException> {
-                            createFactory("").create()
-                        }
+                    val ex = shouldThrow<ValidationException> { validate { build("") } }
                     ex.messages.single().constraintId shouldBe "kova.charSequence.notBlank"
                 }
             }
@@ -104,42 +98,42 @@ class FactoryTest :
                 val fullName: FullName,
             )
 
-            fun createNameFactory(value: String) =
-                Kova.factory {
-                    val value by bind(value) { it.notBlank() }
+            context(_: ValidationContext)
+            fun buildName(value: String) =
+                factory {
+                    val value by bind(value) { it.notBlank() andMap { it } }
                     create { Name(value()) }
                 }
 
-            fun createFullNameFactory(
+            context(_: ValidationContext)
+            fun buildFullName(
                 first: String,
                 last: String,
-            ) = Kova.factory {
-                val first by createNameFactory(first)
-                val last by createNameFactory(last)
+            ) = factory {
+                val first by bind { buildName(first) }
+                val last by bind { buildName(last) }
                 create { FullName(first(), last()) }
             }
 
-            fun tryCreateUser(
+            context(_: ValidationContext)
+            fun buildUser(
                 id: String,
                 firstName: String,
                 lastName: String,
-                config: ValidationConfig,
-            ): ValidationResult<User> =
-                Kova
-                    .factory {
-                        val id by bind(id) { it.toInt() }
-                        val fullName by createFullNameFactory(firstName, lastName)
-                        create { User(id(), fullName()) }
-                    }.tryCreate(config)
+            ) = factory {
+                val id by bind(id) { it.toInt() }
+                val fullName by bind { buildFullName(firstName, lastName) }
+                create { User(id(), fullName()) }
+            }
 
             test("success") {
-                val result = tryCreateUser("1", "abc", "def", ValidationConfig())
-                result.isSuccess().mustBeTrue()
+                val result = tryValidate { buildUser("1", "abc", "def") }
+                result.shouldBeSuccess()
                 result.value shouldBe User(1, FullName(Name("abc"), Name("def")))
             }
             test("failure") {
-                val result = tryCreateUser("1", "", "", ValidationConfig())
-                result.isFailure().mustBeTrue()
+                val result = tryValidate { buildUser("1", "", "") }
+                result.shouldBeFailure()
                 result.messages.size shouldBe 2
                 result.messages[0].constraintId shouldBe "kova.charSequence.notBlank"
                 result.messages[0].path.fullName shouldBe "fullName.first.value"
@@ -147,8 +141,8 @@ class FactoryTest :
                 result.messages[1].path.fullName shouldBe "fullName.last.value"
             }
             test("failure - fail fast") {
-                val result = tryCreateUser("1", "", "", config = ValidationConfig(failFast = true))
-                result.isFailure().mustBeTrue()
+                val result = tryValidate(config = ValidationConfig(failFast = true)) { buildUser("1", "", "") }
+                result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.charSequence.notBlank"
                 result.messages[0].path.fullName shouldBe "fullName.first.value"

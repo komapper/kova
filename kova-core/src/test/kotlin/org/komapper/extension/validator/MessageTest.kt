@@ -1,7 +1,6 @@
 package org.komapper.extension.validator
 
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.shouldBe
 import java.text.MessageFormat
 
 class MessageTest :
@@ -14,7 +13,6 @@ class MessageTest :
         }
 
         test("resolve arguments") {
-            val input = "abc"
             with(ValidationContext()) {
                 val resource1 = "kova.charSequence.min".resource(1)
                 val resource2 = "kova.charSequence.max".resource(5)
@@ -26,10 +24,8 @@ class MessageTest :
         }
 
         test("toString: string") {
-            val min = Kova.string().min(5)
-
-            val result = min.tryValidate("abc")
-            result.isFailure().mustBeTrue()
+            val result = tryValidate { "abc".min(5) }
+            result.shouldBeFailure()
             result.messages.size shouldBe 1
             result.messages[0].toString() shouldBe
                 "Message(constraintId=kova.charSequence.min, text='must be at least 5 characters', root=, path=, args=[5])"
@@ -40,13 +36,11 @@ class MessageTest :
                 val name: String,
             )
 
-            val personSchema =
-                object : ObjectSchema<Person>({
-                    Person::name { it.min(5) }
-                }) {}
+            context(_: ValidationContext)
+            fun Person.validate() = checking { ::name { it.min(5) } }
 
-            val result = personSchema.tryValidate(Person("abc"))
-            result.isFailure().mustBeTrue()
+            val result = tryValidate { Person("abc").validate() }
+            result.shouldBeFailure()
             result.messages.size shouldBe 1
             result.messages[0].toString() shouldBe
                 "Message(constraintId=kova.charSequence.min, text='must be at least 5 characters', root=Person, path=name, args=[5])"

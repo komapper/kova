@@ -150,4 +150,4 @@ fun Application.module() {
 
 ### kova-ktor
 - `SchemaValidator.kt` - Integrates ObjectSchemas with Ktor's RequestValidation plugin
-- `ValidatedWith.kt` - Annotation for linking data classes to ObjectSchemas
+- `Validated.kt` - Annotation for linking data classes to ObjectSchemas

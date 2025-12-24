@@ -3,7 +3,7 @@ package org.komapper.extension.validator
 import java.text.MessageFormat
 import java.util.ResourceBundle
 
-typealias MessageProvider = ValidationContext.() -> Message
+typealias MessageProvider = () -> Message
 
 /**
  * Represents an error message for validation failures.

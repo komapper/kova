@@ -24,7 +24,7 @@ object UserFactory {
         age: String,
     ) = Kova.factory<User> {
         val name by bind(name) { it.min(1).notBlank() }
-        val age by bind(age) { it.toInt().then { it.min(0).max(120) } }
+        val age by bind(age) { it.toInt() then { it.min(0).max(120) } }
         create { User(name(), age()) }
     }
 }
