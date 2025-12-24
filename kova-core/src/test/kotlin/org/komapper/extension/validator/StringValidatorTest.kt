@@ -6,7 +6,7 @@ class StringValidatorTest :
     FunSpec({
 
         context("or") {
-            context(_: ValidationContext)
+            context(_: Validation)
             fun String.validate() = or { isInt() } orElse { literal("zero") } map { toUppercase() }
 
             test("success with int value") {
@@ -30,7 +30,7 @@ class StringValidatorTest :
         }
 
         context("constrain") {
-            context(_: ValidationContext)
+            context(_: Validation)
             fun String.validate() = constrain("test") { satisfies(it == "OK") { text("Constraint failed") } }
 
             test("success") {
@@ -329,7 +329,7 @@ class StringValidatorTest :
         }
 
         context("map - string bools") {
-            context(_: ValidationContext)
+            context(_: Validation)
             fun String.stringBools() =
                 when (this) {
                     "true" -> true

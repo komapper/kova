@@ -78,7 +78,7 @@ class IdentityValidatorTest :
         }
 
         context("onlyIf") {
-            context(_: ValidationContext)
+            context(_: Validation)
             fun Int.validate() = onlyIf(this % 2 == 0) { min(3) }
             test("success when condition not met") {
                 val result = tryValidate { 1.validate() }
@@ -93,7 +93,7 @@ class IdentityValidatorTest :
             }
 
             context("with plus") {
-                context(_: ValidationContext)
+                context(_: Validation)
                 fun Int.validateAndMin1() = onlyIf(this % 2 == 0) { min(3) } and { min(1) }
 
                 test("success") {
@@ -112,7 +112,7 @@ class IdentityValidatorTest :
         }
 
         context("constrain") {
-            context(_: ValidationContext)
+            context(_: Validation)
             fun Int.validate() = constrain("even") { satisfies(it % 2 == 0) { text("input must be even") } }
 
             test("failure") {
@@ -124,7 +124,7 @@ class IdentityValidatorTest :
         }
 
         context("constrain with extension function") {
-            context(_: ValidationContext)
+            context(_: Validation)
             fun Int.even() = constrain("even") { satisfies(it % 2 == 0) { text("input must be even") } }
 
             test("failure") {

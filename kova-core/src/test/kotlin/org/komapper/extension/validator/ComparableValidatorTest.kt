@@ -6,7 +6,7 @@ class ComparableValidatorTest :
     FunSpec({
 
         context("plus") {
-            context(_: ValidationContext)
+            context(_: Validation)
             fun UInt.validate() = max(10u) + { max(20u) } then { min(5u) }
 
             test("success") {
@@ -23,7 +23,7 @@ class ComparableValidatorTest :
         }
 
         context("or") {
-            context(_: ValidationContext)
+            context(_: Validation)
             fun UInt.validate() = or { max(10u) } or { max(20u) } then { min(5u) }
 
             test("success : 10") {
@@ -45,7 +45,7 @@ class ComparableValidatorTest :
         }
 
         context("constrain") {
-            context(_: ValidationContext)
+            context(_: Validation)
             fun UInt.validate() = constrain("test") { satisfies(it == 10u) { text("Constraint failed") } }
             test("success") {
                 val result = tryValidate { 10u.validate() }
@@ -218,7 +218,7 @@ class ComparableValidatorTest :
             }
 
             context("chaining multiple validators") {
-                context(_: ValidationContext)
+                context(_: Validation)
                 fun UInt.validate() = min(5u) then { max(10u) } then { gt(6u) } then { lte(9u) }
 
                 test("success with value 7") {

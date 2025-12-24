@@ -3,7 +3,7 @@ package org.komapper.extension.validator.factory
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import org.komapper.extension.validator.ValidationConfig
-import org.komapper.extension.validator.ValidationContext
+import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationException
 import org.komapper.extension.validator.andMap
 import org.komapper.extension.validator.notBlank
@@ -19,7 +19,7 @@ class FactoryTest :
                 val name: String,
             )
 
-            context(_: ValidationContext)
+            context(_: Validation)
             fun build(name: String) =
                 factory {
                     val name by bind(name) { it.notBlank() andMap { it } }
@@ -98,14 +98,14 @@ class FactoryTest :
                 val fullName: FullName,
             )
 
-            context(_: ValidationContext)
+            context(_: Validation)
             fun buildName(value: String) =
                 factory {
                     val value by bind(value) { it.notBlank() andMap { it } }
                     create { Name(value()) }
                 }
 
-            context(_: ValidationContext)
+            context(_: Validation)
             fun buildFullName(
                 first: String,
                 last: String,
@@ -115,7 +115,7 @@ class FactoryTest :
                 create { FullName(first(), last()) }
             }
 
-            context(_: ValidationContext)
+            context(_: Validation)
             fun buildUser(
                 id: String,
                 firstName: String,

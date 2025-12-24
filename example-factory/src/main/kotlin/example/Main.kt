@@ -1,6 +1,6 @@
 package example
 
-import org.komapper.extension.validator.ValidationContext
+import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationResult
 import org.komapper.extension.validator.alsoThen
 import org.komapper.extension.validator.and
@@ -30,13 +30,13 @@ data class Person(
     val age: Age,
 )
 
-context(_: ValidationContext)
+context(_: Validation)
 fun User.validate() = checking {
     ::age { it.min(0) and { it.max(120) } } // property validator
 }
 
 object UserFactory {
-    context(_: ValidationContext)
+    context(_: Validation)
     operator fun invoke(
         name: String,
         age: String,
@@ -48,7 +48,7 @@ object UserFactory {
 }
 
 object AgeFactory {
-    context(_: ValidationContext)
+    context(_: Validation)
     operator fun invoke(age: String) = factory {
             val value by bind(age) { it.toInt() } // argument validator
             create { Age(value()) }
@@ -56,7 +56,7 @@ object AgeFactory {
 }
 
 object PersonFactory {
-    context(_: ValidationContext)
+    context(_: Validation)
     operator fun invoke(
         name: String,
         age: String,

@@ -6,7 +6,7 @@ class KovaTest :
     FunSpec({
 
         context("failFast") {
-            context(_: ValidationContext)
+            context(_: Validation)
             fun String.validate() = min(3) and { length(4) }
 
             test("failFast = false") {
@@ -23,7 +23,7 @@ class KovaTest :
         }
 
         context("failFast with plus operator") {
-            context(_: ValidationContext)
+            context(_: Validation)
             fun String?.validate() = this?.min(3)?.and { length(4) }.orSucceed()
 
             test("failFast = false") {
@@ -59,13 +59,13 @@ class KovaTest :
                 operator fun get(key: String): String? = map[key]
             }
 
-            context(_: ValidationContext)
+            context(_: Validation)
             fun Request.requestKey(block: Constraint<String?>) = name("Request[key]") { this["key"].success().alsoThen { block(it) } }
 
-            context(_: ValidationContext)
+            context(_: Validation)
             fun Request.requestKeyIsNotNull() = requestKey { it.notNull() }
 
-            context(_: ValidationContext)
+            context(_: Validation)
             fun Request.requestKeyIsNotNullAndMin3() = requestKey { it.notNullAnd { it.min(3) } }
 
             test("success when requestKey is not null") {

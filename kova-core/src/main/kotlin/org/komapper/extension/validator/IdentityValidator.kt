@@ -14,7 +14,7 @@ package org.komapper.extension.validator
  * @param message Custom error message provider
  * @return A new validator that accepts only the specified value
  */
-context(_: ValidationContext)
+context(_: Validation)
 fun <S> S.literal(
     value: S,
     message: MessageProvider = { "kova.literal.single".resource(value) },
@@ -34,19 +34,19 @@ fun <S> S.literal(
  * @param message Custom error message provider
  * @return A new validator that accepts only values from the list
  */
-context(_: ValidationContext)
+context(_: Validation)
 fun <S> S.literal(
     values: List<S>,
     message: MessageProvider = { "kova.literal.list".resource(values) },
 ) = constrain("kova.literal.list") { satisfies(it in values, message) }
 
-context(_: ValidationContext)
+context(_: Validation)
 fun <S> S.literal(
     vararg values: S,
     message: MessageProvider = { "kova.literal.list".resource(values.asList()) },
 ) = literal(values.asList(), message)
 
-context(_: ValidationContext)
+context(_: Validation)
 inline fun onlyIf(
     condition: Boolean,
     block: () -> ValidationResult<Unit>,

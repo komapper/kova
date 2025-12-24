@@ -14,7 +14,7 @@ package org.komapper.extension.validator
  * @param message Custom error message provider
  * @return A new validator with the minimum constraint
  */
-context(_: ValidationContext)
+context(_: Validation)
 fun <S : Comparable<S>> S.min(
     value: S,
     message: MessageProvider = { "kova.comparable.min".resource(value) },
@@ -34,7 +34,7 @@ fun <S : Comparable<S>> S.min(
  * @param message Custom error message provider
  * @return A new validator with the maximum constraint
  */
-context(_: ValidationContext)
+context(_: Validation)
 fun <S : Comparable<S>> S.max(
     value: S,
     message: MessageProvider = { "kova.comparable.max".resource(value) },
@@ -55,7 +55,7 @@ fun <S : Comparable<S>> S.max(
  * @param message Custom error message provider
  * @return A new validator with the greater-than constraint
  */
-context(_: ValidationContext)
+context(_: Validation)
 fun <S : Comparable<S>> S.gt(
     value: S,
     message: MessageProvider = { "kova.comparable.gt".resource(value) },
@@ -76,7 +76,7 @@ fun <S : Comparable<S>> S.gt(
  * @param message Custom error message provider
  * @return A new validator with the greater-than-or-equal constraint
  */
-context(_: ValidationContext)
+context(_: Validation)
 fun <S : Comparable<S>> S.gte(
     value: S,
     message: MessageProvider = { "kova.comparable.gte".resource(value) },
@@ -97,7 +97,7 @@ fun <S : Comparable<S>> S.gte(
  * @param message Custom error message provider
  * @return A new validator with the less-than constraint
  */
-context(_: ValidationContext)
+context(_: Validation)
 fun <S : Comparable<S>> S.lt(
     value: S,
     message: MessageProvider = { "kova.comparable.lt".resource(value) },
@@ -118,7 +118,7 @@ fun <S : Comparable<S>> S.lt(
  * @param message Custom error message provider
  * @return A new validator with the less-than-or-equal constraint
  */
-context(_: ValidationContext)
+context(_: Validation)
 fun <S : Comparable<S>> S.lte(
     value: S,
     message: MessageProvider = { "kova.comparable.lte".resource(value) },
@@ -139,7 +139,7 @@ fun <S : Comparable<S>> S.lte(
  * @param message Custom error message provider
  * @return A new validator with the equality constraint
  */
-context(_: ValidationContext)
+context(_: Validation)
 fun <S : Comparable<S>> S.eq(
     value: S,
     message: MessageProvider = { "kova.comparable.eq".resource(value) },
@@ -160,7 +160,7 @@ fun <S : Comparable<S>> S.eq(
  * @param message Custom error message provider
  * @return A new validator with the inequality constraint
  */
-context(_: ValidationContext)
+context(_: Validation)
 fun <S : Comparable<S>> S.notEq(
     value: S,
     message: MessageProvider = { "kova.comparable.notEq".resource(value) },

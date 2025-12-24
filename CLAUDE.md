@@ -140,7 +140,7 @@ fun Application.module() {
 ## Key Files
 
 ### kova-core
-- **Core**: `Validator.kt`, `IdentityValidator.kt`, `NullableValidator.kt`, `ElvisValidator.kt`, `ValidationResult.kt`, `ValidationContext.kt`, `ValidationConfig.kt`
+- **Core**: `Validator.kt`, `IdentityValidator.kt`, `NullableValidator.kt`, `ElvisValidator.kt`, `ValidationResult.kt`, `Validation.kt`, `ValidationConfig.kt`
 - **Type validators**: `CharSequenceValidator.kt`, `StringValidator.kt`, `NumberValidator.kt`, `CollectionValidator.kt`, `MapValidator.kt`, `TemporalValidator.kt`, `ComparableValidator.kt`
 - **Object validation**: `ObjectSchema.kt`
 - **Constraint system**: `ConstraintValidator.kt`, `ConstraintContext.kt`, `ConstraintResult.kt`

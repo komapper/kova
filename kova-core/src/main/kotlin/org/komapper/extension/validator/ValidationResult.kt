@@ -77,7 +77,7 @@ inline infix fun <T> ValidationResult<T>.getOrElse(defaultValue: (Failure) -> T)
         is Failure -> defaultValue(this)
     }
 
-context(c: ValidationContext)
+context(c: Validation)
 fun <T> ValidationIor<T>.bind(): ValidationResult<T> =
     when (this) {
         is ValidationResult -> this
@@ -88,17 +88,17 @@ fun <T> ValidationIor<T>.bind(): ValidationResult<T> =
         }
     }
 
-context(_: ValidationContext)
+context(_: Validation)
 inline infix fun <T, R> ValidationIor<T>.map(transform: (T) -> R): ValidationResult<R> = then { transform(it).success() }
 
-context(_: ValidationContext)
+context(_: Validation)
 inline infix fun <T, R> ValidationIor<T>.then(transform: (T) -> ValidationIor<R>): ValidationResult<R> =
     when (val res = bind()) {
         is Success -> transform(res.value).bind()
         is Failure -> res
     }
 
-context(_: ValidationContext)
+context(_: Validation)
 inline infix fun <T> ValidationIor<T>.alsoThen(transform: (T) -> ValidationIor<Unit>): ValidationResult<T> =
     then { transform(it).map { _ -> it } }
 

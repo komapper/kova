@@ -6,7 +6,7 @@ class MapValidatorTest :
     FunSpec({
 
         context("plus") {
-            context(_: ValidationContext)
+            context(_: Validation)
             fun Map<*, *>.validate() = min(2) + { min(3) }
 
             test("success") {
@@ -69,7 +69,7 @@ class MapValidatorTest :
         }
 
         context("constrain") {
-            context(_: ValidationContext)
+            context(_: Validation)
             fun Map<*, *>.validate() = constrain("test") { satisfies(it.size == 1) { text("Constraint failed") } }
 
             test("success") {
@@ -85,7 +85,7 @@ class MapValidatorTest :
         }
 
         context("onEach") {
-            context(_: ValidationContext)
+            context(_: Validation)
             fun <T> Map<T, T>.validate() =
                 onEach { v ->
                     v.constrain("test") { (key, value) ->

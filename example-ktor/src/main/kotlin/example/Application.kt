@@ -10,7 +10,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
-import org.komapper.extension.validator.ValidationContext
+import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.checking
 import org.komapper.extension.validator.ktor.server.SchemaValidator
 import org.komapper.extension.validator.ktor.server.Validated
@@ -20,7 +20,7 @@ import org.komapper.extension.validator.invoke
 
 @Serializable
 data class Customer(val id: Int, val firstName: String, val lastName: String): Validated {
-    context(_: ValidationContext)
+    context(_: Validation)
     override fun validate() = checking {
         ::id { it.positive { text("A customer ID should be greater than 0") } }
     }

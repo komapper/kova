@@ -3,7 +3,7 @@ package org.komapper.extension.validator.factory
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import org.komapper.extension.validator.ValidationConfig
-import org.komapper.extension.validator.ValidationContext
+import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationException
 import org.komapper.extension.validator.and
 import org.komapper.extension.validator.max
@@ -19,7 +19,7 @@ class PairFactoryBuilderTest :
     FunSpec({
 
         context("PairFactoryBuilder with primitive types") {
-            context(_: ValidationContext)
+            context(_: Validation)
             fun build(
                 first: String,
                 second: Int,
@@ -96,7 +96,7 @@ class PairFactoryBuilderTest :
         }
 
         context("PairFactoryBuilder with different types") {
-            context(_: ValidationContext)
+            context(_: Validation)
             fun build(
                 name: String,
                 age: Int,
@@ -126,7 +126,7 @@ class PairFactoryBuilderTest :
         }
 
         context("PairFactoryBuilder with identity validators") {
-            context(_: ValidationContext)
+            context(_: Validation)
             fun build(
                 first: String,
                 second: Int,
@@ -143,7 +143,7 @@ class PairFactoryBuilderTest :
         }
 
         context("PairFactoryBuilder with type transformation") {
-            context(_: ValidationContext)
+            context(_: Validation)
             fun build(
                 first: String,
                 second: String,

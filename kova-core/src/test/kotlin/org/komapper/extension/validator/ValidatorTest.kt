@@ -8,7 +8,7 @@ class ValidatorTest :
     FunSpec({
 
         context("validate") {
-            context(_: ValidationContext)
+            context(_: Validation)
             fun Int.validate() = min(1) and { max(10) }
 
             test("success") {
@@ -26,7 +26,7 @@ class ValidatorTest :
         }
 
         context("plus") {
-            context(_: ValidationContext)
+            context(_: Validation)
             fun Int.validate() = max(2) + { max(3) }
 
             test("success") {
@@ -40,7 +40,7 @@ class ValidatorTest :
         }
 
         context("and") {
-            context(_: ValidationContext)
+            context(_: Validation)
             fun Int.validate() = min(2) and { max(3) }
 
             test("success") {
@@ -54,7 +54,7 @@ class ValidatorTest :
         }
 
         context("or: 2") {
-            context(_: ValidationContext)
+            context(_: Validation)
             fun String.length2or5() = or { length(2) } orElse { length(5) }
 
             test("success with length 2") {
@@ -85,7 +85,7 @@ class ValidatorTest :
         }
 
         context("or: 3") {
-            context(_: ValidationContext)
+            context(_: Validation)
             fun String.length2or5or7() = or { length(2) } or { length(5) } orElse { length(7) }
 
             test("failure with length 3") {
@@ -109,7 +109,7 @@ class ValidatorTest :
         }
 
         context("map") {
-            context(_: ValidationContext)
+            context(_: Validation)
             fun Int.validate() = min(1) andMap { this * 2 }
             test("success") {
                 val result = tryValidate { 2.validate() }
@@ -125,7 +125,7 @@ class ValidatorTest :
         }
 
         context("then") {
-            context(_: ValidationContext)
+            context(_: Validation)
             fun Int.validate() = min(3) andMap { toString() } alsoThen { it.max(1) }
 
             test("success") {
@@ -146,7 +146,7 @@ class ValidatorTest :
         }
 
         context("then - lambda") {
-            context(_: ValidationContext)
+            context(_: Validation)
             fun Int.validate() = min(3) andMap { toString() } alsoThen { it.max(1) }
 
             test("success") {
@@ -167,7 +167,7 @@ class ValidatorTest :
         }
 
         context("logs") {
-            context(_: ValidationContext)
+            context(_: Validation)
             fun String.validate() = trim().let { it.min(3) and { it.max(5) } }
 
             test("success") {
@@ -201,7 +201,7 @@ class ValidatorTest :
         }
 
         context("message - provider - text") {
-            context(_: ValidationContext)
+            context(_: Validation)
             fun String.validate() =
                 withMessage({ messages -> text("Invalid: consolidates messages=(${messages.joinToString { it.text }})") }) {
                     uppercase() and { min(3) }
@@ -223,7 +223,7 @@ class ValidatorTest :
         }
 
         context("message - provider - resource") {
-            context(_: ValidationContext)
+            context(_: Validation)
             fun String.validate() = withMessage { uppercase() and { min(3) } }
 
             test("success") {
@@ -242,7 +242,7 @@ class ValidatorTest :
         }
 
         context("message - text") {
-            context(_: ValidationContext)
+            context(_: Validation)
             fun String.validate() = withMessage("Invalid") { uppercase() and { min(3) } }
 
             test("success") {
@@ -266,7 +266,7 @@ class ValidatorTest :
                 val name: String,
             )
 
-            context(_: ValidationContext)
+            context(_: Validation)
             fun User.validate() =
                 checking {
                     ::id { Unit.success() } then {
@@ -294,7 +294,7 @@ class ValidatorTest :
         }
 
         context("mapping operation after failure") {
-            context(_: ValidationContext)
+            context(_: Validation)
             fun String.validate() =
                 trim().let {
                     it.min(3) andMap { it.toUppercase() } alsoThen { it.max(3) }

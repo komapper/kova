@@ -1,6 +1,6 @@
 package example
 
-import org.komapper.extension.validator.ValidationContext
+import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationResult
 import org.komapper.extension.validator.and
 import org.komapper.extension.validator.checking
@@ -25,7 +25,7 @@ data class Person(
     val age: Age,
 )
 
-context(_: ValidationContext)
+context(_: Validation)
 fun User.validate(): ValidationResult<Unit> =
     checking {
         ::name { it.min(1) and { it.notBlank() } } and {
@@ -33,10 +33,10 @@ fun User.validate(): ValidationResult<Unit> =
         }
     }
 
-context(_: ValidationContext)
+context(_: Validation)
 fun Age.validate(): ValidationResult<Unit> = checking { ::value { it.min(0) and { it.max(120) } } }
 
-context(_: ValidationContext)
+context(_: Validation)
 fun Person.validate(): ValidationResult<Unit> =
     checking {
         ::name { it.min(1) and { it.notBlank() } } and { ::age { it.validate() } }

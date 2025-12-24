@@ -20,7 +20,7 @@ import org.komapper.extension.validator.ValidationResult.Success
  * @param check Constraint logic that produces a [ValidationResult]
  * @return A new validator with the constraint applied
  */
-context(c: ValidationContext)
+context(c: Validation)
 inline fun <T> T.constrain(
     id: String,
     check: Constraint<T>,
@@ -52,17 +52,17 @@ inline fun <T> T.constrain(
     return result.accumulateMessages()
 }
 
-context(c: ValidationContext)
+context(c: Validation)
 inline fun <R> withMessageDetails(
     input: Any?,
     constraintId: String,
-    block: context(ValidationContext) () -> ValidationResult<R>,
+    block: context(Validation) () -> ValidationResult<R>,
 ): ValidationResult<R> = mapEachMessage({ it.withDetails(input, constraintId) }, block)
 
-context(c: ValidationContext)
+context(c: Validation)
 inline fun <R> mapEachMessage(
     noinline transform: (Message) -> Message,
-    block: context(ValidationContext) () -> ValidationResult<R>,
+    block: context(Validation) () -> ValidationResult<R>,
 ): ValidationResult<R> =
     when (val result = block(c.copy(accumulate = { messages -> c.accumulate(messages.map(transform)) }))) {
         is Success -> result

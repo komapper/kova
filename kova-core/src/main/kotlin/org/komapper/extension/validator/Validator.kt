@@ -25,9 +25,9 @@ import org.komapper.extension.validator.ValidationResult.Success
  */
 fun <R> tryValidate(
     config: ValidationConfig = ValidationConfig(),
-    validator: context(ValidationContext) () -> ValidationIor<R>,
+    validator: context(Validation) () -> ValidationIor<R>,
 ): ValidationResult<R> =
-    when (val result = with(ValidationContext(config = config)) { or(validator) }) {
+    when (val result = with(Validation(config = config)) { or(validator) }) {
         is ValidationResult -> result
         is Both -> result.messages.failure()
     }
@@ -55,24 +55,24 @@ fun <R> tryValidate(
  */
 fun <R> validate(
     config: ValidationConfig = ValidationConfig(),
-    validator: context(ValidationContext) () -> ValidationIor<R>,
+    validator: context(Validation) () -> ValidationIor<R>,
 ): R =
     when (val result = tryValidate(config, validator)) {
         is Success -> result.value
         is Failure -> throw ValidationException(result.messages)
     }
 
-context(_: ValidationContext)
+context(_: Validation)
 inline operator fun <R> ValidationIor<Unit>.plus(other: () -> ValidationIor<R>): ValidationResult<R> = this and other
 
-context(_: ValidationContext)
+context(_: Validation)
 inline infix fun <R> ValidationIor<Unit>.and(other: () -> ValidationIor<R>): ValidationResult<R> = accumulateMessages() then { other() }
 
-context(_: ValidationContext)
+context(_: Validation)
 inline infix fun <R> ValidationIor<Unit>.andMap(other: () -> R): ValidationResult<R> = accumulateMessages() map { other() }
 
-context(c: ValidationContext)
-inline fun <R> or(block: context(ValidationContext) () -> ValidationIor<R>): ValidationIor<R> {
+context(c: Validation)
+inline fun <R> or(block: context(Validation) () -> ValidationIor<R>): ValidationIor<R> {
     val newMessages = mutableListOf<Message>()
     return when (val result = block(c.copy(accumulate = { newMessages.addAll(it) }))) {
         is Success if newMessages.isEmpty() -> result
@@ -81,8 +81,8 @@ inline fun <R> or(block: context(ValidationContext) () -> ValidationIor<R>): Val
     }
 }
 
-context(_: ValidationContext)
-inline infix fun <R> ValidationIor<R>.or(block: context(ValidationContext) () -> ValidationIor<R>): ValidationIor<R> {
+context(_: Validation)
+inline infix fun <R> ValidationIor<R>.or(block: context(Validation) () -> ValidationIor<R>): ValidationIor<R> {
     if (this !is FailureLike) return this
     val other =
         org.komapper.extension.validator
@@ -92,24 +92,24 @@ inline infix fun <R> ValidationIor<R>.or(block: context(ValidationContext) () ->
     return (this as? Both ?: other).mapMessages { listOf(orMessage) }
 }
 
-context(_: ValidationContext)
-inline infix fun <R> ValidationIor<R>.orElse(block: context(ValidationContext) () -> ValidationIor<R>): ValidationResult<R> =
+context(_: Validation)
+inline infix fun <R> ValidationIor<R>.orElse(block: context(Validation) () -> ValidationIor<R>): ValidationResult<R> =
     or(block).bind()
 
-context(_: ValidationContext)
+context(_: Validation)
 inline fun <T, R> T.name(
     name: String,
-    block: context(ValidationContext) () -> R,
+    block: context(Validation) () -> R,
 ): R = addPath(name, this, block)
 
-context(_: ValidationContext)
+context(_: Validation)
 inline fun <R> withMessage(
     noinline transform: (List<Message>) -> Message = { "kova.withMessage".resource(it) },
-    block: context(ValidationContext) () -> ValidationIor<R>,
+    block: context(Validation) () -> ValidationIor<R>,
 ): ValidationResult<R> = or(block).mapMessages { listOf(transform(it)) }.bind()
 
-context(_: ValidationContext)
+context(_: Validation)
 inline fun <R> withMessage(
     message: String,
-    block: context(ValidationContext) () -> ValidationResult<R>,
+    block: context(Validation) () -> ValidationResult<R>,
 ): ValidationResult<R> = withMessage({ text(message) }, block)

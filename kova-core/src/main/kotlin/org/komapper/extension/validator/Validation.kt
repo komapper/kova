@@ -15,7 +15,7 @@ import java.time.Clock
  * @property path The current validation path, tracking nested objects and circular references
  * @property config Validation configuration settings
  */
-data class ValidationContext(
+data class Validation(
     val root: String = "",
     val path: Path = Path(name = "", obj = null, parent = null),
     val config: ValidationConfig = ValidationConfig(),
@@ -23,7 +23,7 @@ data class ValidationContext(
 )
 
 /** Whether validation should stop at the first failure. */
-context(c: ValidationContext)
+context(c: Validation)
 val failFast: Boolean get() = c.config.failFast
 
 /**
@@ -31,10 +31,10 @@ val failFast: Boolean get() = c.config.failFast
  *
  * Delegates to [ValidationConfig.clock].
  */
-context(c: ValidationContext)
+context(c: Validation)
 val clock: Clock get() = c.config.clock
 
-context(c: ValidationContext)
+context(c: Validation)
 fun ValidationIor<Unit>.accumulateMessages(): ValidationResult<Unit> =
     when (this) {
         is Success -> Unit.success()
@@ -70,7 +70,7 @@ fun ValidationIor<Unit>.accumulateMessages(): ValidationResult<Unit> =
  * ```
  *
  * @param condition The condition to evaluate
- * @param message A function that accepts a ValidationContext and returns a Message
+ * @param message A function that accepts a Validation and returns a Message
  * @return The constraint result
  */
 fun satisfies(
@@ -122,10 +122,10 @@ fun satisfies(
  * @param args Arguments to be interpolated into the message template using MessageFormat
  * @return A [Message.Resource] instance configured with the provided arguments
  */
-context(c: ValidationContext)
+context(c: Validation)
 fun String.resource(vararg args: Any?): Message.Resource = Message.Resource(this, c.root, c.path, null, args = args)
 
-context(_: ValidationContext)
+context(_: Validation)
 val String.resource: Message.Resource get() = resource()
 
 /**
@@ -172,7 +172,7 @@ data class ValidationConfig(
  *
  * Example:
  * ```kotlin
- * val context = ValidationContext().addRoot("com.example.User", userInstance)
+ * val context = Validation().addRoot("com.example.User", userInstance)
  * // context.root == "com.example.User"
  * ```
  *
@@ -180,11 +180,11 @@ data class ValidationConfig(
  * @param obj The root object instance (used for circular reference detection)
  * @return A new context with the root initialized, or the same context if already set
  */
-context(c: ValidationContext)
+context(c: Validation)
 inline fun <R> addRoot(
     name: String,
     obj: Any?,
-    block: context(ValidationContext) () -> R,
+    block: context(Validation) () -> R,
 ): R =
     block(
         if (c.root.isEmpty()) {
@@ -204,7 +204,7 @@ inline fun <R> addRoot(
  *
  * Example:
  * ```kotlin
- * val context = ValidationContext()
+ * val context = Validation()
  *     .addRoot("User", user)
  *     .addPath("address", user.address)
  *     .addPath("city", user.address.city)
@@ -215,11 +215,11 @@ inline fun <R> addRoot(
  * @param obj The object at this path (used for circular reference detection)
  * @return A new context with the extended path
  */
-context(c: ValidationContext)
+context(c: Validation)
 inline fun <R> addPath(
     name: String,
     obj: Any?,
-    block: context(ValidationContext) () -> R,
+    block: context(Validation) () -> R,
 ): R {
     val parent = c.path
     val path =
@@ -246,10 +246,10 @@ inline fun <R> addPath(
  * @param obj The object to bind to the current path
  * @return A new context with the updated object reference
  */
-context(c: ValidationContext)
+context(c: Validation)
 inline fun <R> bindObject(
     obj: Any?,
-    block: context(ValidationContext) () -> R,
+    block: context(Validation) () -> R,
 ): R {
     val path = c.path.copy(obj = obj)
     return block(c.copy(path = path))
@@ -280,11 +280,11 @@ inline fun <R> bindObject(
  * @param obj The object at this path (checked for circular references)
  * @return Success with extended path, or Failure if circular reference detected
  */
-context(c: ValidationContext)
+context(c: Validation)
 inline fun <T, R> addPathChecked(
     name: String,
     obj: T,
-    block: context(ValidationContext) () -> R,
+    block: context(Validation) () -> R,
 ): R? {
     val parent = c.path
     // Check for circular reference
@@ -307,10 +307,10 @@ inline fun <T, R> addPathChecked(
  * @param text The text to append to the current path name
  * @return A new context with the modified path name
  */
-context(c: ValidationContext)
+context(c: Validation)
 inline fun <R> appendPath(
     text: String,
-    block: context(ValidationContext) () -> R,
+    block: context(Validation) () -> R,
 ): R {
     val path = c.path.copy(name = c.path.name + text)
     return block(c.copy(path = path))
@@ -333,7 +333,7 @@ inline fun <R> appendPath(
  *
  * @param block Lambda that generates the log message (only called if logger is configured)
  */
-context(c: ValidationContext)
+context(c: Validation)
 inline fun log(block: () -> LogEntry) {
     c.config.logger?.invoke(block())
 }

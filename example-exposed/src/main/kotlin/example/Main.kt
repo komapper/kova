@@ -14,7 +14,7 @@ import org.jetbrains.exposed.v1.dao.toEntity
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import org.komapper.extension.validator.ValidationContext
+import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationException
 import org.komapper.extension.validator.ValidationResult
 import org.komapper.extension.validator.and
@@ -71,7 +71,7 @@ class User(
 
 @IgnorableReturnValue
 fun <ID : Any, T : Entity<ID>> EntityClass<ID, T>.subscribe(
-    validate: context(ValidationContext) T.() -> ValidationResult<Unit>,
+    validate: context(Validation) T.() -> ValidationResult<Unit>,
 ): (EntityChange) -> Unit =
     EntityHook.subscribe { change ->
         if (change.changeType == EntityChangeType.Created &&

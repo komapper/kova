@@ -17,25 +17,25 @@ class ValidationContextTest :
 
         context("addRoot") {
             test("no root") {
-                context(ValidationContext(path = Path("c", null, null))) {
+                context(Validation(path = Path("c", null, null))) {
                     addRoot("a", null) {
-                        contextShouldBe(ValidationContext("a", Path("", null, null)))
+                        contextShouldBe(Validation("a", Path("", null, null)))
                     }
                 }
             }
 
             test("already has root") {
-                context(ValidationContext(root = "a", path = Path("c", null, null))) {
+                context(Validation(root = "a", path = Path("c", null, null))) {
                     addRoot("b", null) {
-                        contextShouldBe(ValidationContext("a", Path("c", null, null)))
+                        contextShouldBe(Validation("a", Path("c", null, null)))
                     }
                 }
             }
 
             test("add empty") {
-                context(ValidationContext(path = Path("c", null, null))) {
+                context(Validation(path = Path("c", null, null))) {
                     addRoot("", null) {
-                        contextShouldBe(ValidationContext("", Path("", null, null)))
+                        contextShouldBe(Validation("", Path("", null, null)))
                     }
                 }
             }
@@ -43,25 +43,25 @@ class ValidationContextTest :
 
         context("addPath") {
             test("no path") {
-                context(ValidationContext("a")) {
+                context(Validation("a")) {
                     addPath("b", null) {
-                        contextShouldBe(ValidationContext("a", Path("b", null, Path("", null, null))))
+                        contextShouldBe(Validation("a", Path("b", null, Path("", null, null))))
                     }
                 }
             }
 
             test("already has path") {
-                context(ValidationContext("a", Path("b", null, null))) {
+                context(Validation("a", Path("b", null, null))) {
                     addPath("c", null) {
-                        contextShouldBe(ValidationContext("a", Path("c", null, Path("b", null, null))))
+                        contextShouldBe(Validation("a", Path("c", null, Path("b", null, null))))
                     }
                 }
             }
 
             test("add empty") {
-                context(ValidationContext("a")) {
+                context(Validation("a")) {
                     addPath("", null) {
-                        contextShouldBe(ValidationContext("a", Path("", null, Path("", null, null))))
+                        contextShouldBe(Validation("a", Path("", null, Path("", null, null))))
                     }
                 }
             }
@@ -70,7 +70,7 @@ class ValidationContextTest :
         context("addPathChecked") {
             test("detect circular reference - direct") {
                 val obj = object {}
-                context(ValidationContext("a", Path("b", obj, null))) {
+                context(Validation("a", Path("b", obj, null))) {
                     addPathChecked("c", obj) { error("unreachable") }.shouldBeNull()
                 }
             }
@@ -80,7 +80,7 @@ class ValidationContextTest :
                 val obj2 = object {}
                 val grandparent = Path("level1", obj1, null)
                 val parent = Path("level2", obj2, grandparent)
-                context(ValidationContext("a", parent)) {
+                context(Validation("a", parent)) {
                     addPathChecked("level3", obj1) { error("unreachable") }.shouldBeNull()
                 }
             }
@@ -88,13 +88,13 @@ class ValidationContextTest :
             test("no circular reference with different objects") {
                 val obj1 = object {}
                 val obj2 = object {}
-                context(ValidationContext("a", Path("b", obj1, null))) {
+                context(Validation("a", Path("b", obj1, null))) {
                     addPathChecked("c", obj2) {}.shouldNotBeNull()
                 }
             }
 
             test("no circular reference with null objects") {
-                context(ValidationContext("a", Path("b", null, null))) {
+                context(Validation("a", Path("b", null, null))) {
                     addPathChecked("c", null) {}.shouldNotBeNull()
                 }
             }
@@ -103,7 +103,7 @@ class ValidationContextTest :
                 // String interning might make these the same reference, so use objects instead
                 val data1 = TestData("test")
                 val data2 = TestData("test")
-                context(ValidationContext("a", Path("b", data1, null))) {
+                context(Validation("a", Path("b", data1, null))) {
                     addPathChecked("c", data2) {}.shouldNotBeNull()
                 }
             }
@@ -111,20 +111,20 @@ class ValidationContextTest :
 
         context("appendPath") {
             test("no path") {
-                context(ValidationContext("a")) {
-                    appendPath("b") { contextShouldBe(ValidationContext("a", Path("b", null, null))) }
+                context(Validation("a")) {
+                    appendPath("b") { contextShouldBe(Validation("a", Path("b", null, null))) }
                 }
             }
 
             test("already has path") {
-                context(ValidationContext("a", Path("b", null, null))) {
-                    appendPath("c") { contextShouldBe(ValidationContext("a", Path("bc", null, null))) }
+                context(Validation("a", Path("b", null, null))) {
+                    appendPath("c") { contextShouldBe(Validation("a", Path("bc", null, null))) }
                 }
             }
 
             test("add empty") {
-                context(ValidationContext("a")) {
-                    appendPath("") { contextShouldBe(ValidationContext("a", Path("", null, null))) }
+                context(Validation("a")) {
+                    appendPath("") { contextShouldBe(Validation("a", Path("", null, null))) }
                 }
             }
         }

@@ -13,7 +13,7 @@ class MessageTest :
         }
 
         test("resolve arguments") {
-            with(ValidationContext()) {
+            with(Validation()) {
                 val resource1 = "kova.charSequence.min".resource(1)
                 val resource2 = "kova.charSequence.max".resource(5)
                 val resource3 = "kova.or".resource(listOf(resource1), resource2)
@@ -36,7 +36,7 @@ class MessageTest :
                 val name: String,
             )
 
-            context(_: ValidationContext)
+            context(_: Validation)
             fun Person.validate() = checking { ::name { it.min(5) } }
 
             val result = tryValidate { Person("abc").validate() }

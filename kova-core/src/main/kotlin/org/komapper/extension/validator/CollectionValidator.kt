@@ -16,7 +16,7 @@ typealias LengthMessageProvider = (actualSize: Int) -> Message
  * @param message Custom error message provider
  * @return A new validator with the minimum size constraint
  */
-context(_: ValidationContext)
+context(_: Validation)
 fun Collection<*>.min(
     size: Int,
     message: LengthMessageProvider = { "kova.collection.min".resource(it, size) },
@@ -36,7 +36,7 @@ fun Collection<*>.min(
  * @param message Custom error message provider
  * @return A new validator with the maximum size constraint
  */
-context(_: ValidationContext)
+context(_: Validation)
 fun Collection<*>.max(
     size: Int,
     message: LengthMessageProvider = { "kova.collection.max".resource(it, size) },
@@ -55,7 +55,7 @@ fun Collection<*>.max(
  * @param message Custom error message provider
  * @return A new validator with the not-empty constraint
  */
-context(_: ValidationContext)
+context(_: Validation)
 fun Collection<*>.notEmpty(message: MessageProvider = { "kova.collection.notEmpty".resource }) =
     constrain("kova.collection.notEmpty") { satisfies(it.isNotEmpty(), message) }
 
@@ -73,7 +73,7 @@ fun Collection<*>.notEmpty(message: MessageProvider = { "kova.collection.notEmpt
  * @param message Custom error message provider
  * @return A new validator with the exact size constraint
  */
-context(_: ValidationContext)
+context(_: Validation)
 fun Collection<*>.length(
     size: Int,
     message: LengthMessageProvider = { "kova.collection.length".resource(it, size) },
@@ -93,7 +93,7 @@ fun Collection<*>.length(
  * @param message Custom error message provider
  * @return A new validator with the contains constraint
  */
-context(_: ValidationContext)
+context(_: Validation)
 fun <E> Collection<E>.has(
     element: E,
     message: MessageProvider = { "kova.collection.contains".resource(element) },
@@ -113,7 +113,7 @@ fun <E> Collection<E>.has(
  * @param message Custom error message provider
  * @return A new validator with the notContains constraint
  */
-context(_: ValidationContext)
+context(_: Validation)
 fun <E> Collection<E>.notContains(
     element: E,
     message: MessageProvider = { "kova.collection.notContains".resource(element) },
@@ -138,7 +138,7 @@ fun <E> Collection<E>.notContains(
  * @param validate The validator to apply to each element
  * @return A new validator with per-element validation
  */
-context(_: ValidationContext)
+context(_: Validation)
 fun <E> Collection<E>.onEach(validate: Constraint<E>) =
     constrain("kova.collection.onEach") { input ->
         withMessage({ "kova.collection.onEach".resource(it) }) {

@@ -17,11 +17,11 @@ import org.komapper.extension.validator.ValidationResult.Success
  * @param message Custom error message provider
  * @return A new validator that only accepts null
  */
-context(_: ValidationContext)
+context(_: Validation)
 fun <T> T.isNull(message: MessageProvider = { "kova.nullable.isNull".resource }) =
     constrain("kova.nullable.isNull") { satisfies(it == null, message) }
 
-context(_: ValidationContext)
+context(_: Validation)
 inline fun <T> T.isNullOr(
     noinline message: MessageProvider = { "kova.nullable.isNull".resource },
     block: Constraint<T & Any>,
@@ -42,7 +42,7 @@ inline fun <T> T.isNullOr(
  * @param message Custom error message provider
  * @return A new validator that rejects null
  */
-context(_: ValidationContext)
+context(_: Validation)
 fun <T> T.notNull(message: MessageProvider = { "kova.nullable.notNull".resource }) =
     constrain("kova.nullable.notNull") { toNonNullable(message).map {} }
 
@@ -62,11 +62,11 @@ fun <T> T.notNull(message: MessageProvider = { "kova.nullable.notNull".resource 
  *
  * @return A validator that rejects null and produces non-nullable output
  */
-context(_: ValidationContext)
+context(_: Validation)
 fun <T> T.toNonNullable(message: MessageProvider = { "kova.nullable.notNull".resource }): ValidationResult<T & Any> =
     satisfies(this != null, message).map { this!! }
 
-context(_: ValidationContext)
+context(_: Validation)
 inline fun <T> T.notNullAnd(
     noinline message: MessageProvider = { "kova.nullable.notNull".resource },
     block: (T & Any) -> ValidationResult<Unit>,

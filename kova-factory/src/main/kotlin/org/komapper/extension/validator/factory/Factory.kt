@@ -2,7 +2,7 @@ package org.komapper.extension.validator.factory
 
 import org.komapper.extension.validator.Message
 import org.komapper.extension.validator.ValidationConfig
-import org.komapper.extension.validator.ValidationContext
+import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationResult
 import org.komapper.extension.validator.addRoot
 import org.komapper.extension.validator.bindObject
@@ -11,11 +11,11 @@ import org.komapper.extension.validator.name
 import org.komapper.extension.validator.success
 import kotlin.reflect.KProperty
 
-context(_: ValidationContext)
+context(_: Validation)
 inline fun <R> factory(
     name: String = "factory",
-    block: context(ValidationContext) FactoryScope<R>.() -> ValidationResult<R>,
-): ValidationResult<R> = addRoot(name, null) { block(contextOf<ValidationContext>(), FactoryScope(contextOf<ValidationContext>())) }
+    block: context(Validation) FactoryScope<R>.() -> ValidationResult<R>,
+): ValidationResult<R> = addRoot(name, null) { block(contextOf<Validation>(), FactoryScope(contextOf<Validation>())) }
 
 /**
  * Binds a value to a validator, returning a [ValueRef] that can be invoked in [create].
@@ -36,11 +36,11 @@ inline fun <R> factory(
  */
 fun <T, S> bind(
     input: T,
-    block: context(ValidationContext) (T) -> ValidationResult<S>,
-): context(ValidationContext)
+    block: context(Validation) (T) -> ValidationResult<S>,
+): context(Validation)
 () -> ValidationResult<S> = { bindObject(input) { block(input) } }
 
-fun <S> bind(block: context(ValidationContext) () -> ValidationResult<S>) = block
+fun <S> bind(block: context(Validation) () -> ValidationResult<S>) = block
 
 /**
  * Scope for defining factory validation logic.
@@ -54,7 +54,7 @@ fun <S> bind(block: context(ValidationContext) () -> ValidationResult<S>) = bloc
  * @param R the type of object being constructed
  */
 class FactoryScope<R>(
-    private val context: ValidationContext,
+    private val context: Validation,
 ) {
     private val messages = mutableListOf<Message>()
 
@@ -74,7 +74,7 @@ class FactoryScope<R>(
      * @return a [ValueRef] for accessing the factory's result
      */
     operator fun <S> (
-    context(ValidationContext)
+    context(Validation)
     () -> ValidationResult<S>
     ).provideDelegate(
         thisRef: Any?,
