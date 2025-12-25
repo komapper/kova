@@ -4,21 +4,6 @@ import io.kotest.core.spec.style.FunSpec
 
 class ElvisValidatorTest :
     FunSpec({
-
-        context("nullable") {
-            test("success with null value") {
-                val result = tryValidate { null ?: 0 }
-                result.shouldBeSuccess()
-                result.value shouldBe 0
-            }
-
-            test("success with non-null value") {
-                val result = tryValidate { 123 ?: 0 }
-                result.shouldBeSuccess()
-                result.value shouldBe 123
-            }
-        }
-
         context("and") {
             context(_: Validation, _: Accumulate)
             fun Int?.whenNotNullMin3() {
@@ -134,7 +119,7 @@ class ElvisValidatorTest :
             context(_: Validation, _: Accumulate)
             fun Int?.nullableMax5OrMin3() =
                 this?.let {
-                    or { it.max(5) } orElse { it.min(3) }
+                    val _ = or { it.max(5) } orElse { it.min(3) }
                     it
                 } ?: 0
 

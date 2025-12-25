@@ -31,7 +31,7 @@ class NumberValidatorTest :
         context("or") {
             context(_: Validation, _: Accumulate)
             fun Int.validate() {
-                or { max(2) } orElse { max(3) }
+                val _ = or { max(2) } orElse { max(3) }
                 min(1)
             }
 

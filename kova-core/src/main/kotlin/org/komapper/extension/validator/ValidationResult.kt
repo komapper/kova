@@ -11,14 +11,14 @@ sealed interface ValidationIor<out T> {
     sealed interface FailureLike<out T> : ValidationIor<T> {
         val messages: List<Message>
 
-        fun withMessages(messages: List<Message>): FailureLike<T>
+        fun withMessage(message: Message): FailureLike<T>
     }
 
     data class Both<out T>(
         val value: T,
         override val messages: List<Message>,
     ) : FailureLike<T> {
-        override fun withMessages(messages: List<Message>): Both<T> = Both(value, messages)
+        override fun withMessage(message: Message): Both<T> = Both(value, listOf(message))
     }
 }
 
@@ -57,7 +57,7 @@ sealed interface ValidationResult<out T> : ValidationIor<T> {
         override val messages: List<Message>,
     ) : FailureLike<Nothing>,
         ValidationResult<Nothing> {
-        override fun withMessages(messages: List<Message>): Failure = Failure(messages)
+        override fun withMessage(message: Message): Failure = Failure(listOf(message))
     }
 }
 
@@ -70,12 +70,6 @@ fun <T> ValidationIor<T>.bind(): T =
             accumulate(messages)
             value
         }
-    }
-
-inline fun <T> ValidationIor<T>.mapMessages(transform: (List<Message>) -> List<Message>): ValidationIor<T> =
-    when (this) {
-        is Success -> this
-        is FailureLike -> withMessages(transform(messages))
     }
 
 /**

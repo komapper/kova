@@ -66,15 +66,11 @@ context(c: Validation)
 inline fun <R> or(block: context(Accumulate) () -> R): ValidationIor<R> {
     val messages = mutableListOf<Message>()
     return recoverValidation({ Failure(messages) }) {
-        val error = Accumulate.Error(this)
         val result =
             block {
                 messages.addAll(it)
-                if (failFast) {
-                    raise()
-                } else {
-                    error
-                }
+                if (c.config.failFast) raise()
+                this
             }
         if (messages.isEmpty()) Success(result) else Both(result, messages)
     }
@@ -87,8 +83,7 @@ inline infix fun <R> ValidationIor<R>.or(block: context(Accumulate) () -> R): Va
         org.komapper.extension.validator
             .or(block)
     if (other !is FailureLike) return other
-    val orMessage = "kova.or".resource(messages, other.messages)
-    return (this as? Both ?: other).mapMessages { listOf(orMessage) }
+    return (this as? Both ?: other).withMessage("kova.or".resource(messages, other.messages))
 }
 
 context(_: Validation, _: Accumulate)
@@ -104,7 +99,11 @@ context(_: Validation, _: Accumulate)
 inline fun <R> withMessage(
     noinline transform: (List<Message>) -> Message = { "kova.withMessage".resource(it) },
     block: context(Accumulate) () -> R,
-): R = or(block).mapMessages { listOf(transform(it)) }.bind()
+): R =
+    when (val result = or(block)) {
+        is Success -> result.value
+        is FailureLike -> result.withMessage(transform(result.messages)).bind()
+    }
 
 context(_: Validation, _: Accumulate)
 inline fun <R> withMessage(

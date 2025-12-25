@@ -29,7 +29,7 @@ class ComparableValidatorTest :
         context("or") {
             context(_: Validation, _: Accumulate)
             fun UInt.validate() {
-                or { max(10u) } orElse { max(20u) }
+                val _ = or { max(10u) } orElse { max(20u) }
                 min(5u)
             }
 

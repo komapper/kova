@@ -20,54 +20,6 @@ data class Validation(
     val config: ValidationConfig = ValidationConfig(),
 )
 
-/** Whether validation should stop at the first failure. */
-context(c: Validation)
-val failFast: Boolean get() = c.config.failFast
-
-fun interface Accumulate {
-    sealed class Value<out T> {
-        abstract val value: T
-    }
-
-    class Ok<T>(
-        override val value: T,
-    ) : Value<T>()
-
-    class Error(
-        val validationToken: ValidationToken,
-    ) : Value<Nothing>() {
-        override val value: Nothing
-            get() = validationToken.raise()
-    }
-
-    @IgnorableReturnValue
-    fun accumulate(messages: List<Message>): Value<Nothing>
-}
-
-@IgnorableReturnValue
-context(acc: Accumulate)
-fun accumulate(messages: List<Message>) = acc.accumulate(messages)
-
-context(_: Accumulate)
-fun raise(messages: List<Message>): Nothing = accumulate(messages).value
-
-context(_: Accumulate)
-fun raise(message: Message): Nothing = raise(listOf(message))
-
-@IgnorableReturnValue
-context(_: Accumulate)
-inline fun <R> accumulating(block: context(Accumulate) () -> R): Accumulate.Value<R> {
-    lateinit var outsideError: Accumulate.Value<Nothing>
-    // raise/error is only used after outsideError is initialized
-    return recoverValidation({ outsideError }) {
-        val error = Accumulate.Error(this)
-        block {
-            outsideError = accumulate(it)
-            error
-        }.let(Accumulate::Ok)
-    }
-}
-
 /**
  * The clock used for temporal validation constraints (past, future, etc.).
  *
