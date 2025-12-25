@@ -72,6 +72,7 @@ class MapValidatorTest :
         }
 
         context("constrain") {
+            @IgnorableReturnValue
             context(_: Validation, _: Accumulate)
             fun Map<*, *>.validate() = constrain("test") { satisfies(it.size == 1) { text("Constraint failed") } }
 
@@ -88,6 +89,7 @@ class MapValidatorTest :
         }
 
         context("onEach") {
+            @IgnorableReturnValue
             context(_: Validation, _: Accumulate)
             fun <T> Map<T, T>.validate() =
                 onEach { v ->

@@ -14,6 +14,7 @@ package org.komapper.extension.validator
  * @param message Custom error message provider
  * @return A new validator with the minimum length constraint
  */
+@IgnorableReturnValue
 context(_: Validation, _: Accumulate)
 fun CharSequence.min(
     length: Int,
@@ -34,6 +35,7 @@ fun CharSequence.min(
  * @param message Custom error message provider
  * @return A new validator with the maximum length constraint
  */
+@IgnorableReturnValue
 context(_: Validation, _: Accumulate)
 fun CharSequence.max(
     length: Int,
@@ -54,6 +56,7 @@ fun CharSequence.max(
  * @param message Custom error message provider
  * @return A new validator with the not-blank constraint
  */
+@IgnorableReturnValue
 context(_: Validation, _: Accumulate)
 fun CharSequence.notBlank(message: MessageProvider = { "kova.charSequence.notBlank".resource }) =
     constrain("kova.charSequence.notBlank") { satisfies(it.isNotBlank(), message) }
@@ -72,6 +75,7 @@ fun CharSequence.notBlank(message: MessageProvider = { "kova.charSequence.notBla
  * @param message Custom error message provider
  * @return A new validator with the blank constraint
  */
+@IgnorableReturnValue
 context(_: Validation, _: Accumulate)
 fun CharSequence.blank(message: MessageProvider = { "kova.charSequence.blank".resource }) =
     constrain("kova.charSequence.blank") { satisfies(it.isBlank(), message) }
@@ -90,6 +94,7 @@ fun CharSequence.blank(message: MessageProvider = { "kova.charSequence.blank".re
  * @param message Custom error message provider
  * @return A new validator with the not-empty constraint
  */
+@IgnorableReturnValue
 context(_: Validation, _: Accumulate)
 fun CharSequence.notEmpty(message: MessageProvider = { "kova.charSequence.notEmpty".resource }) =
     constrain("kova.charSequence.notEmpty") { satisfies(it.isNotEmpty(), message) }
@@ -108,6 +113,7 @@ fun CharSequence.notEmpty(message: MessageProvider = { "kova.charSequence.notEmp
  * @param message Custom error message provider
  * @return A new validator with the empty constraint
  */
+@IgnorableReturnValue
 context(_: Validation, _: Accumulate)
 fun CharSequence.empty(message: MessageProvider = { "kova.charSequence.empty".resource }) =
     constrain("kova.charSequence.empty") { satisfies(it.isEmpty(), message) }
@@ -126,6 +132,7 @@ fun CharSequence.empty(message: MessageProvider = { "kova.charSequence.empty".re
  * @param message Custom error message provider
  * @return A new validator with the exact length constraint
  */
+@IgnorableReturnValue
 context(_: Validation, _: Accumulate)
 fun CharSequence.length(
     length: Int,
@@ -146,6 +153,7 @@ fun CharSequence.length(
  * @param message Custom error message provider
  * @return A new validator with the starts-with constraint
  */
+@IgnorableReturnValue
 context(_: Validation, _: Accumulate)
 fun CharSequence.startsWith(
     prefix: CharSequence,
@@ -166,6 +174,7 @@ fun CharSequence.startsWith(
  * @param message Custom error message provider
  * @return A new validator with the not-starts-with constraint
  */
+@IgnorableReturnValue
 context(_: Validation, _: Accumulate)
 fun CharSequence.notStartsWith(
     prefix: CharSequence,
@@ -186,6 +195,7 @@ fun CharSequence.notStartsWith(
  * @param message Custom error message provider
  * @return A new validator with the ends-with constraint
  */
+@IgnorableReturnValue
 context(_: Validation, _: Accumulate)
 fun CharSequence.endsWith(
     suffix: CharSequence,
@@ -206,6 +216,7 @@ fun CharSequence.endsWith(
  * @param message Custom error message provider
  * @return A new validator with the not-ends-with constraint
  */
+@IgnorableReturnValue
 context(_: Validation, _: Accumulate)
 fun CharSequence.notEndsWith(
     suffix: CharSequence,
@@ -226,6 +237,7 @@ fun CharSequence.notEndsWith(
  * @param message Custom error message provider
  * @return A new validator with the contains constraint
  */
+@IgnorableReturnValue
 context(_: Validation, _: Accumulate)
 fun CharSequence.contains(
     infix: CharSequence,
@@ -246,6 +258,7 @@ fun CharSequence.contains(
  * @param message Custom error message provider
  * @return A new validator with the not-contains constraint
  */
+@IgnorableReturnValue
 context(_: Validation, _: Accumulate)
 fun CharSequence.notContains(
     infix: CharSequence,
@@ -266,6 +279,7 @@ fun CharSequence.notContains(
  * @param message Custom error message provider
  * @return A new validator with the regex constraint
  */
+@IgnorableReturnValue
 context(_: Validation, _: Accumulate)
 fun CharSequence.matches(
     pattern: Regex,
@@ -286,6 +300,7 @@ fun CharSequence.matches(
  * @param message Custom error message provider
  * @return A new validator with the not-matches constraint
  */
+@IgnorableReturnValue
 context(_: Validation, _: Accumulate)
 fun CharSequence.notMatches(
     pattern: Regex,

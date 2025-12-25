@@ -14,6 +14,7 @@ package org.komapper.extension.validator
  * @param message Custom error message provider
  * @return A new validator with the positive constraint
  */
+@IgnorableReturnValue
 context(_: Validation, _: Accumulate)
 fun Number.positive(message: MessageProvider = { "kova.number.positive".resource }) =
     constrain("kova.number.positive") { satisfies(it.toDouble() > 0.0, message) }
@@ -32,6 +33,7 @@ fun Number.positive(message: MessageProvider = { "kova.number.positive".resource
  * @param message Custom error message provider
  * @return A new validator with the negative constraint
  */
+@IgnorableReturnValue
 context(_: Validation, _: Accumulate)
 fun Number.negative(message: MessageProvider = { "kova.number.negative".resource }) =
     constrain("kova.number.negative") { satisfies(it.toDouble() < 0.0, message) }
@@ -50,6 +52,7 @@ fun Number.negative(message: MessageProvider = { "kova.number.negative".resource
  * @param message Custom error message provider
  * @return A new validator with the not-positive constraint
  */
+@IgnorableReturnValue
 context(_: Validation, _: Accumulate)
 fun Number.notPositive(message: MessageProvider = { "kova.number.notPositive".resource }) =
     constrain("kova.number.notPositive") { satisfies(it.toDouble() <= 0.0, message) }
@@ -68,6 +71,7 @@ fun Number.notPositive(message: MessageProvider = { "kova.number.notPositive".re
  * @param message Custom error message provider
  * @return A new validator with the not-negative constraint
  */
+@IgnorableReturnValue
 context(_: Validation, _: Accumulate)
 fun Number.notNegative(message: MessageProvider = { "kova.number.notNegative".resource }) =
     constrain("kova.number.notNegative") { satisfies(it.toDouble() >= 0.0, message) }

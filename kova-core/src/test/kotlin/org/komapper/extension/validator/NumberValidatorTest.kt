@@ -53,6 +53,7 @@ class NumberValidatorTest :
         }
 
         context("constrain") {
+            @IgnorableReturnValue
             context(_: Validation, _: Accumulate)
             fun Int.validate() = constrain("test") { satisfies(it == 10) { text("Constraint failed") } }
 

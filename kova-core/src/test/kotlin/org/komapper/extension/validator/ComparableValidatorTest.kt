@@ -52,6 +52,7 @@ class ComparableValidatorTest :
         }
 
         context("constrain") {
+            @IgnorableReturnValue
             context(_: Validation, _: Accumulate)
             fun UInt.validate() = constrain("test") { satisfies(it == 10u) { text("Constraint failed") } }
             test("success") {

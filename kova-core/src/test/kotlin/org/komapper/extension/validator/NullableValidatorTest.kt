@@ -19,41 +19,6 @@ class NullableValidatorTest :
             }
         }
 
-        context("withDefault with literal") {
-            test("success with null value") {
-                val result = tryValidate { null ?: 0 }
-                result.shouldBeSuccess()
-                result.value shouldBe 0
-            }
-
-            test("success with non-null value") {
-                val result = tryValidate { 123 ?: 0 }
-                result.shouldBeSuccess()
-                result.value shouldBe 123
-            }
-        }
-
-        context("withDefaultThen with literal") {
-            test("success with null value") {
-                val result = tryValidate { (null ?: 10).also { it.min(3) } }
-                result.shouldBeSuccess()
-                result.value shouldBe 10
-            }
-
-            test("success with non-null value") {
-                val result = tryValidate { (123 ?: 10).also { it.min(3) } }
-                result.shouldBeSuccess()
-                result.value shouldBe 123
-            }
-
-            test("failure with non-null value") {
-                val result = tryValidate { (1 ?: 10).also { it.min(3) } }
-                result.shouldBeFailure()
-                result.messages.size shouldBe 1
-                result.messages[0].constraintId shouldBe "kova.comparable.min"
-            }
-        }
-
         context("isNull") {
             test("success") {
                 val result = tryValidate { null.isNull() }

@@ -117,6 +117,7 @@ class IdentityValidatorTest :
         }
 
         context("constrain") {
+            @IgnorableReturnValue
             context(_: Validation, _: Accumulate)
             fun Int.validate() = constrain("even") { satisfies(it % 2 == 0) { text("input must be even") } }
 
@@ -129,6 +130,7 @@ class IdentityValidatorTest :
         }
 
         context("constrain with extension function") {
+            @IgnorableReturnValue
             context(_: Validation, _: Accumulate)
             fun Int.even() = constrain("even") { satisfies(it % 2 == 0) { text("input must be even") } }
 

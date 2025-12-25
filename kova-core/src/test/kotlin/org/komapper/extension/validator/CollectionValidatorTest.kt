@@ -62,6 +62,7 @@ class CollectionValidatorTest :
         }
 
         context("constrain") {
+            @IgnorableReturnValue
             context(_: Validation, _: Accumulate)
             fun List<*>.validate() = constrain("test") { satisfies(it.size == 1) { text("Constraint failed") } }
 

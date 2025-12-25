@@ -17,10 +17,9 @@ import kotlin.reflect.KClass
  * @param message Custom error message provider
  * @return A new validator with the is-int constraint
  */
+@IgnorableReturnValue
 context(_: Validation, _: Accumulate)
-fun String.isInt(message: MessageProvider = { "kova.string.isInt".resource }) = constrain("kova.string.isInt") {
-    val _ = toInt(message)
-}
+fun String.isInt(message: MessageProvider = { "kova.string.isInt".resource }) = constrain("kova.string.isInt") { toInt(message) }
 
 /**
  * Validates that the string can be parsed as a Long.
@@ -35,10 +34,9 @@ fun String.isInt(message: MessageProvider = { "kova.string.isInt".resource }) = 
  * @param message Custom error message provider
  * @return A new validator with the is-long constraint
  */
+@IgnorableReturnValue
 context(_: Validation, _: Accumulate)
-fun String.isLong(message: MessageProvider = { "kova.string.isLong".resource }) = constrain("kova.string.isLong") {
-    val _ = toLong(message)
-}
+fun String.isLong(message: MessageProvider = { "kova.string.isLong".resource }) = constrain("kova.string.isLong") { toLong(message) }
 
 /**
  * Validates that the string can be parsed as a Short.
@@ -53,9 +51,9 @@ fun String.isLong(message: MessageProvider = { "kova.string.isLong".resource }) 
  * @param message Custom error message provider
  * @return A new validator with the is-short constraint
  */
+@IgnorableReturnValue
 context(_: Validation, _: Accumulate)
-fun String.isShort(message: MessageProvider = { "kova.string.isShort".resource }) =
-    constrain("kova.string.isShort") { val _ = toShort(message) }
+fun String.isShort(message: MessageProvider = { "kova.string.isShort".resource }) = constrain("kova.string.isShort") { toShort(message) }
 
 /**
  * Validates that the string can be parsed as a Byte.
@@ -70,10 +68,9 @@ fun String.isShort(message: MessageProvider = { "kova.string.isShort".resource }
  * @param message Custom error message provider
  * @return A new validator with the is-byte constraint
  */
+@IgnorableReturnValue
 context(_: Validation, _: Accumulate)
-fun String.isByte(message: MessageProvider = { "kova.string.isByte".resource }) = constrain("kova.string.isByte") {
-    val _ = toByte(message)
-}
+fun String.isByte(message: MessageProvider = { "kova.string.isByte".resource }) = constrain("kova.string.isByte") { toByte(message) }
 
 /**
  * Validates that the string can be parsed as a Double.
@@ -88,9 +85,10 @@ fun String.isByte(message: MessageProvider = { "kova.string.isByte".resource }) 
  * @param message Custom error message provider
  * @return A new validator with the is-double constraint
  */
+@IgnorableReturnValue
 context(_: Validation, _: Accumulate)
 fun String.isDouble(message: MessageProvider = { "kova.string.isDouble".resource }) =
-    constrain("kova.string.isDouble") { val _ = toDouble(message) }
+    constrain("kova.string.isDouble") { toDouble(message) }
 
 /**
  * Validates that the string can be parsed as a Float.
@@ -105,9 +103,9 @@ fun String.isDouble(message: MessageProvider = { "kova.string.isDouble".resource
  * @param message Custom error message provider
  * @return A new validator with the is-float constraint
  */
+@IgnorableReturnValue
 context(_: Validation, _: Accumulate)
-fun String.isFloat(message: MessageProvider = { "kova.string.isFloat".resource }) =
-    constrain("kova.string.isFloat") { val _ = toFloat(message) }
+fun String.isFloat(message: MessageProvider = { "kova.string.isFloat".resource }) = constrain("kova.string.isFloat") { toFloat(message) }
 
 /**
  * Validates that the string can be parsed as a BigDecimal.
@@ -122,9 +120,10 @@ fun String.isFloat(message: MessageProvider = { "kova.string.isFloat".resource }
  * @param message Custom error message provider
  * @return A new validator with the is-big-decimal constraint
  */
+@IgnorableReturnValue
 context(_: Validation, _: Accumulate)
 fun String.isBigDecimal(message: MessageProvider = { "kova.string.isBigDecimal".resource }) =
-    constrain("kova.string.isBigDecimal") { val _ = toBigDecimal(message) }
+    constrain("kova.string.isBigDecimal") { toBigDecimal(message) }
 
 /**
  * Validates that the string can be parsed as a BigInteger.
@@ -139,9 +138,10 @@ fun String.isBigDecimal(message: MessageProvider = { "kova.string.isBigDecimal".
  * @param message Custom error message provider
  * @return A new validator with the is-big-integer constraint
  */
+@IgnorableReturnValue
 context(_: Validation, _: Accumulate)
 fun String.isBigInteger(message: MessageProvider = { "kova.string.isBigInteger".resource }) =
-    constrain("kova.string.isBigInteger") { val _ = toBigInteger(message) }
+    constrain("kova.string.isBigInteger") { toBigInteger(message) }
 
 /**
  * Validates that the string can be parsed as a Boolean.
@@ -159,9 +159,10 @@ fun String.isBigInteger(message: MessageProvider = { "kova.string.isBigInteger".
  * @param message Custom error message provider
  * @return A new validator with the is-boolean constraint
  */
+@IgnorableReturnValue
 context(_: Validation, _: Accumulate)
 fun String.isBoolean(message: MessageProvider = { "kova.string.isBoolean".resource }) =
-    constrain("kova.string.isBoolean") { val _ = toBoolean(message) }
+    constrain("kova.string.isBoolean") { toBoolean(message) }
 
 /**
  * Validates that the string is a valid name for the specified enum type.
@@ -178,11 +179,12 @@ fun String.isBoolean(message: MessageProvider = { "kova.string.isBoolean".resour
  * @param message Custom error message provider
  * @return A new validator with the is-enum constraint
  */
+@IgnorableReturnValue
 context(_: Validation, _: Accumulate)
 fun <E : Enum<E>> String.isEnum(
     klass: KClass<E>,
     message: (validNames: List<String>) -> Message = { "kova.string.isEnum".resource(it) },
-) = constrain("kova.string.isEnum") { val _ = toEnum(klass, message) }
+) = constrain("kova.string.isEnum") { toEnum(klass, message) }
 
 /**
  * Validates that the string is a valid name for the specified enum type (reified version).
@@ -198,6 +200,7 @@ fun <E : Enum<E>> String.isEnum(
  * @param message Custom error message provider
  * @return A new validator with the is-enum constraint
  */
+@IgnorableReturnValue
 context(_: Validation, _: Accumulate)
 inline fun <reified E : Enum<E>> String.isEnum(
     noinline message: (validNames: List<String>) -> Message = { "kova.string.isEnum".resource(it) },
@@ -245,6 +248,7 @@ fun <E : Enum<E>> String.toEnum(
  * @param message Custom error message provider
  * @return A new validator with the uppercase constraint
  */
+@IgnorableReturnValue
 context(_: Validation, _: Accumulate)
 fun String.uppercase(message: MessageProvider = { "kova.string.uppercase".resource }) =
     constrain("kova.string.uppercase") { satisfies(it == it.uppercase(Locale.getDefault()), message) }
@@ -262,6 +266,7 @@ fun String.uppercase(message: MessageProvider = { "kova.string.uppercase".resour
  * @param message Custom error message provider
  * @return A new validator with the lowercase constraint
  */
+@IgnorableReturnValue
 context(_: Validation, _: Accumulate)
 fun String.lowercase(message: MessageProvider = { "kova.string.lowercase".resource }) =
     constrain("kova.string.lowercase") { satisfies(it == it.lowercase(Locale.getDefault()), message) }

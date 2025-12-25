@@ -26,15 +26,19 @@ class PairFactoryBuilderTest :
                 bind(first) {
                     it.notBlank()
                     it.max(10)
+                    it
                 },
-                bind(second) { it.positive() },
+                bind(second) {
+                    it.positive()
+                    it
+                },
             )
 
             context("tryCreate") {
                 test("success") {
                     val result = tryValidate { build("hello", 42) }
                     result.shouldBeSuccess()
-                    result.value shouldBe Pair(Unit, Unit)
+                    result.value shouldBe Pair("hello", 42)
                 }
 
                 test("failure - first element invalid") {
@@ -77,7 +81,7 @@ class PairFactoryBuilderTest :
             context("create") {
                 test("success") {
                     val pair = validate { build("hello", 42) }
-                    pair shouldBe Pair(Unit, Unit)
+                    pair shouldBe Pair("hello", 42)
                 }
 
                 test("failure - first element invalid") {
@@ -107,17 +111,19 @@ class PairFactoryBuilderTest :
                     it.notBlank()
                     it.min(1)
                     it.max(50)
+                    it
                 },
                 bind(age) {
                     it.min(0)
                     it.max(120)
+                    it
                 },
             )
 
             test("success") {
                 val result = tryValidate { build("Alice", 30) }
                 result.shouldBeSuccess()
-                result.value shouldBe Pair(Unit, Unit)
+                result.value shouldBe Pair("Alice", 30)
             }
 
             test("failure - name too long") {
@@ -140,14 +146,14 @@ class PairFactoryBuilderTest :
                 first: String,
                 second: Int,
             ) = buildPair(
-                bind(first) { },
-                bind(second) { },
+                bind(first) { first },
+                bind(second) { second },
             )
 
             test("success - no constraints") {
                 val result = tryValidate { build("any string", 123) }
                 result.shouldBeSuccess()
-                result.value shouldBe Pair(Unit, Unit)
+                result.value shouldBe Pair("any string", 123)
             }
         }
 

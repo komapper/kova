@@ -14,6 +14,7 @@ package org.komapper.extension.validator
  * @param message Custom error message provider
  * @return A new validator that accepts only the specified value
  */
+@IgnorableReturnValue
 context(_: Validation, _: Accumulate)
 fun <S> S.literal(
     value: S,
@@ -34,12 +35,14 @@ fun <S> S.literal(
  * @param message Custom error message provider
  * @return A new validator that accepts only values from the list
  */
+@IgnorableReturnValue
 context(_: Validation, _: Accumulate)
 fun <S> S.literal(
     values: List<S>,
     message: MessageProvider = { "kova.literal.list".resource(values) },
 ) = constrain("kova.literal.list") { satisfies(it in values, message) }
 
+@IgnorableReturnValue
 context(_: Validation, _: Accumulate)
 fun <S> S.literal(
     vararg values: S,

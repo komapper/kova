@@ -17,38 +17,41 @@ package org.komapper.extension.validator
  * @param check Constraint logic that produces a [ValidationResult]
  * @return A new validator with the constraint applied
  */
+@IgnorableReturnValue
 context(c: Validation, _: Accumulate)
-inline fun <T> T.constrain(
+inline fun <T, R> T.constrain(
     id: String,
-    check: Constraint<T>,
-) {
-    val result =
-        accumulating {
-            mapEachMessage({
-                log {
-                    LogEntry.Violated(
-                        constraintId = id,
-                        root = it.root,
-                        path = it.path.fullName,
-                        input = this,
-                        args = if (it is Message.Resource) it.args.asList() else emptyList(),
-                    )
-                }
-                it.withDetails(this, id)
-            }) { check(this) }
+    check: context(Validation, Accumulate) (T) -> R,
+) = accumulating {
+    mapEachMessage({ it.logAndAddDetails(this, id) }) {
+        val result = check(this)
+        log {
+            LogEntry.Satisfied(
+                constraintId = id,
+                root = c.root,
+                path = c.path.fullName,
+                input = this,
+            )
         }
-    when (result) {
-        is Accumulate.Ok ->
-            log {
-                LogEntry.Satisfied(
-                    constraintId = id,
-                    root = c.root,
-                    path = c.path.fullName,
-                    input = this,
-                )
-            }
-        else -> {}
+        result
     }
+}
+
+context(_: Validation)
+fun Message.logAndAddDetails(
+    input: Any?,
+    id: String,
+): Message {
+    log {
+        LogEntry.Violated(
+            constraintId = id,
+            root = root,
+            path = path.fullName,
+            input = input,
+            args = if (this is Message.Resource) args.asList() else emptyList(),
+        )
+    }
+    return withDetails(input, id)
 }
 
 context(_: Accumulate)

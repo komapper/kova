@@ -90,7 +90,7 @@ class ObjectSchemaTest :
             context(_: Validation, _: Accumulate)
             fun User.validate() =
                 checking {
-                    or {
+                    or<Unit> {
                         ::name {
                             it.min(1)
                             it.max(10)

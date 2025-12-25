@@ -27,11 +27,16 @@ class TripleFactoryBuilderTest :
                 bind(first) {
                     it.notBlank()
                     it.max(10)
+                    it
                 },
-                bind(second) { it.positive() },
+                bind(second) {
+                    it.positive()
+                    it
+                },
                 bind(third) {
                     it.notBlank()
                     it.max(20)
+                    it
                 },
             )
 
@@ -39,7 +44,7 @@ class TripleFactoryBuilderTest :
                 test("success") {
                     val result = tryValidate { build("hello", 42, "world") }
                     result.shouldBeSuccess()
-                    result.value shouldBe Triple(Unit, Unit, Unit)
+                    result.value shouldBe Triple("hello", 42, "world")
                 }
 
                 test("failure - first element invalid") {
@@ -93,7 +98,7 @@ class TripleFactoryBuilderTest :
             context("create") {
                 test("success") {
                     val triple = validate { build("hello", 42, "world") }
-                    triple shouldBe Triple(Unit, Unit, Unit)
+                    triple shouldBe Triple("hello", 42, "world")
                 }
 
                 test("failure - first element invalid") {
@@ -129,21 +134,24 @@ class TripleFactoryBuilderTest :
                     it.notBlank()
                     it.min(1)
                     it.max(50)
+                    it
                 },
                 bind(age) {
                     it.min(0)
                     it.max(120)
+                    it
                 },
                 bind(email) {
                     it.notBlank()
                     it.max(100)
+                    it
                 },
             )
 
             test("success") {
                 val result = tryValidate { build("Alice", 30, "alice@example.com") }
                 result.shouldBeSuccess()
-                result.value shouldBe Triple(Unit, Unit, Unit)
+                result.value shouldBe Triple("Alice", 30, "alice@example.com")
             }
 
             test("failure - name too long") {

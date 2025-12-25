@@ -8,7 +8,7 @@ class StringValidatorTest :
         context("or") {
             context(_: Validation, _: Accumulate)
             fun String.validate(): String {
-                or { isInt() } orElse { literal("zero") }
+                val _ = or { isInt() } orElse { literal("zero") }
                 return toUppercase()
             }
 
@@ -33,6 +33,7 @@ class StringValidatorTest :
         }
 
         context("constrain") {
+            @IgnorableReturnValue
             context(_: Validation, _: Accumulate)
             fun String.validate() = constrain("test") { satisfies(it == "OK") { text("Constraint failed") } }
 

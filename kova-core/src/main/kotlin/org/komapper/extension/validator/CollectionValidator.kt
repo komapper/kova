@@ -16,6 +16,7 @@ typealias LengthMessageProvider = (actualSize: Int) -> Message
  * @param message Custom error message provider
  * @return A new validator with the minimum size constraint
  */
+@IgnorableReturnValue
 context(_: Validation, _: Accumulate)
 fun Collection<*>.min(
     size: Int,
@@ -36,6 +37,7 @@ fun Collection<*>.min(
  * @param message Custom error message provider
  * @return A new validator with the maximum size constraint
  */
+@IgnorableReturnValue
 context(_: Validation, _: Accumulate)
 fun Collection<*>.max(
     size: Int,
@@ -55,6 +57,7 @@ fun Collection<*>.max(
  * @param message Custom error message provider
  * @return A new validator with the not-empty constraint
  */
+@IgnorableReturnValue
 context(_: Validation, _: Accumulate)
 fun Collection<*>.notEmpty(message: MessageProvider = { "kova.collection.notEmpty".resource }) =
     constrain("kova.collection.notEmpty") { satisfies(it.isNotEmpty(), message) }
@@ -73,6 +76,7 @@ fun Collection<*>.notEmpty(message: MessageProvider = { "kova.collection.notEmpt
  * @param message Custom error message provider
  * @return A new validator with the exact size constraint
  */
+@IgnorableReturnValue
 context(_: Validation, _: Accumulate)
 fun Collection<*>.length(
     size: Int,
@@ -93,6 +97,7 @@ fun Collection<*>.length(
  * @param message Custom error message provider
  * @return A new validator with the contains constraint
  */
+@IgnorableReturnValue
 context(_: Validation, _: Accumulate)
 fun <E> Collection<E>.has(
     element: E,
@@ -113,6 +118,7 @@ fun <E> Collection<E>.has(
  * @param message Custom error message provider
  * @return A new validator with the notContains constraint
  */
+@IgnorableReturnValue
 context(_: Validation, _: Accumulate)
 fun <E> Collection<E>.notContains(
     element: E,
@@ -138,6 +144,7 @@ fun <E> Collection<E>.notContains(
  * @param validate The validator to apply to each element
  * @return A new validator with per-element validation
  */
+@IgnorableReturnValue
 context(_: Validation, _: Accumulate)
 fun <E> Collection<E>.onEach(validate: Constraint<E>) =
     constrain("kova.collection.onEach") { input ->
