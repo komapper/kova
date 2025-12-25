@@ -104,7 +104,7 @@ class NullableValidatorTest :
         }
 
         context("or") {
-            context(_: Validation)
+            context(_: Validation, _: Accumulate)
             fun Int?.isNullOrMin3Max3() = or { isNull() } orElse { this?.min(3)?.and { max(3) }.orSucceed() }
 
             test("success with null value") {
@@ -130,7 +130,7 @@ class NullableValidatorTest :
         }
 
         context("isNullOr") {
-            context(_: Validation)
+            context(_: Validation, _: Accumulate)
             fun Int?.isNullOrMin3Max3() = isNullOr { it.min(3) and { it.max(3) } }
 
             test("success with null value") {
@@ -187,7 +187,7 @@ class NullableValidatorTest :
         }
 
         context("and") {
-            context(_: Validation)
+            context(_: Validation, _: Accumulate)
             fun Int?.nullableMin3() = this?.min(3).orSucceed()
 
             test("success with non-null value") {
@@ -209,7 +209,7 @@ class NullableValidatorTest :
         }
 
         context("and - each List element") {
-            context(_: Validation)
+            context(_: Validation, _: Accumulate)
             fun Int?.nullableMin3() = this?.min(3).orSucceed()
 
             test("success with non-null value") {
@@ -231,7 +231,7 @@ class NullableValidatorTest :
         }
 
         context("toNonNullable") {
-            context(_: Validation)
+            context(_: Validation, _: Accumulate)
             fun Int?.nullableMin3() = this?.min(3).orSucceed() then { toNonNullable() }
 
             test("success with non-null value") {
@@ -257,7 +257,7 @@ class NullableValidatorTest :
         }
 
         context("toNonNullable - then") {
-            context(_: Validation)
+            context(_: Validation, _: Accumulate)
             fun Int?.notNullAndMin3AndMax3() = toNonNullable().alsoThen { it.max(5) }.alsoThen { it.min(3) }
 
             test("success") {

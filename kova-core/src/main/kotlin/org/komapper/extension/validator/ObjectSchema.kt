@@ -9,7 +9,7 @@ inline fun <T : Any> T.checking(block: context(Validation) () -> ValidationResul
     return addRoot(rootName, this, block)
 }
 
-context(_: Validation)
+context(_: Validation, _: Accumulate)
 operator fun <T> KProperty0<T>.invoke(block: Constraint<T>): ValidationResult<Unit> {
     val value = this.get()
     return addPathChecked(name, value) { block(value).accumulateMessages() } ?: Unit.success()

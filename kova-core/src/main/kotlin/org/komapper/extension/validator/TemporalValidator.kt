@@ -31,7 +31,7 @@ import kotlin.reflect.KClass
  * @param message Custom error message provider
  * @return A new validator with the future constraint
  */
-context(_: Validation)
+context(_: Validation, _: Accumulate)
 inline fun <reified S> S.future(
     noinline message: MessageProvider = { "kova.temporal.future".resource },
 ) where S : Temporal, S : Comparable<S> = constrain("kova.temporal.future") { satisfies(it > now(clock), message) }
@@ -54,7 +54,7 @@ inline fun <reified S> S.future(
  * @param message Custom error message provider
  * @return A new validator with the future-or-present constraint
  */
-context(_: Validation)
+context(_: Validation, _: Accumulate)
 inline fun <reified S> S.futureOrPresent(
     noinline message: MessageProvider = { "kova.temporal.futureOrPresent".resource },
 )where S : Temporal, S : Comparable<S> = constrain("kova.temporal.futureOrPresent") { satisfies(it >= now(clock), message) }
@@ -77,7 +77,7 @@ inline fun <reified S> S.futureOrPresent(
  * @param message Custom error message provider
  * @return A new validator with the past constraint
  */
-context(_: Validation)
+context(_: Validation, _: Accumulate)
 inline fun <reified S> S.past(noinline message: MessageProvider = { "kova.temporal.past".resource })where S : Temporal, S : Comparable<S> =
     constrain("kova.temporal.past") { satisfies(it < now(clock), message) }
 
@@ -99,7 +99,7 @@ inline fun <reified S> S.past(noinline message: MessageProvider = { "kova.tempor
  * @param message Custom error message provider
  * @return A new validator with the past-or-present constraint
  */
-context(_: Validation)
+context(_: Validation, _: Accumulate)
 inline fun <reified S> S.pastOrPresent(
     noinline message: MessageProvider = { "kova.temporal.pastOrPresent".resource },
 )where S : Temporal, S : Comparable<S> = constrain("kova.temporal.pastOrPresent") { satisfies(it <= now(clock), message) }

@@ -14,7 +14,7 @@ package org.komapper.extension.validator
  * @param message Custom error message provider
  * @return A new validator with the minimum size constraint
  */
-context(_: Validation)
+context(_: Validation, _: Accumulate)
 fun Map<*, *>.min(
     size: Int,
     message: LengthMessageProvider = { "kova.map.min".resource(it, size) },
@@ -34,7 +34,7 @@ fun Map<*, *>.min(
  * @param message Custom error message provider
  * @return A new validator with the maximum size constraint
  */
-context(_: Validation)
+context(_: Validation, _: Accumulate)
 fun Map<*, *>.max(
     size: Int,
     message: LengthMessageProvider = { "kova.map.max".resource(it, size) },
@@ -53,7 +53,7 @@ fun Map<*, *>.max(
  * @param message Custom error message provider
  * @return A new validator with the not-empty constraint
  */
-context(_: Validation)
+context(_: Validation, _: Accumulate)
 fun Map<*, *>.notEmpty(message: MessageProvider = { "kova.map.notEmpty".resource }) =
     constrain("kova.map.notEmpty") { satisfies(it.isNotEmpty(), message) }
 
@@ -71,7 +71,7 @@ fun Map<*, *>.notEmpty(message: MessageProvider = { "kova.map.notEmpty".resource
  * @param message Custom error message provider
  * @return A new validator with the exact size constraint
  */
-context(_: Validation)
+context(_: Validation, _: Accumulate)
 fun Map<*, *>.length(
     size: Int,
     message: LengthMessageProvider = { "kova.map.length".resource(it, size) },
@@ -91,7 +91,7 @@ fun Map<*, *>.length(
  * @param message Custom error message provider
  * @return A new validator with the containsKey constraint
  */
-context(_: Validation)
+context(_: Validation, _: Accumulate)
 fun <K> Map<K, *>.hasKey(
     key: K,
     message: MessageProvider = { "kova.map.containsKey".resource(key) },
@@ -111,7 +111,7 @@ fun <K> Map<K, *>.hasKey(
  * @param message Custom error message provider
  * @return A new validator with the notContainsKey constraint
  */
-context(_: Validation)
+context(_: Validation, _: Accumulate)
 fun <K> Map<K, *>.notContainsKey(
     key: K,
     message: MessageProvider = { "kova.map.notContainsKey".resource(key) },
@@ -131,7 +131,7 @@ fun <K> Map<K, *>.notContainsKey(
  * @param message Custom error message provider
  * @return A new validator with the containsValue constraint
  */
-context(_: Validation)
+context(_: Validation, _: Accumulate)
 fun <V> Map<*, V>.hasValue(
     value: V,
     message: MessageProvider = { "kova.map.containsValue".resource(value) },
@@ -151,7 +151,7 @@ fun <V> Map<*, V>.hasValue(
  * @param message Custom error message provider
  * @return A new validator with the notContainsValue constraint
  */
-context(_: Validation)
+context(_: Validation, _: Accumulate)
 fun <V> Map<*, V>.notContainsValue(
     value: V,
     message: MessageProvider = { "kova.map.notContainsValue".resource(value) },
@@ -178,7 +178,7 @@ fun <V> Map<*, V>.notContainsValue(
  * @param validator The validator to apply to each entry
  * @return A new validator with per-entry validation
  */
-context(_: Validation)
+context(_: Validation, _: Accumulate)
 fun <K, V> Map<K, V>.onEach(validator: Constraint<Map.Entry<K, V>>) =
     constrain("kova.map.onEach") { appendPath(text = "<map entry>") { validateOnEach("kova.map.onEach", validator) } }
 
@@ -201,7 +201,7 @@ fun <K, V> Map<K, V>.onEach(validator: Constraint<Map.Entry<K, V>>) =
  * @param validator The validator to apply to each key
  * @return A new validator with per-key validation
  */
-context(_: Validation)
+context(_: Validation, _: Accumulate)
 fun <K> Map<K, *>.onEachKey(validator: Constraint<K>) =
     constrain("kova.map.onEachKey") {
         validateOnEach("kova.map.onEachKey") { entry ->
@@ -228,7 +228,7 @@ fun <K> Map<K, *>.onEachKey(validator: Constraint<K>) =
  * @param validator The validator to apply to each value
  * @return A new validator with per-value validation
  */
-context(_: Validation)
+context(_: Validation, _: Accumulate)
 fun <V> Map<*, V>.onEachValue(validator: Constraint<V>) =
     constrain("kova.map.onEachValue") {
         validateOnEach("kova.map.onEachValue") { entry ->
@@ -236,7 +236,7 @@ fun <V> Map<*, V>.onEachValue(validator: Constraint<V>) =
         }
     }
 
-context(_: Validation)
+context(_: Validation, _: Accumulate)
 private fun <K, V> Map<K, V>.validateOnEach(
     constraintId: String,
     validate: Constraint<Map.Entry<K, V>>,

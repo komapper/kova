@@ -1,21 +1,23 @@
 package org.komapper.extension.validator.factory
 
+import org.komapper.extension.validator.Accumulate
 import org.komapper.extension.validator.Message
-import org.komapper.extension.validator.ValidationConfig
 import org.komapper.extension.validator.Validation
+import org.komapper.extension.validator.ValidationConfig
 import org.komapper.extension.validator.ValidationResult
 import org.komapper.extension.validator.addRoot
 import org.komapper.extension.validator.bindObject
+import org.komapper.extension.validator.failFast
 import org.komapper.extension.validator.failure
 import org.komapper.extension.validator.name
 import org.komapper.extension.validator.success
 import kotlin.reflect.KProperty
 
-context(_: Validation)
+context(_: Validation, _: Accumulate)
 inline fun <R> factory(
     name: String = "factory",
     block: context(Validation) FactoryScope<R>.() -> ValidationResult<R>,
-): ValidationResult<R> = addRoot(name, null) { block(contextOf<Validation>(), FactoryScope(contextOf<Validation>())) }
+): ValidationResult<R> = addRoot(name, null) { block(FactoryScope(contextOf<Validation>(), contextOf<Accumulate>())) }
 
 /**
  * Binds a value to a validator, returning a [ValueRef] that can be invoked in [create].
@@ -36,11 +38,11 @@ inline fun <R> factory(
  */
 fun <T, S> bind(
     input: T,
-    block: context(Validation) (T) -> ValidationResult<S>,
-): context(Validation)
+    block: context(Validation, Accumulate) (T) -> ValidationResult<S>,
+): context(Validation, Accumulate)
 () -> ValidationResult<S> = { bindObject(input) { block(input) } }
 
-fun <S> bind(block: context(Validation) () -> ValidationResult<S>) = block
+fun <S> bind(block: context(Validation, Accumulate) () -> ValidationResult<S>) = block
 
 /**
  * Scope for defining factory validation logic.
@@ -55,6 +57,7 @@ fun <S> bind(block: context(Validation) () -> ValidationResult<S>) = block
  */
 class FactoryScope<R>(
     private val context: Validation,
+    private val accumulate: Accumulate,
 ) {
     private val messages = mutableListOf<Message>()
 
@@ -74,14 +77,14 @@ class FactoryScope<R>(
      * @return a [ValueRef] for accessing the factory's result
      */
     operator fun <S> (
-    context(Validation)
+    context(Validation, Accumulate)
     () -> ValidationResult<S>
     ).provideDelegate(
         thisRef: Any?,
         property: KProperty<*>,
     ): ValueRef<S> =
-        with(context) {
-            if (config.failFast && messages.isNotEmpty()) {
+        context(context, accumulate) {
+            if (failFast && messages.isNotEmpty()) {
                 FailureValueRef
             } else {
                 when (val result = name(property.name) { this@provideDelegate() }) {

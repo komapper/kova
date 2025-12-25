@@ -36,7 +36,7 @@ class MessageTest :
                 val name: String,
             )
 
-            context(_: Validation)
+            context(_: Validation, _: Accumulate)
             fun Person.validate() = checking { ::name { it.min(5) } }
 
             val result = tryValidate { Person("abc").validate() }

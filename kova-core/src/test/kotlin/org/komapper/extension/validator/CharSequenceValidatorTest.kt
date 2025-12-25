@@ -6,7 +6,7 @@ class CharSequenceValidatorTest :
     FunSpec({
 
         context("plus") {
-            context(_: Validation)
+            context(_: Validation, _: Accumulate)
             fun String.validate() = max(2) + { max(3) }
 
             test("success") {
@@ -24,7 +24,7 @@ class CharSequenceValidatorTest :
         }
 
         context("and") {
-            context(_: Validation)
+            context(_: Validation, _: Accumulate)
             fun String.validate() = max(2) and { max(3) }
 
             test("success") {
@@ -42,7 +42,7 @@ class CharSequenceValidatorTest :
         }
 
         context("then") {
-            context(_: Validation)
+            context(_: Validation, _: Accumulate)
             fun String.validate() =
                 trim().let { trimmed ->
                     trimmed.length(3).map { trimmed.toUppercase() }
@@ -259,7 +259,7 @@ class CharSequenceValidatorTest :
         }
 
         context("nullableString") {
-            context(_: Validation)
+            context(_: Validation, _: Accumulate)
             fun String?.max1() = toNonNullable() then { it.max(1) }
 
             test("success") {

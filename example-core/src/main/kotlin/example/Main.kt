@@ -1,5 +1,6 @@
 package example
 
+import org.komapper.extension.validator.Accumulate
 import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationResult
 import org.komapper.extension.validator.and
@@ -25,7 +26,7 @@ data class Person(
     val age: Age,
 )
 
-context(_: Validation)
+context(_: Validation, _: Accumulate)
 fun User.validate(): ValidationResult<Unit> =
     checking {
         ::name { it.min(1) and { it.notBlank() } } and {
@@ -33,10 +34,10 @@ fun User.validate(): ValidationResult<Unit> =
         }
     }
 
-context(_: Validation)
+context(_: Validation, _: Accumulate)
 fun Age.validate(): ValidationResult<Unit> = checking { ::value { it.min(0) and { it.max(120) } } }
 
-context(_: Validation)
+context(_: Validation, _: Accumulate)
 fun Person.validate(): ValidationResult<Unit> =
     checking {
         ::name { it.min(1) and { it.notBlank() } } and { ::age { it.validate() } }

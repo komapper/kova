@@ -77,29 +77,22 @@ inline infix fun <T> ValidationResult<T>.getOrElse(defaultValue: (Failure) -> T)
         is Failure -> defaultValue(this)
     }
 
-context(c: Validation)
+context(_: Accumulate)
 fun <T> ValidationIor<T>.bind(): ValidationResult<T> =
     when (this) {
         is ValidationResult -> this
-        is Both if failFast -> messages.failure()
-        is Both -> {
-            c.accumulate(messages)
-            value.success()
-        }
+        is Both -> accumulate(messages).map { value }
     }
 
-context(_: Validation)
-inline infix fun <T, R> ValidationIor<T>.map(transform: (T) -> R): ValidationResult<R> = then { transform(it).success() }
+inline infix fun <T, R> ValidationResult<T>.map(transform: (T) -> R): ValidationResult<R> = then { transform(it).success() }
 
-context(_: Validation)
-inline infix fun <T, R> ValidationIor<T>.then(transform: (T) -> ValidationIor<R>): ValidationResult<R> =
-    when (val res = bind()) {
-        is Success -> transform(res.value).bind()
-        is Failure -> res
+inline infix fun <T, R> ValidationResult<T>.then(transform: (T) -> ValidationResult<R>): ValidationResult<R> =
+    when (this) {
+        is Success -> transform(value)
+        is Failure -> this
     }
 
-context(_: Validation)
-inline infix fun <T> ValidationIor<T>.alsoThen(transform: (T) -> ValidationIor<Unit>): ValidationResult<T> =
+inline infix fun <T> ValidationResult<T>.alsoThen(transform: (T) -> ValidationResult<Unit>): ValidationResult<T> =
     then { transform(it).map { _ -> it } }
 
 inline fun <T> ValidationIor<T>.mapMessages(transform: (List<Message>) -> List<Message>): ValidationIor<T> =

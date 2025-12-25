@@ -34,7 +34,7 @@ class ElvisValidatorTest :
         }
 
         context("and") {
-            context(_: Validation)
+            context(_: Validation, _: Accumulate)
             fun Int?.whenNotNullMin3() = this?.min(3).orSucceed()
 
             test("success with non-null value") {
@@ -58,7 +58,7 @@ class ElvisValidatorTest :
         }
 
         context("and with each List element") {
-            context(_: Validation)
+            context(_: Validation, _: Accumulate)
             fun Int?.min3OrSucceed() = this?.min(3).orSucceed()
             test("success with non-null value") {
                 val result = tryValidate { listOf(4, 5).onEach { it.min3OrSucceed() } }
@@ -79,7 +79,7 @@ class ElvisValidatorTest :
         }
 
         context("asNullable") {
-            context(_: Validation)
+            context(_: Validation, _: Accumulate)
             fun Int?.nullableMin3() = this?.min(3).orSucceed() and { withDefault(0) }
 
             test("success with non-null value") {
@@ -104,7 +104,7 @@ class ElvisValidatorTest :
         }
 
         context("then") {
-            context(_: Validation)
+            context(_: Validation, _: Accumulate)
             fun Int?.nullableThenMin3AndMax3() = withDefault(4).alsoThen { it.min(3).and { it.max(5) } }
 
             test("success") {
@@ -134,7 +134,7 @@ class ElvisValidatorTest :
         }
 
         context("or") {
-            context(_: Validation)
+            context(_: Validation, _: Accumulate)
             fun Int?.nullableMax5OrMin3() = withDefault(0) { or { it.max(5) } orElse { it.min(3) } andMap { it } }
 
             test("success: 3") {

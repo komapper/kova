@@ -41,7 +41,7 @@ class CollectionValidatorTest :
         }
 
         context("plus") {
-            context(_: Validation)
+            context(_: Validation, _: Accumulate)
             fun List<*>.validate() = min(2) then { min(3) }
 
             test("success") {
@@ -59,7 +59,7 @@ class CollectionValidatorTest :
         }
 
         context("constrain") {
-            context(_: Validation)
+            context(_: Validation, _: Accumulate)
             fun List<*>.validate() = constrain("test") { satisfies(it.size == 1) { text("Constraint failed") } }
 
             test("success") {
@@ -157,7 +157,7 @@ class CollectionValidatorTest :
                 val list: List<String>,
             )
 
-            context(_: Validation)
+            context(_: Validation, _: Accumulate)
             fun ListHolder.validate() = checking { ::list { e -> e.onEach { it.length(3) } } }
 
             test("success") {

@@ -1,5 +1,6 @@
 package example
 
+import org.komapper.extension.validator.Accumulate
 import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationResult
 import org.komapper.extension.validator.alsoThen
@@ -8,12 +9,12 @@ import org.komapper.extension.validator.andMap
 import org.komapper.extension.validator.checking
 import org.komapper.extension.validator.factory.bind
 import org.komapper.extension.validator.factory.factory
+import org.komapper.extension.validator.invoke
 import org.komapper.extension.validator.isSuccess
 import org.komapper.extension.validator.max
 import org.komapper.extension.validator.min
 import org.komapper.extension.validator.notBlank
 import org.komapper.extension.validator.toInt
-import org.komapper.extension.validator.invoke
 import org.komapper.extension.validator.tryValidate
 
 data class User(
@@ -30,13 +31,14 @@ data class Person(
     val age: Age,
 )
 
-context(_: Validation)
-fun User.validate() = checking {
-    ::age { it.min(0) and { it.max(120) } } // property validator
-}
+context(_: Validation, _: Accumulate)
+fun User.validate() =
+    checking {
+        ::age { it.min(0) and { it.max(120) } } // property validator
+    }
 
 object UserFactory {
-    context(_: Validation)
+    context(_: Validation, _: Accumulate)
     operator fun invoke(
         name: String,
         age: String,
@@ -48,15 +50,16 @@ object UserFactory {
 }
 
 object AgeFactory {
-    context(_: Validation)
-    operator fun invoke(age: String) = factory {
+    context(_: Validation, _: Accumulate)
+    operator fun invoke(age: String) =
+        factory {
             val value by bind(age) { it.toInt() } // argument validator
             create { Age(value()) }
         }
 }
 
 object PersonFactory {
-    context(_: Validation)
+    context(_: Validation, _: Accumulate)
     operator fun invoke(
         name: String,
         age: String,

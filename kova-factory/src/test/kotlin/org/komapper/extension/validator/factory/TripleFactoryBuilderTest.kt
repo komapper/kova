@@ -2,8 +2,9 @@ package org.komapper.extension.validator.factory
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
-import org.komapper.extension.validator.ValidationConfig
+import org.komapper.extension.validator.Accumulate
 import org.komapper.extension.validator.Validation
+import org.komapper.extension.validator.ValidationConfig
 import org.komapper.extension.validator.ValidationException
 import org.komapper.extension.validator.and
 import org.komapper.extension.validator.max
@@ -19,7 +20,7 @@ class TripleFactoryBuilderTest :
     FunSpec({
 
         context("TripleFactoryBuilder with primitive types") {
-            context(_: Validation)
+            context(_: Validation, _: Accumulate)
             fun build(
                 first: String,
                 second: Int,
@@ -114,7 +115,7 @@ class TripleFactoryBuilderTest :
         }
 
         context("TripleFactoryBuilder with different types") {
-            context(_: Validation)
+            context(_: Validation, _: Accumulate)
             fun build(
                 name: String,
                 age: Int,
@@ -153,7 +154,7 @@ class TripleFactoryBuilderTest :
         }
 
         context("TripleFactoryBuilder with identity validators") {
-            context(_: Validation)
+            context(_: Validation, _: Accumulate)
             fun build(
                 first: String,
                 second: Int,
@@ -172,7 +173,7 @@ class TripleFactoryBuilderTest :
         }
 
         context("TripleFactoryBuilder with type transformation") {
-            context(_: Validation)
+            context(_: Validation, _: Accumulate)
             fun build(
                 first: String,
                 second: String,

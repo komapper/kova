@@ -6,7 +6,7 @@ class NumberValidatorTest :
     FunSpec({
 
         context("plus") {
-            context(_: Validation)
+            context(_: Validation, _: Accumulate)
             fun Int.validate() = max(2) + { max(3) } + { negative() }
 
             test("success") {
@@ -25,7 +25,7 @@ class NumberValidatorTest :
         }
 
         context("or") {
-            context(_: Validation)
+            context(_: Validation, _: Accumulate)
             fun Int.validate() = or { max(2) } orElse { max(3) } and { min(1) }
 
             test("success with value 2") {
@@ -46,7 +46,7 @@ class NumberValidatorTest :
         }
 
         context("constrain") {
-            context(_: Validation)
+            context(_: Validation, _: Accumulate)
             fun Int.validate() = constrain("test") { satisfies(it == 10) { text("Constraint failed") } }
 
             test("success") {

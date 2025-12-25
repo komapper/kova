@@ -1,6 +1,6 @@
 package org.komapper.extension.validator
 
-import org.komapper.extension.validator.ValidationIor.FailureLike
+import org.komapper.extension.validator.ValidationResult.Failure
 import org.komapper.extension.validator.ValidationResult.Success
 import java.time.Clock
 
@@ -19,12 +19,18 @@ data class Validation(
     val root: String = "",
     val path: Path = Path(name = "", obj = null, parent = null),
     val config: ValidationConfig = ValidationConfig(),
-    val accumulate: (List<Message>) -> Unit = { error("Accumulation not supported") },
 )
 
 /** Whether validation should stop at the first failure. */
 context(c: Validation)
 val failFast: Boolean get() = c.config.failFast
+
+fun interface Accumulate {
+    fun accumulate(messages: List<Message>): ValidationResult<Unit>
+}
+
+context(acc: Accumulate)
+fun accumulate(messages: List<Message>) = acc.accumulate(messages)
 
 /**
  * The clock used for temporal validation constraints (past, future, etc.).
@@ -34,15 +40,11 @@ val failFast: Boolean get() = c.config.failFast
 context(c: Validation)
 val clock: Clock get() = c.config.clock
 
-context(c: Validation)
-fun ValidationIor<Unit>.accumulateMessages(): ValidationResult<Unit> =
+context(_: Accumulate)
+fun ValidationResult<Unit>.accumulateMessages(): ValidationResult<Unit> =
     when (this) {
         is Success -> Unit.success()
-        is FailureLike if failFast -> messages.failure()
-        is FailureLike -> {
-            c.accumulate(messages)
-            Unit.success()
-        }
+        is Failure -> accumulate(messages)
     }
 
 /**
