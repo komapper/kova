@@ -72,13 +72,3 @@ fun <T> T.toNonNullable(message: MessageProvider = { "kova.nullable.notNull".res
     satisfies(this != null, message)
     return this
 }
-
-@IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-inline fun <T> T.notNullAnd(
-    noinline message: MessageProvider = { "kova.nullable.notNull".resource },
-    block: (T & Any) -> Unit,
-) {
-    notNull(message)
-    if (this != null) block(this)
-}

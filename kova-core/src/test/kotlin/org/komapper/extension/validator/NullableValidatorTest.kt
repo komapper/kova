@@ -104,20 +104,26 @@ class NullableValidatorTest :
         }
 
         context("notNullAnd") {
+            context(_: Validation, _: Accumulate)
+            fun Int?.notNullAndMin3() {
+                notNull()
+                this?.min(3)
+            }
+
             test("success") {
-                val result = tryValidate { 4.notNullAnd { it.min(3) } }
+                val result = tryValidate { 4.notNullAndMin3() }
                 result.shouldBeSuccess()
             }
 
             test("failure") {
-                val result = tryValidate { null.notNullAnd<Int?> { it.min(3) } }
+                val result = tryValidate { null.notNullAndMin3() }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.nullable.notNull"
             }
 
             test("failure when min constraint violated") {
-                val result = tryValidate { 2.notNullAnd { it.min(3) } }
+                val result = tryValidate { 2.notNullAndMin3() }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.comparable.min"

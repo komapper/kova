@@ -74,7 +74,10 @@ class KovaTest :
             fun Request.requestKeyIsNotNull() = requestKey { it.notNull() }
 
             context(_: Validation, _: Accumulate)
-            fun Request.requestKeyIsNotNullAndMin3() = requestKey { it.notNullAnd { it.min(3) } }
+            fun Request.requestKeyIsNotNullAndMin3() = requestKey {
+                it.notNull()
+                it?.min(3)
+            }
 
             test("success when requestKey is not null") {
                 val result = tryValidate { Request(mapOf("key" to "abc")).requestKeyIsNotNull() }
