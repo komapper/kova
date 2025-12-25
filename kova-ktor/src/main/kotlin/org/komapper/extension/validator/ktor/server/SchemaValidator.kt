@@ -7,7 +7,6 @@ import org.komapper.extension.validator.Message
 import org.komapper.extension.validator.ValidationResult.Failure
 import org.komapper.extension.validator.ValidationResult.Success
 import org.komapper.extension.validator.ktor.server.SchemaValidator.Companion.defaultErrorFormatter
-import org.komapper.extension.validator.orSucceed
 import org.komapper.extension.validator.tryValidate
 
 /**
@@ -48,7 +47,7 @@ import org.komapper.extension.validator.tryValidate
 class SchemaValidator(
     private val errorFormatter: (List<Message>) -> String = ::defaultErrorFormatter
 ): Validator {
-    override suspend fun validate(value: Any) = tryValidate { (value as? Validated)?.validate().orSucceed() }.toKtor()
+    override suspend fun validate(value: Any) = tryValidate { (value as? Validated)?.validate() }.toKtor()
 
     override fun filter(value: Any): Boolean = value is Validated
 

@@ -42,7 +42,10 @@ class CollectionValidatorTest :
 
         context("plus") {
             context(_: Validation, _: Accumulate)
-            fun List<*>.validate() = min(2) then { min(3) }
+            fun List<*>.validate() {
+                min(2)
+                min(3)
+            }
 
             test("success") {
                 val result = tryValidate { listOf("1", "2", "3").validate() }

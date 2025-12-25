@@ -7,7 +7,11 @@ class NumberValidatorTest :
 
         context("plus") {
             context(_: Validation, _: Accumulate)
-            fun Int.validate() = max(2) + { max(3) } + { negative() }
+            fun Int.validate() {
+                max(2)
+                max(3)
+                negative()
+            }
 
             test("success") {
                 val result = tryValidate { (-1).validate() }
@@ -26,7 +30,10 @@ class NumberValidatorTest :
 
         context("or") {
             context(_: Validation, _: Accumulate)
-            fun Int.validate() = or { max(2) } orElse { max(3) } and { min(1) }
+            fun Int.validate() {
+                or { max(2) } orElse { max(3) }
+                min(1)
+            }
 
             test("success with value 2") {
                 val result = tryValidate { 2.validate() }

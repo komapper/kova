@@ -45,13 +45,3 @@ fun <S> S.literal(
     vararg values: S,
     message: MessageProvider = { "kova.literal.list".resource(values.asList()) },
 ) = literal(values.asList(), message)
-
-inline fun onlyIf(
-    condition: Boolean,
-    block: () -> ValidationResult<Unit>,
-): ValidationResult<Unit> =
-    if (condition) {
-        block()
-    } else {
-        Unit.success()
-    }

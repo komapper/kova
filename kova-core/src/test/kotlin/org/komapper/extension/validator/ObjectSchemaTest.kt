@@ -40,7 +40,14 @@ class ObjectSchemaTest :
 
         context("and") {
             context(_: Validation, _: Accumulate)
-            fun User.validate() = checking { ::name { it.min(1).and { it.max(10) } } then { ::id { it.min(1) } } }
+            fun User.validate() =
+                checking {
+                    ::name {
+                        it.min(1)
+                        it.max(10)
+                    }
+                    ::id { it.min(1) }
+                }
 
             test("success") {
                 val user = User(1, "abc")
@@ -81,7 +88,15 @@ class ObjectSchemaTest :
 
         context("or") {
             context(_: Validation, _: Accumulate)
-            fun User.validate() = checking { or { ::name { it.min(1).and { it.max(10) } } } orElse { ::id { it.min(1) } } }
+            fun User.validate() =
+                checking {
+                    or {
+                        ::name {
+                            it.min(1)
+                            it.max(10)
+                        }
+                    } orElse { ::id { it.min(1) } }
+                }
 
             test("success when both schemas are satisfied") {
                 val user = User(1, "abc")
@@ -150,7 +165,14 @@ class ObjectSchemaTest :
 
         context("nullable") {
             context(_: Validation, _: Accumulate)
-            fun User?.validate() = this?.checking { ::id { it.min(1) } then { ::name { it.min(1).and { it.max(10) } } } }.orSucceed()
+            fun User?.validate() =
+                this?.checking {
+                    ::id { it.min(1) }
+                    ::name {
+                        it.min(1)
+                        it.max(10)
+                    }
+                }
 
             test("success with non-null value") {
                 val user = User(1, "abc")
@@ -166,7 +188,14 @@ class ObjectSchemaTest :
 
         context("prop - simple") {
             context(_: Validation, _: Accumulate)
-            fun User.validate() = checking { ::id { it.min(1) } then { ::name { it.min(1).and { it.max(10) } } } }
+            fun User.validate() =
+                checking {
+                    ::id { it.min(1) }
+                    ::name {
+                        it.min(1)
+                        it.max(10)
+                    }
+                }
 
             test("success") {
                 val user = User(1, "abc")
@@ -207,7 +236,14 @@ class ObjectSchemaTest :
 
         context("prop - nest") {
             context(_: Validation, _: Accumulate)
-            fun Street.validate() = checking { ::id { it.min(1) } then { ::name { it.min(3).and { it.max(5) } } } }
+            fun Street.validate() =
+                checking {
+                    ::id { it.min(1) }
+                    ::name {
+                        it.min(3)
+                        it.max(5)
+                    }
+                }
 
             context(_: Validation, _: Accumulate)
             fun Address.validate() = checking { ::street { it.validate() } }
@@ -236,17 +272,23 @@ class ObjectSchemaTest :
 
         context("prop - nest - dynamic") {
             context(_: Validation, _: Accumulate)
-            fun Street.validate() = checking { ::id { it.min(1) } and { ::name { it.min(3).and { it.max(5) } } } }
+            fun Street.validate() =
+                checking {
+                    ::id { it.min(1) }
+                    ::name {
+                        it.min(3)
+                        it.max(5)
+                    }
+                }
 
             context(_: Validation, _: Accumulate)
             fun Address.validate() =
                 checking {
-                    ::street { it.validate() } and {
-                        ::postalCode {
-                            when (country) {
-                                "US" -> it.length(8)
-                                else -> it.length(5)
-                            }
+                    ::street { it.validate() }
+                    ::postalCode {
+                        when (country) {
+                            "US" -> it.length(8)
+                            else -> it.length(5)
                         }
                     }
                 }
@@ -295,7 +337,14 @@ class ObjectSchemaTest :
 
         context("prop - nullable") {
             context(_: Validation, _: Accumulate)
-            fun Street.validate() = checking { ::id { it.min(1) } then { ::name { it.min(3).and { it.max(5) } } } }
+            fun Street.validate() =
+                checking {
+                    ::id { it.min(1) }
+                    ::name {
+                        it.min(3)
+                        it.max(5)
+                    }
+                }
 
             context(_: Validation, _: Accumulate)
             fun Address.validate() = checking { ::street { it.validate() } }
@@ -303,17 +352,17 @@ class ObjectSchemaTest :
             context(_: Validation, _: Accumulate)
             fun Person.validate() =
                 checking {
-                    ::firstName { Unit.success() }
-                        .then { ::lastName { Unit.success() } }
-                        .then { ::address { it?.validate().orSucceed() } }
+                    ::firstName { }
+                    ::lastName { }
+                    ::address { it?.validate() }
                 }
 
             context(_: Validation, _: Accumulate)
             fun Person.validate2() =
                 checking {
                     ::firstName { it.notNull() }
-                        .then { ::lastName { it.notNull() } }
-                        .then { ::address { it?.validate().orSucceed() } }
+                    ::lastName { it.notNull() }
+                    ::address { it?.validate() }
                 }
 
             test("success") {
@@ -352,12 +401,14 @@ class ObjectSchemaTest :
             )
 
             context(_: Validation, _: Accumulate)
-            fun Node.validate(): ValidationResult<Unit> =
+            fun Node.validate() {
                 checking {
                     ::children {
-                        it.max(3) and { it.onEach { child -> child.validate() } }
+                        it.max(3)
+                        it.onEach<Node> { child -> child.validate() }
                     }
                 }
+            }
 
             test("success") {
                 val node = Node(listOf(Node(), Node(), Node()))
@@ -391,10 +442,15 @@ class ObjectSchemaTest :
             )
 
             context(_: Validation, _: Accumulate)
-            fun NodeWithValue.validate(): ValidationResult<Unit> =
+            fun NodeWithValue.validate() {
                 checking {
-                    ::value { it.min(0) and { it.max(100) } } then { ::next { it?.validate().orSucceed() } }
+                    ::value {
+                        it.min(0)
+                        it.max(100)
+                    }
+                    ::next { it?.validate() }
                 }
+            }
 
             test("success when circular reference detected") {
                 val node1 = NodeWithValue(10, null)
@@ -459,10 +515,12 @@ class ObjectSchemaTest :
             )
 
             context(_: Validation, _: Accumulate)
-            fun User.validate() =
+            fun User.validate() {
                 checking {
-                    ::name { it.notBlank() } then { ::birthday { Unit.success() } }
+                    ::name { it.notBlank() }
+                    ::birthday { }
                 }
+            }
 
             test("success") {
                 val user = User("abc", LocalDate.of(2021, 1, 1))

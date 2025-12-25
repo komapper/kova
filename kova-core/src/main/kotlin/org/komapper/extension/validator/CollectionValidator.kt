@@ -143,10 +143,11 @@ fun <E> Collection<E>.onEach(validate: Constraint<E>) =
     constrain("kova.collection.onEach") { input ->
         withMessage({ "kova.collection.onEach".resource(it) }) {
             for ((i, element) in input.withIndex()) {
-                appendPath("[$i]<collection element>") {
-                    validate(element).accumulateMessages().getOrElse { return@withMessage it }
+                accumulating {
+                    appendPath("[$i]<collection element>") {
+                        validate(element)
+                    }
                 }
             }
-            Unit.success()
         }
     }

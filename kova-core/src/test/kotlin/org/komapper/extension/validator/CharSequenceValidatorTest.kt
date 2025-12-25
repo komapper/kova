@@ -7,7 +7,10 @@ class CharSequenceValidatorTest :
 
         context("plus") {
             context(_: Validation, _: Accumulate)
-            fun String.validate() = max(2) + { max(3) }
+            fun String.validate() {
+                max(2)
+                max(3)
+            }
 
             test("success") {
                 val result = tryValidate { "1".validate() }
@@ -25,7 +28,10 @@ class CharSequenceValidatorTest :
 
         context("and") {
             context(_: Validation, _: Accumulate)
-            fun String.validate() = max(2) and { max(3) }
+            fun String.validate() {
+                max(2)
+                max(3)
+            }
 
             test("success") {
                 val result = tryValidate { "1".validate() }
@@ -45,7 +51,8 @@ class CharSequenceValidatorTest :
             context(_: Validation, _: Accumulate)
             fun String.validate() =
                 trim().let { trimmed ->
-                    trimmed.length(3).map { trimmed.toUppercase() }
+                    trimmed.length(3)
+                    trimmed.toUppercase()
                 }
 
             test("success") {
@@ -260,7 +267,7 @@ class CharSequenceValidatorTest :
 
         context("nullableString") {
             context(_: Validation, _: Accumulate)
-            fun String?.max1() = toNonNullable() then { it.max(1) }
+            fun String?.max1() = toNonNullable().max(1)
 
             test("success") {
                 val result = tryValidate { "1".max1() }

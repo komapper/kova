@@ -30,6 +30,10 @@ spotless {
             step = "ktlint"
             shortCode = "standard:no-wildcard-imports"
         }
+        suppressLintsFor {
+            step = "ktlint"
+            shortCode = "standard:backing-property-naming"
+        }
     }
     kotlinGradle {
         target("**/*.gradle.kts")

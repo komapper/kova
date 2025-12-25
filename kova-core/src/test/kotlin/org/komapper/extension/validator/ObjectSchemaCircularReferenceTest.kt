@@ -23,6 +23,6 @@ class ObjectSchemaCircularReferenceTest :
         val city: City,
     ) {
         context(_: Validation, _: Accumulate)
-        fun validate(): ValidationResult<Unit> = checking { ::city { it.validate() } }
+        fun validate(): Unit = checking { ::city { it.validate() } }
     }
 }

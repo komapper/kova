@@ -79,7 +79,9 @@ class IdentityValidatorTest :
 
         context("onlyIf") {
             context(_: Validation, _: Accumulate)
-            fun Int.validate() = onlyIf(this % 2 == 0) { min(3) }
+            fun Int.validate() {
+                if (this % 2 == 0) min(3)
+            }
             test("success when condition not met") {
                 val result = tryValidate { 1.validate() }
                 result.shouldBeSuccess()
@@ -94,7 +96,10 @@ class IdentityValidatorTest :
 
             context("with plus") {
                 context(_: Validation, _: Accumulate)
-                fun Int.validateAndMin1() = onlyIf(this % 2 == 0) { min(3) } and { min(1) }
+                fun Int.validateAndMin1() {
+                    if (this % 2 == 0) min(3)
+                    min(1)
+                }
 
                 test("success") {
                     val result = tryValidate { 1.validateAndMin1() }

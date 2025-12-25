@@ -26,7 +26,7 @@ package org.komapper.extension.validator
  * @param T The type of value this constraint validates
  */
 typealias Constraint<T> = context(Validation, Accumulate)
-(T) -> ValidationResult<Unit>
+(T) -> Unit
 
 /**
  * Creates a text-based validation message.

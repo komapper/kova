@@ -25,8 +25,6 @@ sealed interface ValidationIor<out T> {
 /**
  * Result of a validation operation, either [Success] or [Failure].
  *
- * Use [isSuccess] and [isFailure] extension functions with Kotlin contracts
- * for type-safe result handling.
  *
  * Example:
  * ```kotlin
@@ -63,37 +61,16 @@ sealed interface ValidationResult<out T> : ValidationIor<T> {
     }
 }
 
-fun <T> T.success(): Success<T> = Success(this)
-
-fun Message.failure(): Failure = listOf(this).failure()
-
-fun List<Message>.failure(): Failure = Failure(this)
-
-fun ValidationResult<Unit>?.orSucceed(): ValidationResult<Unit> = this ?: Unit.success()
-
-inline infix fun <T> ValidationResult<T>.getOrElse(defaultValue: (Failure) -> T): T =
+context(_: Accumulate)
+fun <T> ValidationIor<T>.bind(): T =
     when (this) {
         is Success -> value
-        is Failure -> defaultValue(this)
+        is Failure -> raise(messages)
+        is Both -> {
+            accumulate(messages)
+            value
+        }
     }
-
-context(_: Accumulate)
-fun <T> ValidationIor<T>.bind(): ValidationResult<T> =
-    when (this) {
-        is ValidationResult -> this
-        is Both -> accumulate(messages).map { value }
-    }
-
-inline infix fun <T, R> ValidationResult<T>.map(transform: (T) -> R): ValidationResult<R> = then { transform(it).success() }
-
-inline infix fun <T, R> ValidationResult<T>.then(transform: (T) -> ValidationResult<R>): ValidationResult<R> =
-    when (this) {
-        is Success -> transform(value)
-        is Failure -> this
-    }
-
-inline infix fun <T> ValidationResult<T>.alsoThen(transform: (T) -> ValidationResult<Unit>): ValidationResult<T> =
-    then { transform(it).map { _ -> it } }
 
 inline fun <T> ValidationIor<T>.mapMessages(transform: (List<Message>) -> List<Message>): ValidationIor<T> =
     when (this) {
@@ -123,28 +100,4 @@ fun <T> ValidationResult<T>.isSuccess(): Boolean {
         returns(false) implies (this@isSuccess is Failure)
     }
     return this is Success
-}
-
-/**
- * Type-safe check if this result is a failure.
- *
- * Uses Kotlin contracts for smart casting, so after checking `isFailure()`,
- * the result is automatically cast to [ValidationResult.Failure].
- *
- * Example:
- * ```kotlin
- * val result = validator.tryValidate(input)
- * if (result.isFailure()) {
- *     // result is automatically cast to Failure here
- *     println("Errors: ${result.messages}")
- * }
- * ```
- */
-@OptIn(ExperimentalContracts::class)
-fun <T> ValidationResult<T>.isFailure(): Boolean {
-    contract {
-        returns(true) implies (this@isFailure is Failure)
-        returns(false) implies (this@isFailure is Success)
-    }
-    return this is Failure
 }

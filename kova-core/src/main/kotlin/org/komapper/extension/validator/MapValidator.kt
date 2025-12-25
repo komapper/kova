@@ -240,8 +240,7 @@ context(_: Validation, _: Accumulate)
 private fun <K, V> Map<K, V>.validateOnEach(
     constraintId: String,
     validate: Constraint<Map.Entry<K, V>>,
-): ValidationResult<Unit> =
+): Unit =
     withMessage({ constraintId.resource(it) }) {
-        for (entry in entries) validate(entry).accumulateMessages().getOrElse { return@withMessage it }
-        Unit.success()
+        for (entry in entries) accumulating { validate(entry) }
     }

@@ -7,7 +7,10 @@ class StringValidatorTest :
 
         context("or") {
             context(_: Validation, _: Accumulate)
-            fun String.validate() = or { isInt() } orElse { literal("zero") } map { toUppercase() }
+            fun String.validate(): String {
+                or { isInt() } orElse { literal("zero") }
+                return toUppercase()
+            }
 
             test("success with int value") {
                 val result = tryValidate { "1".validate() }
@@ -334,7 +337,7 @@ class StringValidatorTest :
                     "true" -> true
                     "1" -> true
                     else -> false
-                }.success()
+                }
 
             test("success with true") {
                 val result = tryValidate { "true".stringBools() }
@@ -360,37 +363,37 @@ class StringValidatorTest :
 
         context("trim") {
             test("success when trimming leading whitespace") {
-                val result = tryValidate { "  hello".trim().success() }
+                val result = tryValidate { "  hello".trim() }
                 result.shouldBeSuccess()
                 result.value shouldBe "hello"
             }
 
             test("success when trimming trailing whitespace") {
-                val result = tryValidate { "hello  ".trim().success() }
+                val result = tryValidate { "hello  ".trim() }
                 result.shouldBeSuccess()
                 result.value shouldBe "hello"
             }
 
             test("success when trimming both sides") {
-                val result = tryValidate { "  hello  ".trim().success() }
+                val result = tryValidate { "  hello  ".trim() }
                 result.shouldBeSuccess()
                 result.value shouldBe "hello"
             }
 
             test("success with no whitespace to trim") {
-                val result = tryValidate { "hello".trim().success() }
+                val result = tryValidate { "hello".trim() }
                 result.shouldBeSuccess()
                 result.value shouldBe "hello"
             }
 
             test("success with empty string") {
-                val result = tryValidate { "".trim().success() }
+                val result = tryValidate { "".trim() }
                 result.shouldBeSuccess()
                 result.value shouldBe ""
             }
 
             test("success with only whitespace") {
-                val result = tryValidate { "   ".trim().success() }
+                val result = tryValidate { "   ".trim() }
                 result.shouldBeSuccess()
                 result.value shouldBe ""
             }
@@ -398,31 +401,31 @@ class StringValidatorTest :
 
         context("toUpperCase") {
             test("success when converting lowercase to uppercase") {
-                val result = tryValidate { "hello".toUppercase().success() }
+                val result = tryValidate { "hello".toUppercase() }
                 result.shouldBeSuccess()
                 result.value shouldBe "HELLO"
             }
 
             test("success when converting mixed case to uppercase") {
-                val result = tryValidate { "HeLLo".toUppercase().success() }
+                val result = tryValidate { "HeLLo".toUppercase() }
                 result.shouldBeSuccess()
                 result.value shouldBe "HELLO"
             }
 
             test("success with already uppercase") {
-                val result = tryValidate { "HELLO".toUppercase().success() }
+                val result = tryValidate { "HELLO".toUppercase() }
                 result.shouldBeSuccess()
                 result.value shouldBe "HELLO"
             }
 
             test("success with empty string") {
-                val result = tryValidate { "".toUppercase().success() }
+                val result = tryValidate { "".toUppercase() }
                 result.shouldBeSuccess()
                 result.value shouldBe ""
             }
 
             test("success with numbers and symbols") {
-                val result = tryValidate { "hello123!@#".toUppercase().success() }
+                val result = tryValidate { "hello123!@#".toUppercase() }
                 result.shouldBeSuccess()
                 result.value shouldBe "HELLO123!@#"
             }
@@ -430,31 +433,31 @@ class StringValidatorTest :
 
         context("toLowerCase") {
             test("success when converting uppercase to lowercase") {
-                val result = tryValidate { "HELLO".toLowercase().success() }
+                val result = tryValidate { "HELLO".toLowercase() }
                 result.shouldBeSuccess()
                 result.value shouldBe "hello"
             }
 
             test("success when converting mixed case to lowercase") {
-                val result = tryValidate { "HeLLo".toLowercase().success() }
+                val result = tryValidate { "HeLLo".toLowercase() }
                 result.shouldBeSuccess()
                 result.value shouldBe "hello"
             }
 
             test("success with already lowercase") {
-                val result = tryValidate { "hello".toLowercase().success() }
+                val result = tryValidate { "hello".toLowercase() }
                 result.shouldBeSuccess()
                 result.value shouldBe "hello"
             }
 
             test("success with empty string") {
-                val result = tryValidate { "".toLowercase().success() }
+                val result = tryValidate { "".toLowercase() }
                 result.shouldBeSuccess()
                 result.value shouldBe ""
             }
 
             test("success with numbers and symbols") {
-                val result = tryValidate { "HELLO123!@#".toLowercase().success() }
+                val result = tryValidate { "HELLO123!@#".toLowercase() }
                 result.shouldBeSuccess()
                 result.value shouldBe "hello123!@#"
             }

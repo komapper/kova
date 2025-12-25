@@ -1,8 +1,5 @@
 package org.komapper.extension.validator
 
-import org.komapper.extension.validator.ValidationResult.Failure
-import org.komapper.extension.validator.ValidationResult.Success
-
 /**
  * Adds a custom constraint to this validator.
  *
@@ -24,10 +21,24 @@ context(c: Validation, _: Accumulate)
 inline fun <T> T.constrain(
     id: String,
     check: Constraint<T>,
-): ValidationResult<Unit> {
-    val result = withMessageDetails(this, id) { check(this@constrain) }
+) {
+    val result =
+        accumulating {
+            mapEachMessage({
+                log {
+                    LogEntry.Violated(
+                        constraintId = id,
+                        root = it.root,
+                        path = it.path.fullName,
+                        input = this,
+                        args = if (it is Message.Resource) it.args.asList() else emptyList(),
+                    )
+                }
+                it.withDetails(this, id)
+            }) { check(this) }
+        }
     when (result) {
-        is Success ->
+        is Accumulate.Ok ->
             log {
                 LogEntry.Satisfied(
                     constraintId = id,
@@ -36,35 +47,12 @@ inline fun <T> T.constrain(
                     input = this,
                 )
             }
-
-        is Failure -> for (message in result.messages) {
-            log {
-                LogEntry.Violated(
-                    constraintId = id,
-                    root = message.root,
-                    path = message.path.fullName,
-                    input = this,
-                    args = if (message is Message.Resource) message.args.asList() else emptyList(),
-                )
-            }
-        }
+        else -> {}
     }
-    return result.accumulateMessages()
 }
-
-context(_: Accumulate)
-inline fun <R> withMessageDetails(
-    input: Any?,
-    constraintId: String,
-    block: context(Accumulate) () -> ValidationResult<R>,
-): ValidationResult<R> = mapEachMessage({ it.withDetails(input, constraintId) }, block)
 
 context(_: Accumulate)
 inline fun <R> mapEachMessage(
     noinline transform: (Message) -> Message,
-    block: context(Accumulate) () -> ValidationResult<R>,
-): ValidationResult<R> =
-    when (val result = block { accumulate(it.map(transform)) }) {
-        is Success -> result
-        is Failure -> Failure(result.messages.map(transform))
-    }
+    block: context(Accumulate) () -> R,
+): R = block { accumulate(it.map(transform)) }

@@ -3,7 +3,6 @@ package example
 import org.komapper.extension.validator.Accumulate
 import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationResult
-import org.komapper.extension.validator.and
 import org.komapper.extension.validator.checking
 import org.komapper.extension.validator.invoke
 import org.komapper.extension.validator.isSuccess
@@ -27,21 +26,39 @@ data class Person(
 )
 
 context(_: Validation, _: Accumulate)
-fun User.validate(): ValidationResult<Unit> =
+fun User.validate() {
     checking {
-        ::name { it.min(1) and { it.notBlank() } } and {
-            ::age { it.min(0) and { it.max(120) } }
+        ::name {
+            it.min(1)
+            it.notBlank()
+        }
+        ::age {
+            it.min(0)
+            it.max(120)
         }
     }
+}
 
 context(_: Validation, _: Accumulate)
-fun Age.validate(): ValidationResult<Unit> = checking { ::value { it.min(0) and { it.max(120) } } }
-
-context(_: Validation, _: Accumulate)
-fun Person.validate(): ValidationResult<Unit> =
+fun Age.validate() {
     checking {
-        ::name { it.min(1) and { it.notBlank() } } and { ::age { it.validate() } }
+        ::value {
+            it.min(0)
+            it.max(120)
+        }
     }
+}
+
+context(_: Validation, _: Accumulate)
+fun Person.validate() {
+    checking {
+        ::name {
+            it.min(1)
+            it.notBlank()
+        }
+        ::age { it.validate() }
+    }
+}
 
 fun main() {
     println("\n# Validation")

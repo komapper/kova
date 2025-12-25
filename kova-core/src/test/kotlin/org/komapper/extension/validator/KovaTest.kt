@@ -7,7 +7,10 @@ class KovaTest :
 
         context("failFast") {
             context(_: Validation, _: Accumulate)
-            fun String.validate() = min(3) and { length(4) }
+            fun String.validate() {
+                min(3)
+                length(4)
+            }
 
             test("failFast = false") {
                 val result = tryValidate { "ab".validate() }
@@ -24,7 +27,10 @@ class KovaTest :
 
         context("failFast with plus operator") {
             context(_: Validation, _: Accumulate)
-            fun String?.validate() = this?.min(3)?.and { length(4) }.orSucceed()
+            fun String?.validate() {
+                this?.min(3)
+                this?.length(4)
+            }
 
             test("failFast = false") {
                 val result = tryValidate { "ab".validate() }
@@ -41,13 +47,15 @@ class KovaTest :
 
         context("boolean") {
             test("success with true value") {
-                val result = tryValidate { true.success() }
+                val result = tryValidate { true }
                 result.shouldBeSuccess()
+                result.value shouldBe true
             }
 
             test("success with false value") {
-                val result = tryValidate { false.success() }
+                val result = tryValidate { false }
                 result.shouldBeSuccess()
+                result.value shouldBe false
             }
         }
 
@@ -60,8 +68,7 @@ class KovaTest :
             }
 
             context(_: Validation)
-            fun Request.requestKey(block: context(Validation) (String?) -> ValidationResult<Unit>) =
-                name("Request[key]") { this["key"].success().alsoThen { block(it) } }
+            fun Request.requestKey(block: context(Validation) (String?) -> Unit) = name("Request[key]") { this["key"].also { block(it) } }
 
             context(_: Validation, _: Accumulate)
             fun Request.requestKeyIsNotNull() = requestKey { it.notNull() }

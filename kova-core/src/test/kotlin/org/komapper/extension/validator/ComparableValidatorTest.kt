@@ -7,7 +7,11 @@ class ComparableValidatorTest :
 
         context("plus") {
             context(_: Validation, _: Accumulate)
-            fun UInt.validate() = max(10u) + { max(20u) } then { min(5u) }
+            fun UInt.validate() {
+                max(10u)
+                max(20u)
+                min(5u)
+            }
 
             test("success") {
                 val result = tryValidate { 8u.validate() }
@@ -24,7 +28,10 @@ class ComparableValidatorTest :
 
         context("or") {
             context(_: Validation, _: Accumulate)
-            fun UInt.validate() = or { max(10u) } orElse { max(20u) } then { min(5u) }
+            fun UInt.validate() {
+                or { max(10u) } orElse { max(20u) }
+                min(5u)
+            }
 
             test("success : 10") {
                 val result = tryValidate { 10u.validate() }
@@ -219,7 +226,12 @@ class ComparableValidatorTest :
 
             context("chaining multiple validators") {
                 context(_: Validation, _: Accumulate)
-                fun UInt.validate() = min(5u) then { max(10u) } then { gt(6u) } then { lte(9u) }
+                fun UInt.validate() {
+                    min(5u)
+                    max(10u)
+                    gt(6u)
+                    lte(9u)
+                }
 
                 test("success with value 7") {
                     val result = tryValidate { 7u.validate() }

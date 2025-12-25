@@ -7,7 +7,10 @@ class MapValidatorTest :
 
         context("plus") {
             context(_: Validation, _: Accumulate)
-            fun Map<*, *>.validate() = min(2) + { min(3) }
+            fun Map<*, *>.validate() {
+                min(2)
+                min(3)
+            }
 
             test("success") {
                 val result = tryValidate { mapOf("a" to "1", "b" to "2", "c" to "3").validate() }

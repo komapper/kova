@@ -6,7 +6,6 @@ import org.komapper.extension.validator.Accumulate
 import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationConfig
 import org.komapper.extension.validator.ValidationException
-import org.komapper.extension.validator.andMap
 import org.komapper.extension.validator.notBlank
 import org.komapper.extension.validator.toInt
 import org.komapper.extension.validator.tryValidate
@@ -23,8 +22,11 @@ class FactoryTest :
             context(_: Validation, _: Accumulate)
             fun build(name: String) =
                 factory {
-                    val name by bind(name) { it.notBlank() andMap { it } }
-                    create { User(name()) }
+                    val name by bind(name) {
+                        it.notBlank()
+                        it
+                    }
+                    User(name)
                 }
 
             context("tryCreate") {
@@ -102,8 +104,11 @@ class FactoryTest :
             context(_: Validation, _: Accumulate)
             fun buildName(value: String) =
                 factory {
-                    val value by bind(value) { it.notBlank() andMap { it } }
-                    create { Name(value()) }
+                    val value by bind(value) {
+                        it.notBlank()
+                        it
+                    }
+                    Name(value)
                 }
 
             context(_: Validation, _: Accumulate)
@@ -113,7 +118,7 @@ class FactoryTest :
             ) = factory {
                 val first by bind { buildName(first) }
                 val last by bind { buildName(last) }
-                create { FullName(first(), last()) }
+                FullName(first, last)
             }
 
             context(_: Validation, _: Accumulate)
@@ -124,7 +129,7 @@ class FactoryTest :
             ) = factory {
                 val id by bind(id) { it.toInt() }
                 val fullName by bind { buildFullName(firstName, lastName) }
-                create { User(id(), fullName()) }
+                User(id, fullName)
             }
 
             test("success") {

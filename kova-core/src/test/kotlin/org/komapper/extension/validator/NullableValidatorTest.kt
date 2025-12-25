@@ -7,13 +7,13 @@ class NullableValidatorTest :
 
         context("nullable") {
             test("success with null value") {
-                val result = tryValidate { null.success() }
+                val result = tryValidate { null }
                 result.shouldBeSuccess()
                 result.value shouldBe null
             }
 
             test("success with non-null value") {
-                val result = tryValidate { 123.success() }
+                val result = tryValidate { 123 }
                 result.shouldBeSuccess()
                 result.value shouldBe 123
             }
@@ -21,27 +21,13 @@ class NullableValidatorTest :
 
         context("withDefault with literal") {
             test("success with null value") {
-                val result = tryValidate { null withDefault 0 }
+                val result = tryValidate { null ?: 0 }
                 result.shouldBeSuccess()
                 result.value shouldBe 0
             }
 
             test("success with non-null value") {
-                val result = tryValidate { 123 withDefault 0 }
-                result.shouldBeSuccess()
-                result.value shouldBe 123
-            }
-        }
-
-        context("withDefault with lambda") {
-            test("success with null value") {
-                val result = tryValidate { null withDefault { 0 } }
-                result.shouldBeSuccess()
-                result.value shouldBe 0
-            }
-
-            test("success with non-null value") {
-                val result = tryValidate { 123 withDefault { 0 } }
+                val result = tryValidate { 123 ?: 0 }
                 result.shouldBeSuccess()
                 result.value shouldBe 123
             }
@@ -49,40 +35,19 @@ class NullableValidatorTest :
 
         context("withDefaultThen with literal") {
             test("success with null value") {
-                val result = tryValidate { null withDefault 10 alsoThen { it.min(3) } }
+                val result = tryValidate { (null ?: 10).also { it.min(3) } }
                 result.shouldBeSuccess()
                 result.value shouldBe 10
             }
 
             test("success with non-null value") {
-                val result = tryValidate { 123 withDefault 10 alsoThen { it.min(3) } }
+                val result = tryValidate { (123 ?: 10).also { it.min(3) } }
                 result.shouldBeSuccess()
                 result.value shouldBe 123
             }
 
             test("failure with non-null value") {
-                val result = tryValidate { 1 withDefault 10 alsoThen { it.min(3) } }
-                result.shouldBeFailure()
-                result.messages.size shouldBe 1
-                result.messages[0].constraintId shouldBe "kova.comparable.min"
-            }
-        }
-
-        context("withDefaultThen with lambda") {
-            test("success with null value") {
-                val result = tryValidate { null withDefault { 10 } alsoThen { it.min(3) } }
-                result.shouldBeSuccess()
-                result.value shouldBe 10
-            }
-
-            test("success with non-null value") {
-                val result = tryValidate { 123 withDefault { 10 } alsoThen { it.min(3) } }
-                result.shouldBeSuccess()
-                result.value shouldBe 123
-            }
-
-            test("failure with non-null value") {
-                val result = tryValidate { 1 withDefault { 10 } alsoThen { it.min(3) } }
+                val result = tryValidate { (1 ?: 10).also { it.min(3) } }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.comparable.min"
@@ -105,7 +70,11 @@ class NullableValidatorTest :
 
         context("or") {
             context(_: Validation, _: Accumulate)
-            fun Int?.isNullOrMin3Max3() = or { isNull() } orElse { this?.min(3)?.and { max(3) }.orSucceed() }
+            fun Int?.isNullOrMin3Max3() =
+                or { isNull() } orElse {
+                    this?.min(3)
+                    this?.max(3)
+                }
 
             test("success with null value") {
                 val result = tryValidate { null.isNullOrMin3Max3() }
@@ -131,7 +100,11 @@ class NullableValidatorTest :
 
         context("isNullOr") {
             context(_: Validation, _: Accumulate)
-            fun Int?.isNullOrMin3Max3() = isNullOr { it.min(3) and { it.max(3) } }
+            fun Int?.isNullOrMin3Max3() =
+                isNullOr {
+                    it.min(3)
+                    it.max(3)
+                }
 
             test("success with null value") {
                 val result = tryValidate { null.isNullOrMin3Max3() }
@@ -188,7 +161,9 @@ class NullableValidatorTest :
 
         context("and") {
             context(_: Validation, _: Accumulate)
-            fun Int?.nullableMin3() = this?.min(3).orSucceed()
+            fun Int?.nullableMin3() {
+                this?.min(3)
+            }
 
             test("success with non-null value") {
                 val result = tryValidate { 4.nullableMin3() }
@@ -210,7 +185,9 @@ class NullableValidatorTest :
 
         context("and - each List element") {
             context(_: Validation, _: Accumulate)
-            fun Int?.nullableMin3() = this?.min(3).orSucceed()
+            fun Int?.nullableMin3() {
+                this?.min(3)
+            }
 
             test("success with non-null value") {
                 val result = tryValidate { listOf(4, 5).onEach { it.nullableMin3() } }
@@ -232,7 +209,10 @@ class NullableValidatorTest :
 
         context("toNonNullable") {
             context(_: Validation, _: Accumulate)
-            fun Int?.nullableMin3() = this?.min(3).orSucceed() then { toNonNullable() }
+            fun Int?.nullableMin3(): Int {
+                this?.min(3)
+                return toNonNullable()
+            }
 
             test("success with non-null value") {
                 val result = tryValidate { 4.nullableMin3() }
@@ -258,7 +238,7 @@ class NullableValidatorTest :
 
         context("toNonNullable - then") {
             context(_: Validation, _: Accumulate)
-            fun Int?.notNullAndMin3AndMax3() = toNonNullable().alsoThen { it.max(5) }.alsoThen { it.min(3) }
+            fun Int?.notNullAndMin3AndMax3() = toNonNullable().also { it.max(5) }.also { it.min(3) }
 
             test("success") {
                 val result = tryValidate { 4.notNullAndMin3AndMax3() }

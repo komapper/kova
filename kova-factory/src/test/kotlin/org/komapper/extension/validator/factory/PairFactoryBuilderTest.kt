@@ -6,12 +6,10 @@ import org.komapper.extension.validator.Accumulate
 import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationConfig
 import org.komapper.extension.validator.ValidationException
-import org.komapper.extension.validator.and
 import org.komapper.extension.validator.max
 import org.komapper.extension.validator.min
 import org.komapper.extension.validator.notBlank
 import org.komapper.extension.validator.positive
-import org.komapper.extension.validator.success
 import org.komapper.extension.validator.toInt
 import org.komapper.extension.validator.tryValidate
 import org.komapper.extension.validator.validate
@@ -25,7 +23,10 @@ class PairFactoryBuilderTest :
                 first: String,
                 second: Int,
             ) = buildPair(
-                bind(first) { it.notBlank() and { it.max(10) } },
+                bind(first) {
+                    it.notBlank()
+                    it.max(10)
+                },
                 bind(second) { it.positive() },
             )
 
@@ -102,8 +103,15 @@ class PairFactoryBuilderTest :
                 name: String,
                 age: Int,
             ) = buildPair(
-                bind(name) { it.notBlank() and { it.min(1) } and { it.max(50) } },
-                bind(age) { it.min(0) and { it.max(120) } },
+                bind(name) {
+                    it.notBlank()
+                    it.min(1)
+                    it.max(50)
+                },
+                bind(age) {
+                    it.min(0)
+                    it.max(120)
+                },
             )
 
             test("success") {
@@ -132,8 +140,8 @@ class PairFactoryBuilderTest :
                 first: String,
                 second: Int,
             ) = buildPair(
-                bind(first) { Unit.success() },
-                bind(second) { Unit.success() },
+                bind(first) { },
+                bind(second) { },
             )
 
             test("success - no constraints") {

@@ -17,8 +17,6 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.komapper.extension.validator.Accumulate
 import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationException
-import org.komapper.extension.validator.ValidationResult
-import org.komapper.extension.validator.and
 import org.komapper.extension.validator.checking
 import org.komapper.extension.validator.invoke
 import org.komapper.extension.validator.max
@@ -63,7 +61,14 @@ class User(
         init {
             subscribe {
                 checking {
-                    ::name { it.min(1) and { it.notBlank() } } and { ::age { it.min(0) and { it.max(120) } } }
+                    ::name {
+                        it.min(1)
+                        it.notBlank()
+                    }
+                    ::age {
+                        it.min(0)
+                        it.max(120)
+                    }
                 }
             }
         }
@@ -72,7 +77,7 @@ class User(
 
 @IgnorableReturnValue
 fun <ID : Any, T : Entity<ID>> EntityClass<ID, T>.subscribe(
-    validate: context(Validation, Accumulate) T.() -> ValidationResult<Unit>,
+    validate: context(Validation, Accumulate) T.() -> Unit,
 ): (EntityChange) -> Unit =
     EntityHook.subscribe { change ->
         if (change.changeType == EntityChangeType.Created &&

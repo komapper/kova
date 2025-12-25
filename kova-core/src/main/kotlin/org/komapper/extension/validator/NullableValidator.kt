@@ -1,6 +1,6 @@
 package org.komapper.extension.validator
 
-import org.komapper.extension.validator.ValidationResult.Success
+import kotlin.contracts.contract
 
 /**
  * Validates that the input is null.
@@ -44,7 +44,9 @@ inline fun <T> T.isNullOr(
  */
 context(_: Validation, _: Accumulate)
 fun <T> T.notNull(message: MessageProvider = { "kova.nullable.notNull".resource }) =
-    constrain("kova.nullable.notNull") { toNonNullable(message).map {} }
+    constrain("kova.nullable.notNull") {
+        val _ = toNonNullable(message)
+    }
 
 /**
  * Converts a nullable validator to a validator with non-nullable output.
@@ -62,26 +64,18 @@ fun <T> T.notNull(message: MessageProvider = { "kova.nullable.notNull".resource 
  *
  * @return A validator that rejects null and produces non-nullable output
  */
-context(_: Validation)
-fun <T> T.toNonNullable(message: MessageProvider = { "kova.nullable.notNull".resource }): ValidationResult<T & Any> =
-    satisfies(this != null, message).map { this!! }
+context(_: Validation, _: Accumulate)
+fun <T> T.toNonNullable(message: MessageProvider = { "kova.nullable.notNull".resource }): T & Any {
+    contract { returns() implies (this@toNonNullable != null) }
+    satisfies(this != null, message)
+    return this
+}
 
 context(_: Validation, _: Accumulate)
 inline fun <T> T.notNullAnd(
     noinline message: MessageProvider = { "kova.nullable.notNull".resource },
-    block: (T & Any) -> ValidationResult<Unit>,
-) = notNull(message).and { this?.let(block).orSucceed() }
-
-inline infix fun <T> T.withDefault(defaultValue: () -> T & Any): ValidationResult<T & Any> = Success(this ?: defaultValue())
-
-infix fun <T> T.withDefault(defaultValue: T & Any): ValidationResult<T & Any> = withDefault { defaultValue }
-
-inline fun <T, R> T.withDefault(
-    defaultValue: () -> R,
-    onNotNull: (T & Any) -> ValidationResult<R>,
-): ValidationResult<R> = if (this == null) defaultValue().success() else onNotNull(this)
-
-inline fun <T, R> T.withDefault(
-    defaultValue: R,
-    onNotNull: (T & Any) -> ValidationResult<R>,
-): ValidationResult<R> = withDefault({ defaultValue }, onNotNull)
+    block: (T & Any) -> Unit,
+) {
+    notNull(message)
+    if (this != null) block(this)
+}

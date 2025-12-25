@@ -3,9 +3,6 @@ package example
 import org.komapper.extension.validator.Accumulate
 import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationResult
-import org.komapper.extension.validator.alsoThen
-import org.komapper.extension.validator.and
-import org.komapper.extension.validator.andMap
 import org.komapper.extension.validator.checking
 import org.komapper.extension.validator.factory.bind
 import org.komapper.extension.validator.factory.factory
@@ -34,7 +31,10 @@ data class Person(
 context(_: Validation, _: Accumulate)
 fun User.validate() =
     checking {
-        ::age { it.min(0) and { it.max(120) } } // property validator
+        ::age {
+            it.min(0)
+            it.max(120)
+        } // property validator
     }
 
 object UserFactory {
@@ -43,10 +43,14 @@ object UserFactory {
         name: String,
         age: String,
     ) = factory {
-        val name by bind(name) { it.min(1) and { it.notBlank() } andMap { it } } // argument validator
+        val name by bind(name) {
+            it.min(1)
+            it.notBlank()
+            it
+        } // argument validator
         val age by bind(age) { it.toInt() } // argument validator
-        create { User(name(), age()) }
-    } alsoThen { it.validate() }
+        User(name, age)
+    }.also { it.validate() } // object validator
 }
 
 object AgeFactory {
@@ -54,7 +58,7 @@ object AgeFactory {
     operator fun invoke(age: String) =
         factory {
             val value by bind(age) { it.toInt() } // argument validator
-            create { Age(value()) }
+            Age(value)
         }
 }
 
@@ -64,9 +68,13 @@ object PersonFactory {
         name: String,
         age: String,
     ) = factory {
-        val name by bind(name) { it.min(1) and { it.notBlank() } andMap { it } } // argument validator
+        val name by bind(name) {
+            it.min(1)
+            it.notBlank()
+            it
+        } // argument validator
         val age by bind { AgeFactory(age) } // nested object validator
-        create { Person(name(), age()) }
+        Person(name, age)
     }
 }
 
