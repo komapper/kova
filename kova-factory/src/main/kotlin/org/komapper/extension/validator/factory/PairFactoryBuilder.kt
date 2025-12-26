@@ -1,19 +1,15 @@
 package org.komapper.extension.validator.factory
 
-import org.komapper.extension.validator.Kova
-import org.komapper.extension.validator.Validator
+import org.komapper.extension.validator.Accumulate
+import org.komapper.extension.validator.Validation
 
-class PairFactoryBuilder<A, RA, B, RB>(
-    val firstValidator: Validator<A, RA>,
-    val secondValidator: Validator<B, RB>,
-) {
-    fun build(
-        first: A,
-        second: B,
-    ): Factory<Pair<RA, RB>> =
-        Kova.factory("kotlin.Pair") {
-            val first by bind(first) { firstValidator }
-            val second by bind(second) { secondValidator }
-            create { Pair(first(), second()) }
-        }
-}
+context(_: Validation, _: Accumulate)
+fun <A, B> buildPair(
+    buildFirst: context(Validation, Accumulate) () -> A,
+    buildSecond: context(Validation, Accumulate) () -> B,
+): Pair<A, B> =
+    factory("kotlin.Pair") {
+        val first by buildFirst
+        val second by buildSecond
+        Pair(first, second)
+    }

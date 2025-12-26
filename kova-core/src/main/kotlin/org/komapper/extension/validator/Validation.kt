@@ -1,6 +1,7 @@
 package org.komapper.extension.validator
 
 import java.time.Clock
+import kotlin.contracts.contract
 
 /**
  * Context object that tracks the state of validation execution.
@@ -13,158 +14,106 @@ import java.time.Clock
  * @property path The current validation path, tracking nested objects and circular references
  * @property config Validation configuration settings
  */
-data class ValidationContext(
+data class Validation(
     val root: String = "",
     val path: Path = Path(name = "", obj = null, parent = null),
     val config: ValidationConfig = ValidationConfig(),
-    val accumulate: (List<Message>) -> Unit = { error("Accumulation not supported") },
+)
+
+/**
+ * The clock used for temporal validation constraints (past, future, etc.).
+ *
+ * Delegates to [ValidationConfig.clock].
+ */
+context(c: Validation)
+val clock: Clock get() = c.config.clock
+
+/**
+ * Evaluates a condition and returns the appropriate constraint result.
+ *
+ * Returns [ValidationResult.Success] if the condition is true,
+ * or [ValidationResult.Failure] with the given message if false.
+ *
+ * Example with message factory function:
+ * ```kotlin
+ * satisfies(
+ *     value > 0
+ * ) { ctx ->
+ *     Message.Resource(ctx.createMessageContext(listOf(value)))
+ * }
+ * ```
+ *
+ * Example with MessageProvider:
+ * ```kotlin
+ * val messageProvider = MessageProvider.resource()
+ * satisfies(
+ *     value > 0,
+ *     messageProvider(value)
+ * )
+ * ```
+ *
+ * @param condition The condition to evaluate
+ * @param message A function that accepts a Validation and returns a Message
+ * @return The constraint result
+ */
+context(_: Accumulate)
+fun satisfies(
+    condition: Boolean,
+    message: MessageProvider,
 ) {
-    /** Whether validation should stop at the first failure. */
-    val failFast: Boolean get() = config.failFast
-
-    /**
-     * The clock used for temporal validation constraints (past, future, etc.).
-     *
-     * Delegates to [ValidationConfig.clock].
-     */
-    val clock: Clock get() = config.clock
-
-    inline fun ValidationResult<*>.accumulateMessages(orElse: (ValidationResult.Failure) -> Nothing) {
-        if (isFailure()) {
-            if (failFast) {
-                orElse(this)
-            } else {
-                accumulate(messages)
-            }
-        }
-    }
-
-    inline fun <R> collectMessages(
-        block: ValidationContext.() -> ValidationResult<R>,
-        handle: (ValidationResult<R>, List<Message>) -> ValidationResult<R>,
-    ): ValidationResult<R> {
-        val newMessages = mutableListOf<Message>()
-        val result = copy(accumulate = { newMessages.addAll(it) }).block()
-        if (result.isFailure()) newMessages.addAll(result.messages)
-        return if (newMessages.isEmpty()) result else handle(result, newMessages)
-    }
-
-    inline fun <R> withMessage(
-        transform: (List<Message>) -> Message,
-        block: ValidationContext.() -> ValidationResult<R>,
-    ): ValidationResult<R> =
-        collectMessages(block) { result, messages ->
-            val transformedFailure = ValidationResult.Failure(listOf(transform(messages)))
-            when (result) {
-                is ValidationResult.Success -> {
-                    transformedFailure.accumulateMessages { return it }
-                    result
-                }
-
-                is ValidationResult.Failure -> transformedFailure
-            }
-        }
-
-    /**
-     * Executes the validation on the given input.
-     *
-     * @param input The value to validate
-     * @param this@execute The validation context tracking state and configuration
-     * @return A [ValidationResult] containing either the validated value or failure details
-     */
-    fun <IN, OUT> Validator<IN, OUT>.execute(input: IN): ValidationResult<OUT> =
-        with(this) {
-            this@ValidationContext.execute(input)
-        }
-
-    /**
-     * Evaluates a condition and returns the appropriate constraint result.
-     *
-     * Returns [ValidationResult.Success] if the condition is true,
-     * or [ValidationResult.Failure] with the given message if false.
-     *
-     * Example with message factory function:
-     * ```kotlin
-     * satisfies(
-     *     value > 0
-     * ) { ctx ->
-     *     Message.Resource(ctx.createMessageContext(listOf(value)))
-     * }
-     * ```
-     *
-     * Example with MessageProvider:
-     * ```kotlin
-     * val messageProvider = MessageProvider.resource()
-     * satisfies(
-     *     value > 0,
-     *     messageProvider(value)
-     * )
-     * ```
-     *
-     * @param condition The condition to evaluate
-     * @param message A function that accepts a ValidationContext and returns a Message
-     * @return The constraint result
-     */
-    fun satisfies(
-        condition: Boolean,
-        message: MessageProvider,
-    ): ValidationResult<Unit> =
-        if (condition) {
-            ValidationResult.Success(Unit)
-        } else {
-            ValidationResult.Failure(listOf(message()))
-        }
-
-    fun <A> A.satisfiesNotNull(message: MessageProvider): ValidationResult<A & Any> = satisfies(this != null, message).map { this!! }
-
-    /**
-     * Creates a resource-based validation message.
-     *
-     * Use this method to create internationalized messages that load text from `kova.properties`.
-     * The message key is determined by the constraint ID in the validation context.
-     * Arguments are provided as a vararg and automatically converted to indexed pairs for
-     * MessageFormat substitution (i.e., the first argument becomes {0}, second becomes {1}, etc.).
-     *
-     * Example usage in a constraint:
-     * ```kotlin
-     * constrain("kova.number.min") { context ->
-     *     val minValue = 0
-     *     satisfies(
-     *         context.input >= minValue,
-     *         context.resource(minValue)
-     *     )
-     * }
-     * ```
-     *
-     * The corresponding entry in `kova.properties` would be:
-     * ```
-     * kova.number.min=The value must be greater than or equal to {0}.
-     * ```
-     *
-     * For multiple arguments:
-     * ```kotlin
-     * constrain("kova.number.range") { context ->
-     *     val minValue = 0
-     *     val maxValue = 100
-     *     satisfies(
-     *         context.input in minValue..maxValue,
-     *         context.resource(minValue, maxValue)
-     *     )
-     * }
-     * ```
-     *
-     * With corresponding resource:
-     * ```
-     * kova.number.range=The value must be between {0} and {1}.
-     * ```
-     *
-     * @param args Arguments to be interpolated into the message template using MessageFormat
-     * @return A [Message.Resource] instance configured with the provided arguments
-     */
-    fun String.resource(vararg args: Any?): Message.Resource = Message.Resource(this, root, path, null, args = args)
-
-    val String.resource: Message.Resource get() = resource()
+    contract { returns() implies condition }
+    if (!condition) raise(message())
 }
+
+/**
+ * Creates a resource-based validation message.
+ *
+ * Use this method to create internationalized messages that load text from `kova.properties`.
+ * The message key is determined by the constraint ID in the validation context.
+ * Arguments are provided as a vararg and automatically converted to indexed pairs for
+ * MessageFormat substitution (i.e., the first argument becomes {0}, second becomes {1}, etc.).
+ *
+ * Example usage in a constraint:
+ * ```kotlin
+ * constrain("kova.number.min") { context ->
+ *     val minValue = 0
+ *     satisfies(
+ *         context.input >= minValue,
+ *         context.resource(minValue)
+ *     )
+ * }
+ * ```
+ *
+ * The corresponding entry in `kova.properties` would be:
+ * ```
+ * kova.number.min=The value must be greater than or equal to {0}.
+ * ```
+ *
+ * For multiple arguments:
+ * ```kotlin
+ * constrain("kova.number.range") { context ->
+ *     val minValue = 0
+ *     val maxValue = 100
+ *     satisfies(
+ *         context.input in minValue..maxValue,
+ *         context.resource(minValue, maxValue)
+ *     )
+ * }
+ * ```
+ *
+ * With corresponding resource:
+ * ```
+ * kova.number.range=The value must be between {0} and {1}.
+ * ```
+ *
+ * @param args Arguments to be interpolated into the message template using MessageFormat
+ * @return A [Message.Resource] instance configured with the provided arguments
+ */
+context(c: Validation)
+fun String.resource(vararg args: Any?): Message.Resource = Message.Resource(this, c.root, c.path, null, args = args)
+
+context(_: Validation)
+val String.resource: Message.Resource get() = resource()
 
 /**
  * Configuration settings for validation execution.
@@ -210,7 +159,7 @@ data class ValidationConfig(
  *
  * Example:
  * ```kotlin
- * val context = ValidationContext().addRoot("com.example.User", userInstance)
+ * val context = Validation().addRoot("com.example.User", userInstance)
  * // context.root == "com.example.User"
  * ```
  *
@@ -218,17 +167,18 @@ data class ValidationConfig(
  * @param obj The root object instance (used for circular reference detection)
  * @return A new context with the root initialized, or the same context if already set
  */
-inline fun <R> ValidationContext.addRoot(
+context(c: Validation)
+inline fun <R> addRoot(
     name: String,
     obj: Any?,
-    block: ValidationContext.() -> R,
+    block: context(Validation) () -> R,
 ): R =
     block(
-        if (root.isEmpty()) {
+        if (c.root.isEmpty()) {
             // initialize root
-            copy(root = name, path = Path(name = "", obj = obj, parent = null))
+            c.copy(root = name, path = Path(name = "", obj = obj, parent = null))
         } else {
-            this
+            c
         },
     )
 
@@ -241,7 +191,7 @@ inline fun <R> ValidationContext.addRoot(
  *
  * Example:
  * ```kotlin
- * val context = ValidationContext()
+ * val context = Validation()
  *     .addRoot("User", user)
  *     .addPath("address", user.address)
  *     .addPath("city", user.address.city)
@@ -252,19 +202,20 @@ inline fun <R> ValidationContext.addRoot(
  * @param obj The object at this path (used for circular reference detection)
  * @return A new context with the extended path
  */
-inline fun <R> ValidationContext.addPath(
+context(c: Validation)
+inline fun <R> addPath(
     name: String,
     obj: Any?,
-    block: ValidationContext.() -> R,
+    block: context(Validation) () -> R,
 ): R {
-    val parent = this.path
+    val parent = c.path
     val path =
         parent.copy(
             name = name,
             obj = obj,
             parent = parent,
         )
-    return block(copy(path = path))
+    return block(c.copy(path = path))
 }
 
 /**
@@ -282,12 +233,13 @@ inline fun <R> ValidationContext.addPath(
  * @param obj The object to bind to the current path
  * @return A new context with the updated object reference
  */
-inline fun <R> ValidationContext.bindObject(
+context(c: Validation)
+inline fun <R> bindObject(
     obj: Any?,
-    block: ValidationContext.() -> R,
+    block: context(Validation) () -> R,
 ): R {
-    val path = this.path.copy(obj = obj)
-    return block(copy(path = path))
+    val path = c.path.copy(obj = obj)
+    return block(c.copy(path = path))
 }
 
 /**
@@ -315,12 +267,13 @@ inline fun <R> ValidationContext.bindObject(
  * @param obj The object at this path (checked for circular references)
  * @return Success with extended path, or Failure if circular reference detected
  */
-inline fun <T, R> ValidationContext.addPathChecked(
+context(c: Validation)
+inline fun <T, R> addPathChecked(
     name: String,
     obj: T,
-    block: ValidationContext.() -> R,
+    block: context(Validation) () -> R,
 ): R? {
-    val parent = this.path
+    val parent = c.path
     // Check for circular reference
     if (obj != null && parent.containsObject(obj)) return null
     return addPath(name, obj, block)
@@ -341,12 +294,13 @@ inline fun <T, R> ValidationContext.addPathChecked(
  * @param text The text to append to the current path name
  * @return A new context with the modified path name
  */
-inline fun <R> ValidationContext.appendPath(
+context(c: Validation)
+inline fun <R> appendPath(
     text: String,
-    block: ValidationContext.() -> R,
+    block: context(Validation) () -> R,
 ): R {
-    val path = this.path.copy(name = this.path.name + text)
-    return block(copy(path = path))
+    val path = c.path.copy(name = c.path.name + text)
+    return block(c.copy(path = path))
 }
 
 /**
@@ -366,8 +320,9 @@ inline fun <R> ValidationContext.appendPath(
  *
  * @param block Lambda that generates the log message (only called if logger is configured)
  */
-fun ValidationContext.log(block: () -> LogEntry) {
-    config.logger?.invoke(block())
+context(c: Validation)
+inline fun log(block: () -> LogEntry) {
+    c.config.logger?.invoke(block())
 }
 
 /**

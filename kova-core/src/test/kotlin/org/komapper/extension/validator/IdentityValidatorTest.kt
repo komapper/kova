@@ -1,92 +1,76 @@
 package org.komapper.extension.validator
 
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.shouldBe
 
 class IdentityValidatorTest :
     FunSpec({
 
         context("literal") {
             context("boolean") {
-                val validator = Kova.literal(true)
-
                 test("success") {
-                    val result = validator.tryValidate(true)
-                    result.isSuccess().mustBeTrue()
-                    result.value shouldBe true
+                    val result = tryValidate { true.literal(true) }
+                    result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = validator.tryValidate(false)
-                    result.isFailure().mustBeTrue()
+                    val result = tryValidate { false.literal(true) }
+                    result.shouldBeFailure()
                     result.messages.size shouldBe 1
                     result.messages[0].constraintId shouldBe "kova.literal.single"
                 }
             }
 
             context("int") {
-                val validator = Kova.literal(123)
-
                 test("success") {
-                    val result = validator.tryValidate(123)
-                    result.isSuccess().mustBeTrue()
-                    result.value shouldBe 123
+                    val result = tryValidate { 123.literal(123) }
+                    result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = validator.tryValidate(456)
-                    result.isFailure().mustBeTrue()
+                    val result = tryValidate { 456.literal(123) }
+                    result.shouldBeFailure()
                     result.messages.size shouldBe 1
                     result.messages[0].constraintId shouldBe "kova.literal.single"
                 }
             }
 
             context("string") {
-                val validator = Kova.literal("abc")
-
                 test("success") {
-                    val result = validator.tryValidate("abc")
-                    result.isSuccess().mustBeTrue()
-                    result.value shouldBe "abc"
+                    val result = tryValidate { "abc".literal("abc") }
+                    result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = validator.tryValidate("de")
-                    result.isFailure().mustBeTrue()
+                    val result = tryValidate { "de".literal("abc") }
+                    result.shouldBeFailure()
                     result.messages.size shouldBe 1
                     result.messages[0].constraintId shouldBe "kova.literal.single"
                 }
             }
 
             context("vararg") {
-                val validator = Kova.literal("aaa", "bbb", "ccc")
-
                 test("success") {
-                    val result = validator.tryValidate("bbb")
-                    result.isSuccess().mustBeTrue()
-                    result.value shouldBe "bbb"
+                    val result = tryValidate { "bbb".literal("aaa", "bbb", "ccc") }
+                    result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = validator.tryValidate("ddd")
-                    result.isFailure().mustBeTrue()
+                    val result = tryValidate { "ddd".literal("aaa", "bbb", "ccc") }
+                    result.shouldBeFailure()
                     result.messages.size shouldBe 1
                     result.messages[0].constraintId shouldBe "kova.literal.list"
                 }
             }
 
             context("list") {
-                val validator = Kova.literal(listOf("aaa", "bbb", "ccc"))
-
                 test("success") {
-                    val result = validator.tryValidate("bbb")
-                    result.isSuccess().mustBeTrue()
-                    result.value shouldBe "bbb"
+                    val result = tryValidate { "bbb".literal(listOf("aaa", "bbb", "ccc")) }
+                    result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = validator.tryValidate("ddd")
-                    result.isFailure().mustBeTrue()
+                    val result = tryValidate { "ddd".literal(listOf("aaa", "bbb", "ccc")) }
+                    result.shouldBeFailure()
                     result.messages.size shouldBe 1
                     result.messages[0].constraintId shouldBe "kova.literal.list"
                 }
@@ -94,33 +78,37 @@ class IdentityValidatorTest :
         }
 
         context("onlyIf") {
+            context(_: Validation, _: Accumulate)
+            fun Int.validate() {
+                if (this % 2 == 0) min(3)
+            }
             test("success when condition not met") {
-                val validator = Kova.int().min(3).onlyIf { it % 2 == 0 }
-                val result = validator.tryValidate(1)
-                result.isSuccess().mustBeTrue()
-                result.value shouldBe 1
+                val result = tryValidate { 1.validate() }
+                result.shouldBeSuccess()
             }
 
             test("failure when condition met") {
-                val validator = Kova.int().min(3).onlyIf { it % 2 == 0 }
-                val result = validator.tryValidate(2)
-                result.isFailure().mustBeTrue()
+                val result = tryValidate { 2.validate() }
+                result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.comparable.min"
             }
 
             context("with plus") {
-                val validator = Kova.int().min(3).onlyIf { it % 2 == 0 } + Kova.int().min(1)
+                context(_: Validation, _: Accumulate)
+                fun Int.validateAndMin1() {
+                    if (this % 2 == 0) min(3)
+                    min(1)
+                }
 
                 test("success") {
-                    val result = validator.tryValidate(1)
-                    result.isSuccess().mustBeTrue()
-                    result.value shouldBe 1
+                    val result = tryValidate { 1.validateAndMin1() }
+                    result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = validator.tryValidate(0)
-                    result.isFailure().mustBeTrue()
+                    val result = tryValidate { 0.validateAndMin1() }
+                    result.shouldBeFailure()
                     result.messages.size shouldBe 2
                     result.messages[0].constraintId shouldBe "kova.comparable.min"
                     result.messages[1].constraintId shouldBe "kova.comparable.min"
@@ -129,24 +117,26 @@ class IdentityValidatorTest :
         }
 
         context("constrain") {
-            val validator =
-                Kova.int().constrain("even") { satisfies(it % 2 == 0) { text("input must be even") } }
+            @IgnorableReturnValue
+            context(_: Validation, _: Accumulate)
+            fun Int.validate() = constrain("even") { satisfies(it % 2 == 0) { text("input must be even") } }
 
             test("failure") {
-                val result = validator.tryValidate(1)
-                result.isFailure().mustBeTrue()
+                val result = tryValidate { 1.validate() }
+                result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].text shouldBe "input must be even"
             }
         }
 
         context("constrain with extension function") {
-            fun <T> Validator<T, Int>.even() = constrain("even") { satisfies(it % 2 == 0) { text("input must be even") } }
-            val validator = Kova.int().even()
+            @IgnorableReturnValue
+            context(_: Validation, _: Accumulate)
+            fun Int.even() = constrain("even") { satisfies(it % 2 == 0) { text("input must be even") } }
 
             test("failure") {
-                val result = validator.tryValidate(1)
-                result.isFailure().mustBeTrue()
+                val result = tryValidate { 1.even() }
+                result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].text shouldBe "input must be even"
             }

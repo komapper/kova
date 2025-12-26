@@ -10,19 +10,22 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
-import org.komapper.extension.validator.ObjectSchema
+import org.komapper.extension.validator.Accumulate
+import org.komapper.extension.validator.Validation
+import org.komapper.extension.validator.checking
 import org.komapper.extension.validator.ktor.server.SchemaValidator
-import org.komapper.extension.validator.ktor.server.ValidatedWith
+import org.komapper.extension.validator.ktor.server.Validated
 import org.komapper.extension.validator.positive
 import org.komapper.extension.validator.text
+import org.komapper.extension.validator.invoke
 
-@ValidatedWith(CustomerSchema::class)
 @Serializable
-data class Customer(val id: Int, val firstName: String, val lastName: String)
-
-object CustomerSchema : ObjectSchema<Customer>({
-    Customer::id { it.positive { text("A customer ID should be greater than 0") } }
-})
+data class Customer(val id: Int, val firstName: String, val lastName: String): Validated {
+    context(_: Validation, _: Accumulate)
+    override fun validate() = checking {
+        ::id { it.positive { text("A customer ID should be greater than 0") } }
+    }
+}
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 

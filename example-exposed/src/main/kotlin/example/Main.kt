@@ -14,9 +14,11 @@ import org.jetbrains.exposed.v1.dao.toEntity
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import org.komapper.extension.validator.ObjectSchema
+import org.komapper.extension.validator.Accumulate
+import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationException
-import org.komapper.extension.validator.Validator
+import org.komapper.extension.validator.checking
+import org.komapper.extension.validator.invoke
 import org.komapper.extension.validator.max
 import org.komapper.extension.validator.min
 import org.komapper.extension.validator.notBlank
@@ -39,13 +41,11 @@ class City(
     var name by Cities.name
     val users by User referrersOn Users.city
 
-    object Schema : ObjectSchema<City>({
-        City::name { it.notEmpty() }
-    })
-
     companion object : IntEntityClass<City>(Cities) {
         init {
-            subscribe(Schema)
+            subscribe {
+                checking { ::name { it.notEmpty() } }
+            }
         }
     }
 }
@@ -57,28 +57,36 @@ class User(
     var city by City referencedOn Users.city
     var age by Users.age
 
-    object Schema : ObjectSchema<User>({
-        User::name { it.min(1).notBlank() }
-        User::age { it.min(0).max(120) }
-    })
-
     companion object : IntEntityClass<User>(Users) {
         init {
-            subscribe(Schema)
+            subscribe {
+                checking {
+                    ::name {
+                        it.min(1)
+                        it.notBlank()
+                    }
+                    ::age {
+                        it.min(0)
+                        it.max(120)
+                    }
+                }
+            }
         }
     }
 }
 
-fun <ID : Any, T : Entity<ID>> EntityClass<ID, T>.subscribe(validator: Validator<T, T>): (EntityChange) -> Unit {
-    return EntityHook.subscribe { change ->
+@IgnorableReturnValue
+fun <ID : Any, T : Entity<ID>> EntityClass<ID, T>.subscribe(
+    validate: context(Validation, Accumulate) T.() -> Unit,
+): (EntityChange) -> Unit =
+    EntityHook.subscribe { change ->
         if (change.changeType == EntityChangeType.Created &&
             change.entityClass == this
         ) {
             val entity = change.toEntity(this) ?: return@subscribe
-            validator.validate(entity)
+            validate { entity.validate() }
         }
     }
-}
 
 fun main() {
     Database.connect(

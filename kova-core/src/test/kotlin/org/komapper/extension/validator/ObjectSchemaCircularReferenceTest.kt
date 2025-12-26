@@ -8,23 +8,21 @@ class ObjectSchemaCircularReferenceTest :
         test("circular reference between schemas") {
             val city = City(emptyList())
             val user = User(city)
-            CitySchema.validate(city)
-            UserSchema.validate(user)
+            validate { city.validate() }
+            validate { user.validate() }
         }
     }) {
     class City(
         val users: List<User>,
-    )
+    ) {
+        context(_: Validation, _: Accumulate)
+        fun validate() = checking { ::users { users -> users.onEach { it.validate() } } }
+    }
 
     class User(
         val city: City,
-    )
-
-    object CitySchema : ObjectSchema<City>({
-        City::users { it.onEach(UserSchema) }
-    })
-
-    object UserSchema : ObjectSchema<User>({
-        User::city { CitySchema }
-    })
+    ) {
+        context(_: Validation, _: Accumulate)
+        fun validate(): Unit = checking { ::city { it.validate() } }
+    }
 }

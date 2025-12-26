@@ -14,29 +14,6 @@ import java.time.temporal.Temporal
 import kotlin.reflect.KClass
 
 /**
- * Type alias for temporal validators.
- *
- * Temporal validators work with types that implement both [Temporal] and [Comparable],
- * such as LocalDate, LocalTime, LocalDateTime, Instant, etc.
- *
- * The clock used for temporal comparisons (past, future, etc.) is obtained from
- * [ValidationConfig.clock] at validation time, allowing for easy testing with fixed clocks.
- *
- * Example:
- * ```kotlin
- * // Using system clock (default)
- * val validator = Kova.localDate().past().min(LocalDate.of(2020, 1, 1))
- * validator.validate(LocalDate.of(2024, 6, 15))
- *
- * // Using fixed clock for testing
- * val fixedClock = Clock.fixed(Instant.parse("2025-01-01T00:00:00Z"), ZoneOffset.UTC)
- * val config = ValidationConfig(clock = fixedClock)
- * validator.tryValidate(LocalDate.of(2024, 12, 31), config = config)
- * ```
- */
-typealias TemporalValidator<T, S> = Validator<T, S>
-
-/**
  * Validates that the temporal value is in the future (strictly greater than now).
  *
  * The current time is determined by the clock in [ValidationConfig] at validation time.
@@ -50,15 +27,15 @@ typealias TemporalValidator<T, S> = Validator<T, S>
  * validator.validate(LocalDate.of(2025, 1, 14))  // Failure (past)
  * ```
  *
- * @param T The temporal type (LocalDate, LocalTime, LocalDateTime, Instant, etc.)
+ * @param S The temporal type (LocalDate, LocalTime, LocalDateTime, Instant, etc.)
  * @param message Custom error message provider
  * @return A new validator with the future constraint
  */
-inline fun <T, reified S> TemporalValidator<T, S>.future(
+@IgnorableReturnValue
+context(_: Validation, _: Accumulate)
+inline fun <reified S> S.future(
     noinline message: MessageProvider = { "kova.temporal.future".resource },
-): TemporalValidator<T, S>
-        where S : Temporal, S : Comparable<S> =
-    constrain("kova.temporal.future") { satisfies(it > now(clock), message) }
+) where S : Temporal, S : Comparable<S> = constrain("kova.temporal.future") { satisfies(it > now(clock), message) }
 
 /**
  * Validates that the temporal value is in the future or present (greater than or equal to now).
@@ -74,15 +51,15 @@ inline fun <T, reified S> TemporalValidator<T, S>.future(
  * validator.validate(LocalDate.of(2025, 1, 14))  // Failure (past)
  * ```
  *
- * @param T The temporal type (LocalDate, LocalTime, LocalDateTime, Instant, etc.)
+ * @param S The temporal type (LocalDate, LocalTime, LocalDateTime, Instant, etc.)
  * @param message Custom error message provider
  * @return A new validator with the future-or-present constraint
  */
-inline fun <T, reified S> TemporalValidator<T, S>.futureOrPresent(
+@IgnorableReturnValue
+context(_: Validation, _: Accumulate)
+inline fun <reified S> S.futureOrPresent(
     noinline message: MessageProvider = { "kova.temporal.futureOrPresent".resource },
-): TemporalValidator<T, S>
-        where S : Temporal, S : Comparable<S> =
-    constrain("kova.temporal.futureOrPresent") { satisfies(it >= now(clock), message) }
+) where S : Temporal, S : Comparable<S> = constrain("kova.temporal.futureOrPresent") { satisfies(it >= now(clock), message) }
 
 /**
  * Validates that the temporal value is in the past (strictly less than now).
@@ -98,14 +75,13 @@ inline fun <T, reified S> TemporalValidator<T, S>.futureOrPresent(
  * validator.validate(LocalDate.of(2025, 1, 16))  // Failure (future)
  * ```
  *
- * @param T The temporal type (LocalDate, LocalTime, LocalDateTime, Instant, etc.)
+ * @param S The temporal type (LocalDate, LocalTime, LocalDateTime, Instant, etc.)
  * @param message Custom error message provider
  * @return A new validator with the past constraint
  */
-inline fun <T, reified S> TemporalValidator<T, S>.past(
-    noinline message: MessageProvider = { "kova.temporal.past".resource },
-): TemporalValidator<T, S>
-        where S : Temporal, S : Comparable<S> =
+@IgnorableReturnValue
+context(_: Validation, _: Accumulate)
+inline fun <reified S> S.past(noinline message: MessageProvider = { "kova.temporal.past".resource })where S : Temporal, S : Comparable<S> =
     constrain("kova.temporal.past") { satisfies(it < now(clock), message) }
 
 /**
@@ -122,15 +98,15 @@ inline fun <T, reified S> TemporalValidator<T, S>.past(
  * validator.validate(LocalDate.of(2025, 1, 16))  // Failure (future)
  * ```
  *
- * @param T The temporal type (LocalDate, LocalTime, LocalDateTime, Instant, etc.)
+ * @param S The temporal type (LocalDate, LocalTime, LocalDateTime, Instant, etc.)
  * @param message Custom error message provider
  * @return A new validator with the past-or-present constraint
  */
-inline fun <T, reified S> TemporalValidator<T, S>.pastOrPresent(
+@IgnorableReturnValue
+context(_: Validation, _: Accumulate)
+inline fun <reified S> S.pastOrPresent(
     noinline message: MessageProvider = { "kova.temporal.pastOrPresent".resource },
-): TemporalValidator<T, S>
-        where S : Temporal, S : Comparable<S> =
-    constrain("kova.temporal.pastOrPresent") { satisfies(it <= now(clock), message) }
+) where S : Temporal, S : Comparable<S> = constrain("kova.temporal.pastOrPresent") { satisfies(it <= now(clock), message) }
 
 /**
  * Obtains the current temporal value for the specified type using the provided clock.

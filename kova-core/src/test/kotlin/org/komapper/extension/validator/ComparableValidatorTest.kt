@@ -1,286 +1,258 @@
 package org.komapper.extension.validator
 
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.shouldBe
 
 class ComparableValidatorTest :
     FunSpec({
 
         context("plus") {
-            val validator = (Kova.uInt().max(10u) + Kova.uInt().max(20u)).min(5u)
+            context(_: Validation, _: Accumulate)
+            fun UInt.validate() {
+                max(10u)
+                max(20u)
+                min(5u)
+            }
 
             test("success") {
-                val result = validator.tryValidate(8u)
-                result.isSuccess().mustBeTrue()
-                result.value shouldBe 8u
+                val result = tryValidate { 8u.validate() }
+                result.shouldBeSuccess()
             }
 
             test("failure") {
-                val result = validator.tryValidate(15u)
-                result.isFailure().mustBeTrue()
+                val result = tryValidate { 15u.validate() }
+                result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.comparable.max"
             }
         }
 
         context("or") {
-            val validator = (Kova.uInt().max(10u) or Kova.uInt().max(20u)).min(5u)
+            context(_: Validation, _: Accumulate)
+            fun UInt.validate() {
+                val _ = or { max(10u) } orElse { max(20u) }
+                min(5u)
+            }
 
             test("success : 10") {
-                val result = validator.tryValidate(10u)
-                result.isSuccess().mustBeTrue()
-                result.value shouldBe 10u
+                val result = tryValidate { 10u.validate() }
+                result.shouldBeSuccess()
             }
 
             test("success : 20") {
-                val result = validator.tryValidate(20u)
-                result.isSuccess().mustBeTrue()
-                result.value shouldBe 20u
+                val result = tryValidate { 20u.validate() }
+                result.shouldBeSuccess()
             }
 
             test("failure : 25") {
-                val result = validator.tryValidate(25u)
-                result.isFailure().mustBeTrue()
+                val result = tryValidate { 25u.validate() }
+                result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.or"
             }
         }
 
         context("constrain") {
-            val validator =
-                Kova.uInt().constrain("test") { satisfies(it == 10u) { text("Constraint failed") } }
-
+            @IgnorableReturnValue
+            context(_: Validation, _: Accumulate)
+            fun UInt.validate() = constrain("test") { satisfies(it == 10u) { text("Constraint failed") } }
             test("success") {
-                val result = validator.tryValidate(10u)
-                result.isSuccess().mustBeTrue()
+                val result = tryValidate { 10u.validate() }
+                result.shouldBeSuccess()
             }
 
             test("failure") {
-                val result = validator.tryValidate(20u)
-                result.isFailure().mustBeTrue()
+                val result = tryValidate { 20u.validate() }
+                result.shouldBeFailure()
                 result.messages.single().text shouldBe "Constraint failed"
             }
         }
 
         context("uInt") {
             context("min") {
-                val validator = Kova.uInt().min(5u)
-
                 test("success with value greater than threshold") {
-                    val result = validator.tryValidate(6u)
-                    result.isSuccess().mustBeTrue()
-                    result.value shouldBe 6u
+                    val result = tryValidate { 6u.min(5u) }
+                    result.shouldBeSuccess()
                 }
 
                 test("success with equal value") {
-                    val result = validator.tryValidate(5u)
-                    result.isSuccess().mustBeTrue()
-                    result.value shouldBe 5u
+                    val result = tryValidate { 5u.min(5u) }
+                    result.shouldBeSuccess()
                 }
 
                 test("failure with value less than threshold") {
-                    val result = validator.tryValidate(4u)
-                    result.isFailure().mustBeTrue()
+                    val result = tryValidate { 4u.min(5u) }
+                    result.shouldBeFailure()
                     result.messages[0].constraintId shouldBe "kova.comparable.min"
                 }
             }
 
             context("max") {
-                val validator = Kova.uInt().max(10u)
-
                 test("success with value less than threshold") {
-                    val result = validator.tryValidate(9u)
-                    result.isSuccess().mustBeTrue()
-                    result.value shouldBe 9u
+                    val result = tryValidate { 9u.max(10u) }
+                    result.shouldBeSuccess()
                 }
 
                 test("success with equal value") {
-                    val result = validator.tryValidate(10u)
-                    result.isSuccess().mustBeTrue()
-                    result.value shouldBe 10u
+                    val result = tryValidate { 10u.max(10u) }
+                    result.shouldBeSuccess()
                 }
 
                 test("failure with value greater than threshold") {
-                    val result = validator.tryValidate(11u)
-                    result.isFailure().mustBeTrue()
+                    val result = tryValidate { 11u.max(10u) }
+                    result.shouldBeFailure()
                     result.messages[0].constraintId shouldBe "kova.comparable.max"
                 }
             }
 
             context("gt (greater than)") {
-                val validator = Kova.uInt().gt(5u)
-
                 test("success with value greater than threshold") {
-                    val result = validator.tryValidate(6u)
-                    result.isSuccess().mustBeTrue()
-                    result.value shouldBe 6u
+                    val result = tryValidate { 6u.gt(5u) }
+                    result.shouldBeSuccess()
                 }
 
                 test("success with large value") {
-                    val result = validator.tryValidate(100u)
-                    result.isSuccess().mustBeTrue()
-                    result.value shouldBe 100u
+                    val result = tryValidate { 100u.gt(5u) }
+                    result.shouldBeSuccess()
                 }
 
                 test("failure with equal value") {
-                    val result = validator.tryValidate(5u)
-                    result.isFailure().mustBeTrue()
+                    val result = tryValidate { 5u.gt(5u) }
+                    result.shouldBeFailure()
                     result.messages[0].constraintId shouldBe "kova.comparable.gt"
                 }
 
                 test("failure with value less than threshold") {
-                    val result = validator.tryValidate(4u)
-                    result.isFailure().mustBeTrue()
+                    val result = tryValidate { 4u.gt(5u) }
+                    result.shouldBeFailure()
                     result.messages[0].constraintId shouldBe "kova.comparable.gt"
                 }
             }
 
             context("gte (greater than or equal)") {
-                val validator = Kova.uInt().gte(5u)
-
                 test("success with value greater than threshold") {
-                    val result = validator.tryValidate(6u)
-                    result.isSuccess().mustBeTrue()
-                    result.value shouldBe 6u
+                    val result = tryValidate { 6u.gte(5u) }
+                    result.shouldBeSuccess()
                 }
 
                 test("success with equal value") {
-                    val result = validator.tryValidate(5u)
-                    result.isSuccess().mustBeTrue()
-                    result.value shouldBe 5u
+                    val result = tryValidate { 5u.gte(5u) }
+                    result.shouldBeSuccess()
                 }
 
                 test("failure with value less than threshold") {
-                    val result = validator.tryValidate(4u)
-                    result.isFailure().mustBeTrue()
+                    val result = tryValidate { 4u.gte(5u) }
+                    result.shouldBeFailure()
                     result.messages[0].constraintId shouldBe "kova.comparable.gte"
                 }
             }
 
             context("lt (less than)") {
-                val validator = Kova.uInt().lt(5u)
-
                 test("success with value less than threshold") {
-                    val result = validator.tryValidate(4u)
-                    result.isSuccess().mustBeTrue()
-                    result.value shouldBe 4u
+                    val result = tryValidate { 4u.lt(5u) }
+                    result.shouldBeSuccess()
                 }
 
                 test("success with zero") {
-                    val result = validator.tryValidate(0u)
-                    result.isSuccess().mustBeTrue()
-                    result.value shouldBe 0u
+                    val result = tryValidate { 0u.lt(5u) }
+                    result.shouldBeSuccess()
                 }
 
                 test("failure with equal value") {
-                    val result = validator.tryValidate(5u)
-                    result.isFailure().mustBeTrue()
+                    val result = tryValidate { 5u.lt(5u) }
+                    result.shouldBeFailure()
                     result.messages[0].constraintId shouldBe "kova.comparable.lt"
                 }
 
                 test("failure with value greater than threshold") {
-                    val result = validator.tryValidate(6u)
-                    result.isFailure().mustBeTrue()
+                    val result = tryValidate { 6u.lt(5u) }
+                    result.shouldBeFailure()
                     result.messages[0].constraintId shouldBe "kova.comparable.lt"
                 }
             }
 
             context("lte (less than or equal)") {
-                val validator = Kova.uInt().lte(5u)
-
                 test("success with value less than threshold") {
-                    val result = validator.tryValidate(4u)
-                    result.isSuccess().mustBeTrue()
-                    result.value shouldBe 4u
+                    val result = tryValidate { 4u.lte(5u) }
+                    result.shouldBeSuccess()
                 }
 
                 test("success with equal value") {
-                    val result = validator.tryValidate(5u)
-                    result.isSuccess().mustBeTrue()
-                    result.value shouldBe 5u
+                    val result = tryValidate { 5u.lte(5u) }
+                    result.shouldBeSuccess()
                 }
 
                 test("failure with value greater than threshold") {
-                    val result = validator.tryValidate(6u)
-                    result.isFailure().mustBeTrue()
+                    val result = tryValidate { 6u.lte(5u) }
+                    result.shouldBeFailure()
                     result.messages[0].constraintId shouldBe "kova.comparable.lte"
                 }
             }
 
             context("eq (equal)") {
-                val validator = Kova.uInt().eq(5u)
-
                 test("success with equal value") {
-                    val result = validator.tryValidate(5u)
-                    result.isSuccess().mustBeTrue()
-                    result.value shouldBe 5u
+                    val result = tryValidate { 5u.eq(5u) }
+                    result.shouldBeSuccess()
                 }
 
                 test("failure with value greater than threshold") {
-                    val result = validator.tryValidate(6u)
-                    result.isFailure().mustBeTrue()
+                    val result = tryValidate { 6u.eq(5u) }
+                    result.shouldBeFailure()
                     result.messages[0].constraintId shouldBe "kova.comparable.eq"
                 }
 
                 test("failure with value less than threshold") {
-                    val result = validator.tryValidate(4u)
-                    result.isFailure().mustBeTrue()
+                    val result = tryValidate { 4u.eq(5u) }
+                    result.shouldBeFailure()
                     result.messages[0].constraintId shouldBe "kova.comparable.eq"
                 }
             }
 
             context("notEq (not equal)") {
-                val validator = Kova.uInt().notEq(5u)
-
                 test("success with value greater than threshold") {
-                    val result = validator.tryValidate(6u)
-                    result.isSuccess().mustBeTrue()
-                    result.value shouldBe 6u
+                    val result = tryValidate { 6u.notEq(5u) }
+                    result.shouldBeSuccess()
                 }
 
                 test("success with value less than threshold") {
-                    val result = validator.tryValidate(4u)
-                    result.isSuccess().mustBeTrue()
-                    result.value shouldBe 4u
+                    val result = tryValidate { 4u.notEq(5u) }
+                    result.shouldBeSuccess()
                 }
 
                 test("failure with equal value") {
-                    val result = validator.tryValidate(5u)
-                    result.isFailure().mustBeTrue()
+                    val result = tryValidate { 5u.notEq(5u) }
+                    result.shouldBeFailure()
                     result.messages[0].constraintId shouldBe "kova.comparable.notEq"
                 }
             }
 
             context("chaining multiple validators") {
-                val validator =
-                    Kova
-                        .uInt()
-                        .min(5u)
-                        .max(10u)
-                        .gt(6u)
-                        .lte(9u)
+                context(_: Validation, _: Accumulate)
+                fun UInt.validate() {
+                    min(5u)
+                    max(10u)
+                    gt(6u)
+                    lte(9u)
+                }
 
                 test("success with value 7") {
-                    val result = validator.tryValidate(7u)
-                    result.isSuccess().mustBeTrue()
-                    result.value shouldBe 7u
+                    val result = tryValidate { 7u.validate() }
+                    result.shouldBeSuccess()
                 }
 
                 test("success with value 9") {
-                    val result = validator.tryValidate(9u)
-                    result.isSuccess().mustBeTrue()
-                    result.value shouldBe 9u
+                    val result = tryValidate { 9u.validate() }
+                    result.shouldBeSuccess()
                 }
 
                 test("failure with value 5") {
-                    val result = validator.tryValidate(5u)
-                    result.isFailure().mustBeTrue()
+                    val result = tryValidate { 5u.validate() }
+                    result.shouldBeFailure()
                     result.messages[0].constraintId shouldBe "kova.comparable.gt"
                 }
 
                 test("failure with value 10") {
-                    val result = validator.tryValidate(10u)
-                    result.isFailure().mustBeTrue()
+                    val result = tryValidate { 10u.validate() }
+                    result.shouldBeFailure()
                     result.messages[0].constraintId shouldBe "kova.comparable.lte"
                 }
             }
@@ -288,33 +260,27 @@ class ComparableValidatorTest :
 
         context("uLong") {
             context("min") {
-                val validator = Kova.uLong().min(5uL)
-
                 test("success") {
-                    val result = validator.tryValidate(6uL)
-                    result.isSuccess().mustBeTrue()
-                    result.value shouldBe 6uL
+                    val result = tryValidate { 6uL.min(5uL) }
+                    result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = validator.tryValidate(4uL)
-                    result.isFailure().mustBeTrue()
+                    val result = tryValidate { 4uL.min(5uL) }
+                    result.shouldBeFailure()
                     result.messages[0].constraintId shouldBe "kova.comparable.min"
                 }
             }
 
             context("max") {
-                val validator = Kova.uLong().max(10uL)
-
                 test("success") {
-                    val result = validator.tryValidate(9uL)
-                    result.isSuccess().mustBeTrue()
-                    result.value shouldBe 9uL
+                    val result = tryValidate { 9uL.max(10uL) }
+                    result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = validator.tryValidate(11uL)
-                    result.isFailure().mustBeTrue()
+                    val result = tryValidate { 11uL.max(10uL) }
+                    result.shouldBeFailure()
                     result.messages[0].constraintId shouldBe "kova.comparable.max"
                 }
             }
@@ -322,33 +288,27 @@ class ComparableValidatorTest :
 
         context("uByte") {
             context("min") {
-                val validator = Kova.uByte().min(5u)
-
                 test("success") {
-                    val result = validator.tryValidate(6u)
-                    result.isSuccess().mustBeTrue()
-                    result.value shouldBe 6.toUByte()
+                    val result = tryValidate { 6u.min(5u) }
+                    result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = validator.tryValidate(4u)
-                    result.isFailure().mustBeTrue()
+                    val result = tryValidate { 4u.min(5u) }
+                    result.shouldBeFailure()
                     result.messages[0].constraintId shouldBe "kova.comparable.min"
                 }
             }
 
             context("max") {
-                val validator = Kova.uByte().max(10u)
-
                 test("success") {
-                    val result = validator.tryValidate(9u)
-                    result.isSuccess().mustBeTrue()
-                    result.value shouldBe 9.toUByte()
+                    val result = tryValidate { 9u.max(10u) }
+                    result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = validator.tryValidate(11u)
-                    result.isFailure().mustBeTrue()
+                    val result = tryValidate { 11u.max(10u) }
+                    result.shouldBeFailure()
                     result.messages[0].constraintId shouldBe "kova.comparable.max"
                 }
             }
@@ -356,33 +316,27 @@ class ComparableValidatorTest :
 
         context("uShort") {
             context("min") {
-                val validator = Kova.uShort().min(5u)
-
                 test("success") {
-                    val result = validator.tryValidate(6u)
-                    result.isSuccess().mustBeTrue()
-                    result.value shouldBe 6.toUShort()
+                    val result = tryValidate { 6u.min(5u) }
+                    result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = validator.tryValidate(4u)
-                    result.isFailure().mustBeTrue()
+                    val result = tryValidate { 4u.min(5u) }
+                    result.shouldBeFailure()
                     result.messages[0].constraintId shouldBe "kova.comparable.min"
                 }
             }
 
             context("max") {
-                val validator = Kova.uShort().max(10u)
-
                 test("success") {
-                    val result = validator.tryValidate(9u)
-                    result.isSuccess().mustBeTrue()
-                    result.value shouldBe 9.toUShort()
+                    val result = tryValidate { 9u.max(10u) }
+                    result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = validator.tryValidate(11u)
-                    result.isFailure().mustBeTrue()
+                    val result = tryValidate { 11u.max(10u) }
+                    result.shouldBeFailure()
                     result.messages[0].constraintId shouldBe "kova.comparable.max"
                 }
             }
