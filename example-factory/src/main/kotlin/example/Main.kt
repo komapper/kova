@@ -38,8 +38,8 @@ fun Validation.buildUser(
     age: String,
 ) = factory {
     val name by bind(name) {
-        this.min(it, 1)
-        this.notBlank(it)
+        min(it, 1)
+        notBlank(it)
         it
     } // argument validator
     val age by bind(age) { toInt(it) } // argument validator
@@ -57,8 +57,8 @@ fun Validation.buildPerson(
     age: String,
 ) = factory {
     val name by bind(name) {
-        this.min(it, 1)
-        this.notBlank(it)
+        min(it, 1)
+        notBlank(it)
         it
     } // argument validator
     val age by bind { buildAge(age) } // nested object validator

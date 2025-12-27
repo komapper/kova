@@ -23,8 +23,8 @@ class TripleFactoryBuilderTest :
                 third: String,
             ) = buildTriple(
                 bind(first) {
-                    this.notBlank(it)
-                    this.max(it, 10)
+                    notBlank(it)
+                    max(it, 10)
                     it
                 },
                 bind(second) {
@@ -32,8 +32,8 @@ class TripleFactoryBuilderTest :
                     it
                 },
                 bind(third) {
-                    this.notBlank(it)
-                    this.max(it, 20)
+                    notBlank(it)
+                    max(it, 20)
                     it
                 },
             )
@@ -128,9 +128,9 @@ class TripleFactoryBuilderTest :
                 email: String,
             ) = buildTriple(
                 bind(name) {
-                    this.notBlank(it)
-                    this.min(it, 1)
-                    this.max(it, 50)
+                    notBlank(it)
+                    min(it, 1)
+                    max(it, 50)
                     it
                 },
                 bind(age) {
@@ -139,8 +139,8 @@ class TripleFactoryBuilderTest :
                     it
                 },
                 bind(email) {
-                    this.notBlank(it)
-                    this.max(it, 100)
+                    notBlank(it)
+                    max(it, 100)
                     it
                 },
             )

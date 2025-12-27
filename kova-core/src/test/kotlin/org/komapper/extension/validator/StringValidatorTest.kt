@@ -49,11 +49,11 @@ class StringValidatorTest :
 
         context("notBlank with message") {
             test("success") {
-                val result = tryValidate { this.notBlank("ab") { text("Must not be blank") } }
+                val result = tryValidate { notBlank("ab") { text("Must not be blank") } }
                 result.shouldBeSuccess()
             }
             test("failure") {
-                val result = tryValidate { this.notBlank("") { text("Must not be blank") } }
+                val result = tryValidate { notBlank("") { text("Must not be blank") } }
                 result.shouldBeFailure()
                 result.messages.single().text shouldBe "Must not be blank"
             }

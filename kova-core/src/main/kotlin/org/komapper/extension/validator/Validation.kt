@@ -109,7 +109,7 @@ data class Validation(
 
     @IgnorableReturnValue
     operator fun <T> KProperty0<T>.invoke(block: Constraint<T>): Accumulate.Value<Unit> {
-        val value = this.get()
+        val value = get()
         return addPathChecked(name, value) { accumulating { block(value) } } ?: Accumulate.Ok(Unit)
     }
 

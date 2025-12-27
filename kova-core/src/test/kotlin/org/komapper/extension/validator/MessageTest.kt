@@ -24,7 +24,7 @@ class MessageTest :
         }
 
         test("toString: string") {
-            val result = tryValidate { this.min("abc", 5) }
+            val result = tryValidate { min("abc", 5) }
             result.shouldBeFailure()
             result.messages.size shouldBe 1
             result.messages[0].toString() shouldBe

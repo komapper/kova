@@ -22,8 +22,8 @@ class PairFactoryBuilderTest :
                 second: Int,
             ) = buildPair(
                 bind(first) {
-                    this.notBlank(it)
-                    this.max(it, 10)
+                    notBlank(it)
+                    max(it, 10)
                     it
                 },
                 bind(second) {
@@ -105,9 +105,9 @@ class PairFactoryBuilderTest :
                 age: Int,
             ) = buildPair(
                 bind(name) {
-                    this.notBlank(it)
-                    this.min(it, 1)
-                    this.max(it, 50)
+                    notBlank(it)
+                    min(it, 1)
+                    max(it, 50)
                     it
                 },
                 bind(age) {

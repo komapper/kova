@@ -21,7 +21,7 @@ class FactoryTest :
             fun Validation.build(name: String) =
                 factory {
                     val name by bind(name) {
-                        this.notBlank(it)
+                        notBlank(it)
                         it
                     }
                     User(name)
@@ -102,7 +102,7 @@ class FactoryTest :
             fun Validation.buildName(value: String) =
                 factory {
                     val value by bind(value) {
-                        this.notBlank(it)
+                        notBlank(it)
                         it
                     }
                     Name(value)
