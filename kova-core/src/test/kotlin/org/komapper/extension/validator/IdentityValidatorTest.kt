@@ -78,36 +78,34 @@ class IdentityValidatorTest :
         }
 
         context("onlyIf") {
-            context(_: Validation, _: Accumulate)
-            fun Int.validate() {
-                if (this % 2 == 0) min(this, 3)
+            fun Validation.validate(i: Int) {
+                if (i % 2 == 0) min(i, 3)
             }
             test("success when condition not met") {
-                val result = tryValidate { 1.validate() }
+                val result = tryValidate { validate(1) }
                 result.shouldBeSuccess()
             }
 
             test("failure when condition met") {
-                val result = tryValidate { 2.validate() }
+                val result = tryValidate { validate(2) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.comparable.min"
             }
 
             context("with plus") {
-                context(_: Validation, _: Accumulate)
-                fun Int.validateAndMin1() {
-                    if (this % 2 == 0) min(this, 3)
-                    min(this, 1)
+                fun Validation.validateAndMin1(i: Int) {
+                    if (i % 2 == 0) min(i, 3)
+                    min(i, 1)
                 }
 
                 test("success") {
-                    val result = tryValidate { 1.validateAndMin1() }
+                    val result = tryValidate { validateAndMin1(1) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { 0.validateAndMin1() }
+                    val result = tryValidate { validateAndMin1(0) }
                     result.shouldBeFailure()
                     result.messages.size shouldBe 2
                     result.messages[0].constraintId shouldBe "kova.comparable.min"
@@ -118,11 +116,10 @@ class IdentityValidatorTest :
 
         context("constrain") {
             @IgnorableReturnValue
-            context(_: Validation, _: Accumulate)
-            fun Int.validate() = constrain("even") { satisfies(it % 2 == 0) { text("input must be even") } }
+            fun Validation.validate(i: Int) = i.constrain("even") { satisfies(it % 2 == 0) { text("input must be even") } }
 
             test("failure") {
-                val result = tryValidate { 1.validate() }
+                val result = tryValidate { validate(1) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].text shouldBe "input must be even"
@@ -131,11 +128,10 @@ class IdentityValidatorTest :
 
         context("constrain with extension function") {
             @IgnorableReturnValue
-            context(_: Validation, _: Accumulate)
-            fun Int.even() = constrain("even") { satisfies(it % 2 == 0) { text("input must be even") } }
+            fun Validation.even(i: Int) = i.constrain("even") { satisfies(it % 2 == 0) { text("input must be even") } }
 
             test("failure") {
-                val result = tryValidate { 1.even() }
+                val result = tryValidate { even(1) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].text shouldBe "input must be even"

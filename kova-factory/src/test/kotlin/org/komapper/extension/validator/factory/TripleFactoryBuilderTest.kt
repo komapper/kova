@@ -2,7 +2,6 @@ package org.komapper.extension.validator.factory
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
-import org.komapper.extension.validator.Accumulate
 import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationConfig
 import org.komapper.extension.validator.ValidationException
@@ -18,15 +17,14 @@ class TripleFactoryBuilderTest :
     FunSpec({
 
         context("TripleFactoryBuilder with primitive types") {
-            context(_: Validation, _: Accumulate)
-            fun build(
+            fun Validation.build(
                 first: String,
                 second: Int,
                 third: String,
             ) = buildTriple(
                 bind(first) {
-                    notBlank(it)
-                    max(it, 10)
+                    this.notBlank(it)
+                    this.max(it, 10)
                     it
                 },
                 bind(second) {
@@ -34,8 +32,8 @@ class TripleFactoryBuilderTest :
                     it
                 },
                 bind(third) {
-                    notBlank(it)
-                    max(it, 20)
+                    this.notBlank(it)
+                    this.max(it, 20)
                     it
                 },
             )
@@ -124,16 +122,15 @@ class TripleFactoryBuilderTest :
         }
 
         context("TripleFactoryBuilder with different types") {
-            context(_: Validation, _: Accumulate)
-            fun build(
+            fun Validation.build(
                 name: String,
                 age: Int,
                 email: String,
             ) = buildTriple(
                 bind(name) {
-                    notBlank(it)
-                    min(it, 1)
-                    max(it, 50)
+                    this.notBlank(it)
+                    this.min(it, 1)
+                    this.max(it, 50)
                     it
                 },
                 bind(age) {
@@ -142,8 +139,8 @@ class TripleFactoryBuilderTest :
                     it
                 },
                 bind(email) {
-                    notBlank(it)
-                    max(it, 100)
+                    this.notBlank(it)
+                    this.max(it, 100)
                     it
                 },
             )
@@ -176,8 +173,7 @@ class TripleFactoryBuilderTest :
         }
 
         context("TripleFactoryBuilder with identity validators") {
-            context(_: Validation, _: Accumulate)
-            fun build(
+            fun Validation.build(
                 first: String,
                 second: Int,
                 third: String,
@@ -195,8 +191,7 @@ class TripleFactoryBuilderTest :
         }
 
         context("TripleFactoryBuilder with type transformation") {
-            context(_: Validation, _: Accumulate)
-            fun build(
+            fun Validation.build(
                 first: String,
                 second: String,
                 third: String,

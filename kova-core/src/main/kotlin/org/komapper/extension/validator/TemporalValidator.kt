@@ -32,8 +32,7 @@ import kotlin.reflect.KClass
  * @return A new validator with the future constraint
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-inline fun <reified S> future(
+inline fun <reified S> Validation.future(
     input: S,
     noinline message: MessageProvider = { "kova.temporal.future".resource },
 ) where S : Temporal, S : Comparable<S> = input.constrain("kova.temporal.future") { satisfies(it > now(clock), message) }
@@ -57,12 +56,10 @@ inline fun <reified S> future(
  * @return A new validator with the future-or-present constraint
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-inline fun <reified S> futureOrPresent(
+inline fun <reified S> Validation.futureOrPresent(
     input: S,
     noinline message: MessageProvider = { "kova.temporal.futureOrPresent".resource },
-) where S : Temporal, S : Comparable<S> =
-    input.constrain("kova.temporal.futureOrPresent") { satisfies(it >= now(clock), message) }
+) where S : Temporal, S : Comparable<S> = input.constrain("kova.temporal.futureOrPresent") { satisfies(it >= now(clock), message) }
 
 /**
  * Validates that the temporal value is in the past (strictly less than now).
@@ -83,12 +80,10 @@ inline fun <reified S> futureOrPresent(
  * @return A new validator with the past constraint
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-inline fun <reified S> past(
+inline fun <reified S> Validation.past(
     input: S,
-    noinline message: MessageProvider = { "kova.temporal.past".resource }
-)where S : Temporal, S : Comparable<S> =
-    input.constrain("kova.temporal.past") { satisfies(it < now(clock), message) }
+    noinline message: MessageProvider = { "kova.temporal.past".resource },
+)where S : Temporal, S : Comparable<S> = input.constrain("kova.temporal.past") { satisfies(it < now(clock), message) }
 
 /**
  * Validates that the temporal value is in the past or present (less than or equal to now).
@@ -109,12 +104,10 @@ inline fun <reified S> past(
  * @return A new validator with the past-or-present constraint
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-inline fun <reified S> pastOrPresent(
+inline fun <reified S> Validation.pastOrPresent(
     input: S,
     noinline message: MessageProvider = { "kova.temporal.pastOrPresent".resource },
-) where S : Temporal, S : Comparable<S> =
-    input.constrain("kova.temporal.pastOrPresent") { satisfies(it <= now(clock), message) }
+) where S : Temporal, S : Comparable<S> = input.constrain("kova.temporal.pastOrPresent") { satisfies(it <= now(clock), message) }
 
 /**
  * Obtains the current temporal value for the specified type using the provided clock.

@@ -47,7 +47,9 @@ import org.komapper.extension.validator.tryValidate
 class SchemaValidator(
     private val errorFormatter: (List<Message>) -> String = ::defaultErrorFormatter
 ): Validator {
-    override suspend fun validate(value: Any) = tryValidate { (value as? Validated)?.validate() }.toKtor()
+    override suspend fun validate(value: Any) = tryValidate {
+        if (value is Validated) with(value) { validate() }
+    }.toKtor()
 
     override fun filter(value: Any): Boolean = value is Validated
 

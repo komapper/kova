@@ -15,8 +15,7 @@ package org.komapper.extension.validator
  * @return A new validator with the minimum length constraint
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-fun min(
+fun Validation.min(
     input: CharSequence,
     length: Int,
     message: MessageProvider = { "kova.charSequence.min".resource(length) },
@@ -37,8 +36,7 @@ fun min(
  * @return A new validator with the maximum length constraint
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-fun max(
+fun Validation.max(
     input: CharSequence,
     length: Int,
     message: MessageProvider = { "kova.charSequence.max".resource(length) },
@@ -59,8 +57,7 @@ fun max(
  * @return A new validator with the not-blank constraint
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-fun notBlank(
+fun Validation.notBlank(
     input: CharSequence,
     message: MessageProvider = { "kova.charSequence.notBlank".resource },
 ) = input.constrain("kova.charSequence.notBlank") { satisfies(it.isNotBlank(), message) }
@@ -80,8 +77,7 @@ fun notBlank(
  * @return A new validator with the blank constraint
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-fun blank(
+fun Validation.blank(
     input: CharSequence,
     message: MessageProvider = { "kova.charSequence.blank".resource },
 ) = input.constrain("kova.charSequence.blank") { satisfies(it.isBlank(), message) }
@@ -101,8 +97,7 @@ fun blank(
  * @return A new validator with the not-empty constraint
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-fun notEmpty(
+fun Validation.notEmpty(
     input: CharSequence,
     message: MessageProvider = { "kova.charSequence.notEmpty".resource },
 ) = input.constrain("kova.charSequence.notEmpty") { satisfies(it.isNotEmpty(), message) }
@@ -122,8 +117,7 @@ fun notEmpty(
  * @return A new validator with the empty constraint
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-fun empty(
+fun Validation.empty(
     input: CharSequence,
     message: MessageProvider = { "kova.charSequence.empty".resource },
 ) = input.constrain("kova.charSequence.empty") { satisfies(it.isEmpty(), message) }
@@ -143,8 +137,7 @@ fun empty(
  * @return A new validator with the exact length constraint
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-fun length(
+fun Validation.length(
     input: CharSequence,
     length: Int,
     message: MessageProvider = { "kova.charSequence.length".resource(length) },
@@ -165,8 +158,7 @@ fun length(
  * @return A new validator with the starts-with constraint
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-fun startsWith(
+fun Validation.startsWith(
     input: CharSequence,
     prefix: CharSequence,
     message: MessageProvider = { "kova.charSequence.startsWith".resource(prefix) },
@@ -187,8 +179,7 @@ fun startsWith(
  * @return A new validator with the not-starts-with constraint
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-fun notStartsWith(
+fun Validation.notStartsWith(
     input: CharSequence,
     prefix: CharSequence,
     message: MessageProvider = { "kova.charSequence.notStartsWith".resource(prefix) },
@@ -211,8 +202,7 @@ fun notStartsWith(
  * @return A new validator with the ends-with constraint
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-fun endsWith(
+fun Validation.endsWith(
     input: CharSequence,
     suffix: CharSequence,
     message: MessageProvider = { "kova.charSequence.endsWith".resource(suffix) },
@@ -233,8 +223,7 @@ fun endsWith(
  * @return A new validator with the not-ends-with constraint
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-fun notEndsWith(
+fun Validation.notEndsWith(
     input: CharSequence,
     suffix: CharSequence,
     message: MessageProvider = { "kova.charSequence.notEndsWith".resource(suffix) },
@@ -255,8 +244,7 @@ fun notEndsWith(
  * @return A new validator with the contains constraint
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-fun contains(
+fun Validation.contains(
     input: CharSequence,
     infix: CharSequence,
     message: MessageProvider = { "kova.charSequence.contains".resource(infix) },
@@ -277,8 +265,7 @@ fun contains(
  * @return A new validator with the not-contains constraint
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-fun notContains(
+fun Validation.notContains(
     input: CharSequence,
     infix: CharSequence,
     message: MessageProvider = { "kova.charSequence.notContains".resource(infix) },
@@ -299,8 +286,7 @@ fun notContains(
  * @return A new validator with the regex constraint
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-fun matches(
+fun Validation.matches(
     input: CharSequence,
     pattern: Regex,
     message: MessageProvider = { "kova.charSequence.matches".resource(pattern) },
@@ -321,8 +307,7 @@ fun matches(
  * @return A new validator with the not-matches constraint
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-fun notMatches(
+fun Validation.notMatches(
     input: CharSequence,
     pattern: Regex,
     message: MessageProvider = { "kova.charSequence.notMatches".resource(pattern) },

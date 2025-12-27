@@ -6,19 +6,18 @@ class MapValidatorTest :
     FunSpec({
 
         context("plus") {
-            context(_: Validation, _: Accumulate)
-            fun Map<*, *>.validate() {
-                min(this, 2)
-                min(this, 3)
+            fun Validation.validate(input: Map<*, *>) {
+                min(input, 2)
+                min(input, 3)
             }
 
             test("success") {
-                val result = tryValidate { mapOf("a" to "1", "b" to "2", "c" to "3").validate() }
+                val result = tryValidate { validate(mapOf("a" to "1", "b" to "2", "c" to "3")) }
                 result.shouldBeSuccess()
             }
 
             test("failure") {
-                val result = tryValidate { mapOf("a" to "1").validate() }
+                val result = tryValidate { validate(mapOf("a" to "1")) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 2
                 result.messages[0].constraintId shouldBe "kova.map.min"
@@ -73,16 +72,15 @@ class MapValidatorTest :
 
         context("constrain") {
             @IgnorableReturnValue
-            context(_: Validation, _: Accumulate)
-            fun Map<*, *>.validate() = constrain("test") { satisfies(it.size == 1) { text("Constraint failed") } }
+            fun Validation.validate(map: Map<*, *>) = map.constrain("test") { satisfies(it.size == 1) { text("Constraint failed") } }
 
             test("success") {
-                val result = tryValidate { mapOf("a" to "1").validate() }
+                val result = tryValidate { validate(mapOf("a" to "1")) }
                 result.shouldBeSuccess()
             }
 
             test("failure") {
-                val result = tryValidate { mapOf("a" to "1", "b" to "2").validate() }
+                val result = tryValidate { validate(mapOf("a" to "1", "b" to "2")) }
                 result.shouldBeFailure()
                 result.messages.single().text shouldBe "Constraint failed"
             }
@@ -90,21 +88,20 @@ class MapValidatorTest :
 
         context("onEach") {
             @IgnorableReturnValue
-            context(_: Validation, _: Accumulate)
-            fun <T> Map<T, T>.validate() =
-                onEach(this) { v ->
+            fun <T> Validation.validate(map: Map<T, T>) =
+                onEach(map) { v ->
                     v.constrain("test") { (key, value) ->
                         satisfies(key != value) { text("Constraint failed: $key") }
                     }
                 }
 
             test("success") {
-                val result = tryValidate { mapOf("a" to "1", "b" to "1").validate() }
+                val result = tryValidate { validate(mapOf("a" to "1", "b" to "1")) }
                 result.shouldBeSuccess()
             }
 
             test("failure") {
-                val result = tryValidate { mapOf("a" to "a", "b" to "b").validate() }
+                val result = tryValidate { validate(mapOf("a" to "a", "b" to "b")) }
                 result.shouldBeFailure()
                 result.messages[0].constraintId shouldBe "kova.map.onEach"
             }

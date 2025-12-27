@@ -1,14 +1,11 @@
 package example
 
-import org.komapper.extension.validator.Accumulate
 import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationResult
-import org.komapper.extension.validator.invoke
 import org.komapper.extension.validator.isSuccess
 import org.komapper.extension.validator.max
 import org.komapper.extension.validator.min
 import org.komapper.extension.validator.notBlank
-import org.komapper.extension.validator.schema
 import org.komapper.extension.validator.tryValidate
 
 data class User(
@@ -25,60 +22,57 @@ data class Person(
     val age: Age,
 )
 
-context(_: Validation, _: Accumulate)
-fun User.validate() {
-    schema {
-        ::name {
+fun Validation.validate(user: User) {
+    user.schema {
+        user::name {
             min(it, 1)
             notBlank(it)
         }
-        ::age {
+        user::age {
             min(it, 0)
             max(it, 120)
         }
     }
 }
 
-context(_: Validation, _: Accumulate)
-fun Age.validate() {
-    schema {
-        ::value {
+fun Validation.validate(age: Age) {
+    age.schema {
+        age::value {
             min(it, 0)
             max(it, 120)
         }
     }
 }
 
-context(_: Validation, _: Accumulate)
-fun Person.validate() {
-    schema {
-        ::name {
+fun Validation.validate(person: Person) {
+    person.schema {
+        person::name {
             min(it, 1)
             notBlank(it)
         }
-        ::age { it.validate() }
+        person::age { validate(it) }
     }
 }
 
 fun main() {
     println("\n# Validation")
 
-    tryValidate { User("a", 10).validate() }.printResult()
+    tryValidate { validate(User("a", 10)) }.printResult()
     // ## Success
     // User(name=a, age=10)
 
-    tryValidate { User("  ", -1).validate() }.printResult()
+    tryValidate { validate(User("  ", -1)) }.printResult()
     // ## Failure
     // Message(constraintId=kova.charSequence.notBlank, text='must not be blank', root=example.User, path=name, input=  , args=[])
     // Message(constraintId=kova.comparable.min, text='must be greater than or equal to 0', root=example.User, path=age, input=-1, args=[0])
 
     println("\n# Validation(nested object schema)")
 
-    tryValidate { Person("a", Age(10)).validate() }.printResult()
+    tryValidate { validate(Person("a", Age(10))) }.printResult()
     // ## Success
     // Person(name=a, age=Age(value=10))
 
-    tryValidate { Person("  ", Age(-1)).validate() }.printResult()
+    tryValidate { validate(Person("  ", Age(-1))) }.printResult()
     // ## Failure
     // Message(constraintId=kova.charSequence.notBlank, text='must not be blank', root=example.Person, path=name, input=  , args=[])
     // Message(constraintId=kova.comparable.min, text='must be greater than or equal to 0', root=example.Person, path=age.value, input=-1, args=[0])

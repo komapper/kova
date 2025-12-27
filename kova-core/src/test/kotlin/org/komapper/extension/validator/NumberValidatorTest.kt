@@ -6,20 +6,19 @@ class NumberValidatorTest :
     FunSpec({
 
         context("plus") {
-            context(_: Validation, _: Accumulate)
-            fun Int.validate() {
-                max(this, 2)
-                max(this, 3)
-                negative()
+            fun Validation.validate(i: Int) {
+                max(i, 2)
+                max(i, 3)
+                negative(i)
             }
 
             test("success") {
-                val result = tryValidate { (-1).validate() }
+                val result = tryValidate { validate(-1) }
                 result.shouldBeSuccess()
             }
 
             test("failure") {
-                val result = tryValidate { 5.validate() }
+                val result = tryValidate { validate(5) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 3
                 result.messages[0].constraintId shouldBe "kova.comparable.max"
@@ -29,23 +28,22 @@ class NumberValidatorTest :
         }
 
         context("or") {
-            context(_: Validation, _: Accumulate)
-            fun Int.validate() {
-                val _ = or { max(this, 2) } orElse { max(this, 3) }
-                min(this, 1)
+            fun Validation.validate(i: Int) {
+                val _ = or { max(i, 2) } orElse { max(i, 3) }
+                min(i, 1)
             }
 
             test("success with value 2") {
-                val result = tryValidate { 2.validate() }
+                val result = tryValidate { validate(2) }
                 result.shouldBeSuccess()
             }
             test("success with value 3") {
-                val result = tryValidate { 3.validate() }
+                val result = tryValidate { validate(3) }
                 result.shouldBeSuccess()
             }
 
             test("failure with value 4") {
-                val result = tryValidate { 4.validate() }
+                val result = tryValidate { validate(4) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.or"
@@ -54,16 +52,15 @@ class NumberValidatorTest :
 
         context("constrain") {
             @IgnorableReturnValue
-            context(_: Validation, _: Accumulate)
-            fun Int.validate() = constrain("test") { satisfies(it == 10) { text("Constraint failed") } }
+            fun Validation.validate(i: Int) = i.constrain("test") { satisfies(it == 10) { text("Constraint failed") } }
 
             test("success") {
-                val result = tryValidate { 10.validate() }
+                val result = tryValidate { validate(10) }
                 result.shouldBeSuccess()
             }
 
             test("failure") {
-                val result = tryValidate { 20.validate() }
+                val result = tryValidate { validate(20) }
                 result.shouldBeFailure()
                 result.messages[0].text shouldBe "Constraint failed"
             }
@@ -108,23 +105,23 @@ class NumberValidatorTest :
 
         context("negative") {
             test("success with negative number") {
-                val result = tryValidate { (-1).negative() }
+                val result = tryValidate { negative(-1) }
                 result.shouldBeSuccess()
             }
 
             test("success with large negative number") {
-                val result = tryValidate { (-100).negative() }
+                val result = tryValidate { negative(-100) }
                 result.shouldBeSuccess()
             }
 
             test("failure with zero") {
-                val result = tryValidate { 0.negative() }
+                val result = tryValidate { negative(0) }
                 result.shouldBeFailure()
                 result.messages[0].constraintId shouldBe "kova.number.negative"
             }
 
             test("failure with positive number") {
-                val result = tryValidate { 1.negative() }
+                val result = tryValidate { negative(1) }
                 result.shouldBeFailure()
                 result.messages[0].constraintId shouldBe "kova.number.negative"
             }
@@ -132,12 +129,12 @@ class NumberValidatorTest :
 
         context("negative with double") {
             test("success with negative number") {
-                val result = tryValidate { (-0.1).negative() }
+                val result = tryValidate { negative(-0.1) }
                 result.shouldBeSuccess()
             }
 
             test("failure with positive number") {
-                val result = tryValidate { 0.1.negative() }
+                val result = tryValidate { negative(0.1) }
                 result.shouldBeFailure()
                 result.messages[0].constraintId shouldBe "kova.number.negative"
             }
@@ -357,12 +354,12 @@ class NumberValidatorTest :
 
         context("negative with byte") {
             test("success with negative number") {
-                val result = tryValidate { (-10).negative() }
+                val result = tryValidate { negative(-10) }
                 result.shouldBeSuccess()
             }
 
             test("failure with positive number") {
-                val result = tryValidate { 10.negative() }
+                val result = tryValidate { negative(10) }
                 result.shouldBeFailure()
                 result.messages[0].constraintId shouldBe "kova.number.negative"
             }

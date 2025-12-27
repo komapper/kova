@@ -8,20 +8,19 @@ class ValidatorTest :
     FunSpec({
 
         context("validate") {
-            context(_: Validation, _: Accumulate)
-            fun Int.validate() {
-                min(this, 1)
-                max(this, 10)
+            fun Validation.validate(i: Int) {
+                min(i, 1)
+                max(i, 10)
             }
 
             test("success") {
-                validate { 5.validate() }
+                validate { validate(5) }
             }
 
             test("failure") {
                 val ex =
                     shouldThrow<ValidationException> {
-                        validate { 0.validate() }
+                        validate { validate(0) }
                     }
                 ex.messages.size shouldBe 1
                 ex.messages[0].constraintId shouldBe "kova.comparable.min"
@@ -29,53 +28,50 @@ class ValidatorTest :
         }
 
         context("plus") {
-            context(_: Validation, _: Accumulate)
-            fun Int.validate() {
-                max(this, 2)
-                max(this, 3)
+            fun Validation.validate(i: Int) {
+                max(i, 2)
+                max(i, 3)
             }
 
             test("success") {
-                val result = tryValidate { 1.validate() }
+                val result = tryValidate { validate(1) }
                 result.shouldBeSuccess()
             }
             test("failure") {
-                val result = tryValidate { 4.validate() }
+                val result = tryValidate { validate(4) }
                 result.shouldBeFailure()
             }
         }
 
         context("and") {
-            context(_: Validation, _: Accumulate)
-            fun Int.validate() {
-                min(this, 2)
-                max(this, 3)
+            fun Validation.validate(i: Int) {
+                min(i, 2)
+                max(i, 3)
             }
 
             test("success") {
-                val result = tryValidate { 2.validate() }
+                val result = tryValidate { validate(2) }
                 result.shouldBeSuccess()
             }
             test("failure") {
-                val result = tryValidate { 4.validate() }
+                val result = tryValidate { validate(4) }
                 result.shouldBeFailure()
             }
         }
 
         context("or: 2") {
-            context(_: Validation, _: Accumulate)
-            fun String.length2or5() = or { length(this, 2) } orElse { length(this, 5) }
+            fun Validation.length2or5(string: String) = or { length(string, 2) } orElse { length(string, 5) }
 
             test("success with length 2") {
-                val result = tryValidate { "ab".length2or5() }
+                val result = tryValidate { length2or5("ab") }
                 result.shouldBeSuccess()
             }
             test("success with length 5") {
-                val result = tryValidate { "abcde".length2or5() }
+                val result = tryValidate { length2or5("abcde") }
                 result.shouldBeSuccess()
             }
             test("failure with length 3") {
-                val result = tryValidate { "abc".length2or5() }
+                val result = tryValidate { length2or5("abc") }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].let {
@@ -94,11 +90,13 @@ class ValidatorTest :
         }
 
         context("or: 3") {
-            context(_: Validation, _: Accumulate)
-            fun String.length2or5or7() = or { length(this, 2) } or { length(this, 5) } orElse { length(this, 7) }
+            fun Validation.length2or5or7(string: String) =
+                or { length(string, 2) } or { length(string, 5) } orElse {
+                    length(string, 7)
+                }
 
             test("failure with length 3") {
-                val result = tryValidate { "abc".length2or5or7() }
+                val result = tryValidate { length2or5or7("abc") }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].let {
@@ -118,18 +116,17 @@ class ValidatorTest :
         }
 
         context("map") {
-            context(_: Validation, _: Accumulate)
-            fun Int.validate(): Int {
-                min(this, 1)
-                return this * 2
+            fun Validation.validate(i: Int): Int {
+                min(i, 1)
+                return i * 2
             }
             test("success") {
-                val result = tryValidate { 2.validate() }
+                val result = tryValidate { validate(2) }
                 result.shouldBeSuccess()
                 result.value shouldBe 4
             }
             test("failure") {
-                val result = tryValidate { (-1).validate() }
+                val result = tryValidate { validate(-1) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].text shouldBe "must be greater than or equal to 1"
@@ -137,64 +134,61 @@ class ValidatorTest :
         }
 
         context("then") {
-            context(_: Validation, _: Accumulate)
-            fun Int.validate(): String {
-                min(this, 3)
-                return toString().also { max(it, 1) }
+            fun Validation.validate(i: Int): String {
+                min(i, 3)
+                return i.toString().also { max(it, 1) }
             }
 
             test("success") {
-                val result = tryValidate { 3.validate() }
+                val result = tryValidate { validate(3) }
                 result.shouldBeSuccess()
                 result.value shouldBe "3"
             }
             test("failure when first constraint violated") {
-                val result = tryValidate { 2.validate() }
+                val result = tryValidate { validate(2) }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.comparable.min"
             }
             test("failure when second constraint violated") {
-                val result = tryValidate { 10.validate() }
+                val result = tryValidate { validate(10) }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.charSequence.max"
             }
         }
 
         context("then - lambda") {
-            context(_: Validation, _: Accumulate)
-            fun Int.validate(): String {
-                min(this, 3)
-                return toString().also { max(it, 1) }
+            fun Validation.validate(i: Int): String {
+                min(i, 3)
+                return i.toString().also { max(it, 1) }
             }
 
             test("success") {
-                val result = tryValidate { 3.validate() }
+                val result = tryValidate { validate(3) }
                 result.shouldBeSuccess()
                 result.value shouldBe "3"
             }
             test("failure when first constraint violated") {
-                val result = tryValidate { 2.validate() }
+                val result = tryValidate { validate(2) }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.comparable.min"
             }
             test("failure when second constraint violated") {
-                val result = tryValidate { 10.validate() }
+                val result = tryValidate { validate(10) }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.charSequence.max"
             }
         }
 
         context("logs") {
-            context(_: Validation, _: Accumulate)
-            fun String.validate() =
-                trim().let {
+            fun Validation.validate(string: String) =
+                string.trim().let {
                     min(it, 3)
                     max(it, 5)
                 }
 
             test("success") {
                 buildList {
-                    val result = tryValidate(ValidationConfig(logger = { add(it) })) { " abcde ".validate() }
+                    val result = tryValidate(ValidationConfig(logger = { add(it) })) { validate(" abcde ") }
                     result.shouldBeSuccess()
                 } shouldBe
                     listOf(
@@ -205,7 +199,7 @@ class ValidatorTest :
 
             test("failure") {
                 val logs = mutableListOf<LogEntry>()
-                val result = tryValidate(ValidationConfig(logger = { logs.add(it) })) { " ab ".validate() }
+                val result = tryValidate(ValidationConfig(logger = { logs.add(it) })) { validate(" ab ") }
                 result.shouldBeFailure()
 
                 logs shouldBe
@@ -223,20 +217,19 @@ class ValidatorTest :
         }
 
         context("message - provider - text") {
-            context(_: Validation, _: Accumulate)
-            fun String.validate() =
+            fun Validation.validate(string: String) =
                 withMessage({ messages -> text("Invalid: consolidates messages=(${messages.joinToString { it.text }})") }) {
-                    uppercase(this)
-                    min(this, 3)
+                    uppercase(string)
+                    min(string, 3)
                     Unit
                 }
 
             test("success") {
-                val result = tryValidate { "ABCDE".validate() }
+                val result = tryValidate { validate("ABCDE") }
                 result.shouldBeSuccess()
             }
             test("failure") {
-                val result = tryValidate { "ab".validate() }
+                val result = tryValidate { validate("ab") }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.shouldBeInstanceOf<Message.Text>()
@@ -247,20 +240,19 @@ class ValidatorTest :
         }
 
         context("message - provider - resource") {
-            context(_: Validation, _: Accumulate)
-            fun String.validate() =
+            fun Validation.validate(string: String) =
                 withMessage {
-                    uppercase(this)
-                    min(this, 3)
+                    uppercase(string)
+                    min(string, 3)
                     Unit
                 }
 
             test("success") {
-                val result = tryValidate { "ABCDE".validate() }
+                val result = tryValidate { validate("ABCDE") }
                 result.shouldBeSuccess()
             }
             test("failure") {
-                val result = tryValidate { "ab".validate() }
+                val result = tryValidate { validate("ab") }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.constraintId shouldBe "kova.withMessage"
@@ -271,20 +263,19 @@ class ValidatorTest :
         }
 
         context("message - text") {
-            context(_: Validation, _: Accumulate)
-            fun String.validate() =
+            fun Validation.validate(string: String) =
                 withMessage("Invalid") {
-                    uppercase(this)
-                    min(this, 3)
+                    uppercase(string)
+                    min(string, 3)
                     Unit
                 }
 
             test("success") {
-                val result = tryValidate { "ABCDE".validate() }
+                val result = tryValidate { validate("ABCDE") }
                 result.shouldBeSuccess()
             }
             test("failure") {
-                val result = tryValidate { "ab".validate() }
+                val result = tryValidate { validate("ab") }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.shouldBeInstanceOf<Message.Text>()
@@ -300,11 +291,10 @@ class ValidatorTest :
                 val name: String,
             )
 
-            context(_: Validation, _: Accumulate)
-            fun User.validate() =
-                schema {
-                    ::id { }
-                    ::name {
+            fun Validation.validate(user: User) =
+                user.schema {
+                    user::id { }
+                    user::name {
                         withMessage({ text("Must be uppercase and at least 3 characters long") }) {
                             uppercase(it)
                             min(it, 3)
@@ -313,11 +303,11 @@ class ValidatorTest :
                 }
 
             test("success") {
-                val result = tryValidate { User(1, "ABCDE").validate() }
+                val result = tryValidate { validate(User(1, "ABCDE")) }
                 result.shouldBeSuccess()
             }
             test("failure") {
-                val result = tryValidate { User(1, "ab").validate() }
+                val result = tryValidate { validate(User(1, "ab")) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.shouldBeInstanceOf<Message.Text>()
@@ -328,12 +318,14 @@ class ValidatorTest :
         }
 
         context("mapping operation after failure") {
-            context(_: Validation, _: Accumulate)
-            fun String.validate() = trim().also { min(it, 3) }.toUppercase().also { max(it, 3) }
+            fun Validation.validate(string: String) =
+                string.trim().also { min(it, 3) }.toUppercase().also {
+                    max(it, 3)
+                }
 
             test("failure") {
                 val logs = mutableListOf<LogEntry>()
-                val result = tryValidate(ValidationConfig(logger = { logs.add(it) })) { "  ab  ".validate() }
+                val result = tryValidate(ValidationConfig(logger = { logs.add(it) })) { validate("  ab  ") }
                 result.shouldBeFailure()
                 logs shouldBe
                     listOf(

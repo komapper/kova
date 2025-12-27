@@ -1,10 +1,16 @@
 package org.komapper.extension.validator
 
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.reflect.KProperty
 
 fun interface Accumulate {
     sealed class Value<out T> {
         abstract val value: T
+
+        operator fun getValue(
+            instance: Any?,
+            property: KProperty<*>,
+        ): T = value
     }
 
     class Ok<T>(
@@ -25,25 +31,23 @@ fun interface Accumulate {
 }
 
 @IgnorableReturnValue
-context(acc: Accumulate)
-fun accumulate(messages: List<Message>) = acc.accumulate(messages)
+fun Validation.accumulate(messages: List<Message>) = acc.accumulate(messages)
 
-context(_: Accumulate)
-fun raise(messages: List<Message>): Nothing = accumulate(messages).raise()
+fun Validation.raise(messages: List<Message>): Nothing = accumulate(messages).raise()
 
-context(_: Accumulate)
-fun raise(message: Message): Nothing = raise(listOf(message))
+fun Validation.raise(message: Message): Nothing = raise(listOf(message))
 
 @IgnorableReturnValue
-context(_: Accumulate)
-inline fun <R> accumulating(block: context(Accumulate) () -> R): Accumulate.Value<R> {
+inline fun <R> Validation.accumulating(block: Validation.() -> R): Accumulate.Value<R> {
     lateinit var outsideError: Accumulate.Error
     // raise/error is only used after outsideError is initialized
     return recoverValidation({ outsideError }) {
-        block {
-            outsideError = accumulate(it)
-            this
-        }.let(Accumulate::Ok)
+        block(
+            copy(acc = {
+                outsideError = accumulate(it)
+                this
+            }),
+        ).let(Accumulate::Ok)
     }
 }
 

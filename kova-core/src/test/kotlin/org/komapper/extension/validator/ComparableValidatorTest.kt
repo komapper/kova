@@ -6,20 +6,19 @@ class ComparableValidatorTest :
     FunSpec({
 
         context("plus") {
-            context(_: Validation, _: Accumulate)
-            fun UInt.validate() {
-                max(this, 10u)
-                max(this, 20u)
-                min(this, 5u)
+            fun Validation.validate(i: UInt) {
+                max(i, 10u)
+                max(i, 20u)
+                min(i, 5u)
             }
 
             test("success") {
-                val result = tryValidate { 8u.validate() }
+                val result = tryValidate { validate(8u) }
                 result.shouldBeSuccess()
             }
 
             test("failure") {
-                val result = tryValidate { 15u.validate() }
+                val result = tryValidate { validate(15u) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.comparable.max"
@@ -27,24 +26,23 @@ class ComparableValidatorTest :
         }
 
         context("or") {
-            context(_: Validation, _: Accumulate)
-            fun UInt.validate() {
-                val _ = or { max(this, 10u) } orElse { max(this, 20u) }
-                min(this, 5u)
+            fun Validation.validate(i: UInt) {
+                val _ = or { max(i, 10u) } orElse { max(i, 20u) }
+                min(i, 5u)
             }
 
             test("success : 10") {
-                val result = tryValidate { 10u.validate() }
+                val result = tryValidate { validate(10u) }
                 result.shouldBeSuccess()
             }
 
             test("success : 20") {
-                val result = tryValidate { 20u.validate() }
+                val result = tryValidate { validate(20u) }
                 result.shouldBeSuccess()
             }
 
             test("failure : 25") {
-                val result = tryValidate { 25u.validate() }
+                val result = tryValidate { validate(25u) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.or"
@@ -53,15 +51,14 @@ class ComparableValidatorTest :
 
         context("constrain") {
             @IgnorableReturnValue
-            context(_: Validation, _: Accumulate)
-            fun UInt.validate() = constrain("test") { satisfies(it == 10u) { text("Constraint failed") } }
+            fun Validation.validate(i: UInt) = i.constrain("test") { satisfies(it == 10u) { text("Constraint failed") } }
             test("success") {
-                val result = tryValidate { 10u.validate() }
+                val result = tryValidate { validate(10u) }
                 result.shouldBeSuccess()
             }
 
             test("failure") {
-                val result = tryValidate { 20u.validate() }
+                val result = tryValidate { validate(20u) }
                 result.shouldBeFailure()
                 result.messages.single().text shouldBe "Constraint failed"
             }
@@ -226,32 +223,31 @@ class ComparableValidatorTest :
             }
 
             context("chaining multiple validators") {
-                context(_: Validation, _: Accumulate)
-                fun UInt.validate() {
-                    min(this, 5u)
-                    max(this, 10u)
-                    gt(this, 6u)
-                    lte(this, 9u)
+                fun Validation.validate(i: UInt) {
+                    min(i, 5u)
+                    max(i, 10u)
+                    gt(i, 6u)
+                    lte(i, 9u)
                 }
 
                 test("success with value 7") {
-                    val result = tryValidate { 7u.validate() }
+                    val result = tryValidate { validate(7u) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with value 9") {
-                    val result = tryValidate { 9u.validate() }
+                    val result = tryValidate { validate(9u) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure with value 5") {
-                    val result = tryValidate { 5u.validate() }
+                    val result = tryValidate { validate(5u) }
                     result.shouldBeFailure()
                     result.messages[0].constraintId shouldBe "kova.comparable.gt"
                 }
 
                 test("failure with value 10") {
-                    val result = tryValidate { 10u.validate() }
+                    val result = tryValidate { validate(10u) }
                     result.shouldBeFailure()
                     result.messages[0].constraintId shouldBe "kova.comparable.lte"
                 }

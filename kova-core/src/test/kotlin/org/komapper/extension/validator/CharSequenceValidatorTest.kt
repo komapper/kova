@@ -6,19 +6,18 @@ class CharSequenceValidatorTest :
     FunSpec({
 
         context("plus") {
-            context(_: Validation, _: Accumulate)
-            fun String.validate() {
-                max(this, 2)
-                max(this, 3)
+            fun Validation.validate(string: String) {
+                max(string, 2)
+                max(string, 3)
             }
 
             test("success") {
-                val result = tryValidate { "1".validate() }
+                val result = tryValidate { validate("1") }
                 result.shouldBeSuccess()
             }
 
             test("failure") {
-                val result = tryValidate { "1234".validate() }
+                val result = tryValidate { validate("1234") }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 2
                 result.messages[0].constraintId shouldBe "kova.charSequence.max"
@@ -27,19 +26,18 @@ class CharSequenceValidatorTest :
         }
 
         context("and") {
-            context(_: Validation, _: Accumulate)
-            fun String.validate() {
-                max(this, 2)
-                max(this, 3)
+            fun Validation.validate(string: String) {
+                max(string, 2)
+                max(string, 3)
             }
 
             test("success") {
-                val result = tryValidate { "1".validate() }
+                val result = tryValidate { validate("1") }
                 result.shouldBeSuccess()
             }
 
             test("failure") {
-                val result = tryValidate { "1234".validate() }
+                val result = tryValidate { validate("1234") }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 2
                 result.messages[0].constraintId shouldBe "kova.charSequence.max"
@@ -48,20 +46,19 @@ class CharSequenceValidatorTest :
         }
 
         context("then") {
-            context(_: Validation, _: Accumulate)
-            fun String.validate() =
-                trim().let { trimmed ->
+            fun Validation.validate(string: String) =
+                string.trim().let { trimmed ->
                     length(trimmed, 3)
                     trimmed.toUppercase()
                 }
 
             test("success") {
-                val result = tryValidate { " abc ".validate() }
+                val result = tryValidate { validate(" abc ") }
                 result.shouldBeSuccess()
             }
 
             test("failure") {
-                val result = tryValidate { " a ".validate() }
+                val result = tryValidate { validate(" a ") }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.charSequence.length"
@@ -70,12 +67,12 @@ class CharSequenceValidatorTest :
 
         context("min") {
             test("success") {
-                val result = tryValidate { min("abc", 3) }
+                val result = tryValidate { this.min("abc", 3) }
                 result.shouldBeSuccess()
             }
 
             test("failure") {
-                val result = tryValidate { min("ab", 3) }
+                val result = tryValidate { this.min("ab", 3) }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.charSequence.min"
             }
@@ -83,12 +80,12 @@ class CharSequenceValidatorTest :
 
         context("max") {
             test("success") {
-                val result = tryValidate { max("a", 1) }
+                val result = tryValidate { this.max("a", 1) }
                 result.shouldBeSuccess()
             }
 
             test("failure") {
-                val result = tryValidate { max("ab", 1) }
+                val result = tryValidate { this.max("ab", 1) }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.charSequence.max"
             }
@@ -109,11 +106,11 @@ class CharSequenceValidatorTest :
 
         context("notBlank") {
             test("success") {
-                val result = tryValidate { notBlank("ab") }
+                val result = tryValidate { this.notBlank("ab") }
                 result.shouldBeSuccess()
             }
             test("failure") {
-                val result = tryValidate { notBlank("") }
+                val result = tryValidate { this.notBlank("") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.charSequence.notBlank"
             }
@@ -121,15 +118,15 @@ class CharSequenceValidatorTest :
 
         context("blank") {
             test("success with empty string") {
-                val result = tryValidate { blank("") }
+                val result = tryValidate { this.blank("") }
                 result.shouldBeSuccess()
             }
             test("success with whitespace only") {
-                val result = tryValidate { blank("   ") }
+                val result = tryValidate { this.blank("   ") }
                 result.shouldBeSuccess()
             }
             test("failure") {
-                val result = tryValidate { blank("ab") }
+                val result = tryValidate { this.blank("ab") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.charSequence.blank"
             }
@@ -137,12 +134,12 @@ class CharSequenceValidatorTest :
 
         context("notEmpty") {
             test("success") {
-                val result = tryValidate { notEmpty("ab") }
+                val result = tryValidate { this.notEmpty("ab") }
                 result.shouldBeSuccess()
             }
 
             test("failure") {
-                val result = tryValidate { notEmpty("") }
+                val result = tryValidate { this.notEmpty("") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.charSequence.notEmpty"
             }
@@ -150,16 +147,16 @@ class CharSequenceValidatorTest :
 
         context("empty") {
             test("success") {
-                val result = tryValidate { empty("") }
+                val result = tryValidate { this.empty("") }
                 result.shouldBeSuccess()
             }
             test("failure with content") {
-                val result = tryValidate { empty("ab") }
+                val result = tryValidate { this.empty("ab") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.charSequence.empty"
             }
             test("failure with whitespace only") {
-                val result = tryValidate { empty("   ") }
+                val result = tryValidate { this.empty("   ") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.charSequence.empty"
             }
@@ -266,19 +263,18 @@ class CharSequenceValidatorTest :
         }
 
         context("nullableString") {
-            context(_: Validation, _: Accumulate)
-            fun String?.max1() = max(toNonNullable(this), 1)
+            fun Validation.max1(string: String?) = max(toNonNullable(string), 1)
 
             test("success") {
-                val result = tryValidate { "1".max1() }
+                val result = tryValidate { max1("1") }
                 result.shouldBeSuccess()
             }
             test("failure with null value") {
-                val result = tryValidate { null.max1() }
+                val result = tryValidate { max1(null) }
                 result.shouldBeFailure()
             }
             test("failure") {
-                val result = tryValidate { "12".max1() }
+                val result = tryValidate { max1("12") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.charSequence.max"
             }
@@ -286,18 +282,18 @@ class CharSequenceValidatorTest :
 
         context("trim with constraints") {
             test("success when trimmed value meets constraint") {
-                val result = tryValidate { min("  hello  ".trim(), 3) }
+                val result = tryValidate { this.min("  hello  ".trim(), 3) }
                 result.shouldBeSuccess()
             }
 
             test("failure when trimmed value violates constraint") {
-                val result = tryValidate { min("  hi  ".trim(), 3) }
+                val result = tryValidate { this.min("  hi  ".trim(), 3) }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.charSequence.min"
             }
 
             test("failure when whitespace only becomes empty after trim") {
-                val result = tryValidate { min("   ".trim(), 3) }
+                val result = tryValidate { this.min("   ".trim(), 3) }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.charSequence.min"
             }
@@ -305,12 +301,12 @@ class CharSequenceValidatorTest :
 
         context("toUpperCase with constraints") {
             test("success when transformed value meets constraint") {
-                val result = tryValidate { min("hello".toUppercase(), 3) }
+                val result = tryValidate { this.min("hello".toUppercase(), 3) }
                 result.shouldBeSuccess()
             }
 
             test("failure when transformed value violates constraint") {
-                val result = tryValidate { min("hi".toUppercase(), 3) }
+                val result = tryValidate { this.min("hi".toUppercase(), 3) }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.charSequence.min"
             }
@@ -323,12 +319,12 @@ class CharSequenceValidatorTest :
 
         context("toLowerCase with constraints") {
             test("success when transformed value meets constraint") {
-                val result = tryValidate { min("HELLO".toLowercase(), 3) }
+                val result = tryValidate { this.min("HELLO".toLowercase(), 3) }
                 result.shouldBeSuccess()
             }
 
             test("failure when transformed value violates constraint") {
-                val result = tryValidate { min("HI".toLowercase(), 3) }
+                val result = tryValidate { this.min("HI".toLowercase(), 3) }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.charSequence.min"
             }

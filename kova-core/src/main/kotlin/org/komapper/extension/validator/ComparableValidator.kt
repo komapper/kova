@@ -15,8 +15,7 @@ package org.komapper.extension.validator
  * @return A new validator with the minimum constraint
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-fun <S : Comparable<S>> min(
+fun <S : Comparable<S>> Validation.min(
     input: S,
     value: S,
     message: MessageProvider = { "kova.comparable.min".resource(value) },
@@ -37,8 +36,7 @@ fun <S : Comparable<S>> min(
  * @return A new validator with the maximum constraint
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-fun <S : Comparable<S>> max(
+fun <S : Comparable<S>> Validation.max(
     input: S,
     value: S,
     message: MessageProvider = { "kova.comparable.max".resource(value) },
@@ -60,8 +58,7 @@ fun <S : Comparable<S>> max(
  * @return A new validator with the greater-than constraint
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-fun <S : Comparable<S>> gt(
+fun <S : Comparable<S>> Validation.gt(
     input: S,
     value: S,
     message: MessageProvider = { "kova.comparable.gt".resource(value) },
@@ -83,8 +80,7 @@ fun <S : Comparable<S>> gt(
  * @return A new validator with the greater-than-or-equal constraint
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-fun <S : Comparable<S>> gte(
+fun <S : Comparable<S>> Validation.gte(
     input: S,
     value: S,
     message: MessageProvider = { "kova.comparable.gte".resource(value) },
@@ -106,8 +102,7 @@ fun <S : Comparable<S>> gte(
  * @return A new validator with the less-than constraint
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-fun <S : Comparable<S>> lt(
+fun <S : Comparable<S>> Validation.lt(
     input: S,
     value: S,
     message: MessageProvider = { "kova.comparable.lt".resource(value) },
@@ -129,8 +124,7 @@ fun <S : Comparable<S>> lt(
  * @return A new validator with the less-than-or-equal constraint
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-fun <S : Comparable<S>> lte(
+fun <S : Comparable<S>> Validation.lte(
     input: S,
     value: S,
     message: MessageProvider = { "kova.comparable.lte".resource(value) },
@@ -152,8 +146,7 @@ fun <S : Comparable<S>> lte(
  * @return A new validator with the equality constraint
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-fun <S : Comparable<S>> eq(
+fun <S : Comparable<S>> Validation.eq(
     input: S,
     value: S,
     message: MessageProvider = { "kova.comparable.eq".resource(value) },
@@ -175,8 +168,7 @@ fun <S : Comparable<S>> eq(
  * @return A new validator with the inequality constraint
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-fun <S : Comparable<S>> notEq(
+fun <S : Comparable<S>> Validation.notEq(
     input: S,
     value: S,
     message: MessageProvider = { "kova.comparable.notEq".resource(value) },

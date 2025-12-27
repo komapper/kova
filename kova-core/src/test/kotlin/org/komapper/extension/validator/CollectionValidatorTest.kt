@@ -41,19 +41,18 @@ class CollectionValidatorTest :
         }
 
         context("plus") {
-            context(_: Validation, _: Accumulate)
-            fun List<*>.validate() {
-                min(this, 2)
-                min(this, 3)
+            fun Validation.validate(list: List<*>) {
+                min(list, 2)
+                min(list, 3)
             }
 
             test("success") {
-                val result = tryValidate { listOf("1", "2", "3").validate() }
+                val result = tryValidate { validate(listOf("1", "2", "3")) }
                 result.shouldBeSuccess()
             }
 
             test("failure") {
-                val result = tryValidate { listOf("1").validate() }
+                val result = tryValidate { validate(listOf("1")) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 2
                 result.messages[0].constraintId shouldBe "kova.collection.min"
@@ -63,16 +62,15 @@ class CollectionValidatorTest :
 
         context("constrain") {
             @IgnorableReturnValue
-            context(_: Validation, _: Accumulate)
-            fun List<*>.validate() = constrain("test") { satisfies(it.size == 1) { text("Constraint failed") } }
+            fun Validation.validate(list: List<*>) = list.constrain("test") { satisfies(it.size == 1) { text("Constraint failed") } }
 
             test("success") {
-                val result = tryValidate { listOf("1").validate() }
+                val result = tryValidate { validate(listOf("1")) }
                 result.shouldBeSuccess()
             }
 
             test("failure") {
-                val result = tryValidate { listOf("1", "2").validate() }
+                val result = tryValidate { validate(listOf("1", "2")) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].text shouldBe "Constraint failed"
@@ -169,16 +167,15 @@ class CollectionValidatorTest :
                 val list: List<String>,
             )
 
-            context(_: Validation, _: Accumulate)
-            fun ListHolder.validate() = schema { ::list { e -> onEach(e) { length(it, 3) } } }
+            fun Validation.validate(holder: ListHolder) = holder.schema { holder::list { e -> onEach(e) { length(it, 3) } } }
 
             test("success") {
-                val result = tryValidate { ListHolder(listOf("123", "456")).validate() }
+                val result = tryValidate { validate(ListHolder(listOf("123", "456"))) }
                 result.shouldBeSuccess()
             }
 
             test("failure") {
-                val result = tryValidate { ListHolder(listOf("123", "4567")).validate() }
+                val result = tryValidate { validate(ListHolder(listOf("123", "4567"))) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 val message = result.messages[0]

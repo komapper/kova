@@ -15,8 +15,7 @@ package org.komapper.extension.validator
  * @return A new validator with the positive constraint
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-fun positive(
+fun Validation.positive(
     input: Number,
     message: MessageProvider = { "kova.number.positive".resource },
 ) = input.constrain("kova.number.positive") { satisfies(it.toDouble() > 0.0, message) }
@@ -36,9 +35,10 @@ fun positive(
  * @return A new validator with the negative constraint
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-fun Number.negative(message: MessageProvider = { "kova.number.negative".resource }) =
-    constrain("kova.number.negative") { satisfies(it.toDouble() < 0.0, message) }
+fun Validation.negative(
+    input: Number,
+    message: MessageProvider = { "kova.number.negative".resource },
+) = input.constrain("kova.number.negative") { satisfies(it.toDouble() < 0.0, message) }
 
 /**
  * Validates that the number is not positive (less than or equal to zero).
@@ -55,8 +55,7 @@ fun Number.negative(message: MessageProvider = { "kova.number.negative".resource
  * @return A new validator with the not-positive constraint
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-fun notPositive(
+fun Validation.notPositive(
     input: Number,
     message: MessageProvider = { "kova.number.notPositive".resource },
 ) = input.constrain("kova.number.notPositive") { satisfies(it.toDouble() <= 0.0, message) }
@@ -76,8 +75,7 @@ fun notPositive(
  * @return A new validator with the not-negative constraint
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-fun notNegative(
+fun Validation.notNegative(
     input: Number,
     message: MessageProvider = { "kova.number.notNegative".resource },
 ) = input.constrain("kova.number.notNegative") { satisfies(it.toDouble() >= 0.0, message) }

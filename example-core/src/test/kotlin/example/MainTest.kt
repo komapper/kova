@@ -36,14 +36,14 @@ class MainTest :
         context("UserSchema validation") {
             test("success - valid user") {
                 val user = User("Alice", 30)
-                val result = tryValidate { user.validate() }
+                val result = tryValidate { validate(user) }
 
                 result.shouldBeSuccess()
             }
 
             test("failure - invalid user with empty name and negative age") {
                 val user = User("", -1)
-                val result = tryValidate { user.validate() }
+                val result = tryValidate { validate(user) }
 
                 result.shouldBeFailure()
                 val messages = result.messages.map { it.text }
@@ -55,7 +55,7 @@ class MainTest :
 
             test("failure - age exceeds maximum") {
                 val user = User("Bob", 150)
-                val result = tryValidate { user.validate() }
+                val result = tryValidate { validate(user) }
 
                 result.shouldBeFailure()
                 val messages = result.messages.map { it.text }

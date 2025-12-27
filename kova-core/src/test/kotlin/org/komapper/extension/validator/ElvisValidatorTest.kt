@@ -5,25 +5,24 @@ import io.kotest.core.spec.style.FunSpec
 class ElvisValidatorTest :
     FunSpec({
         context("and") {
-            context(_: Validation, _: Accumulate)
-            fun Int?.whenNotNullMin3() {
-                if (this != null) min(this, 3)
+            fun Validation.whenNotNullMin3(i: Int?) {
+                if (i != null) min(i, 3)
             }
 
             test("success with non-null value") {
-                val result = tryValidate { 4.whenNotNullMin3() }
+                val result = tryValidate { whenNotNullMin3(4) }
                 result.shouldBeSuccess()
             }
 
             test("success with null value") {
                 val logs = mutableListOf<LogEntry>()
-                val result = tryValidate(ValidationConfig(logger = { logs.add(it) })) { null.whenNotNullMin3() }
+                val result = tryValidate(ValidationConfig(logger = { logs.add(it) })) { whenNotNullMin3(null) }
                 result.shouldBeSuccess()
                 logs shouldBe listOf()
             }
 
             test("failure when min 3 constraint violated") {
-                val result = tryValidate { 2.whenNotNullMin3() }
+                val result = tryValidate { whenNotNullMin3(2) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.comparable.min"
@@ -31,22 +30,21 @@ class ElvisValidatorTest :
         }
 
         context("and with each List element") {
-            context(_: Validation, _: Accumulate)
-            fun Int?.min3OrSucceed() {
-                if (this != null) min(this, 3)
+            fun Validation.min3OrSucceed(i: Int?) {
+                if (i != null) min(i, 3)
             }
             test("success with non-null value") {
-                val result = tryValidate { onEach(listOf(4, 5)) { it.min3OrSucceed() } }
+                val result = tryValidate { onEach(listOf(4, 5)) { min3OrSucceed(it) } }
                 result.shouldBeSuccess()
             }
 
             test("success with null value") {
-                val result = tryValidate { onEach(listOf<Int?>(null, null)) { it.min3OrSucceed() } }
+                val result = tryValidate { onEach(listOf<Int?>(null, null)) { min3OrSucceed(it) } }
                 result.shouldBeSuccess()
             }
 
             test("failure when min3 constraint violated") {
-                val result = tryValidate { onEach(listOf(2, null)) { it.min3OrSucceed() } }
+                val result = tryValidate { onEach(listOf(2, null)) { min3OrSucceed(it) } }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.collection.onEach"
@@ -54,28 +52,27 @@ class ElvisValidatorTest :
         }
 
         context("asNullable") {
-            context(_: Validation, _: Accumulate)
-            fun Int?.nullableMin3(): Int {
-                if (this == null) return 0
-                min(this, 3)
-                return this
+            fun Validation.nullableMin3(i: Int?): Int {
+                if (i == null) return 0
+                min(i, 3)
+                return i
             }
 
             test("success with non-null value") {
-                val result = tryValidate { 4.nullableMin3() }
+                val result = tryValidate { nullableMin3(4) }
                 result.shouldBeSuccess()
                 val value: Int = result.value // The type is "Int" instead of "Int?"
                 value shouldBe 4
             }
 
             test("success with null value") {
-                val result = tryValidate { null.nullableMin3() }
+                val result = tryValidate { nullableMin3(null) }
                 result.shouldBeSuccess()
                 result.value shouldBe 0
             }
 
             test("failure when min3 constraint is violated") {
-                val result = tryValidate { 2.nullableMin3() }
+                val result = tryValidate { nullableMin3(2) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.comparable.min"
@@ -83,33 +80,32 @@ class ElvisValidatorTest :
         }
 
         context("then") {
-            context(_: Validation, _: Accumulate)
-            fun Int?.nullableThenMin3AndMax3() =
-                (this ?: 4).also {
+            fun Validation.nullableThenMin3AndMax3(i: Int?) =
+                (i ?: 4).also {
                     min(it, 3)
                     max(it, 5)
                 }
 
             test("success") {
-                val result = tryValidate { 4.nullableThenMin3AndMax3() }
+                val result = tryValidate { nullableThenMin3AndMax3(4) }
                 result.shouldBeSuccess()
             }
 
             test("success with null value") {
-                val result = tryValidate { null.nullableThenMin3AndMax3() }
+                val result = tryValidate { nullableThenMin3AndMax3(null) }
                 result.shouldBeSuccess()
                 result.value shouldBe 4
             }
 
             test("failure when min3 constraint is violated") {
-                val result = tryValidate { 2.nullableThenMin3AndMax3() }
+                val result = tryValidate { nullableThenMin3AndMax3(2) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.comparable.min"
             }
 
             test("failure when max5 constraint violated") {
-                val result = tryValidate { 6.nullableThenMin3AndMax3() }
+                val result = tryValidate { nullableThenMin3AndMax3(6) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.comparable.max"
@@ -117,9 +113,8 @@ class ElvisValidatorTest :
         }
 
         context("or") {
-            context(_: Validation, _: Accumulate)
-            fun Int?.nullableMax5OrMin3() =
-                this?.let {
+            fun Validation.nullableMax5OrMin3(i: Int?) =
+                i?.let {
                     val _ = or { max(it, 5) } orElse { min(it, 3) }
                     it
                 } ?: 0
@@ -127,7 +122,7 @@ class ElvisValidatorTest :
             test("success: 3") {
                 buildList {
                     val config = ValidationConfig(logger = { add(it) })
-                    val result = tryValidate(config) { 3.nullableMax5OrMin3() }
+                    val result = tryValidate(config) { nullableMax5OrMin3(3) }
                     result.shouldBeSuccess()
                     result.value shouldBe 3
                 } shouldBe listOf(LogEntry.Satisfied(constraintId = "kova.comparable.max", root = "", path = "", input = 3))
@@ -136,7 +131,7 @@ class ElvisValidatorTest :
             test("success: 2") {
                 buildList {
                     val config = ValidationConfig(logger = { add(it) })
-                    val result = tryValidate(config) { 2.nullableMax5OrMin3() }
+                    val result = tryValidate(config) { nullableMax5OrMin3(2) }
                     result.shouldBeSuccess()
                     result.value shouldBe 2
                 } shouldBe listOf(LogEntry.Satisfied(constraintId = "kova.comparable.max", root = "", path = "", input = 2))
@@ -145,7 +140,7 @@ class ElvisValidatorTest :
             test("success: 6") {
                 val logs = mutableListOf<LogEntry>()
                 val config = ValidationConfig(logger = { logs.add(it) })
-                val result = tryValidate(config) { 6.nullableMax5OrMin3() }
+                val result = tryValidate(config) { nullableMax5OrMin3(6) }
                 result.shouldBeSuccess()
                 result.value shouldBe 6
                 logs shouldBe
@@ -164,7 +159,7 @@ class ElvisValidatorTest :
             test("success: null") {
                 val logs = mutableListOf<LogEntry>()
                 val config = ValidationConfig(logger = { logs.add(it) })
-                val result = tryValidate(config) { null.nullableMax5OrMin3() }
+                val result = tryValidate(config) { nullableMax5OrMin3(null) }
                 result.shouldBeSuccess()
                 result.value shouldBe 0
                 logs shouldBe listOf()

@@ -8,28 +8,28 @@ class KovaPropertiesTest :
 
         context("kova.charSequence") {
             test("min") {
-                val result = tryValidate { min("abc", 5) }
+                val result = tryValidate { this.min("abc", 5) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be at least 5 characters"
             }
 
             test("min with message") {
-                val result = tryValidate { min("abc", 5) { text("must be at least 5 characters") } }
+                val result = tryValidate { this.min("abc", 5) { text("must be at least 5 characters") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be at least 5 characters"
             }
 
             test("max") {
-                val result = tryValidate { max("abcdef", 5) }
+                val result = tryValidate { this.max("abcdef", 5) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be at most 5 characters"
             }
 
             test("max with message") {
-                val result = tryValidate { max("abcdef", 5) { text("must be at most 5 characters") } }
+                val result = tryValidate { this.max("abcdef", 5) { text("must be at most 5 characters") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be at most 5 characters"
@@ -50,28 +50,28 @@ class KovaPropertiesTest :
             }
 
             test("notBlank") {
-                val result = tryValidate { notBlank("  ") }
+                val result = tryValidate { this.notBlank("  ") }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must not be blank"
             }
 
             test("blank") {
-                val result = tryValidate { blank("abc") }
+                val result = tryValidate { this.blank("abc") }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be blank"
             }
 
             test("notEmpty") {
-                val result = tryValidate { notEmpty("") }
+                val result = tryValidate { this.notEmpty("") }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must not be empty"
             }
 
             test("empty") {
-                val result = tryValidate { empty("abc") }
+                val result = tryValidate { this.empty("abc") }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be empty"
@@ -631,7 +631,7 @@ class KovaPropertiesTest :
             }
 
             test("negative") {
-                val result = tryValidate { 5.negative() }
+                val result = tryValidate { negative(5) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be negative"

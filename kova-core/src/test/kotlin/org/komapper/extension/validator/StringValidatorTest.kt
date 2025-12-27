@@ -6,26 +6,25 @@ class StringValidatorTest :
     FunSpec({
 
         context("or") {
-            context(_: Validation, _: Accumulate)
-            fun String.validate(): String {
-                val _ = or { isInt(this) } orElse { literal(this, "zero") }
-                return toUppercase()
+            fun Validation.validate(string: String): String {
+                val _ = or { isInt(string) } orElse { literal(string, "zero") }
+                return string.toUppercase()
             }
 
             test("success with int value") {
-                val result = tryValidate { "1".validate() }
+                val result = tryValidate { validate("1") }
                 result.shouldBeSuccess()
                 result.value shouldBe "1"
             }
 
             test("success with literal value") {
-                val result = tryValidate { "zero".validate() }
+                val result = tryValidate { validate("zero") }
                 result.shouldBeSuccess()
                 result.value shouldBe "ZERO"
             }
 
             test("failure") {
-                val result = tryValidate { "abc".validate() }
+                val result = tryValidate { validate("abc") }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.or"
@@ -34,16 +33,15 @@ class StringValidatorTest :
 
         context("constrain") {
             @IgnorableReturnValue
-            context(_: Validation, _: Accumulate)
-            fun String.validate() = constrain("test") { satisfies(it == "OK") { text("Constraint failed") } }
+            fun Validation.validate(string: String) = string.constrain("test") { satisfies(it == "OK") { text("Constraint failed") } }
 
             test("success") {
-                val result = tryValidate { "OK".validate() }
+                val result = tryValidate { validate("OK") }
                 result.shouldBeSuccess()
             }
 
             test("failure") {
-                val result = tryValidate { "NG".validate() }
+                val result = tryValidate { validate("NG") }
                 result.shouldBeFailure()
                 result.messages.single().text shouldBe "Constraint failed"
             }
@@ -51,11 +49,11 @@ class StringValidatorTest :
 
         context("notBlank with message") {
             test("success") {
-                val result = tryValidate { notBlank("ab") { text("Must not be blank") } }
+                val result = tryValidate { this.notBlank("ab") { text("Must not be blank") } }
                 result.shouldBeSuccess()
             }
             test("failure") {
-                val result = tryValidate { notBlank("") { text("Must not be blank") } }
+                val result = tryValidate { this.notBlank("") { text("Must not be blank") } }
                 result.shouldBeFailure()
                 result.messages.single().text shouldBe "Must not be blank"
             }

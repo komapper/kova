@@ -17,8 +17,7 @@ typealias LengthMessageProvider = (actualSize: Int) -> Message
  * @return A new validator with the minimum size constraint
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-fun min(
+fun Validation.min(
     input: Collection<*>,
     size: Int,
     message: LengthMessageProvider = { "kova.collection.min".resource(it, size) },
@@ -39,8 +38,7 @@ fun min(
  * @return A new validator with the maximum size constraint
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-fun max(
+fun Validation.max(
     input: Collection<*>,
     size: Int,
     message: LengthMessageProvider = { "kova.collection.max".resource(it, size) },
@@ -60,8 +58,7 @@ fun max(
  * @return A new validator with the not-empty constraint
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-fun notEmpty(
+fun Validation.notEmpty(
     input: Collection<*>,
     message: MessageProvider = { "kova.collection.notEmpty".resource },
 ) = input.constrain("kova.collection.notEmpty") { satisfies(it.isNotEmpty(), message) }
@@ -81,8 +78,7 @@ fun notEmpty(
  * @return A new validator with the exact size constraint
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-fun length(
+fun Validation.length(
     input: Collection<*>,
     size: Int,
     message: LengthMessageProvider = { "kova.collection.length".resource(it, size) },
@@ -103,8 +99,7 @@ fun length(
  * @return A new validator with the contains constraint
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-fun <E> has(
+fun <E> Validation.has(
     input: Collection<E>,
     element: E,
     message: MessageProvider = { "kova.collection.contains".resource(element) },
@@ -125,8 +120,7 @@ fun <E> has(
  * @return A new validator with the notContains constraint
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-fun <E> notContains(
+fun <E> Validation.notContains(
     input: Collection<E>,
     element: E,
     message: MessageProvider = { "kova.collection.notContains".resource(element) },
@@ -152,8 +146,7 @@ fun <E> notContains(
  * @return A new validator with per-element validation
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-fun <E> onEach(
+fun <E> Validation.onEach(
     input: Collection<E>,
     validate: Constraint<E>,
 ) = input.constrain("kova.collection.onEach") {

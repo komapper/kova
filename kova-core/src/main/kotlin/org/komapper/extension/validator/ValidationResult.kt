@@ -61,17 +61,6 @@ sealed interface ValidationResult<out T> : ValidationIor<T> {
     }
 }
 
-context(_: Accumulate)
-fun <T> ValidationIor<T>.bind(): T =
-    when (this) {
-        is Success -> value
-        is Failure -> raise(messages)
-        is Both -> {
-            accumulate(messages)
-            value
-        }
-    }
-
 /**
  * Type-safe check if this result is a success.
  *

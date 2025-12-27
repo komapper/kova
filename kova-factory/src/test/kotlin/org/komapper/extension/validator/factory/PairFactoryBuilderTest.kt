@@ -2,7 +2,6 @@ package org.komapper.extension.validator.factory
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
-import org.komapper.extension.validator.Accumulate
 import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationConfig
 import org.komapper.extension.validator.ValidationException
@@ -18,14 +17,13 @@ class PairFactoryBuilderTest :
     FunSpec({
 
         context("PairFactoryBuilder with primitive types") {
-            context(_: Validation, _: Accumulate)
-            fun build(
+            fun Validation.build(
                 first: String,
                 second: Int,
             ) = buildPair(
                 bind(first) {
-                    notBlank(it)
-                    max(it, 10)
+                    this.notBlank(it)
+                    this.max(it, 10)
                     it
                 },
                 bind(second) {
@@ -102,15 +100,14 @@ class PairFactoryBuilderTest :
         }
 
         context("PairFactoryBuilder with different types") {
-            context(_: Validation, _: Accumulate)
-            fun build(
+            fun Validation.build(
                 name: String,
                 age: Int,
             ) = buildPair(
                 bind(name) {
-                    notBlank(it)
-                    min(it, 1)
-                    max(it, 50)
+                    this.notBlank(it)
+                    this.min(it, 1)
+                    this.max(it, 50)
                     it
                 },
                 bind(age) {
@@ -141,8 +138,7 @@ class PairFactoryBuilderTest :
         }
 
         context("PairFactoryBuilder with identity validators") {
-            context(_: Validation, _: Accumulate)
-            fun build(
+            fun Validation.build(
                 first: String,
                 second: Int,
             ) = buildPair(
@@ -158,8 +154,7 @@ class PairFactoryBuilderTest :
         }
 
         context("PairFactoryBuilder with type transformation") {
-            context(_: Validation, _: Accumulate)
-            fun build(
+            fun Validation.build(
                 first: String,
                 second: String,
             ) = buildPair(
