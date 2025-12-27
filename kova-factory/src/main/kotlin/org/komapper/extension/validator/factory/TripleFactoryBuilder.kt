@@ -1,13 +1,11 @@
 package org.komapper.extension.validator.factory
 
-import org.komapper.extension.validator.Accumulate
 import org.komapper.extension.validator.Validation
 
-context(_: Validation, _: Accumulate)
-fun <A, B, C> buildTriple(
-    buildFirst: context(Validation, Accumulate) () -> A,
-    buildSecond: context(Validation, Accumulate) () -> B,
-    buildThird: context(Validation, Accumulate) () -> C,
+fun <A, B, C> Validation.buildTriple(
+    buildFirst: Validation.() -> A,
+    buildSecond: Validation.() -> B,
+    buildThird: Validation.() -> C,
 ): Triple<A, B, C> =
     factory("kotlin.Triple") {
         val first by bind { buildFirst() }

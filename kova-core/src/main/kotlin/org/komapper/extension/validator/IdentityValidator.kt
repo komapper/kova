@@ -15,11 +15,11 @@ package org.komapper.extension.validator
  * @return A new validator that accepts only the specified value
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-fun <S> S.literal(
+fun <S> Validation.literal(
+    input: S,
     value: S,
     message: MessageProvider = { "kova.literal.single".resource(value) },
-) = constrain("kova.literal.single") { satisfies(it == value, message) }
+) = input.constrain("kova.literal.single") { satisfies(it == value, message) }
 
 /**
  * Validates that the input is one of the specified values.
@@ -36,15 +36,15 @@ fun <S> S.literal(
  * @return A new validator that accepts only values from the list
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-fun <S> S.literal(
+fun <S> Validation.literal(
+    input: S,
     values: List<S>,
     message: MessageProvider = { "kova.literal.list".resource(values) },
-) = constrain("kova.literal.list") { satisfies(it in values, message) }
+) = input.constrain("kova.literal.list") { satisfies(it in values, message) }
 
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-fun <S> S.literal(
+fun <S> Validation.literal(
+    input: S,
     vararg values: S,
     message: MessageProvider = { "kova.literal.list".resource(values.asList()) },
-) = literal(values.asList(), message)
+) = literal(input, values.asList(), message)

@@ -6,40 +6,39 @@ class KovaTest :
     FunSpec({
 
         context("failFast") {
-            context(_: Validation, _: Accumulate)
-            fun String.validate() {
-                min(3)
-                length(4)
+            fun Validation.validate(string: String) {
+                min(string, 3)
+                length(string, 4)
             }
 
             test("failFast = false") {
-                val result = tryValidate { "ab".validate() }
+                val result = tryValidate { validate("ab") }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 2
             }
 
             test("failFast = true") {
-                val result = tryValidate(ValidationConfig(failFast = true)) { "ab".validate() }
+                val result = tryValidate(ValidationConfig(failFast = true)) { validate("ab") }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
             }
         }
 
         context("failFast with plus operator") {
-            context(_: Validation, _: Accumulate)
-            fun String?.validate() {
-                this?.min(3)
-                this?.length(4)
+            fun Validation.validate(string: String?) {
+                if (string == null) return
+                min(string, 3)
+                length(string, 4)
             }
 
             test("failFast = false") {
-                val result = tryValidate { "ab".validate() }
+                val result = tryValidate { validate("ab") }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 2
             }
 
             test("failFast = true") {
-                val result = tryValidate(ValidationConfig(failFast = true)) { "ab".validate() }
+                val result = tryValidate(ValidationConfig(failFast = true)) { validate("ab") }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
             }
@@ -67,27 +66,29 @@ class KovaTest :
                 operator fun get(key: String): String? = map[key]
             }
 
-            context(_: Validation)
-            fun Request.requestKey(block: context(Validation) (String?) -> Unit) = name("Request[key]") { this["key"].also { block(it) } }
+            fun Validation.requestKey(
+                request: Request,
+                block: Validation.(String?) -> Unit,
+            ) = request.name("Request[key]") {
+                request["key"].also { block(it) }
+            }
 
-            context(_: Validation, _: Accumulate)
-            fun Request.requestKeyIsNotNull() = requestKey { it.notNull() }
+            fun Validation.requestKeyIsNotNull(request: Request) = requestKey(request) { notNull(it) }
 
-            context(_: Validation, _: Accumulate)
-            fun Request.requestKeyIsNotNullAndMin3() =
-                requestKey {
-                    it.notNull()
-                    it?.min(3)
+            fun Validation.requestKeyIsNotNullAndMin3(request: Request) =
+                requestKey(request) {
+                    notNull(it)
+                    if (it != null) min(it, 3)
                 }
 
             test("success when requestKey is not null") {
-                val result = tryValidate { Request(mapOf("key" to "abc")).requestKeyIsNotNull() }
+                val result = tryValidate { requestKeyIsNotNull(Request(mapOf("key" to "abc"))) }
                 result.shouldBeSuccess()
                 result.value shouldBe "abc"
             }
 
             test("failure when requestKey is null") {
-                val result = tryValidate { Request(mapOf()).requestKeyIsNotNull() }
+                val result = tryValidate { requestKeyIsNotNull(Request(mapOf())) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].let {
@@ -97,13 +98,13 @@ class KovaTest :
             }
 
             test("success when requestKey is not null and min 3") {
-                val result = tryValidate { Request(mapOf("key" to "abc")).requestKeyIsNotNullAndMin3() }
+                val result = tryValidate { requestKeyIsNotNullAndMin3(Request(mapOf("key" to "abc"))) }
                 result.shouldBeSuccess()
                 result.value shouldBe "abc"
             }
 
             test("failure when requestKey constraint violated") {
-                val result = tryValidate { Request(mapOf("key" to "ab")).requestKeyIsNotNullAndMin3() }
+                val result = tryValidate { requestKeyIsNotNullAndMin3(Request(mapOf("key" to "ab"))) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].let {

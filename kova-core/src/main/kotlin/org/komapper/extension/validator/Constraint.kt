@@ -25,8 +25,7 @@ package org.komapper.extension.validator
  *
  * @param T The type of value this constraint validates
  */
-typealias Constraint<T> = context(Validation, Accumulate)
-(T) -> Unit
+typealias Constraint<T> = Validation.(T) -> Unit
 
 /**
  * Creates a text-based validation message.
@@ -47,5 +46,4 @@ typealias Constraint<T> = context(Validation, Accumulate)
  * @param content The text content of the error message
  * @return A [Message.Text] instance with the given content
  */
-context(c: Validation)
-fun text(content: String): Message = Message.Text("", c.root, c.path, content, null)
+fun Validation.text(content: String): Message = Message.Text("", root, path, content, null)

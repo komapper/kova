@@ -25,7 +25,7 @@ import org.komapper.extension.validator.ValidationResult.Success
  */
 fun <R> tryValidate(
     config: ValidationConfig = ValidationConfig(),
-    validator: context(Validation, Accumulate) () -> R,
+    validator: Validation.() -> R,
 ): ValidationResult<R> =
     when (val result = with(Validation(config = config)) { or { validator() } }) {
         is ValidationResult -> result
@@ -55,58 +55,38 @@ fun <R> tryValidate(
  */
 fun <R> validate(
     config: ValidationConfig = ValidationConfig(),
-    validator: context(Validation, Accumulate) () -> R,
+    validator: Validation.() -> R,
 ): R =
     when (val result = tryValidate(config, validator)) {
         is Success -> result.value
         is Failure -> throw ValidationException(result.messages)
     }
 
-context(c: Validation)
-inline fun <R> or(block: context(Accumulate) () -> R): ValidationIor<R> {
+inline fun <R> Validation.or(block: Validation.() -> R): ValidationIor<R> {
     val messages = mutableListOf<Message>()
     return recoverValidation({ Failure(messages) }) {
         val result =
-            block {
-                messages.addAll(it)
-                if (c.config.failFast) raise()
-                this
-            }
+            block(
+                copy(acc = {
+                    messages.addAll(it)
+                    if (config.failFast) raise()
+                    this
+                }),
+            )
         if (messages.isEmpty()) Success(result) else Both(result, messages)
     }
 }
 
-context(_: Validation)
-inline infix fun <R> ValidationIor<R>.or(block: context(Accumulate) () -> R): ValidationIor<R> {
-    if (this !is FailureLike) return this
-    val other =
-        org.komapper.extension.validator
-            .or(block)
-    if (other !is FailureLike) return other
-    return (this as? Both ?: other).withMessage("kova.or".resource(messages, other.messages))
-}
-
-context(_: Validation, _: Accumulate)
-inline infix fun <R> ValidationIor<R>.orElse(block: context(Accumulate) () -> R): R = or(block).bind()
-
-context(_: Validation)
-inline fun <T, R> T.name(
-    name: String,
-    block: context(Validation) () -> R,
-): R = addPath(name, this, block)
-
-context(_: Validation, _: Accumulate)
-inline fun <R> withMessage(
+inline fun <R> Validation.withMessage(
     noinline transform: (List<Message>) -> Message = { "kova.withMessage".resource(it) },
-    block: context(Accumulate) () -> R,
+    block: Validation.() -> R,
 ): R =
     when (val result = or(block)) {
         is Success -> result.value
         is FailureLike -> result.withMessage(transform(result.messages)).bind()
     }
 
-context(_: Validation, _: Accumulate)
-inline fun <R> withMessage(
+inline fun <R> Validation.withMessage(
     message: String,
-    block: context(Accumulate) () -> R,
+    block: Validation.() -> R,
 ): R = withMessage({ text(message) }, block)

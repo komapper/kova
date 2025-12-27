@@ -2,7 +2,6 @@ package org.komapper.extension.validator.factory
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
-import org.komapper.extension.validator.Accumulate
 import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationConfig
 import org.komapper.extension.validator.ValidationException
@@ -19,11 +18,10 @@ class FactoryTest :
                 val name: String,
             )
 
-            context(_: Validation, _: Accumulate)
-            fun build(name: String) =
+            fun Validation.build(name: String) =
                 factory {
                     val name by bind(name) {
-                        it.notBlank()
+                        notBlank(it)
                         it
                     }
                     User(name)
@@ -101,18 +99,16 @@ class FactoryTest :
                 val fullName: FullName,
             )
 
-            context(_: Validation, _: Accumulate)
-            fun buildName(value: String) =
+            fun Validation.buildName(value: String) =
                 factory {
                     val value by bind(value) {
-                        it.notBlank()
+                        notBlank(it)
                         it
                     }
                     Name(value)
                 }
 
-            context(_: Validation, _: Accumulate)
-            fun buildFullName(
+            fun Validation.buildFullName(
                 first: String,
                 last: String,
             ) = factory {
@@ -121,13 +117,12 @@ class FactoryTest :
                 FullName(first, last)
             }
 
-            context(_: Validation, _: Accumulate)
-            fun buildUser(
+            fun Validation.buildUser(
                 id: String,
                 firstName: String,
                 lastName: String,
             ) = factory {
-                val id by bind(id) { it.toInt() }
+                val id by bind(id) { toInt(it) }
                 val fullName by bind { buildFullName(firstName, lastName) }
                 User(id, fullName)
             }
