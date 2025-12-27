@@ -23,7 +23,7 @@ class FactoryTest :
             fun build(name: String) =
                 factory {
                     val name by bind(name) {
-                        it.notBlank()
+                        notBlank(it)
                         it
                     }
                     User(name)
@@ -105,7 +105,7 @@ class FactoryTest :
             fun buildName(value: String) =
                 factory {
                     val value by bind(value) {
-                        it.notBlank()
+                        notBlank(it)
                         it
                     }
                     Name(value)
@@ -127,7 +127,7 @@ class FactoryTest :
                 firstName: String,
                 lastName: String,
             ) = factory {
-                val id by bind(id) { it.toInt() }
+                val id by bind(id) { toInt(it) }
                 val fullName by bind { buildFullName(firstName, lastName) }
                 User(id, fullName)
             }

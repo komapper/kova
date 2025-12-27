@@ -21,12 +21,12 @@ class NullableValidatorTest :
 
         context("isNull") {
             test("success") {
-                val result = tryValidate { null.isNull() }
+                val result = tryValidate { isNull(null) }
                 result.shouldBeSuccess()
             }
 
             test("failure") {
-                val result = tryValidate { 4.isNull() }
+                val result = tryValidate { isNull(4) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.nullable.isNull"
@@ -36,9 +36,10 @@ class NullableValidatorTest :
         context("or") {
             context(_: Validation, _: Accumulate)
             fun Int?.isNullOrMin3Max3() =
-                or { isNull() } orElse {
-                    this?.min(3)
-                    this?.max(3)
+                or { isNull(this) } orElse {
+                    if (this == null) return@orElse
+                    min(this, 3)
+                    max(this, 3)
                 }
 
             test("success with null value") {
@@ -66,9 +67,9 @@ class NullableValidatorTest :
         context("isNullOr") {
             context(_: Validation, _: Accumulate)
             fun Int?.isNullOrMin3Max3() =
-                isNullOr {
-                    it.min(3)
-                    it.max(3)
+                isNullOr(this) {
+                    min(it, 3)
+                    max(it, 3)
                 }
 
             test("success with null value") {
@@ -91,12 +92,12 @@ class NullableValidatorTest :
 
         context("notNull") {
             test("success") {
-                val result = tryValidate { 4.notNull() }
+                val result = tryValidate { notNull(4) }
                 result.shouldBeSuccess()
             }
 
             test("failure") {
-                val result = tryValidate { null.notNull() }
+                val result = tryValidate { notNull(null) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.nullable.notNull"
@@ -106,8 +107,8 @@ class NullableValidatorTest :
         context("notNullAnd") {
             context(_: Validation, _: Accumulate)
             fun Int?.notNullAndMin3() {
-                notNull()
-                this?.min(3)
+                notNull(this)
+                if (this != null) min(this, 3)
             }
 
             test("success") {
@@ -133,7 +134,7 @@ class NullableValidatorTest :
         context("and") {
             context(_: Validation, _: Accumulate)
             fun Int?.nullableMin3() {
-                this?.min(3)
+                if (this != null) min(this, 3)
             }
 
             test("success with non-null value") {
@@ -157,21 +158,21 @@ class NullableValidatorTest :
         context("and - each List element") {
             context(_: Validation, _: Accumulate)
             fun Int?.nullableMin3() {
-                this?.min(3)
+                if (this != null) min(this, 3)
             }
 
             test("success with non-null value") {
-                val result = tryValidate { listOf(4, 5).onEach { it.nullableMin3() } }
+                val result = tryValidate { onEach(listOf(4, 5)) { it.nullableMin3() } }
                 result.shouldBeSuccess()
             }
 
             test("success with null value") {
-                val result = tryValidate { listOf(null, null).onEach { it.nullableMin3() } }
+                val result = tryValidate { onEach(listOf(null, null)) { it.nullableMin3() } }
                 result.shouldBeSuccess()
             }
 
             test("failure when min3 constraint violated") {
-                val result = tryValidate { listOf(2, null).onEach { it.nullableMin3() } }
+                val result = tryValidate { onEach(listOf(2, null)) { it.nullableMin3() } }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.collection.onEach"
@@ -181,8 +182,8 @@ class NullableValidatorTest :
         context("toNonNullable") {
             context(_: Validation, _: Accumulate)
             fun Int?.nullableMin3(): Int {
-                this?.min(3)
-                return toNonNullable()
+                if (this != null) min(this, 3)
+                return toNonNullable(this)
             }
 
             test("success with non-null value") {
@@ -209,7 +210,7 @@ class NullableValidatorTest :
 
         context("toNonNullable - then") {
             context(_: Validation, _: Accumulate)
-            fun Int?.notNullAndMin3AndMax3() = toNonNullable().also { it.max(5) }.also { it.min(3) }
+            fun Int?.notNullAndMin3AndMax3() = toNonNullable(this).also { max(it, 5) }.also { min(it, 3) }
 
             test("success") {
                 val result = tryValidate { 4.notNullAndMin3AndMax3() }
@@ -242,7 +243,7 @@ class NullableValidatorTest :
             test("success: 3") {
                 val logs = mutableListOf<LogEntry>()
                 val config = ValidationConfig(logger = { logs.add(it) })
-                val result = tryValidate(config) { 3.isNullOr { it.min(3) } }
+                val result = tryValidate(config) { isNullOr(3) { min(it, 3) } }
                 result.shouldBeSuccess()
                 logs shouldBe
                     listOf(
@@ -254,7 +255,7 @@ class NullableValidatorTest :
             test("success: null") {
                 buildList {
                     val config = ValidationConfig(logger = { add(it) })
-                    val result = tryValidate(config) { null.isNullOr<Int?> { it.min(3) } }
+                    val result = tryValidate(config) { isNullOr<Int?>(null) { min(it, 3) } }
                     result.shouldBeSuccess()
                 } shouldBe
                     listOf(

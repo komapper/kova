@@ -16,13 +16,13 @@ class ObjectSchemaCircularReferenceTest :
         val users: List<User>,
     ) {
         context(_: Validation, _: Accumulate)
-        fun validate() = checking { ::users { users -> users.onEach { it.validate() } } }
+        fun validate() = schema { ::users { users -> onEach(users) { it.validate() } } }
     }
 
     class User(
         val city: City,
     ) {
         context(_: Validation, _: Accumulate)
-        fun validate(): Unit = checking { ::city { it.validate() } }
+        fun validate(): Unit = schema { ::city { it.validate() } }
     }
 }

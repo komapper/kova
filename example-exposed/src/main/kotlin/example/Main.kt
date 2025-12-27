@@ -17,12 +17,12 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.komapper.extension.validator.Accumulate
 import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationException
-import org.komapper.extension.validator.checking
 import org.komapper.extension.validator.invoke
 import org.komapper.extension.validator.max
 import org.komapper.extension.validator.min
 import org.komapper.extension.validator.notBlank
 import org.komapper.extension.validator.notEmpty
+import org.komapper.extension.validator.schema
 import org.komapper.extension.validator.validate
 
 object Cities : IntIdTable() {
@@ -44,7 +44,7 @@ class City(
     companion object : IntEntityClass<City>(Cities) {
         init {
             subscribe {
-                checking { ::name { it.notEmpty() } }
+                schema { ::name { notEmpty(it) } }
             }
         }
     }
@@ -60,14 +60,14 @@ class User(
     companion object : IntEntityClass<User>(Users) {
         init {
             subscribe {
-                checking {
+                schema {
                     ::name {
-                        it.min(1)
-                        it.notBlank()
+                        min(it, 1)
+                        notBlank(it)
                     }
                     ::age {
-                        it.min(0)
-                        it.max(120)
+                        min(it, 0)
+                        max(it, 120)
                     }
                 }
             }

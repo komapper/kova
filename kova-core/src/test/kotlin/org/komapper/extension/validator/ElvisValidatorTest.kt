@@ -7,7 +7,7 @@ class ElvisValidatorTest :
         context("and") {
             context(_: Validation, _: Accumulate)
             fun Int?.whenNotNullMin3() {
-                this?.min(3)
+                if (this != null) min(this, 3)
             }
 
             test("success with non-null value") {
@@ -33,20 +33,20 @@ class ElvisValidatorTest :
         context("and with each List element") {
             context(_: Validation, _: Accumulate)
             fun Int?.min3OrSucceed() {
-                this?.min(3)
+                if (this != null) min(this, 3)
             }
             test("success with non-null value") {
-                val result = tryValidate { listOf(4, 5).onEach { it.min3OrSucceed() } }
+                val result = tryValidate { onEach(listOf(4, 5)) { it.min3OrSucceed() } }
                 result.shouldBeSuccess()
             }
 
             test("success with null value") {
-                val result = tryValidate { listOf<Int?>(null, null).onEach { it.min3OrSucceed() } }
+                val result = tryValidate { onEach(listOf<Int?>(null, null)) { it.min3OrSucceed() } }
                 result.shouldBeSuccess()
             }
 
             test("failure when min3 constraint violated") {
-                val result = tryValidate { listOf(2, null).onEach { it.min3OrSucceed() } }
+                val result = tryValidate { onEach(listOf(2, null)) { it.min3OrSucceed() } }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.collection.onEach"
@@ -56,8 +56,9 @@ class ElvisValidatorTest :
         context("asNullable") {
             context(_: Validation, _: Accumulate)
             fun Int?.nullableMin3(): Int {
-                this?.min(3)
-                return this ?: 0
+                if (this == null) return 0
+                min(this, 3)
+                return this
             }
 
             test("success with non-null value") {
@@ -85,8 +86,8 @@ class ElvisValidatorTest :
             context(_: Validation, _: Accumulate)
             fun Int?.nullableThenMin3AndMax3() =
                 (this ?: 4).also {
-                    it.min(3)
-                    it.max(5)
+                    min(it, 3)
+                    max(it, 5)
                 }
 
             test("success") {
@@ -119,7 +120,7 @@ class ElvisValidatorTest :
             context(_: Validation, _: Accumulate)
             fun Int?.nullableMax5OrMin3() =
                 this?.let {
-                    val _ = or { it.max(5) } orElse { it.min(3) }
+                    val _ = or { max(it, 5) } orElse { min(it, 3) }
                     it
                 } ?: 0
 

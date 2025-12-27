@@ -3,12 +3,12 @@ package example
 import org.komapper.extension.validator.Accumulate
 import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationResult
-import org.komapper.extension.validator.checking
 import org.komapper.extension.validator.invoke
 import org.komapper.extension.validator.isSuccess
 import org.komapper.extension.validator.max
 import org.komapper.extension.validator.min
 import org.komapper.extension.validator.notBlank
+import org.komapper.extension.validator.schema
 import org.komapper.extension.validator.tryValidate
 
 data class User(
@@ -27,34 +27,34 @@ data class Person(
 
 context(_: Validation, _: Accumulate)
 fun User.validate() {
-    checking {
+    schema {
         ::name {
-            it.min(1)
-            it.notBlank()
+            min(it, 1)
+            notBlank(it)
         }
         ::age {
-            it.min(0)
-            it.max(120)
+            min(it, 0)
+            max(it, 120)
         }
     }
 }
 
 context(_: Validation, _: Accumulate)
 fun Age.validate() {
-    checking {
+    schema {
         ::value {
-            it.min(0)
-            it.max(120)
+            min(it, 0)
+            max(it, 120)
         }
     }
 }
 
 context(_: Validation, _: Accumulate)
 fun Person.validate() {
-    checking {
+    schema {
         ::name {
-            it.min(1)
-            it.notBlank()
+            min(it, 1)
+            notBlank(it)
         }
         ::age { it.validate() }
     }

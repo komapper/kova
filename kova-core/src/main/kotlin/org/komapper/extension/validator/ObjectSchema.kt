@@ -3,7 +3,7 @@ package org.komapper.extension.validator
 import kotlin.reflect.KProperty0
 
 context(_: Validation)
-inline fun <T : Any> T.checking(block: context(Validation) () -> Unit) {
+inline fun <T : Any> T.schema(block: context(Validation) () -> Unit) {
     val klass = this::class
     val rootName = klass.qualifiedName ?: klass.simpleName ?: klass.toString()
     return addRoot(rootName, this, block)

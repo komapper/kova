@@ -8,8 +8,8 @@ class KovaTest :
         context("failFast") {
             context(_: Validation, _: Accumulate)
             fun String.validate() {
-                min(3)
-                length(4)
+                min(this, 3)
+                length(this, 4)
             }
 
             test("failFast = false") {
@@ -28,8 +28,9 @@ class KovaTest :
         context("failFast with plus operator") {
             context(_: Validation, _: Accumulate)
             fun String?.validate() {
-                this?.min(3)
-                this?.length(4)
+                if (this == null) return
+                min(this, 3)
+                length(this, 4)
             }
 
             test("failFast = false") {
@@ -71,13 +72,13 @@ class KovaTest :
             fun Request.requestKey(block: context(Validation) (String?) -> Unit) = name("Request[key]") { this["key"].also { block(it) } }
 
             context(_: Validation, _: Accumulate)
-            fun Request.requestKeyIsNotNull() = requestKey { it.notNull() }
+            fun Request.requestKeyIsNotNull() = requestKey { notNull(it) }
 
             context(_: Validation, _: Accumulate)
             fun Request.requestKeyIsNotNullAndMin3() =
                 requestKey {
-                    it.notNull()
-                    it?.min(3)
+                    notNull(it)
+                    if (it != null) min(it, 3)
                 }
 
             test("success when requestKey is not null") {

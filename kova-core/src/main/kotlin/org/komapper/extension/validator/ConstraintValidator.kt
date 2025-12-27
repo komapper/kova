@@ -23,7 +23,7 @@ inline fun <T, R> T.constrain(
     id: String,
     check: context(Validation, Accumulate) (T) -> R,
 ) = accumulating {
-    mapEachMessage({ it.logAndAddDetails(this, id) }) {
+    mapEachMessage({ logAndAddDetails(it, this, id) }) {
         val result = check(this)
         log {
             LogEntry.Satisfied(
@@ -38,20 +38,21 @@ inline fun <T, R> T.constrain(
 }
 
 context(_: Validation)
-fun Message.logAndAddDetails(
+fun logAndAddDetails(
+    message: Message,
     input: Any?,
     id: String,
 ): Message {
     log {
         LogEntry.Violated(
             constraintId = id,
-            root = root,
-            path = path.fullName,
+            root = message.root,
+            path = message.path.fullName,
             input = input,
-            args = if (this is Message.Resource) args.asList() else emptyList(),
+            args = if (message is Message.Resource) message.args.asList() else emptyList(),
         )
     }
-    return withDetails(input, id)
+    return message.withDetails(input, id)
 }
 
 context(_: Accumulate)

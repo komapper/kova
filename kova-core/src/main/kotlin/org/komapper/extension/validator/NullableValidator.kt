@@ -19,15 +19,18 @@ import kotlin.contracts.contract
  */
 @IgnorableReturnValue
 context(_: Validation, _: Accumulate)
-fun <T> T.isNull(message: MessageProvider = { "kova.nullable.isNull".resource }) =
-    constrain("kova.nullable.isNull") { satisfies(it == null, message) }
+fun <T> isNull(
+    input: T,
+    message: MessageProvider = { "kova.nullable.isNull".resource },
+) = input.constrain("kova.nullable.isNull") { satisfies(it == null, message) }
 
 @IgnorableReturnValue
 context(_: Validation, _: Accumulate)
-inline fun <T> T.isNullOr(
+inline fun <T> isNullOr(
+    input: T,
     noinline message: MessageProvider = { "kova.nullable.isNull".resource },
     block: Constraint<T & Any>,
-) = or<Unit> { isNull(message) } orElse { block(this!!) }
+) = or<Unit> { isNull(input, message) } orElse { block(input!!) }
 
 /**
  * Validates that the input is not null.
@@ -46,8 +49,10 @@ inline fun <T> T.isNullOr(
  */
 @IgnorableReturnValue
 context(_: Validation, _: Accumulate)
-fun <T> T.notNull(message: MessageProvider = { "kova.nullable.notNull".resource }) =
-    constrain("kova.nullable.notNull") { toNonNullable(message) }
+fun <T> notNull(
+    input: T,
+    message: MessageProvider = { "kova.nullable.notNull".resource },
+) = input.constrain("kova.nullable.notNull") { toNonNullable(input, message) }
 
 /**
  * Converts a nullable validator to a validator with non-nullable output.
@@ -67,8 +72,11 @@ fun <T> T.notNull(message: MessageProvider = { "kova.nullable.notNull".resource 
  */
 @IgnorableReturnValue
 context(_: Validation, _: Accumulate)
-fun <T> T.toNonNullable(message: MessageProvider = { "kova.nullable.notNull".resource }): T & Any {
-    contract { returns() implies (this@toNonNullable != null) }
-    satisfies(this != null, message)
-    return this
+fun <T> toNonNullable(
+    input: T,
+    message: MessageProvider = { "kova.nullable.notNull".resource },
+): T & Any {
+    contract { returns() implies (input != null) }
+    satisfies(input != null, message)
+    return input
 }

@@ -24,12 +24,12 @@ class PairFactoryBuilderTest :
                 second: Int,
             ) = buildPair(
                 bind(first) {
-                    it.notBlank()
-                    it.max(10)
+                    notBlank(it)
+                    max(it, 10)
                     it
                 },
                 bind(second) {
-                    it.positive()
+                    positive(it)
                     it
                 },
             )
@@ -108,14 +108,14 @@ class PairFactoryBuilderTest :
                 age: Int,
             ) = buildPair(
                 bind(name) {
-                    it.notBlank()
-                    it.min(1)
-                    it.max(50)
+                    notBlank(it)
+                    min(it, 1)
+                    max(it, 50)
                     it
                 },
                 bind(age) {
-                    it.min(0)
-                    it.max(120)
+                    min(it, 0)
+                    max(it, 120)
                     it
                 },
             )
@@ -163,8 +163,8 @@ class PairFactoryBuilderTest :
                 first: String,
                 second: String,
             ) = buildPair(
-                bind(first) { it.toInt() },
-                bind(second) { it.toInt() },
+                bind(first) { toInt(it) },
+                bind(second) { toInt(it) },
             )
 
             test("success - both elements transformed") {

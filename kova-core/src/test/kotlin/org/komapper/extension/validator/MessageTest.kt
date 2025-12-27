@@ -24,7 +24,7 @@ class MessageTest :
         }
 
         test("toString: string") {
-            val result = tryValidate { "abc".min(5) }
+            val result = tryValidate { min("abc", 5) }
             result.shouldBeFailure()
             result.messages.size shouldBe 1
             result.messages[0].toString() shouldBe
@@ -37,7 +37,7 @@ class MessageTest :
             )
 
             context(_: Validation, _: Accumulate)
-            fun Person.validate() = checking { ::name { it.min(5) } }
+            fun Person.validate() = schema { ::name { min(it, 5) } }
 
             val result = tryValidate { Person("abc").validate() }
             result.shouldBeFailure()

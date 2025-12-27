@@ -8,7 +8,7 @@ class StringValidatorTest :
         context("or") {
             context(_: Validation, _: Accumulate)
             fun String.validate(): String {
-                val _ = or { isInt() } orElse { literal("zero") }
+                val _ = or { isInt(this) } orElse { literal(this, "zero") }
                 return toUppercase()
             }
 
@@ -51,11 +51,11 @@ class StringValidatorTest :
 
         context("notBlank with message") {
             test("success") {
-                val result = tryValidate { "ab".notBlank { text("Must not be blank") } }
+                val result = tryValidate { notBlank("ab") { text("Must not be blank") } }
                 result.shouldBeSuccess()
             }
             test("failure") {
-                val result = tryValidate { "".notBlank { text("Must not be blank") } }
+                val result = tryValidate { notBlank("") { text("Must not be blank") } }
                 result.shouldBeFailure()
                 result.messages.single().text shouldBe "Must not be blank"
             }
@@ -63,11 +63,11 @@ class StringValidatorTest :
 
         context("isInt") {
             test("success") {
-                val result = tryValidate { "123".isInt() }
+                val result = tryValidate { isInt("123") }
                 result.shouldBeSuccess()
             }
             test("failure") {
-                val result = tryValidate { "123a".isInt() }
+                val result = tryValidate { isInt("123a") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.isInt"
             }
@@ -75,11 +75,11 @@ class StringValidatorTest :
 
         context("isLong") {
             test("success") {
-                val result = tryValidate { "9223372036854775807".isLong() }
+                val result = tryValidate { isLong("9223372036854775807") }
                 result.shouldBeSuccess()
             }
             test("failure") {
-                val result = tryValidate { "123.45".isLong() }
+                val result = tryValidate { isLong("123.45") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.isLong"
             }
@@ -87,11 +87,11 @@ class StringValidatorTest :
 
         context("isShort") {
             test("success") {
-                val result = tryValidate { "32767".isShort() }
+                val result = tryValidate { isShort("32767") }
                 result.shouldBeSuccess()
             }
             test("failure") {
-                val result = tryValidate { "99999".isShort() }
+                val result = tryValidate { isShort("99999") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.isShort"
             }
@@ -99,11 +99,11 @@ class StringValidatorTest :
 
         context("isByte") {
             test("success") {
-                val result = tryValidate { "127".isByte() }
+                val result = tryValidate { isByte("127") }
                 result.shouldBeSuccess()
             }
             test("failure") {
-                val result = tryValidate { "256".isByte() }
+                val result = tryValidate { isByte("256") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.isByte"
             }
@@ -111,11 +111,11 @@ class StringValidatorTest :
 
         context("isDouble") {
             test("success") {
-                val result = tryValidate { "123.45".isDouble() }
+                val result = tryValidate { isDouble("123.45") }
                 result.shouldBeSuccess()
             }
             test("failure") {
-                val result = tryValidate { "abc".isDouble() }
+                val result = tryValidate { isDouble("abc") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.isDouble"
             }
@@ -123,11 +123,11 @@ class StringValidatorTest :
 
         context("isFloat") {
             test("success") {
-                val result = tryValidate { "123.45".isFloat() }
+                val result = tryValidate { isFloat("123.45") }
                 result.shouldBeSuccess()
             }
             test("failure") {
-                val result = tryValidate { "abc".isFloat() }
+                val result = tryValidate { isFloat("abc") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.isFloat"
             }
@@ -135,11 +135,11 @@ class StringValidatorTest :
 
         context("isBigDecimal") {
             test("success") {
-                val result = tryValidate { "123.456789012345678901234567890".isBigDecimal() }
+                val result = tryValidate { isBigDecimal("123.456789012345678901234567890") }
                 result.shouldBeSuccess()
             }
             test("failure") {
-                val result = tryValidate { "abc".isBigDecimal() }
+                val result = tryValidate { isBigDecimal("abc") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.isBigDecimal"
             }
@@ -147,11 +147,11 @@ class StringValidatorTest :
 
         context("isBigInteger") {
             test("success") {
-                val result = tryValidate { "12345678901234567890".isBigInteger() }
+                val result = tryValidate { isBigInteger("12345678901234567890") }
                 result.shouldBeSuccess()
             }
             test("failure") {
-                val result = tryValidate { "123.45".isBigInteger() }
+                val result = tryValidate { isBigInteger("123.45") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.isBigInteger"
             }
@@ -159,20 +159,20 @@ class StringValidatorTest :
 
         context("isBoolean") {
             test("success with true") {
-                val result = tryValidate { "true".isBoolean() }
+                val result = tryValidate { isBoolean("true") }
                 result.shouldBeSuccess()
             }
             test("success with false") {
-                val result = tryValidate { "false".isBoolean() }
+                val result = tryValidate { isBoolean("false") }
                 result.shouldBeSuccess()
             }
             test("failure with case sensitive mismatch") {
-                val result = tryValidate { "TRUE".isBoolean() }
+                val result = tryValidate { isBoolean("TRUE") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.isBoolean"
             }
             test("failure") {
-                val result = tryValidate { "yes".isBoolean() }
+                val result = tryValidate { isBoolean("yes") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.isBoolean"
             }
@@ -180,17 +180,17 @@ class StringValidatorTest :
 
         context("toBoolean") {
             test("success with true") {
-                val result = tryValidate { "true".toBoolean() }
+                val result = tryValidate { toBoolean("true") }
                 result.shouldBeSuccess()
                 result.value shouldBe true
             }
             test("success with false") {
-                val result = tryValidate { "false".toBoolean() }
+                val result = tryValidate { toBoolean("false") }
                 result.shouldBeSuccess()
                 result.value shouldBe false
             }
             test("failure") {
-                val result = tryValidate { "yes".toBoolean() }
+                val result = tryValidate { toBoolean("yes") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.isBoolean"
             }
@@ -198,12 +198,12 @@ class StringValidatorTest :
 
         context("toLong") {
             test("success") {
-                val result = tryValidate { "9223372036854775807".toLong() }
+                val result = tryValidate { toLong("9223372036854775807") }
                 result.shouldBeSuccess()
                 result.value shouldBe 9223372036854775807L
             }
             test("failure") {
-                val result = tryValidate { "abc".toLong() }
+                val result = tryValidate { toLong("abc") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.isLong"
             }
@@ -211,12 +211,12 @@ class StringValidatorTest :
 
         context("toShort") {
             test("success") {
-                val result = tryValidate { "32767".toShort() }
+                val result = tryValidate { toShort("32767") }
                 result.shouldBeSuccess()
                 result.value shouldBe 32767.toShort()
             }
             test("failure") {
-                val result = tryValidate { "99999".toShort() }
+                val result = tryValidate { toShort("99999") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.isShort"
             }
@@ -224,12 +224,12 @@ class StringValidatorTest :
 
         context("toByte") {
             test("success") {
-                val result = tryValidate { "127".toByte() }
+                val result = tryValidate { toByte("127") }
                 result.shouldBeSuccess()
                 result.value shouldBe 127.toByte()
             }
             test("failure") {
-                val result = tryValidate { "256".toByte() }
+                val result = tryValidate { toByte("256") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.isByte"
             }
@@ -237,12 +237,12 @@ class StringValidatorTest :
 
         context("toDouble") {
             test("success") {
-                val result = tryValidate { "123.45".toDouble() }
+                val result = tryValidate { toDouble("123.45") }
                 result.shouldBeSuccess()
                 result.value shouldBe 123.45
             }
             test("failure") {
-                val result = tryValidate { "abc".toDouble() }
+                val result = tryValidate { toDouble("abc") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.isDouble"
             }
@@ -250,12 +250,12 @@ class StringValidatorTest :
 
         context("toFloat") {
             test("success") {
-                val result = tryValidate { "123.45".toFloat() }
+                val result = tryValidate { toFloat("123.45") }
                 result.shouldBeSuccess()
                 result.value shouldBe 123.45f
             }
             test("failure") {
-                val result = tryValidate { "abc".toFloat() }
+                val result = tryValidate { toFloat("abc") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.isFloat"
             }
@@ -263,12 +263,12 @@ class StringValidatorTest :
 
         context("toBigDecimal") {
             test("success") {
-                val result = tryValidate { "123.456789012345678901234567890".toBigDecimal() }
+                val result = tryValidate { toBigDecimal("123.456789012345678901234567890") }
                 result.shouldBeSuccess()
                 result.value shouldBe "123.456789012345678901234567890".toBigDecimal()
             }
             test("failure") {
-                val result = tryValidate { "abc".toBigDecimal() }
+                val result = tryValidate { toBigDecimal("abc") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.isBigDecimal"
             }
@@ -276,12 +276,12 @@ class StringValidatorTest :
 
         context("toBigInteger") {
             test("success") {
-                val result = tryValidate { "12345678901234567890".toBigInteger() }
+                val result = tryValidate { toBigInteger("12345678901234567890") }
                 result.shouldBeSuccess()
                 result.value shouldBe "12345678901234567890".toBigInteger()
             }
             test("failure") {
-                val result = tryValidate { "123.45".toBigInteger() }
+                val result = tryValidate { toBigInteger("123.45") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.isBigInteger"
             }
@@ -289,15 +289,15 @@ class StringValidatorTest :
 
         context("uppercase") {
             test("success") {
-                val result = tryValidate { "HELLO".uppercase() }
+                val result = tryValidate { uppercase("HELLO") }
                 result.shouldBeSuccess()
             }
             test("success with empty string") {
-                val result = tryValidate { "".uppercase() }
+                val result = tryValidate { uppercase("") }
                 result.shouldBeSuccess()
             }
             test("failure") {
-                val result = tryValidate { "Hello".uppercase() }
+                val result = tryValidate { uppercase("Hello") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.uppercase"
             }
@@ -305,15 +305,15 @@ class StringValidatorTest :
 
         context("lowercase") {
             test("success") {
-                val result = tryValidate { "hello".lowercase() }
+                val result = tryValidate { lowercase("hello") }
                 result.shouldBeSuccess()
             }
             test("success with empty string") {
-                val result = tryValidate { "".lowercase() }
+                val result = tryValidate { lowercase("") }
                 result.shouldBeSuccess()
             }
             test("failure") {
-                val result = tryValidate { "Hello".lowercase() }
+                val result = tryValidate { lowercase("Hello") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.lowercase"
             }
@@ -321,12 +321,12 @@ class StringValidatorTest :
 
         context("toInt") {
             test("success") {
-                val result = tryValidate { "123".toInt() }
+                val result = tryValidate { toInt("123") }
                 result.shouldBeSuccess()
                 result.value shouldBe 123
             }
             test("failure") {
-                val result = tryValidate { "123a".toInt() }
+                val result = tryValidate { toInt("123a") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.isInt"
             }
@@ -466,24 +466,24 @@ class StringValidatorTest :
 
         context("isEnum with Type") {
             test("success with ACTIVE") {
-                val result = tryValidate { "ACTIVE".isEnum<Status>() }
+                val result = tryValidate { isEnum<Status>("ACTIVE") }
                 result.shouldBeSuccess()
             }
             test("success with INACTIVE") {
-                val result = tryValidate { "INACTIVE".isEnum<Status>() }
+                val result = tryValidate { isEnum<Status>("INACTIVE") }
                 result.shouldBeSuccess()
             }
             test("success with PENDING") {
-                val result = tryValidate { "PENDING".isEnum<Status>() }
+                val result = tryValidate { isEnum<Status>("PENDING") }
                 result.shouldBeSuccess()
             }
             test("failure with invalid value") {
-                val result = tryValidate { "INVALID".isEnum<Status>() }
+                val result = tryValidate { isEnum<Status>("INVALID") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.isEnum"
             }
             test("failure with lowercase") {
-                val result = tryValidate { "active".isEnum<Status>() }
+                val result = tryValidate { isEnum<Status>("active") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.isEnum"
             }
@@ -491,24 +491,24 @@ class StringValidatorTest :
 
         context("isEnum with KClass") {
             test("success with ACTIVE") {
-                val result = tryValidate { "ACTIVE".isEnum(Status::class) }
+                val result = tryValidate { isEnum("ACTIVE", Status::class) }
                 result.shouldBeSuccess()
             }
             test("success with INACTIVE") {
-                val result = tryValidate { "INACTIVE".isEnum(Status::class) }
+                val result = tryValidate { isEnum("INACTIVE", Status::class) }
                 result.shouldBeSuccess()
             }
             test("success with PENDING") {
-                val result = tryValidate { "PENDING".isEnum(Status::class) }
+                val result = tryValidate { isEnum("PENDING", Status::class) }
                 result.shouldBeSuccess()
             }
             test("failure with invalid value") {
-                val result = tryValidate { "INVALID".isEnum(Status::class) }
+                val result = tryValidate { isEnum("INVALID", Status::class) }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.isEnum"
             }
             test("failure with lowercase") {
-                val result = tryValidate { "active".isEnum(Status::class) }
+                val result = tryValidate { isEnum("active", Status::class) }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.isEnum"
             }
@@ -516,27 +516,27 @@ class StringValidatorTest :
 
         context("toEnum") {
             test("success with ACTIVE") {
-                val result = tryValidate { "ACTIVE".toEnum<Status>() }
+                val result = tryValidate { toEnum<Status>("ACTIVE") }
                 result.shouldBeSuccess()
                 result.value shouldBe Status.ACTIVE
             }
             test("success with INACTIVE") {
-                val result = tryValidate { "INACTIVE".toEnum<Status>() }
+                val result = tryValidate { toEnum<Status>("INACTIVE") }
                 result.shouldBeSuccess()
                 result.value shouldBe Status.INACTIVE
             }
             test("success with PENDING") {
-                val result = tryValidate { "PENDING".toEnum<Status>() }
+                val result = tryValidate { toEnum<Status>("PENDING") }
                 result.shouldBeSuccess()
                 result.value shouldBe Status.PENDING
             }
             test("failure with invalid value") {
-                val result = tryValidate { "INVALID".toEnum<Status>() }
+                val result = tryValidate { toEnum<Status>("INVALID") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.isEnum"
             }
             test("failure with lowercase") {
-                val result = tryValidate { "active".toEnum<Status>() }
+                val result = tryValidate { toEnum<Status>("active") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.isEnum"
             }

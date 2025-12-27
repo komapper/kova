@@ -18,10 +18,11 @@ typealias LengthMessageProvider = (actualSize: Int) -> Message
  */
 @IgnorableReturnValue
 context(_: Validation, _: Accumulate)
-fun Collection<*>.min(
+fun min(
+    input: Collection<*>,
     size: Int,
     message: LengthMessageProvider = { "kova.collection.min".resource(it, size) },
-) = constrain("kova.collection.min") { satisfies(it.size >= size) { message(it.size) } }
+) = input.constrain("kova.collection.min") { satisfies(it.size >= size) { message(it.size) } }
 
 /**
  * Validates that the collection size does not exceed the specified maximum.
@@ -39,10 +40,11 @@ fun Collection<*>.min(
  */
 @IgnorableReturnValue
 context(_: Validation, _: Accumulate)
-fun Collection<*>.max(
+fun max(
+    input: Collection<*>,
     size: Int,
     message: LengthMessageProvider = { "kova.collection.max".resource(it, size) },
-) = constrain("kova.collection.max") { satisfies(it.size <= size) { message(it.size) } }
+) = input.constrain("kova.collection.max") { satisfies(it.size <= size) { message(it.size) } }
 
 /**
  * Validates that the collection is not empty.
@@ -59,8 +61,10 @@ fun Collection<*>.max(
  */
 @IgnorableReturnValue
 context(_: Validation, _: Accumulate)
-fun Collection<*>.notEmpty(message: MessageProvider = { "kova.collection.notEmpty".resource }) =
-    constrain("kova.collection.notEmpty") { satisfies(it.isNotEmpty(), message) }
+fun notEmpty(
+    input: Collection<*>,
+    message: MessageProvider = { "kova.collection.notEmpty".resource },
+) = input.constrain("kova.collection.notEmpty") { satisfies(it.isNotEmpty(), message) }
 
 /**
  * Validates that the collection size equals exactly the specified value.
@@ -78,10 +82,11 @@ fun Collection<*>.notEmpty(message: MessageProvider = { "kova.collection.notEmpt
  */
 @IgnorableReturnValue
 context(_: Validation, _: Accumulate)
-fun Collection<*>.length(
+fun length(
+    input: Collection<*>,
     size: Int,
     message: LengthMessageProvider = { "kova.collection.length".resource(it, size) },
-) = constrain("kova.collection.length") { satisfies(it.size == size) { message(it.size) } }
+) = input.constrain("kova.collection.length") { satisfies(it.size == size) { message(it.size) } }
 
 /**
  * Validates that the collection contains the specified element.
@@ -99,10 +104,11 @@ fun Collection<*>.length(
  */
 @IgnorableReturnValue
 context(_: Validation, _: Accumulate)
-fun <E> Collection<E>.has(
+fun <E> has(
+    input: Collection<E>,
     element: E,
     message: MessageProvider = { "kova.collection.contains".resource(element) },
-) = constrain("kova.collection.contains") { satisfies(it.contains(element), message) }
+) = input.constrain("kova.collection.contains") { satisfies(it.contains(element), message) }
 
 /**
  * Validates that the collection does not contain the specified element.
@@ -120,10 +126,11 @@ fun <E> Collection<E>.has(
  */
 @IgnorableReturnValue
 context(_: Validation, _: Accumulate)
-fun <E> Collection<E>.notContains(
+fun <E> notContains(
+    input: Collection<E>,
     element: E,
     message: MessageProvider = { "kova.collection.notContains".resource(element) },
-) = constrain("kova.collection.notContains") { satisfies(!it.contains(element), message) }
+) = input.constrain("kova.collection.notContains") { satisfies(!it.contains(element), message) }
 
 /**
  * Validates each element of the collection using the specified validator.
@@ -146,15 +153,17 @@ fun <E> Collection<E>.notContains(
  */
 @IgnorableReturnValue
 context(_: Validation, _: Accumulate)
-fun <E> Collection<E>.onEach(validate: Constraint<E>) =
-    constrain("kova.collection.onEach") { input ->
-        withMessage({ "kova.collection.onEach".resource(it) }) {
-            for ((i, element) in input.withIndex()) {
-                accumulating {
-                    appendPath("[$i]<collection element>") {
-                        validate(element)
-                    }
+fun <E> onEach(
+    input: Collection<E>,
+    validate: Constraint<E>,
+) = input.constrain("kova.collection.onEach") {
+    withMessage({ "kova.collection.onEach".resource(it) }) {
+        for ((i, element) in input.withIndex()) {
+            accumulating {
+                appendPath("[$i]<collection element>") {
+                    validate(element)
                 }
             }
         }
     }
+}

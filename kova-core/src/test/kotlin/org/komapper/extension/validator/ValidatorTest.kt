@@ -10,8 +10,8 @@ class ValidatorTest :
         context("validate") {
             context(_: Validation, _: Accumulate)
             fun Int.validate() {
-                min(1)
-                max(10)
+                min(this, 1)
+                max(this, 10)
             }
 
             test("success") {
@@ -31,8 +31,8 @@ class ValidatorTest :
         context("plus") {
             context(_: Validation, _: Accumulate)
             fun Int.validate() {
-                max(2)
-                max(3)
+                max(this, 2)
+                max(this, 3)
             }
 
             test("success") {
@@ -48,8 +48,8 @@ class ValidatorTest :
         context("and") {
             context(_: Validation, _: Accumulate)
             fun Int.validate() {
-                min(2)
-                max(3)
+                min(this, 2)
+                max(this, 3)
             }
 
             test("success") {
@@ -64,7 +64,7 @@ class ValidatorTest :
 
         context("or: 2") {
             context(_: Validation, _: Accumulate)
-            fun String.length2or5() = or { length(2) } orElse { length(5) }
+            fun String.length2or5() = or { length(this, 2) } orElse { length(this, 5) }
 
             test("success with length 2") {
                 val result = tryValidate { "ab".length2or5() }
@@ -95,7 +95,7 @@ class ValidatorTest :
 
         context("or: 3") {
             context(_: Validation, _: Accumulate)
-            fun String.length2or5or7() = or { length(2) } or { length(5) } orElse { length(7) }
+            fun String.length2or5or7() = or { length(this, 2) } or { length(this, 5) } orElse { length(this, 7) }
 
             test("failure with length 3") {
                 val result = tryValidate { "abc".length2or5or7() }
@@ -120,7 +120,7 @@ class ValidatorTest :
         context("map") {
             context(_: Validation, _: Accumulate)
             fun Int.validate(): Int {
-                min(1)
+                min(this, 1)
                 return this * 2
             }
             test("success") {
@@ -139,8 +139,8 @@ class ValidatorTest :
         context("then") {
             context(_: Validation, _: Accumulate)
             fun Int.validate(): String {
-                min(3)
-                return toString().also { it.max(1) }
+                min(this, 3)
+                return toString().also { max(it, 1) }
             }
 
             test("success") {
@@ -163,8 +163,8 @@ class ValidatorTest :
         context("then - lambda") {
             context(_: Validation, _: Accumulate)
             fun Int.validate(): String {
-                min(3)
-                return toString().also { it.max(1) }
+                min(this, 3)
+                return toString().also { max(it, 1) }
             }
 
             test("success") {
@@ -188,8 +188,8 @@ class ValidatorTest :
             context(_: Validation, _: Accumulate)
             fun String.validate() =
                 trim().let {
-                    it.min(3)
-                    it.max(5)
+                    min(it, 3)
+                    max(it, 5)
                 }
 
             test("success") {
@@ -226,8 +226,8 @@ class ValidatorTest :
             context(_: Validation, _: Accumulate)
             fun String.validate() =
                 withMessage({ messages -> text("Invalid: consolidates messages=(${messages.joinToString { it.text }})") }) {
-                    uppercase()
-                    min(3)
+                    uppercase(this)
+                    min(this, 3)
                     Unit
                 }
 
@@ -250,8 +250,8 @@ class ValidatorTest :
             context(_: Validation, _: Accumulate)
             fun String.validate() =
                 withMessage {
-                    uppercase()
-                    min(3)
+                    uppercase(this)
+                    min(this, 3)
                     Unit
                 }
 
@@ -274,8 +274,8 @@ class ValidatorTest :
             context(_: Validation, _: Accumulate)
             fun String.validate() =
                 withMessage("Invalid") {
-                    uppercase()
-                    min(3)
+                    uppercase(this)
+                    min(this, 3)
                     Unit
                 }
 
@@ -302,12 +302,12 @@ class ValidatorTest :
 
             context(_: Validation, _: Accumulate)
             fun User.validate() =
-                checking {
+                schema {
                     ::id { }
                     ::name {
                         withMessage({ text("Must be uppercase and at least 3 characters long") }) {
-                            it.uppercase()
-                            it.min(3)
+                            uppercase(it)
+                            min(it, 3)
                         }
                     }
                 }
@@ -329,7 +329,7 @@ class ValidatorTest :
 
         context("mapping operation after failure") {
             context(_: Validation, _: Accumulate)
-            fun String.validate() = trim().also { it.min(3) }.toUppercase().also { it.max(3) }
+            fun String.validate() = trim().also { min(it, 3) }.toUppercase().also { max(it, 3) }
 
             test("failure") {
                 val logs = mutableListOf<LogEntry>()

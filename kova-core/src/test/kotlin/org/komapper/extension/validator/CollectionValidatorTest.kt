@@ -7,12 +7,12 @@ class CollectionValidatorTest :
     FunSpec({
         context("notEmpty") {
             test("success") {
-                val result = tryValidate { listOf("1").notEmpty() }
+                val result = tryValidate { notEmpty(listOf("1")) }
                 result.shouldBeSuccess()
             }
 
             test("failure") {
-                val result = tryValidate { emptyList<Nothing>().notEmpty() }
+                val result = tryValidate { notEmpty(emptyList<Nothing>()) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.collection.notEmpty"
@@ -21,19 +21,19 @@ class CollectionValidatorTest :
 
         context("length") {
             test("success") {
-                val result = tryValidate { listOf("1", "2").length(2) }
+                val result = tryValidate { length(listOf("1", "2"), 2) }
                 result.shouldBeSuccess()
             }
 
             test("failure with too few elements") {
-                val result = tryValidate { listOf("1").length(2) }
+                val result = tryValidate { length(listOf("1"), 2) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.collection.length"
             }
 
             test("failure with too many elements") {
-                val result = tryValidate { listOf("1", "2", "3").length(2) }
+                val result = tryValidate { length(listOf("1", "2", "3"), 2) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.collection.length"
@@ -43,8 +43,8 @@ class CollectionValidatorTest :
         context("plus") {
             context(_: Validation, _: Accumulate)
             fun List<*>.validate() {
-                min(2)
-                min(3)
+                min(this, 2)
+                min(this, 3)
             }
 
             test("success") {
@@ -81,12 +81,12 @@ class CollectionValidatorTest :
 
         context("onEach") {
             test("success") {
-                val result = tryValidate { listOf("123", "456").onEach { it.length(3) } }
+                val result = tryValidate { onEach(listOf("123", "456")) { length(it, 3) } }
                 result.shouldBeSuccess()
             }
 
             test("failure") {
-                val result = tryValidate { listOf("123", "4567", "8910").onEach { it.length(3) } }
+                val result = tryValidate { onEach(listOf("123", "4567", "8910")) { length(it, 3) } }
                 result.shouldBeFailure()
                 result.messages.single().let {
                     it.constraintId shouldBe "kova.collection.onEach"
@@ -103,7 +103,15 @@ class CollectionValidatorTest :
             }
 
             test("failure when failFast is true") {
-                val result = tryValidate(ValidationConfig(failFast = true)) { listOf("123", "4567", "8910").onEach { it.length(3) } }
+                val result =
+                    tryValidate(ValidationConfig(failFast = true)) {
+                        onEach(listOf("123", "4567", "8910")) {
+                            length(
+                                it,
+                                3,
+                            )
+                        }
+                    }
                 result.shouldBeFailure()
                 result.messages[0].let {
                     it.constraintId shouldBe "kova.collection.onEach"
@@ -120,38 +128,38 @@ class CollectionValidatorTest :
 
         context("contains") {
             test("success") {
-                val result = tryValidate { listOf("foo", "bar").has("foo") }
+                val result = tryValidate { has(listOf("foo", "bar"), "foo") }
                 result.shouldBeSuccess()
             }
 
             test("failure") {
-                val result = tryValidate { listOf("bar", "baz").has("foo") }
+                val result = tryValidate { has(listOf("bar", "baz"), "foo") }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.collection.contains"
             }
 
             test("failure with empty list") {
-                val result = tryValidate { emptyList<Nothing>().has("foo") }
+                val result = tryValidate { has(emptyList<Nothing>(), "foo") }
                 result.shouldBeFailure()
             }
         }
 
         context("notContains") {
             test("success") {
-                val result = tryValidate { listOf("bar", "baz").notContains("foo") }
+                val result = tryValidate { notContains(listOf("bar", "baz"), "foo") }
                 result.shouldBeSuccess()
             }
 
             test("failure") {
-                val result = tryValidate { listOf("foo", "bar").notContains("foo") }
+                val result = tryValidate { notContains(listOf("foo", "bar"), "foo") }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.collection.notContains"
             }
 
             test("success with empty list") {
-                val result = tryValidate { emptyList<Nothing>().notContains("foo") }
+                val result = tryValidate { notContains(emptyList<Nothing>(), "foo") }
                 result.shouldBeSuccess()
             }
         }
@@ -162,7 +170,7 @@ class CollectionValidatorTest :
             )
 
             context(_: Validation, _: Accumulate)
-            fun ListHolder.validate() = checking { ::list { e -> e.onEach { it.length(3) } } }
+            fun ListHolder.validate() = schema { ::list { e -> onEach(e) { length(it, 3) } } }
 
             test("success") {
                 val result = tryValidate { ListHolder(listOf("123", "456")).validate() }
