@@ -39,25 +39,24 @@ class ObjectSchemaTest :
         )
 
         context("and") {
-            context(_: Validation, _: Accumulate)
-            fun User.validate() =
-                checking {
-                    ::name {
-                        it.min(1)
-                        it.max(10)
+            fun Validation.validate(user: User) =
+                user.schema {
+                    user::name {
+                        min(it, 1)
+                        max(it, 10)
                     }
-                    ::id { it.min(1) }
+                    user::id { min(it, 1) }
                 }
 
             test("success") {
                 val user = User(1, "abc")
-                val result = tryValidate { user.validate() }
+                val result = tryValidate { validate(user) }
                 result.shouldBeSuccess()
             }
 
             test("failure with 1 rule violated") {
                 val user = User(2, "too-long-name")
-                val result = tryValidate { user.validate() }
+                val result = tryValidate { validate(user) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].let {
@@ -69,7 +68,7 @@ class ObjectSchemaTest :
 
             test("failure with 2 rules violated") {
                 val user = User(0, "too-long-name")
-                val result = tryValidate { user.validate() }
+                val result = tryValidate { validate(user) }
                 result.shouldBeFailure()
 
                 result.messages.size shouldBe 2
@@ -87,38 +86,37 @@ class ObjectSchemaTest :
         }
 
         context("or") {
-            context(_: Validation, _: Accumulate)
-            fun User.validate() =
-                checking {
+            fun Validation.validate(user: User) =
+                user.schema {
                     or<Unit> {
-                        ::name {
-                            it.min(1)
-                            it.max(10)
+                        user::name {
+                            min(it, 1)
+                            max(it, 10)
                         }
-                    } orElse { ::id { it.min(1) } }
+                    } orElse { user::id { min(it, 1) } }
                 }
 
             test("success when both schemas are satisfied") {
                 val user = User(1, "abc")
-                val result = tryValidate { user.validate() }
+                val result = tryValidate { validate(user) }
                 result.shouldBeSuccess()
             }
 
             test("success when first schema is satisfied and second fails") {
                 val user = User(0, "abc")
-                val result = tryValidate { user.validate() }
+                val result = tryValidate { validate(user) }
                 result.shouldBeSuccess()
             }
 
             test("success when first schema fails and second is satisfied") {
                 val user = User(1, "too-long-name")
-                val result = tryValidate { user.validate() }
+                val result = tryValidate { validate(user) }
                 result.shouldBeSuccess()
             }
 
             test("failure when both schemas fail") {
                 val user = User(0, "too-long-name")
-                val result = tryValidate { user.validate() }
+                val result = tryValidate { validate(user) }
                 result.shouldBeFailure()
 
                 result.messages.size shouldBe 1
@@ -136,23 +134,22 @@ class ObjectSchemaTest :
                 val endDate: LocalDate,
             )
 
-            context(_: Validation, _: Accumulate)
-            fun Period.validate() =
-                checking {
-                    constrain("test") {
+            fun Validation.validate(period: Period) =
+                period.schema {
+                    period.constrain("test") {
                         satisfies(it.startDate <= it.endDate) { text("startDate must be less than or equal to endDate") }
                     }
                 }
 
             test("success") {
                 val period = Period(LocalDate.of(2020, 1, 1), LocalDate.of(2021, 1, 1))
-                val result = tryValidate { period.validate() }
+                val result = tryValidate { validate(period) }
                 result.shouldBeSuccess()
             }
 
             test("failure") {
                 val period = Period(LocalDate.of(2020, 1, 1), LocalDate.of(2019, 1, 1))
-                val result = tryValidate { period.validate() }
+                val result = tryValidate { validate(period) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].let {
@@ -164,48 +161,46 @@ class ObjectSchemaTest :
         }
 
         context("nullable") {
-            context(_: Validation, _: Accumulate)
-            fun User?.validate() =
-                this?.checking {
-                    ::id { it.min(1) }
-                    ::name {
-                        it.min(1)
-                        it.max(10)
+            fun Validation.validate(user: User?) =
+                user?.schema {
+                    user::id { min(it, 1) }
+                    user::name {
+                        min(it, 1)
+                        max(it, 10)
                     }
                 }
 
             test("success with non-null value") {
                 val user = User(1, "abc")
-                val result = tryValidate { user.validate() }
+                val result = tryValidate { validate(user) }
                 result.shouldBeSuccess()
             }
 
             test("success with null value") {
-                val result = tryValidate { null.validate() }
+                val result = tryValidate { validate(null) }
                 result.shouldBeSuccess()
             }
         }
 
         context("prop - simple") {
-            context(_: Validation, _: Accumulate)
-            fun User.validate() =
-                checking {
-                    ::id { it.min(1) }
-                    ::name {
-                        it.min(1)
-                        it.max(10)
+            fun Validation.validate(user: User) =
+                user.schema {
+                    user::id { min(it, 1) }
+                    user::name {
+                        min(it, 1)
+                        max(it, 10)
                     }
                 }
 
             test("success") {
                 val user = User(1, "abc")
-                val result = tryValidate { user.validate() }
+                val result = tryValidate { validate(user) }
                 result.shouldBeSuccess()
             }
 
             test("failure with 1 constraint violated") {
                 val user = User(2, "too-long-name")
-                val result = tryValidate { user.validate() }
+                val result = tryValidate { validate(user) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].let {
@@ -217,7 +212,7 @@ class ObjectSchemaTest :
 
             test("failure with 2 constraints violated") {
                 val user = User(0, "too-long-name")
-                val result = tryValidate { user.validate() }
+                val result = tryValidate { validate(user) }
                 result.shouldBeFailure()
 
                 result.messages.size shouldBe 2
@@ -235,31 +230,28 @@ class ObjectSchemaTest :
         }
 
         context("prop - nest") {
-            context(_: Validation, _: Accumulate)
-            fun Street.validate() =
-                checking {
-                    ::id { it.min(1) }
-                    ::name {
-                        it.min(3)
-                        it.max(5)
+            fun Validation.validate(street: Street) =
+                street.schema {
+                    street::id { min(it, 1) }
+                    street::name {
+                        min(it, 3)
+                        max(it, 5)
                     }
                 }
 
-            context(_: Validation, _: Accumulate)
-            fun Address.validate() = checking { ::street { it.validate() } }
+            fun Validation.validate(address: Address) = address.schema { address::street { validate(it) } }
 
-            context(_: Validation, _: Accumulate)
-            fun Employee.validate() = checking { ::address { it.validate() } }
+            fun Validation.validate(employee: Employee) = employee.schema { employee::address { validate(it) } }
 
             test("success") {
                 val employee = Employee(1, "abc", Address(1, Street(1, "def")))
-                val result = tryValidate { employee.validate() }
+                val result = tryValidate { validate(employee) }
                 result.shouldBeSuccess()
             }
 
             test("failure") {
                 val employee = Employee(1, "abc", Address(1, Street(1, "too-long-name")))
-                val result = tryValidate { employee.validate() }
+                val result = tryValidate { validate(employee) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].let {
@@ -271,47 +263,44 @@ class ObjectSchemaTest :
         }
 
         context("prop - nest - dynamic") {
-            context(_: Validation, _: Accumulate)
-            fun Street.validate() =
-                checking {
-                    ::id { it.min(1) }
-                    ::name {
-                        it.min(3)
-                        it.max(5)
+            fun Validation.validate(street: Street) =
+                street.schema {
+                    street::id { min(it, 1) }
+                    street::name {
+                        min(it, 3)
+                        max(it, 5)
                     }
                 }
 
-            context(_: Validation, _: Accumulate)
-            fun Address.validate() =
-                checking {
-                    ::street { it.validate() }
-                    ::postalCode {
-                        when (country) {
-                            "US" -> it.length(8)
-                            else -> it.length(5)
+            fun Validation.validate(address: Address) =
+                address.schema {
+                    address::street { validate(it) }
+                    address::postalCode {
+                        when (address.country) {
+                            "US" -> length(it, 8)
+                            else -> length(it, 5)
                         }
                     }
                 }
 
-            context(_: Validation, _: Accumulate)
-            fun Employee.validate() = checking { ::address { it.validate() } }
+            fun Validation.validate(employee: Employee) = employee.schema { employee::address { validate(it) } }
 
             test("success when country is US") {
                 val employee = Employee(1, "abc", Address(1, Street(1, "def"), country = "US", postalCode = "12345678"))
-                val result = tryValidate { employee.validate() }
+                val result = tryValidate { validate(employee) }
                 result.shouldBeSuccess()
             }
 
             test("success when country is not US") {
                 val employee = Employee(1, "abc", Address(1, Street(1, "def"), country = "JP", postalCode = "12345"))
-                val result = tryValidate { employee.validate() }
+                val result = tryValidate { validate(employee) }
                 result.shouldBeSuccess()
             }
 
             test("failure when country is US") {
                 val employee =
                     Employee(1, "abc", Address(1, Street(1, "def"), country = "US", postalCode = "123456789"))
-                val result = tryValidate { employee.validate() }
+                val result = tryValidate { validate(employee) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].let {
@@ -324,7 +313,7 @@ class ObjectSchemaTest :
             test("failure when country is not US") {
                 val employee =
                     Employee(1, "abc", Address(1, Street(1, "def"), country = "JP", postalCode = "123456789"))
-                val result = tryValidate { employee.validate() }
+                val result = tryValidate { validate(employee) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].let {
@@ -336,50 +325,46 @@ class ObjectSchemaTest :
         }
 
         context("prop - nullable") {
-            context(_: Validation, _: Accumulate)
-            fun Street.validate() =
-                checking {
-                    ::id { it.min(1) }
-                    ::name {
-                        it.min(3)
-                        it.max(5)
+            fun Validation.validate(street: Street) =
+                street.schema {
+                    street::id { min(it, 1) }
+                    street::name {
+                        min(it, 3)
+                        max(it, 5)
                     }
                 }
 
-            context(_: Validation, _: Accumulate)
-            fun Address.validate() = checking { ::street { it.validate() } }
+            fun Validation.validate(address: Address) = address.schema { address::street { validate(it) } }
 
-            context(_: Validation, _: Accumulate)
-            fun Person.validate() =
-                checking {
-                    ::firstName { }
-                    ::lastName { }
-                    ::address { it?.validate() }
+            fun Validation.validate(person: Person) =
+                person.schema {
+                    person::firstName { }
+                    person::lastName { }
+                    person::address { if (it != null) validate(it) }
                 }
 
-            context(_: Validation, _: Accumulate)
-            fun Person.validate2() =
-                checking {
-                    ::firstName { it.notNull() }
-                    ::lastName { it.notNull() }
-                    ::address { it?.validate() }
+            fun Validation.validate2(person: Person) =
+                person.schema {
+                    person::firstName { notNull(it) }
+                    person::lastName { notNull(it) }
+                    person::address { if (it != null) validate(it) }
                 }
 
             test("success") {
                 val person = Person(1, "abc", "def", Address(1, Street(1, "hij")))
-                val result = tryValidate { person.validate() }
+                val result = tryValidate { validate(person) }
                 result.shouldBeSuccess()
             }
 
             test("success with nullable values") {
                 val person = Person(1, null, null, null)
-                val result = tryValidate { person.validate() }
+                val result = tryValidate { validate(person) }
                 result.shouldBeSuccess()
             }
 
             test("failure when not null constraint violated") {
                 val person = Person(1, null, null, null)
-                val result = tryValidate { person.validate2() }
+                val result = tryValidate { validate2(person) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 2
                 result.messages[0].let {
@@ -400,25 +385,24 @@ class ObjectSchemaTest :
                 val children: List<Node> = emptyList(),
             )
 
-            context(_: Validation, _: Accumulate)
-            fun Node.validate() {
-                checking {
-                    ::children {
-                        it.max(3)
-                        it.onEach<Node> { child -> child.validate() }
+            fun Validation.validate(node: Node) {
+                node.schema {
+                    node::children {
+                        max(it, 3)
+                        onEach(it) { child -> validate(child) }
                     }
                 }
             }
 
             test("success") {
                 val node = Node(listOf(Node(), Node(), Node()))
-                val result = tryValidate { node.validate() }
+                val result = tryValidate { validate(node) }
                 result.shouldBeSuccess()
             }
 
             test("failure when children size exceeds 3") {
                 val node = Node(listOf(Node(), Node(), Node(listOf(Node(), Node(), Node(), Node()))))
-                val result = tryValidate { node.validate() }
+                val result = tryValidate { validate(node) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].text shouldBe
@@ -427,7 +411,7 @@ class ObjectSchemaTest :
 
             test("failure when grandchildren size exceeds 3") {
                 val node = Node(listOf(Node(), Node(), Node(listOf(Node(listOf(Node(), Node(), Node(), Node()))))))
-                val result = tryValidate { node.validate() }
+                val result = tryValidate { validate(node) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].text shouldBe
@@ -441,14 +425,13 @@ class ObjectSchemaTest :
                 var next: NodeWithValue?,
             )
 
-            context(_: Validation, _: Accumulate)
-            fun NodeWithValue.validate() {
-                checking {
-                    ::value {
-                        it.min(0)
-                        it.max(100)
+            fun Validation.validate(node: NodeWithValue) {
+                node.schema {
+                    node::value {
+                        min(it, 0)
+                        max(it, 100)
                     }
-                    ::next { it?.validate() }
+                    node::next { if (it != null) validate(it) }
                 }
             }
 
@@ -457,7 +440,7 @@ class ObjectSchemaTest :
                 val node2 = NodeWithValue(20, node1)
                 node1.next = node2 // Create circular reference: node1 -> node2 -> node1
 
-                val result = tryValidate { node1.validate() }
+                val result = tryValidate { validate(node1) }
                 result.shouldBeSuccess()
             }
 
@@ -467,7 +450,7 @@ class ObjectSchemaTest :
                 val node2 = NodeWithValue(20, node3)
                 val node1 = NodeWithValue(10, node2)
 
-                val result = tryValidate { node1.validate() }
+                val result = tryValidate { validate(node1) }
                 result.shouldBeSuccess()
             }
 
@@ -476,7 +459,7 @@ class ObjectSchemaTest :
                 val node2 = NodeWithValue(20, node3)
                 val node1 = NodeWithValue(10, node2)
 
-                val result = tryValidate { node1.validate() }
+                val result = tryValidate { validate(node1) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].path.fullName shouldBe "next.next.value"
@@ -487,7 +470,7 @@ class ObjectSchemaTest :
                 val node2 = NodeWithValue(20, null)
                 val node1 = NodeWithValue(-5, node2) // Invalid: < 0
 
-                val result = tryValidate { node1.validate() }
+                val result = tryValidate { validate(node1) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].path.fullName shouldBe "value"
@@ -500,7 +483,7 @@ class ObjectSchemaTest :
                 val node2 = NodeWithValue(20, node1)
                 node1.next = node2 // Create circular reference
 
-                val result = tryValidate { node1.validate() }
+                val result = tryValidate { validate(node1) }
                 result.shouldBeFailure()
                 result.messages.size shouldBeEqual 1
                 result.messages[0].path.fullName shouldBeEqual "value"
@@ -514,17 +497,16 @@ class ObjectSchemaTest :
                 val birthday: LocalDate,
             )
 
-            context(_: Validation, _: Accumulate)
-            fun User.validate() {
-                checking {
-                    ::name { it.notBlank() }
-                    ::birthday { }
+            fun Validation.validate(user: User) {
+                user.schema {
+                    user::name { notBlank(it) }
+                    user::birthday { }
                 }
             }
 
             test("success") {
                 val user = User("abc", LocalDate.of(2021, 1, 1))
-                val result = tryValidate { user.validate() }
+                val result = tryValidate { validate(user) }
                 result.shouldBeSuccess()
             }
         }

@@ -15,11 +15,11 @@ package org.komapper.extension.validator
  * @return A new validator with the minimum constraint
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-fun <S : Comparable<S>> S.min(
+fun <S : Comparable<S>> Validation.min(
+    input: S,
     value: S,
     message: MessageProvider = { "kova.comparable.min".resource(value) },
-) = constrain("kova.comparable.min") { satisfies(it >= value, message) }
+) = input.constrain("kova.comparable.min") { satisfies(it >= value, message) }
 
 /**
  * Validates that the number is less than or equal to the specified maximum value.
@@ -36,11 +36,11 @@ fun <S : Comparable<S>> S.min(
  * @return A new validator with the maximum constraint
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-fun <S : Comparable<S>> S.max(
+fun <S : Comparable<S>> Validation.max(
+    input: S,
     value: S,
     message: MessageProvider = { "kova.comparable.max".resource(value) },
-) = constrain("kova.comparable.max") { satisfies(it <= value, message) }
+) = input.constrain("kova.comparable.max") { satisfies(it <= value, message) }
 
 /**
  * Validates that the number is strictly greater than the specified value.
@@ -58,11 +58,11 @@ fun <S : Comparable<S>> S.max(
  * @return A new validator with the greater-than constraint
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-fun <S : Comparable<S>> S.gt(
+fun <S : Comparable<S>> Validation.gt(
+    input: S,
     value: S,
     message: MessageProvider = { "kova.comparable.gt".resource(value) },
-) = constrain("kova.comparable.gt") { satisfies(it > value, message) }
+) = input.constrain("kova.comparable.gt") { satisfies(it > value, message) }
 
 /**
  * Validates that the number is greater than or equal to the specified value.
@@ -80,11 +80,11 @@ fun <S : Comparable<S>> S.gt(
  * @return A new validator with the greater-than-or-equal constraint
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-fun <S : Comparable<S>> S.gte(
+fun <S : Comparable<S>> Validation.gte(
+    input: S,
     value: S,
     message: MessageProvider = { "kova.comparable.gte".resource(value) },
-) = constrain("kova.comparable.gte") { satisfies(it >= value, message) }
+) = input.constrain("kova.comparable.gte") { satisfies(it >= value, message) }
 
 /**
  * Validates that the number is strictly less than the specified value.
@@ -102,11 +102,11 @@ fun <S : Comparable<S>> S.gte(
  * @return A new validator with the less-than constraint
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-fun <S : Comparable<S>> S.lt(
+fun <S : Comparable<S>> Validation.lt(
+    input: S,
     value: S,
     message: MessageProvider = { "kova.comparable.lt".resource(value) },
-) = constrain("kova.comparable.lt") { satisfies(it < value, message) }
+) = input.constrain("kova.comparable.lt") { satisfies(it < value, message) }
 
 /**
  * Validates that the number is less than or equal to the specified value.
@@ -124,11 +124,11 @@ fun <S : Comparable<S>> S.lt(
  * @return A new validator with the less-than-or-equal constraint
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-fun <S : Comparable<S>> S.lte(
+fun <S : Comparable<S>> Validation.lte(
+    input: S,
     value: S,
     message: MessageProvider = { "kova.comparable.lte".resource(value) },
-) = constrain("kova.comparable.lte") { satisfies(it <= value, message) }
+) = input.constrain("kova.comparable.lte") { satisfies(it <= value, message) }
 
 /**
  * Validates that the value is equal to the specified value.
@@ -146,11 +146,11 @@ fun <S : Comparable<S>> S.lte(
  * @return A new validator with the equality constraint
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-fun <S : Comparable<S>> S.eq(
+fun <S : Comparable<S>> Validation.eq(
+    input: S,
     value: S,
     message: MessageProvider = { "kova.comparable.eq".resource(value) },
-) = constrain("kova.comparable.eq") { satisfies(it == value, message) }
+) = input.constrain("kova.comparable.eq") { satisfies(it == value, message) }
 
 /**
  * Validates that the value is not equal to the specified value.
@@ -168,8 +168,8 @@ fun <S : Comparable<S>> S.eq(
  * @return A new validator with the inequality constraint
  */
 @IgnorableReturnValue
-context(_: Validation, _: Accumulate)
-fun <S : Comparable<S>> S.notEq(
+fun <S : Comparable<S>> Validation.notEq(
+    input: S,
     value: S,
     message: MessageProvider = { "kova.comparable.notEq".resource(value) },
-) = constrain("kova.comparable.notEq") { satisfies(it != value, message) }
+) = input.constrain("kova.comparable.notEq") { satisfies(it != value, message) }
