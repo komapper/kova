@@ -126,12 +126,53 @@ data class Validation(
     ): Accumulate.Value<S> = name(property.name) { accumulating { this@provideDelegate() } }
 
     /**
-     * Creates a resource-based validation message.
+     * Creates a text-based validation message with plain text content.
+     *
+     * Use this method to create ad-hoc validation messages instead of using i18n resource keys.
+     * When a validation error occurs, the enclosing `constrain()` call will automatically populate
+     * the constraint ID and input value in the message.
+     *
+     * Example usage in a constraint:
+     * ```kotlin
+     * tryValidate {
+     *     10.constrain("positive") {
+     *         satisfies(it > 0) { text("Value must be positive") }
+     *     }
+     * }
+     * ```
+     *
+     * Example with schema validation:
+     * ```kotlin
+     * data class Period(val startDate: LocalDate, val endDate: LocalDate)
+     *
+     * fun Validation.validate(period: Period) {
+     *     period.schema {
+     *         period::startDate { pastOrPresent(it) }
+     *         period::endDate { futureOrPresent(it) }
+     *         period.constrain("period") {
+     *             satisfies(it.startDate <= it.endDate) {
+     *                 text("Start date must be before or equal to end date")
+     *             }
+     *         }
+     *     }
+     * }
+     * ```
+     *
+     * @param content The text content of the error message
+     * @return A [Message.Text] instance with the given content
+     */
+    fun text(content: String): Message = Message.Text("", root, path, content, null)
+
+    /**
+     * Creates a resource-based validation message for internationalization.
      *
      * Use this method to create internationalized messages that load text from `kova.properties`.
      * The message key is the receiver string (typically a constraint ID like "kova.number.min").
      * Arguments are provided as a vararg and used for MessageFormat substitution
      * (i.e., the first argument becomes {0}, second becomes {1}, etc.).
+     *
+     * When a validation error occurs, the enclosing `constrain()` call will automatically populate
+     * the constraint ID and input value in the message.
      *
      * Example usage in a constraint:
      * ```kotlin
