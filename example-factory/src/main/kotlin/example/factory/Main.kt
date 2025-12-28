@@ -1,4 +1,4 @@
-package example
+package example.factory
 
 import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationResult

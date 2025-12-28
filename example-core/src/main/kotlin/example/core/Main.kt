@@ -1,4 +1,4 @@
-package example
+package example.core
 
 import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationResult
@@ -22,7 +22,7 @@ data class Person(
     val age: Age,
 )
 
-fun Validation.validate(user: User) {
+fun Validation.validate(user: User) =
     user.schema {
         user::name {
             min(it, 1)
@@ -33,18 +33,16 @@ fun Validation.validate(user: User) {
             max(it, 120)
         }
     }
-}
 
-fun Validation.validate(age: Age) {
+fun Validation.validate(age: Age) =
     age.schema {
         age::value {
             min(it, 0)
             max(it, 120)
         }
     }
-}
 
-fun Validation.validate(person: Person) {
+fun Validation.validate(person: Person) =
     person.schema {
         person::name {
             min(it, 1)
@@ -52,7 +50,6 @@ fun Validation.validate(person: Person) {
         }
         person::age { validate(it) }
     }
-}
 
 fun main() {
     println("\n# Validation")

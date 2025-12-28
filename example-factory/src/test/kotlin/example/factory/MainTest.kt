@@ -1,4 +1,4 @@
-package example
+package example.factory
 
 import io.kotest.core.spec.style.FunSpec
 
