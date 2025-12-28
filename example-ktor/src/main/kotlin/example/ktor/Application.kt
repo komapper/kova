@@ -15,7 +15,6 @@ import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ktor.server.SchemaValidator
 import org.komapper.extension.validator.ktor.server.Validated
 import org.komapper.extension.validator.positive
-import org.komapper.extension.validator.text
 
 @Serializable
 data class Customer(val id: Int, val firstName: String, val lastName: String) : Validated {

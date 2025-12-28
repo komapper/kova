@@ -341,9 +341,15 @@ val result = tryValidate(config = ValidationConfig(failFast = true)) {
 
 ### Custom Error Messages
 
+All validators accept an optional `message` parameter for custom error messages. You can use `text()` for plain text messages or `resource()` for internationalized messages:
+
 ```kotlin
 val result = tryValidate {
+    // Custom text message
     min(username, 3, message = { text("Username must be at least 3 characters") })
+
+    // Internationalized message with parameters
+    max(bio, 500, message = { "custom.bio.tooLong".resource(500) })
 }
 ```
 
@@ -351,7 +357,7 @@ val result = tryValidate {
 
 ### Custom Constraints
 
-Create custom validators using `constrain` and `satisfies`:
+Create custom validators using `constrain` and `satisfies`. The `constrain()` function automatically populates the constraint ID and input value in error messages:
 
 ```kotlin
 fun Validation.isUrlPath(input: String) {
@@ -360,6 +366,17 @@ fun Validation.isUrlPath(input: String) {
             text("Must be a valid URL path")
         }
     }
+}
+```
+
+The `satisfies()` method uses a `MessageProvider` lambda for lazy message construction—the message is only created when validation fails:
+
+```kotlin
+fun Validation.alphanumeric(
+    input: String,
+    message: MessageProvider = { "kova.string.alphanumeric".resource }
+) = input.constrain("kova.string.alphanumeric") {
+    satisfies(it.all { c -> c.isLetterOrDigit() }, message)
 }
 ```
 
@@ -383,10 +400,26 @@ Kova automatically detects and handles circular references in nested object vali
 
 ### Internationalization
 
-Error messages use resource bundles from `kova.properties`. Custom messages can be provided using the `message` parameter:
+Error messages use resource bundles from `kova.properties`. The `resource()` function creates internationalized messages with parameter substitution (using MessageFormat syntax where {0}, {1}, etc. are replaced with the provided arguments):
 
 ```kotlin
+// Using resource keys from kova.properties
 min(str, 5, message = { "custom.message.key".resource(5) })
+
+// Multiple parameters
+fun Validation.range(
+    input: Int,
+    minValue: Int,
+    maxValue: Int,
+    message: MessageProvider = { "kova.number.range".resource(minValue, maxValue) }
+) = input.constrain("kova.number.range") {
+    satisfies(it in minValue..maxValue, message)
+}
+```
+
+Corresponding entry in `kova.properties`:
+```properties
+kova.number.range=The value must be between {0} and {1}.
 ```
 
 ## Building and Testing
@@ -394,12 +427,6 @@ min(str, 5, message = { "custom.message.key".resource(5) })
 ```bash
 # Run all tests
 ./gradlew test
-
-# Run tests for kova-core module
-./gradlew kova-core:test
-
-# Run tests for kova-ktor module
-./gradlew kova-ktor:test
 
 # Build the project
 ./gradlew build
