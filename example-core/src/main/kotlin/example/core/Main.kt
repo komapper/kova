@@ -7,7 +7,6 @@ import org.komapper.extension.validator.max
 import org.komapper.extension.validator.min
 import org.komapper.extension.validator.notBlank
 import org.komapper.extension.validator.notNegative
-import org.komapper.extension.validator.satisfies
 import org.komapper.extension.validator.text
 import org.komapper.extension.validator.tryValidate
 

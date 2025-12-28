@@ -155,7 +155,7 @@ fun <E> Validation.notContains(
 @IgnorableReturnValue
 fun <E> Validation.onEach(
     input: Collection<E>,
-    validate: Constraint<E>,
+    validate: Validation.(E) -> Unit,
 ) = input.constrain("kova.collection.onEach") {
     withMessage({ "kova.collection.onEach".resource(it) }) {
         for ((i, element) in input.withIndex()) {

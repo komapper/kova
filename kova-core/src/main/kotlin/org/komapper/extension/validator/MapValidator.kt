@@ -217,7 +217,7 @@ fun <V> Validation.notContainsValue(
 @IgnorableReturnValue
 fun <K, V> Validation.onEach(
     input: Map<K, V>,
-    validator: Constraint<Map.Entry<K, V>>,
+    validator: Validation.(Map.Entry<K, V>) -> Unit,
 ) = input.constrain("kova.map.onEach") {
     appendPath(text = "<map entry>") {
         validateOnEach(
@@ -251,7 +251,7 @@ fun <K, V> Validation.onEach(
 @IgnorableReturnValue
 fun <K> Validation.onEachKey(
     input: Map<K, *>,
-    validator: Constraint<K>,
+    validator: Validation.(K) -> Unit,
 ) = input.constrain("kova.map.onEachKey") {
     validateOnEach(input, "kova.map.onEachKey") { entry ->
         appendPath(text = "<map key>") { validator(entry.key) }
@@ -281,7 +281,7 @@ fun <K> Validation.onEachKey(
 @IgnorableReturnValue
 fun <V> Validation.onEachValue(
     input: Map<*, V>,
-    validator: Constraint<V>,
+    validator: Validation.(V) -> Unit,
 ) = input.constrain("kova.map.onEachValue") {
     validateOnEach(input, "kova.map.onEachValue") { entry ->
         appendPath(text = "[${entry.key}]<map value>") { validator(entry.value) }
@@ -291,7 +291,7 @@ fun <V> Validation.onEachValue(
 private fun <K, V> Validation.validateOnEach(
     input: Map<K, V>,
     constraintId: String,
-    validate: Constraint<Map.Entry<K, V>>,
+    validate: Validation.(Map.Entry<K, V>) -> Unit,
 ): Unit =
     withMessage({ constraintId.resource(it) }) {
         for (entry in input.entries) accumulating { validate(entry) }

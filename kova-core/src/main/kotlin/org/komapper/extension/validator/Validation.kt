@@ -5,7 +5,6 @@ import org.komapper.extension.validator.ValidationIor.FailureLike
 import org.komapper.extension.validator.ValidationResult.Failure
 import org.komapper.extension.validator.ValidationResult.Success
 import java.time.Clock
-import kotlin.contracts.contract
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty0
 
@@ -54,10 +53,10 @@ data class Validation(
     @IgnorableReturnValue
     inline fun <T, R> T.constrain(
         id: String,
-        check: Validation.(T) -> R,
+        check: Constraint.(T) -> R,
     ) = accumulating {
         mapEachMessage({ logAndAddDetails(it, this@constrain, id) }) {
-            val result = check(this@constrain)
+            val result = Constraint(this).check(this@constrain)
             log {
                 LogEntry.Satisfied(
                     constraintId = id,
@@ -101,7 +100,7 @@ data class Validation(
     }
 
     @IgnorableReturnValue
-    operator fun <T> KProperty0<T>.invoke(block: Constraint<T>): Accumulate.Value<Unit> {
+    operator fun <T> KProperty0<T>.invoke(block: Validation.(T) -> Unit): Accumulate.Value<Unit> {
         val value = get()
         return addPathChecked(name, value) { accumulating { block(value) } } ?: Accumulate.Ok(Unit)
     }
@@ -183,72 +182,6 @@ data class Validation(
  * Delegates to [ValidationConfig.clock].
  */
 val Validation.clock: Clock get() = config.clock
-
-/**
- * Evaluates a condition and raises a validation error if it fails.
- *
- * This is the preferred form for most validation constraints, as it accepts a [MessageProvider]
- * lambda that is only evaluated when the condition is false. This provides lazy message construction,
- * which is beneficial when message creation involves resource lookups or formatting.
- *
- * If the condition is true, this function returns normally without evaluating the message.
- * If the condition is false, it evaluates the message provider and raises a validation error,
- * which gets accumulated in the validation context (or immediately fails if failFast is enabled).
- *
- * Example:
- * ```kotlin
- * fun Validation.positive(
- *     input: Int,
- *     message: MessageProvider = { "kova.number.positive".resource }
- * ) = input.constrain("kova.number.positive") {
- *     satisfies(it > 0, message)
- * }
- *
- * tryValidate { positive(5) }  // Success (message provider not evaluated)
- * tryValidate { positive(-1) } // Failure (message provider evaluated)
- * ```
- *
- * @param condition The condition to evaluate
- * @param message A MessageProvider lambda that produces the error message if the condition is false
- * @see satisfies Overload that accepts a Message directly
- */
-fun Validation.satisfies(
-    condition: Boolean,
-    message: MessageProvider,
-) {
-    contract { returns() implies condition }
-    satisfies(condition, message())
-}
-
-/**
- * Evaluates a condition and raises a validation error if it fails.
- *
- * This is a lower-level variant that accepts a [Message] instance directly, rather than
- * a lazy [MessageProvider]. Use this when you already have a constructed [Message] object
- * or when message construction is trivial. For most cases, prefer the [MessageProvider]
- * overload for lazy evaluation.
- *
- * If the condition is true, this function returns normally. If the condition is false,
- * it raises the provided validation error message, which gets accumulated in the validation
- * context (or immediately fails if failFast is enabled).
- *
- * Example:
- * ```kotlin
- * val errorMessage = "kova.string.pattern".resource(pattern)
- * satisfies(input.matches(regex), errorMessage)
- * ```
- *
- * @param condition The condition to evaluate
- * @param message The error message to raise if the condition is false
- * @see satisfies Overload that accepts a MessageProvider for lazy evaluation
- */
-fun Validation.satisfies(
-    condition: Boolean,
-    message: Message,
-) {
-    contract { returns() implies condition }
-    if (!condition) raise(message)
-}
 
 /**
  * Configuration settings for validation execution.
