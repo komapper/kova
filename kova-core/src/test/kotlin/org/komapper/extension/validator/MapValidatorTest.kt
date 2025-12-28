@@ -31,22 +31,22 @@ class MapValidatorTest :
             }
         }
 
-        context("length") {
+        context("size") {
             test("success") {
-                val result = tryValidate { length(mapOf("a" to "1", "b" to "2"), 2) }
+                val result = tryValidate { size(mapOf("a" to "1", "b" to "2"), 2) }
                 result.shouldBeSuccess()
             }
 
             test("failure with too few entries") {
-                val result = tryValidate { length(mapOf("a" to "1"), 2) }
+                val result = tryValidate { size(mapOf("a" to "1"), 2) }
                 result.shouldBeFailure()
-                result.messages.single().constraintId shouldBe "kova.map.length"
+                result.messages.single().constraintId shouldBe "kova.map.size"
             }
 
             test("failure with too many entries") {
-                val result = tryValidate { length(mapOf("a" to "1", "b" to "2", "c" to "3"), 2) }
+                val result = tryValidate { size(mapOf("a" to "1", "b" to "2", "c" to "3"), 2) }
                 result.shouldBeFailure()
-                result.messages.single().constraintId shouldBe "kova.map.length"
+                result.messages.single().constraintId shouldBe "kova.map.size"
             }
         }
 

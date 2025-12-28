@@ -20,24 +20,24 @@ class CollectionValidatorTest :
             }
         }
 
-        context("length") {
+        context("size") {
             test("success") {
-                val result = tryValidate { length(listOf("1", "2"), 2) }
+                val result = tryValidate { size(listOf("1", "2"), 2) }
                 result.shouldBeSuccess()
             }
 
             test("failure with too few elements") {
-                val result = tryValidate { length(listOf("1"), 2) }
+                val result = tryValidate { size(listOf("1"), 2) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
-                result.messages[0].constraintId shouldBe "kova.collection.length"
+                result.messages[0].constraintId shouldBe "kova.collection.size"
             }
 
             test("failure with too many elements") {
-                val result = tryValidate { length(listOf("1", "2", "3"), 2) }
+                val result = tryValidate { size(listOf("1", "2", "3"), 2) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
-                result.messages[0].constraintId shouldBe "kova.collection.length"
+                result.messages[0].constraintId shouldBe "kova.collection.size"
             }
         }
 

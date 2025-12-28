@@ -17,7 +17,7 @@ package org.komapper.extension.validator
 fun Validation.min(
     input: Map<*, *>,
     size: Int,
-    message: LengthMessageProvider = { "kova.map.min".resource(it, size) },
+    message: SizeMessageProvider = { "kova.map.min".resource(it, size) },
 ) = input.constrain("kova.map.min") { satisfies(it.size >= size) { message(it.size) } }
 
 /**
@@ -37,7 +37,7 @@ fun Validation.min(
 fun Validation.max(
     input: Map<*, *>,
     size: Int,
-    message: LengthMessageProvider = { "kova.map.max".resource(it, size) },
+    message: SizeMessageProvider = { "kova.map.max".resource(it, size) },
 ) = input.constrain("kova.map.max") { satisfies(it.size <= size) { message(it.size) } }
 
 /**
@@ -63,8 +63,8 @@ fun Validation.notEmpty(
  *
  * Example:
  * ```kotlin
- * tryValidate { length(mapOf("a" to 1, "b" to 2, "c" to 3), 3) } // Success
- * tryValidate { length(mapOf("a" to 1, "b" to 2), 3) }           // Failure
+ * tryValidate { size(mapOf("a" to 1, "b" to 2, "c" to 3), 3) } // Success
+ * tryValidate { size(mapOf("a" to 1, "b" to 2), 3) }           // Failure
  * ```
  *
  * @param size Exact map size required
@@ -72,11 +72,11 @@ fun Validation.notEmpty(
  * @return A new validator with the exact size constraint
  */
 @IgnorableReturnValue
-fun Validation.length(
+fun Validation.size(
     input: Map<*, *>,
     size: Int,
-    message: LengthMessageProvider = { "kova.map.length".resource(it, size) },
-) = input.constrain("kova.map.length") { satisfies(it.size == size) { message(it.size) } }
+    message: SizeMessageProvider = { "kova.map.size".resource(it, size) },
+) = input.constrain("kova.map.size") { satisfies(it.size == size) { message(it.size) } }
 
 /**
  * Validates that the map contains the specified key.

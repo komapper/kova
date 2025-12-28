@@ -1,6 +1,6 @@
 package org.komapper.extension.validator
 
-typealias LengthMessageProvider = (actualSize: Int) -> Message
+typealias SizeMessageProvider = (actualSize: Int) -> Message
 
 /**
  * Validates that the collection size is at least the specified minimum.
@@ -18,7 +18,7 @@ typealias LengthMessageProvider = (actualSize: Int) -> Message
 fun Validation.min(
     input: Collection<*>,
     size: Int,
-    message: LengthMessageProvider = { "kova.collection.min".resource(it, size) },
+    message: SizeMessageProvider = { "kova.collection.min".resource(it, size) },
 ) = input.constrain("kova.collection.min") { satisfies(it.size >= size) { message(it.size) } }
 
 /**
@@ -37,7 +37,7 @@ fun Validation.min(
 fun Validation.max(
     input: Collection<*>,
     size: Int,
-    message: LengthMessageProvider = { "kova.collection.max".resource(it, size) },
+    message: SizeMessageProvider = { "kova.collection.max".resource(it, size) },
 ) = input.constrain("kova.collection.max") { satisfies(it.size <= size) { message(it.size) } }
 
 /**
@@ -62,19 +62,19 @@ fun Validation.notEmpty(
  *
  * Example:
  * ```kotlin
- * tryValidate { length(listOf("a", "b", "c"), 3) } // Success
- * tryValidate { length(listOf("a", "b"), 3) }      // Failure
+ * tryValidate { size(listOf("a", "b", "c"), 3) } // Success
+ * tryValidate { size(listOf("a", "b"), 3) }      // Failure
  * ```
  *
  * @param size Exact collection size required
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun Validation.length(
+fun Validation.size(
     input: Collection<*>,
     size: Int,
-    message: LengthMessageProvider = { "kova.collection.length".resource(it, size) },
-) = input.constrain("kova.collection.length") { satisfies(it.size == size) { message(it.size) } }
+    message: SizeMessageProvider = { "kova.collection.size".resource(it, size) },
+) = input.constrain("kova.collection.size") { satisfies(it.size == size) { message(it.size) } }
 
 /**
  * Validates that the collection contains the specified element.
