@@ -70,12 +70,6 @@ data class Validation(
         }
     }
 
-    @Deprecated("Use on the object instance instead", level = DeprecationLevel.ERROR)
-    inline fun <R> Validation.constrain(
-        id: String,
-        check: Validation.(Validation) -> R,
-    ) {}
-
     fun <T> ValidationIor<T>.bind(): T =
         when (this) {
             is Success -> value
@@ -100,20 +94,11 @@ data class Validation(
         block: Validation.() -> R,
     ): R = addPath(name, this, block)
 
-    @Deprecated("Use on the object instance instead", level = DeprecationLevel.ERROR)
-    inline fun <R> Validation.name(
-        name: String,
-        block: Validation.() -> R,
-    ) {}
-
     inline fun <T : Any> T.schema(block: Validation.() -> Unit) {
         val klass = this::class
         val rootName = klass.qualifiedName ?: klass.simpleName ?: klass.toString()
         return addRoot(rootName, this, block)
     }
-
-    @Deprecated("Use on the object instance instead", level = DeprecationLevel.ERROR)
-    inline fun Validation.schema(block: Validation.() -> Unit) {}
 
     @IgnorableReturnValue
     operator fun <T> KProperty0<T>.invoke(block: Constraint<T>): Accumulate.Value<Unit> {
