@@ -11,10 +11,10 @@ typealias MessageProvider = () -> Message
  * Messages can be simple text, resource bundle entries (i18n), or contain nested validation failures
  * from collection/map element validation or the `or` operator.
  *
- * All message types require constraint metadata (constraintId)
- * and validation state (root, path). Messages are typically created internally by the validation framework.
+ * All message types include constraint metadata (constraintId), validation state (root, path),
+ * and the input value being validated. Messages are typically created internally by the validation framework.
  *
- * There are four message types:
+ * There are two message types:
  * - [Text]: Simple hardcoded text messages
  * - [Resource]: I18n messages loaded from `kova.properties` resource bundles
  */
@@ -45,8 +45,11 @@ sealed interface Message {
      * This message type is used for hardcoded error messages or when i18n is not needed.
      * The message text is provided directly as a string rather than loaded from a resource bundle.
      *
-     * @property context The message context containing constraint metadata and validation state
+     * @property constraintId The constraint identifier for this message
+     * @property root The root object identifier in the validation hierarchy
+     * @property path The path to the validated value in the object graph
      * @property text The formatted message text
+     * @property input The input value being validated
      */
     class Text internal constructor(
         override val constraintId: String,
@@ -67,9 +70,8 @@ sealed interface Message {
      * A message loaded from a resource bundle for i18n support.
      *
      * Messages are loaded from `kova.properties` files using [MessageFormat] for parameter substitution.
-     * The constraint ID from the context is used as the resource bundle key, and arguments from the context
-     * are substituted into the message pattern. Arguments that are Message instances are resolved to their
-     * text strings to support nested messages.
+     * The constraint ID is used as the resource bundle key, and arguments are substituted into the message
+     * pattern. Arguments that are Message instances are resolved to their text strings to support nested messages.
      *
      * Example resource file (kova.properties):
      * ```properties
@@ -78,15 +80,17 @@ sealed interface Message {
      * kova.collection.onEach=Some elements do not satisfy the constraint: {0}
      * ```
      *
-     * @property context The message context
+     * @property constraintId The constraint identifier (used as resource bundle key)
+     * @property root The root object identifier in the validation hierarchy
+     * @property path The path to the validated value in the object graph
+     * @property input The input value being validated
+     * @property args Arguments for formatting the resource message using [MessageFormat]
      */
     class Resource internal constructor(
-        /** the constraint ID (used as resource key) */
         override val constraintId: String,
         override val root: String,
         override val path: Path,
         override val input: Any?,
-        /** The message context containing arguments for formatting the resource message */
         vararg val args: Any?,
     ) : Message {
         override val text: String by lazy {
