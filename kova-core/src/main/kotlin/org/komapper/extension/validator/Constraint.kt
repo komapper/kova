@@ -1,76 +1,78 @@
 package org.komapper.extension.validator
 
-/**
- * Represents a validation constraint that can be applied to a value.
- *
- * A constraint is a function that receives a value within a [Validation] context and
- * performs validation logic on it. Constraints are commonly used with collection validators
- * like [onEach], property validation within schema blocks, and custom validation logic.
- *
- * Example with collection validation:
- * ```kotlin
- * tryValidate {
- *     onEach(listOf(1, -2, 3)) { value ->
- *         positive(value)
- *     }
- * }
- * ```
- *
- * Example with schema validation:
- * ```kotlin
- * data class Period(val startDate: LocalDate, val endDate: LocalDate)
- *
- * fun Validation.validate(period: Period) {
- *     period.schema {
- *         period::startDate { pastOrPresent(it) }
- *         period::endDate { futureOrPresent(it) }
- *         period.constrain("period") {
- *             satisfies(it.startDate <= it.endDate) {
- *                 text("Start date must be before or equal to end date")
- *             }
- *         }
- *     }
- * }
- * ```
- *
- * @param T The type of value this constraint validates
- */
-typealias Constraint<T> = Validation.(T) -> Unit
+import kotlin.contracts.contract
 
 /**
- * Creates a text-based validation message.
+ * Represents a validation constraint context that provides methods to evaluate conditions
+ * and raise validation errors.
  *
- * Use this method to create simple text messages for constraint violations
- * without i18n support. The message will include the current validation context
- * (root, path, constraint ID).
+ * This class is typically accessed through the `constrain()` extension function, which
+ * creates a constraint context for a given input value and constraint ID. Within this context,
+ * you can use the `satisfies()` method to define validation rules.
  *
- * Example usage in a constraint:
+ * Example:
  * ```kotlin
- * tryValidate {
- *     10.constrain("positive") {
- *         satisfies(it > 0) { text("Value must be positive") }
- *     }
+ * fun Validation.positive(input: Int) = input.constrain("kova.number.positive") {
+ *     satisfies(it > 0) { "kova.number.positive".resource }
  * }
  * ```
  *
- * Example with schema validation:
- * ```kotlin
- * data class Period(val startDate: LocalDate, val endDate: LocalDate)
- *
- * fun Validation.validate(period: Period) {
- *     period.schema {
- *         period::startDate { pastOrPresent(it) }
- *         period::endDate { futureOrPresent(it) }
- *         period.constrain("period") {
- *             satisfies(it.startDate <= it.endDate) {
- *                 text("Start date must be before or equal to end date")
- *             }
- *         }
- *     }
- * }
- * ```
- *
- * @param content The text content of the error message
- * @return A [Message.Text] instance with the given content
+ * @property validation The validation context that accumulates errors and manages validation state
+ * @see satisfies
  */
-fun Validation.text(content: String): Message = Message.Text("", root, path, content, null)
+data class Constraint(
+    val validation: Validation,
+) {
+    /**
+     * Evaluates a condition and raises a validation error if it fails.
+     *
+     * This is the preferred form for most validation constraints. It accepts a [MessageProvider]
+     * lambda that is only evaluated when the condition is false, enabling lazy message construction.
+     * This is beneficial when message creation involves resource lookups or formatting.
+     *
+     * Example:
+     * ```kotlin
+     * fun Validation.positive(
+     *     input: Int,
+     *     message: MessageProvider = { "kova.number.positive".resource }
+     * ) = input.constrain("kova.number.positive") {
+     *     satisfies(it > 0, message)
+     * }
+     *
+     * tryValidate { positive(5) }  // Success (message provider not evaluated)
+     * tryValidate { positive(-1) } // Failure (message provider evaluated)
+     * ```
+     *
+     * @param condition The condition to evaluate
+     * @param message A MessageProvider lambda that produces the error message if the condition is false
+     * @see satisfies Overload that accepts a Message directly
+     */
+    fun satisfies(
+        condition: Boolean,
+        message: MessageProvider,
+    ) {
+        contract { returns() implies condition }
+        satisfies(condition, message())
+    }
+
+    /**
+     * Lower-level variant that accepts a [Message] instance directly instead of a [MessageProvider].
+     *
+     * Example:
+     * ```kotlin
+     * val errorMessage = "kova.string.pattern".resource(pattern)
+     * satisfies(input.matches(regex), errorMessage)
+     * ```
+     *
+     * @param condition The condition to evaluate
+     * @param message The error message to raise if the condition is false
+     * @see satisfies Overload that accepts a MessageProvider for lazy evaluation
+     */
+    fun satisfies(
+        condition: Boolean,
+        message: Message,
+    ) {
+        contract { returns() implies condition }
+        if (!condition) validation.raise(message)
+    }
+}

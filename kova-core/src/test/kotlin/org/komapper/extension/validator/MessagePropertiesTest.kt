@@ -238,17 +238,17 @@ class MessagePropertiesTest :
                 message.text shouldBe "Collection (size 4) must have at most 3 elements"
             }
 
-            test("length") {
-                val result = tryValidate { length(listOf("a", "b"), 3) }
+            test("size") {
+                val result = tryValidate { size(listOf("a", "b"), 3) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "Collection (size 2) must have exactly 3 elements"
             }
 
-            test("length with message") {
+            test("size with message") {
                 val result =
                     tryValidate {
-                        length(
+                        size(
                             listOf("a", "b"),
                             3,
                         ) { text("Collection (size $it) must have exactly 3 elements") }
@@ -492,17 +492,17 @@ class MessagePropertiesTest :
                 message.text shouldBe "Map (size 3) must have at most 2 entries"
             }
 
-            test("length") {
-                val result = tryValidate { length(mapOf("a" to 1, "b" to 2), 3) }
+            test("size") {
+                val result = tryValidate { size(mapOf("a" to 1, "b" to 2), 3) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "Map (size 2) must have exactly 3 entries"
             }
 
-            test("length with message") {
+            test("size with message") {
                 val result =
                     tryValidate {
-                        length(
+                        size(
                             mapOf("a" to 1, "b" to 2),
                             3,
                         ) { text("Map (size $it) must have exactly 3 entries") }

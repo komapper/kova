@@ -1,4 +1,4 @@
-package example
+package example.exposed
 
 import org.jetbrains.exposed.v1.core.StdOutSqlLogger
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
@@ -40,9 +40,7 @@ class City(
 
     companion object : IntEntityClass<City>(Cities) {
         init {
-            subscribe {
-                it.schema { it::name { notEmpty(it) } }
-            }
+            subscribe { validate(it) }
         }
     }
 }
@@ -56,21 +54,27 @@ class User(
 
     companion object : IntEntityClass<User>(Users) {
         init {
-            subscribe { user ->
-                user.schema {
-                    user::name {
-                        min(it, 1)
-                        notBlank(it)
-                    }
-                    user::age {
-                        min(it, 0)
-                        max(it, 120)
-                    }
-                }
-            }
+            subscribe { validate(it) }
         }
     }
 }
+
+fun Validation.validate(city: City) =
+    city.schema {
+        city::name { notEmpty(it) }
+    }
+
+fun Validation.validate(user: User) =
+    user.schema {
+        user::name {
+            min(it, 1)
+            notBlank(it)
+        }
+        user::age {
+            min(it, 0)
+            max(it, 120)
+        }
+    }
 
 @IgnorableReturnValue
 fun <ID : Any, T : Entity<ID>> EntityClass<ID, T>.subscribe(validate: Validation.(T) -> Unit): (EntityChange) -> Unit =

@@ -5,7 +5,6 @@ import org.komapper.extension.validator.ValidationIor.FailureLike
 import org.komapper.extension.validator.ValidationResult.Failure
 import org.komapper.extension.validator.ValidationResult.Success
 import java.time.Clock
-import kotlin.contracts.contract
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty0
 
@@ -54,10 +53,10 @@ data class Validation(
     @IgnorableReturnValue
     inline fun <T, R> T.constrain(
         id: String,
-        check: Validation.(T) -> R,
+        check: Constraint.(T) -> R,
     ) = accumulating {
         mapEachMessage({ logAndAddDetails(it, this@constrain, id) }) {
-            val result = check(this@constrain)
+            val result = Constraint(this).check(this@constrain)
             log {
                 LogEntry.Satisfied(
                     constraintId = id,
@@ -69,12 +68,6 @@ data class Validation(
             result
         }
     }
-
-    @Deprecated("Use on the object instance instead", level = DeprecationLevel.ERROR)
-    inline fun <R> Validation.constrain(
-        id: String,
-        check: Validation.(Validation) -> R,
-    ) {}
 
     fun <T> ValidationIor<T>.bind(): T =
         when (this) {
@@ -100,23 +93,14 @@ data class Validation(
         block: Validation.() -> R,
     ): R = addPath(name, this, block)
 
-    @Deprecated("Use on the object instance instead", level = DeprecationLevel.ERROR)
-    inline fun <R> Validation.name(
-        name: String,
-        block: Validation.() -> R,
-    ) {}
-
     inline fun <T : Any> T.schema(block: Validation.() -> Unit) {
         val klass = this::class
         val rootName = klass.qualifiedName ?: klass.simpleName ?: klass.toString()
         return addRoot(rootName, this, block)
     }
 
-    @Deprecated("Use on the object instance instead", level = DeprecationLevel.ERROR)
-    inline fun Validation.schema(block: Validation.() -> Unit) {}
-
     @IgnorableReturnValue
-    operator fun <T> KProperty0<T>.invoke(block: Constraint<T>): Accumulate.Value<Unit> {
+    operator fun <T> KProperty0<T>.invoke(block: Validation.(T) -> Unit): Accumulate.Value<Unit> {
         val value = get()
         return addPathChecked(name, value) { accumulating { block(value) } } ?: Accumulate.Ok(Unit)
     }
@@ -142,12 +126,53 @@ data class Validation(
     ): Accumulate.Value<S> = name(property.name) { accumulating { this@provideDelegate() } }
 
     /**
-     * Creates a resource-based validation message.
+     * Creates a text-based validation message with plain text content.
+     *
+     * Use this method to create ad-hoc validation messages instead of using i18n resource keys.
+     * When a validation error occurs, the enclosing `constrain()` call will automatically populate
+     * the constraint ID and input value in the message.
+     *
+     * Example usage in a constraint:
+     * ```kotlin
+     * tryValidate {
+     *     10.constrain("positive") {
+     *         satisfies(it > 0) { text("Value must be positive") }
+     *     }
+     * }
+     * ```
+     *
+     * Example with schema validation:
+     * ```kotlin
+     * data class Period(val startDate: LocalDate, val endDate: LocalDate)
+     *
+     * fun Validation.validate(period: Period) {
+     *     period.schema {
+     *         period::startDate { pastOrPresent(it) }
+     *         period::endDate { futureOrPresent(it) }
+     *         period.constrain("period") {
+     *             satisfies(it.startDate <= it.endDate) {
+     *                 text("Start date must be before or equal to end date")
+     *             }
+     *         }
+     *     }
+     * }
+     * ```
+     *
+     * @param content The text content of the error message
+     * @return A [Message.Text] instance with the given content
+     */
+    fun text(content: String): Message = Message.Text("", root, path, content, null)
+
+    /**
+     * Creates a resource-based validation message for internationalization.
      *
      * Use this method to create internationalized messages that load text from `kova.properties`.
      * The message key is the receiver string (typically a constraint ID like "kova.number.min").
      * Arguments are provided as a vararg and used for MessageFormat substitution
      * (i.e., the first argument becomes {0}, second becomes {1}, etc.).
+     *
+     * When a validation error occurs, the enclosing `constrain()` call will automatically populate
+     * the constraint ID and input value in the message.
      *
      * Example usage in a constraint:
      * ```kotlin
@@ -187,7 +212,7 @@ data class Validation(
      * @param args Arguments to be interpolated into the message template using MessageFormat
      * @return A [Message.Resource] instance configured with the provided arguments
      */
-    fun String.resource(vararg args: Any?): Message.Resource = Message.Resource(this, root, path, null, args = args)
+    fun String.resource(vararg args: Any?): Message.Resource = Message.Resource(this, this, root, path, null, args = args)
 
     val String.resource: Message.Resource get() = resource()
 }
@@ -198,37 +223,6 @@ data class Validation(
  * Delegates to [ValidationConfig.clock].
  */
 val Validation.clock: Clock get() = config.clock
-
-/**
- * Evaluates a condition and raises a validation error if it fails.
- *
- * If the condition is true, this function returns normally. If the condition is false,
- * it raises a validation error with the provided message, which gets accumulated in
- * the validation context (or immediately fails if failFast is enabled).
- *
- * Example:
- * ```kotlin
- * fun Validation.positive(
- *     input: Int,
- *     message: MessageProvider = { "kova.number.positive".resource }
- * ) = input.constrain("kova.number.positive") {
- *     satisfies(it > 0, message)
- * }
- *
- * tryValidate { positive(5) }  // Success
- * tryValidate { positive(-1) } // Failure
- * ```
- *
- * @param condition The condition to evaluate
- * @param message A MessageProvider that produces the error message if the condition is false
- */
-fun Validation.satisfies(
-    condition: Boolean,
-    message: MessageProvider,
-) {
-    contract { returns() implies condition }
-    if (!condition) raise(message())
-}
 
 /**
  * Configuration settings for validation execution.

@@ -1,4 +1,4 @@
-package example
+package example.core
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.types.shouldBeInstanceOf

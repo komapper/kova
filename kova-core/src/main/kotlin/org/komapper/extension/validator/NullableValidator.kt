@@ -25,7 +25,7 @@ fun <T> Validation.isNull(
 inline fun <T> Validation.isNullOr(
     input: T,
     noinline message: MessageProvider = { "kova.nullable.isNull".resource },
-    block: Constraint<T & Any>,
+    block: Validation.(T & Any) -> Unit,
 ) = or<Unit> { isNull(input, message) } orElse { block(input!!) }
 
 /**
@@ -71,6 +71,6 @@ fun <T> Validation.toNonNullable(
     message: MessageProvider = { "kova.nullable.notNull".resource },
 ): T & Any {
     contract { returns() implies (input != null) }
-    satisfies(input != null, message)
+    Constraint(this).satisfies(input != null, message)
     return input
 }

@@ -17,7 +17,7 @@ package org.komapper.extension.validator
 fun Validation.min(
     input: Map<*, *>,
     size: Int,
-    message: LengthMessageProvider = { "kova.map.min".resource(it, size) },
+    message: SizeMessageProvider = { "kova.map.min".resource(it, size) },
 ) = input.constrain("kova.map.min") { satisfies(it.size >= size) { message(it.size) } }
 
 /**
@@ -37,7 +37,7 @@ fun Validation.min(
 fun Validation.max(
     input: Map<*, *>,
     size: Int,
-    message: LengthMessageProvider = { "kova.map.max".resource(it, size) },
+    message: SizeMessageProvider = { "kova.map.max".resource(it, size) },
 ) = input.constrain("kova.map.max") { satisfies(it.size <= size) { message(it.size) } }
 
 /**
@@ -63,8 +63,8 @@ fun Validation.notEmpty(
  *
  * Example:
  * ```kotlin
- * tryValidate { length(mapOf("a" to 1, "b" to 2, "c" to 3), 3) } // Success
- * tryValidate { length(mapOf("a" to 1, "b" to 2), 3) }           // Failure
+ * tryValidate { size(mapOf("a" to 1, "b" to 2, "c" to 3), 3) } // Success
+ * tryValidate { size(mapOf("a" to 1, "b" to 2), 3) }           // Failure
  * ```
  *
  * @param size Exact map size required
@@ -72,11 +72,11 @@ fun Validation.notEmpty(
  * @return A new validator with the exact size constraint
  */
 @IgnorableReturnValue
-fun Validation.length(
+fun Validation.size(
     input: Map<*, *>,
     size: Int,
-    message: LengthMessageProvider = { "kova.map.length".resource(it, size) },
-) = input.constrain("kova.map.length") { satisfies(it.size == size) { message(it.size) } }
+    message: SizeMessageProvider = { "kova.map.size".resource(it, size) },
+) = input.constrain("kova.map.size") { satisfies(it.size == size) { message(it.size) } }
 
 /**
  * Validates that the map contains the specified key.
@@ -92,6 +92,25 @@ fun Validation.length(
  */
 @IgnorableReturnValue
 fun <K> Validation.hasKey(
+    input: Map<K, *>,
+    key: K,
+    message: MessageProvider = { "kova.map.containsKey".resource(key) },
+) = containsKey(input, key, message)
+
+/**
+ * Validates that the map contains the specified key.
+ *
+ * Example:
+ * ```kotlin
+ * tryValidate { containsKey(mapOf("foo" to 1, "bar" to 2), "foo") }  // Success
+ * tryValidate { containsKey(mapOf("bar" to 2, "baz" to 3), "foo") }  // Failure
+ * ```
+ *
+ * @param key The key that must be present in the map
+ * @param message Custom error message provider
+ */
+@IgnorableReturnValue
+fun <K> Validation.containsKey(
     input: Map<K, *>,
     key: K,
     message: MessageProvider = { "kova.map.containsKey".resource(key) },
@@ -130,6 +149,25 @@ fun <K> Validation.notContainsKey(
  */
 @IgnorableReturnValue
 fun <V> Validation.hasValue(
+    input: Map<*, V>,
+    value: V,
+    message: MessageProvider = { "kova.map.containsValue".resource(value) },
+) = containsValue(input, value, message)
+
+/**
+ * Validates that the map contains the specified value.
+ *
+ * Example:
+ * ```kotlin
+ * tryValidate { containsValue(mapOf("foo" to 42, "bar" to 2), 42) }  // Success
+ * tryValidate { containsValue(mapOf("foo" to 1, "bar" to 2), 42) }   // Failure
+ * ```
+ *
+ * @param value The value that must be present in the map
+ * @param message Custom error message provider
+ */
+@IgnorableReturnValue
+fun <V> Validation.containsValue(
     input: Map<*, V>,
     value: V,
     message: MessageProvider = { "kova.map.containsValue".resource(value) },
@@ -179,7 +217,7 @@ fun <V> Validation.notContainsValue(
 @IgnorableReturnValue
 fun <K, V> Validation.onEach(
     input: Map<K, V>,
-    validator: Constraint<Map.Entry<K, V>>,
+    validator: Validation.(Map.Entry<K, V>) -> Unit,
 ) = input.constrain("kova.map.onEach") {
     appendPath(text = "<map entry>") {
         validateOnEach(
@@ -213,7 +251,7 @@ fun <K, V> Validation.onEach(
 @IgnorableReturnValue
 fun <K> Validation.onEachKey(
     input: Map<K, *>,
-    validator: Constraint<K>,
+    validator: Validation.(K) -> Unit,
 ) = input.constrain("kova.map.onEachKey") {
     validateOnEach(input, "kova.map.onEachKey") { entry ->
         appendPath(text = "<map key>") { validator(entry.key) }
@@ -243,7 +281,7 @@ fun <K> Validation.onEachKey(
 @IgnorableReturnValue
 fun <V> Validation.onEachValue(
     input: Map<*, V>,
-    validator: Constraint<V>,
+    validator: Validation.(V) -> Unit,
 ) = input.constrain("kova.map.onEachValue") {
     validateOnEach(input, "kova.map.onEachValue") { entry ->
         appendPath(text = "[${entry.key}]<map value>") { validator(entry.value) }
@@ -253,7 +291,7 @@ fun <V> Validation.onEachValue(
 private fun <K, V> Validation.validateOnEach(
     input: Map<K, V>,
     constraintId: String,
-    validate: Constraint<Map.Entry<K, V>>,
+    validate: Validation.(Map.Entry<K, V>) -> Unit,
 ): Unit =
     withMessage({ constraintId.resource(it) }) {
         for (entry in input.entries) accumulating { validate(entry) }
