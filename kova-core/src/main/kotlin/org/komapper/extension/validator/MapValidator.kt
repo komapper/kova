@@ -95,6 +95,25 @@ fun <K> Validation.hasKey(
     input: Map<K, *>,
     key: K,
     message: MessageProvider = { "kova.map.containsKey".resource(key) },
+) = containsKey(input, key, message)
+
+/**
+ * Validates that the map contains the specified key.
+ *
+ * Example:
+ * ```kotlin
+ * tryValidate { containsKey(mapOf("foo" to 1, "bar" to 2), "foo") }  // Success
+ * tryValidate { containsKey(mapOf("bar" to 2, "baz" to 3), "foo") }  // Failure
+ * ```
+ *
+ * @param key The key that must be present in the map
+ * @param message Custom error message provider
+ */
+@IgnorableReturnValue
+fun <K> Validation.containsKey(
+    input: Map<K, *>,
+    key: K,
+    message: MessageProvider = { "kova.map.containsKey".resource(key) },
 ) = input.constrain("kova.map.containsKey") { satisfies(it.containsKey(key), message) }
 
 /**
@@ -130,6 +149,25 @@ fun <K> Validation.notContainsKey(
  */
 @IgnorableReturnValue
 fun <V> Validation.hasValue(
+    input: Map<*, V>,
+    value: V,
+    message: MessageProvider = { "kova.map.containsValue".resource(value) },
+) = containsValue(input, value, message)
+
+/**
+ * Validates that the map contains the specified value.
+ *
+ * Example:
+ * ```kotlin
+ * tryValidate { containsValue(mapOf("foo" to 42, "bar" to 2), 42) }  // Success
+ * tryValidate { containsValue(mapOf("foo" to 1, "bar" to 2), 42) }   // Failure
+ * ```
+ *
+ * @param value The value that must be present in the map
+ * @param message Custom error message provider
+ */
+@IgnorableReturnValue
+fun <V> Validation.containsValue(
     input: Map<*, V>,
     value: V,
     message: MessageProvider = { "kova.map.containsValue".resource(value) },

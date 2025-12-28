@@ -127,6 +127,25 @@ class CollectionValidatorTest :
             }
         }
 
+        context("contains") {
+            test("success") {
+                val result = tryValidate { contains(listOf("foo", "bar"), "foo") }
+                result.shouldBeSuccess()
+            }
+
+            test("failure") {
+                val result = tryValidate { contains(listOf("bar", "baz"), "foo") }
+                result.shouldBeFailure()
+                result.messages.size shouldBe 1
+                result.messages[0].constraintId shouldBe "kova.collection.contains"
+            }
+
+            test("failure with empty list") {
+                val result = tryValidate { contains(emptyList<Nothing>(), "foo") }
+                result.shouldBeFailure()
+            }
+        }
+
         context("notContains") {
             test("success") {
                 val result = tryValidate { notContains(listOf("bar", "baz"), "foo") }

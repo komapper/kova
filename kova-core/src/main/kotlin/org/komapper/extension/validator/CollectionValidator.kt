@@ -93,6 +93,25 @@ fun <E> Validation.has(
     input: Collection<E>,
     element: E,
     message: MessageProvider = { "kova.collection.contains".resource(element) },
+) = contains(input, element, message)
+
+/**
+ * Validates that the collection contains the specified element.
+ *
+ * Example:
+ * ```kotlin
+ * tryValidate { contains(listOf("foo", "bar"), "foo") }  // Success
+ * tryValidate { contains(listOf("bar", "baz"), "foo") }  // Failure
+ * ```
+ *
+ * @param element The element that must be present in the collection
+ * @param message Custom error message provider
+ */
+@IgnorableReturnValue
+fun <E> Validation.contains(
+    input: Collection<E>,
+    element: E,
+    message: MessageProvider = { "kova.collection.contains".resource(element) },
 ) = input.constrain("kova.collection.contains") { satisfies(it.contains(element), message) }
 
 /**
