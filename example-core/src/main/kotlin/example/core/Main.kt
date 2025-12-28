@@ -6,6 +6,9 @@ import org.komapper.extension.validator.isSuccess
 import org.komapper.extension.validator.max
 import org.komapper.extension.validator.min
 import org.komapper.extension.validator.notBlank
+import org.komapper.extension.validator.notNegative
+import org.komapper.extension.validator.satisfies
+import org.komapper.extension.validator.text
 import org.komapper.extension.validator.tryValidate
 
 data class User(
@@ -20,6 +23,11 @@ data class Age(
 data class Person(
     val name: String,
     val age: Age,
+)
+
+data class PriceRange(
+    val minPrice: Double,
+    val maxPrice: Double,
 )
 
 fun Validation.validate(user: User) =
@@ -51,6 +59,18 @@ fun Validation.validate(person: Person) =
         person::age { validate(it) }
     }
 
+fun Validation.validate(range: PriceRange) =
+    range.schema {
+        range::minPrice { notNegative(it) }
+        range::maxPrice { notNegative(it) }
+        // Validate relationship: minPrice must be less than or equal to maxPrice
+        range.constrain("priceRange") {
+            satisfies(it.minPrice <= it.maxPrice) {
+                text("minPrice must be less than or equal to maxPrice")
+            }
+        }
+    }
+
 fun main() {
     println("\n# Validation")
 
@@ -73,6 +93,13 @@ fun main() {
     // ## Failure
     // Message(constraintId=kova.charSequence.notBlank, text='must not be blank', root=example.Person, path=name, input=  , args=[])
     // Message(constraintId=kova.comparable.min, text='must be greater than or equal to 0', root=example.Person, path=age.value, input=-1, args=[0])
+
+    tryValidate { validate(PriceRange(10.0, 20.0)) }.printResult()
+    // ## Success
+
+    tryValidate { validate(PriceRange(30.0, 20.0)) }.printResult()
+    // ## Failure
+    // Message(text='minPrice must be less than or equal to maxPrice', root=example.core.PriceRange, path=, input=PriceRange(minPrice=30.0, maxPrice=20.0))
 }
 
 private fun ValidationResult<*>.printResult() {

@@ -82,6 +82,25 @@ fun Validation.validateProduct(product: Product) = product.schema {
 val result = tryValidate { validateProduct(Product(1, "Mouse", 29.99)) }
 ```
 
+**Cross-property validation** validates relationships between multiple properties:
+
+```kotlin
+data class PriceRange(val minPrice: Double, val maxPrice: Double)
+
+fun Validation.validatePriceRange(range: PriceRange) = range.schema {
+    range::minPrice { notNegative(it) }
+    range::maxPrice { notNegative(it) }
+    // Validate relationship
+    range.constrain("priceRange") {
+        satisfies(it.minPrice <= it.maxPrice) {
+            text("minPrice must be less than or equal to maxPrice")
+        }
+    }
+}
+
+val result = tryValidate { validatePriceRange(PriceRange(10.0, 100.0)) }
+```
+
 ## Factory Validation
 
 The `kova-factory` module provides a factory pattern for combining object construction and validation in a single operation. It's particularly useful when validating and transforming raw input (like form data or API requests) into typed objects.
