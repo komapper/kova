@@ -394,6 +394,39 @@ isNullOr(email) { contains(it, "@") }
 val name = toNonNullable(nullableName)
 ```
 
+### Wrapping Errors with `withMessage`
+
+The `withMessage` function wraps validation logic and consolidates multiple errors into a single custom message. This is useful when you want to present a higher-level error message instead of detailed field-level errors:
+
+```kotlin
+data class Address(val street: String, val city: String, val zipCode: String)
+
+fun Validation.validateAddress(address: Address) = address.schema {
+    address::zipCode {
+        withMessage("Invalid ZIP code format") {
+            matches(it, Regex("^\\d{5}(-\\d{4})?$"))
+            min(it, 5)
+        }
+    }
+}
+
+// If validation fails, shows "Invalid ZIP code format"
+// instead of individual regex/min errors
+```
+
+You can also use a transform function to customize how multiple errors are consolidated:
+
+```kotlin
+fun Validation.validatePassword(password: String) =
+    withMessage({ messages ->
+        text("Password validation failed: ${messages.size} errors found")
+    }) {
+        min(password, 8)
+        matches(password, Regex(".*[A-Z].*"))
+        matches(password, Regex(".*[0-9].*"))
+    }
+```
+
 ### Circular Reference Detection
 
 Kova automatically detects and handles circular references in nested object validation to prevent infinite loops.
