@@ -158,8 +158,6 @@ toBigDecimal(input)                 // Validate and convert to BigDecimal
 toBigInteger(input)                 // Validate and convert to BigInteger
 toBoolean(input)                    // Validate and convert to Boolean
 toEnum<Status>(input)               // Validate and convert to enum
-toUppercase(input)                  // Convert to uppercase
-toLowercase(input)                  // Convert to lowercase
 ```
 
 ### Numbers

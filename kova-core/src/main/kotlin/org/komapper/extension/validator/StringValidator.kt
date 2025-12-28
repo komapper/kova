@@ -259,26 +259,6 @@ fun Validation.lowercase(
 ) = input.constrain("kova.string.lowercase") { satisfies(it == it.lowercase(Locale.getDefault()), message) }
 
 /**
- * Transforms the string to uppercase.
- *
- * Example:
- * ```kotlin
- * "hello".toUppercase() // "HELLO"
- * ```
- */
-fun String.toUppercase() = uppercase()
-
-/**
- * Transforms the string to lowercase.
- *
- * Example:
- * ```kotlin
- * "HELLO".toLowercase() // "hello"
- * ```
- */
-fun String.toLowercase() = lowercase()
-
-/**
  * Validates that the string can be parsed as an Int and converts it.
  *
  * This is a type-transforming validator that outputs Int.
