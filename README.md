@@ -15,6 +15,9 @@ dependencies {
     // Core validation library
     implementation("org.komapper:kova-core:0.0.3")
 
+    // Factory validation (optional)
+    implementation("org.komapper:kova-factory:0.0.3")
+
     // Ktor integration (optional)
     implementation("org.komapper:kova-ktor:0.0.3")
 }
@@ -79,6 +82,30 @@ fun Validation.validateProduct(product: Product) = product.schema {
 val result = tryValidate { validateProduct(Product(1, "Mouse", 29.99)) }
 ```
 
+## Factory Validation
+
+The `kova-factory` module provides a factory pattern for combining object construction and validation in a single operation. It's particularly useful when validating and transforming raw input (like form data or API requests) into typed objects.
+
+```kotlin
+import org.komapper.extension.validator.factory.*
+
+data class User(val name: String, val age: Int)
+
+fun Validation.buildUser(name: String, age: String) = factory {
+    val name by bind(name) { notBlank(it); min(it, 1); it }
+    val age by bind(age) { toInt(it) }
+    User(name, age)
+}
+
+val result = tryValidate { buildUser("Alice", "25") }
+```
+
+**Key features:**
+- Type-safe construction with automatic path tracking via property delegation
+- Composable factories for building complex nested object hierarchies
+- Validates and transforms inputs before object creation
+
+For detailed documentation including nested factories, error reporting, and advanced usage patterns, see **[kova-factory/README.md](kova-factory/README.md)**.
 
 ## Ktor Integration
 
@@ -87,10 +114,12 @@ The `kova-ktor` module enables automatic request validation with Ktor's RequestV
 ```kotlin
 @Serializable
 data class Customer(val id: Int, val name: String) : Validated {
-    override fun Validation.validate() = this@Customer.schema {
-        ::id { positive(it) }
-        ::name { notBlank(it); min(it, 1); max(it, 50) }
-    }
+    override fun Validation.validate() = validate(this@Customer)
+}
+
+fun Validation.validateCustomer(customer: Customer) = customer.schema {
+    customer::id { positive(it) }
+    customer::name { notBlank(it); min(it, 1); max(it, 50) }
 }
 
 fun Application.module() {
@@ -139,6 +168,8 @@ lowercase(input)                    // Must be lowercase
 // String-specific validation
 isInt(input)                        // Validates string is valid Int
 isLong(input)                       // Validates string is valid Long
+isShort(input)                      // Validates string is valid Short
+isByte(input)                       // Validates string is valid Byte
 isDouble(input)                     // Validates string is valid Double
 isFloat(input)                      // Validates string is valid Float
 isBigDecimal(input)                 // Validates string is valid BigDecimal
@@ -149,6 +180,8 @@ isEnum<Status>(input)               // Validates string is valid enum value
 // Conversions
 toInt(input)                        // Validate and convert to Int
 toLong(input)                       // Validate and convert to Long
+toShort(input)                      // Validate and convert to Short
+toByte(input)                       // Validate and convert to Byte
 toDouble(input)                     // Validate and convert to Double
 toFloat(input)                      // Validate and convert to Float
 toBigDecimal(input)                 // Validate and convert to BigDecimal
@@ -202,9 +235,9 @@ Supported types: `List`, `Set`, `Collection`
 ```kotlin
 min(input, 1)                       // Minimum size
 max(input, 10)                      // Maximum size
-length(input, 5)                    // Exact size
+size(input, 5)                      // Exact size
 notEmpty(input)                     // Must not be empty
-contains(input, "foo")              // Must contain element
+contains(input, "foo")              // Must contain element (alias: has)
 notContains(input, "bar")           // Must not contain element
 onEach(input) { element ->          // Validate each element
     min(element, 1)
@@ -216,11 +249,11 @@ onEach(input) { element ->          // Validate each element
 ```kotlin
 min(input, 1)                       // Minimum size
 max(input, 10)                      // Maximum size
-length(input, 5)                    // Exact size
+size(input, 5)                      // Exact size
 notEmpty(input)                     // Must not be empty
-containsKey(input, "foo")           // Must contain key
+containsKey(input, "foo")           // Must contain key (alias: hasKey)
 notContainsKey(input, "bar")        // Must not contain key
-containsValue(input, 42)            // Must contain value
+containsValue(input, 42)            // Must contain value (alias: hasValue)
 notContainsValue(input, 0)          // Must not contain value
 onEachKey(input) { key ->           // Validate each key
     min(key, 1)
@@ -254,13 +287,11 @@ eq(input, 42u)                      // Equal to (== 42u)
 notEq(input, 0u)                    // Not equal to (!= 0u)
 ```
 
-### Literal Values & Enums
+### Literal Values
 
 ```kotlin
 literal(input, "completed")         // Must equal specific value
-oneOf(input, "a", "b", "c")         // Must be one of allowed values
-isEnum<Status>(input)               // Validates string is valid enum value
-toEnum<Status>(input)               // Validate and convert to enum
+literal(input, "a", "b", "c")       // Must be one of allowed values
 ```
 
 ## Error Handling
@@ -271,7 +302,6 @@ toEnum<Status>(input)               // Validate and convert to enum
 val result = tryValidate {
     val password = "pass"
     min(password, 8)
-    password
 }
 
 if (!result.isSuccess()) {
@@ -287,7 +317,6 @@ if (!result.isSuccess()) {
 val result = tryValidate(config = ValidationConfig(failFast = true)) {
     min(password, 8)
     max(password, 20)
-    password
 }  // Stops at first error
 ```
 
@@ -296,7 +325,6 @@ val result = tryValidate(config = ValidationConfig(failFast = true)) {
 ```kotlin
 val result = tryValidate {
     min(username, 3, message = { text("Username must be at least 3 characters") })
-    username
 }
 ```
 
