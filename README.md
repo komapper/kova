@@ -23,13 +23,11 @@ dependencies {
 ## Features
 
 - **Type-Safe**: Leverages Kotlin's type system for compile-time safety
-- **Composable**: Combine validators using intuitive operators (`+`, `and`, `or`)
+- **Composable**: Build complex validation logic by composing reusable validation functions, chaining constraints, and using conditional operators (`or`, `orElse`)
 - **Immutable**: All validators are immutable and thread-safe
 - **Detailed Error Reporting**: Get precise error messages with path tracking for nested validations
-- **Circular Reference Detection**: Automatically detects and handles circular references in nested object validation
 - **Internationalization**: Built-in support for localized error messages
 - **Fail-Fast Support**: Option to stop validation at the first error or collect all errors
-- **Nullable Support**: First-class support for nullable types
 - **Ktor Integration**: Automatic request validation with Ktor's RequestValidation plugin
 - **Zero Dependencies**: No external runtime dependencies, only requires Kotlin standard library
 
@@ -59,10 +57,9 @@ when {
 Define extension functions on `Validation` for reusable validation logic:
 
 ```kotlin
-fun Validation.validatePassword(password: String): String {
+fun Validation.validatePassword(password: String) {
     min(password, 8)
     matches(password, Regex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$"))
-    return password
 }
 
 val result = tryValidate { validatePassword("SecurePass123") }
@@ -310,13 +307,12 @@ val result = tryValidate {
 Create custom validators using `constrain` and `satisfies`:
 
 ```kotlin
-fun Validation.isUrlPath(input: String): String {
+fun Validation.isUrlPath(input: String) {
     input.constrain("custom.urlPath") {
         satisfies(it.startsWith("/") && !it.contains("..")) {
             text("Must be a valid URL path")
         }
     }
-    return input
 }
 ```
 
