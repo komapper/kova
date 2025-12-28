@@ -5,9 +5,8 @@ package org.komapper.extension.validator
  *
  * Example:
  * ```kotlin
- * val validator = Kova.map<String, Int>().min(2)
- * validator.validate(mapOf("a" to 1, "b" to 2, "c" to 3)) // Success
- * validator.validate(mapOf("a" to 1))                     // Failure
+ * tryValidate { min(mapOf("a" to 1, "b" to 2, "c" to 3), 2) } // Success
+ * tryValidate { min(mapOf("a" to 1), 2) }                     // Failure
  * ```
  *
  * @param size Minimum map size (inclusive)
@@ -26,9 +25,8 @@ fun Validation.min(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.map<String, Int>().max(3)
- * validator.validate(mapOf("a" to 1, "b" to 2))                // Success
- * validator.validate(mapOf("a" to 1, "b" to 2, "c" to 3, "d" to 4)) // Failure
+ * tryValidate { max(mapOf("a" to 1, "b" to 2), 3) }                   // Success
+ * tryValidate { max(mapOf("a" to 1, "b" to 2, "c" to 3, "d" to 4), 3) } // Failure
  * ```
  *
  * @param size Maximum map size (inclusive)
@@ -47,9 +45,8 @@ fun Validation.max(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.map<String, Int>().notEmpty()
- * validator.validate(mapOf("a" to 1)) // Success
- * validator.validate(mapOf())         // Failure
+ * tryValidate { notEmpty(mapOf("a" to 1)) } // Success
+ * tryValidate { notEmpty(mapOf()) }         // Failure
  * ```
  *
  * @param message Custom error message provider
@@ -66,9 +63,8 @@ fun Validation.notEmpty(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.map<String, Int>().length(3)
- * validator.validate(mapOf("a" to 1, "b" to 2, "c" to 3)) // Success
- * validator.validate(mapOf("a" to 1, "b" to 2))           // Failure
+ * tryValidate { length(mapOf("a" to 1, "b" to 2, "c" to 3), 3) } // Success
+ * tryValidate { length(mapOf("a" to 1, "b" to 2), 3) }           // Failure
  * ```
  *
  * @param size Exact map size required
@@ -87,14 +83,12 @@ fun Validation.length(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.map<String, Int>().containsKey("foo")
- * validator.validate(mapOf("foo" to 1, "bar" to 2))  // Success
- * validator.validate(mapOf("bar" to 2, "baz" to 3))  // Failure
+ * tryValidate { hasKey(mapOf("foo" to 1, "bar" to 2), "foo") }  // Success
+ * tryValidate { hasKey(mapOf("bar" to 2, "baz" to 3), "foo") }  // Failure
  * ```
  *
  * @param key The key that must be present in the map
  * @param message Custom error message provider
- * @return A new validator with the containsKey constraint
  */
 @IgnorableReturnValue
 fun <K> Validation.hasKey(
@@ -108,14 +102,12 @@ fun <K> Validation.hasKey(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.map<String, Int>().notContainsKey("foo")
- * validator.validate(mapOf("bar" to 2, "baz" to 3))  // Success
- * validator.validate(mapOf("foo" to 1, "bar" to 2))  // Failure
+ * tryValidate { notContainsKey(mapOf("bar" to 2, "baz" to 3), "foo") }  // Success
+ * tryValidate { notContainsKey(mapOf("foo" to 1, "bar" to 2), "foo") }  // Failure
  * ```
  *
  * @param key The key that must not be present in the map
  * @param message Custom error message provider
- * @return A new validator with the notContainsKey constraint
  */
 @IgnorableReturnValue
 fun <K> Validation.notContainsKey(
@@ -129,14 +121,12 @@ fun <K> Validation.notContainsKey(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.map<String, Int>().containsValue(42)
- * validator.validate(mapOf("foo" to 42, "bar" to 2))  // Success
- * validator.validate(mapOf("foo" to 1, "bar" to 2))   // Failure
+ * tryValidate { hasValue(mapOf("foo" to 42, "bar" to 2), 42) }  // Success
+ * tryValidate { hasValue(mapOf("foo" to 1, "bar" to 2), 42) }   // Failure
  * ```
  *
  * @param value The value that must be present in the map
  * @param message Custom error message provider
- * @return A new validator with the containsValue constraint
  */
 @IgnorableReturnValue
 fun <V> Validation.hasValue(
@@ -150,14 +140,12 @@ fun <V> Validation.hasValue(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.map<String, Int>().notContainsValue(42)
- * validator.validate(mapOf("foo" to 1, "bar" to 2))   // Success
- * validator.validate(mapOf("foo" to 42, "bar" to 2))  // Failure
+ * tryValidate { notContainsValue(mapOf("foo" to 1, "bar" to 2), 42) }   // Success
+ * tryValidate { notContainsValue(mapOf("foo" to 42, "bar" to 2), 42) }  // Failure
  * ```
  *
  * @param value The value that must not be present in the map
  * @param message Custom error message provider
- * @return A new validator with the notContainsValue constraint
  */
 @IgnorableReturnValue
 fun <V> Validation.notContainsValue(
@@ -174,14 +162,15 @@ fun <V> Validation.notContainsValue(
  *
  * Example:
  * ```kotlin
- * val entryValidator = Validator<Map.Entry<String, Int>, Map.Entry<String, Int>> { entry, ctx ->
- *     if (entry.key.length >= 2 && entry.value >= 0) {
- *         ValidationResult.Success(entry, ctx)
- *     } else {
- *         ValidationResult.Failure(/* ... */)
+ * tryValidate {
+ *     onEach(mapOf("foo" to 42, "bar" to 10)) { entry ->
+ *         if (entry.key.length >= 2 && entry.value >= 0) {
+ *             // Success
+ *         } else {
+ *             // Failure
+ *         }
  *     }
  * }
- * val validator = Kova.map<String, Int>().onEach(entryValidator)
  * ```
  *
  * @param validator The validator to apply to each entry
@@ -209,12 +198,13 @@ fun <K, V> Validation.onEach(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.map<String, Int>()
- *     .notEmpty()
- *     .onEachKey(Kova.string().min(2).max(10))
+ * tryValidate {
+ *     onEachKey(mapOf("abc" to 1, "def" to 2)) { min(it, 2); max(it, 10) }
+ * } // Success
  *
- * validator.validate(mapOf("abc" to 1, "def" to 2)) // Success
- * validator.validate(mapOf("a" to 1, "b" to 2))     // Failure: keys too short
+ * tryValidate {
+ *     onEachKey(mapOf("a" to 1, "b" to 2)) { min(it, 2); max(it, 10) }
+ * } // Failure: keys too short
  * ```
  *
  * @param validator The validator to apply to each key
@@ -238,12 +228,13 @@ fun <K> Validation.onEachKey(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.map<String, Int>()
- *     .notEmpty()
- *     .onEachValue(Kova.int().min(0).max(100))
+ * tryValidate {
+ *     onEachValue(mapOf("a" to 10, "b" to 20)) { min(it, 0); max(it, 100) }
+ * } // Success
  *
- * validator.validate(mapOf("a" to 10, "b" to 20))  // Success
- * validator.validate(mapOf("a" to -1, "b" to 150)) // Failure: values out of range
+ * tryValidate {
+ *     onEachValue(mapOf("a" to -1, "b" to 150)) { min(it, 0); max(it, 100) }
+ * } // Failure: values out of range
  * ```
  *
  * @param validator The validator to apply to each value

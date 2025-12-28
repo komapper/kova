@@ -1,8 +1,7 @@
 package org.komapper.extension.validator.ktor.server
 
 import io.ktor.server.plugins.requestvalidation.*
-import io.ktor.server.plugins.requestvalidation.ValidationResult.Invalid
-import io.ktor.server.plugins.requestvalidation.ValidationResult.Valid
+import io.ktor.server.plugins.requestvalidation.ValidationResult.*
 import org.komapper.extension.validator.Message
 import org.komapper.extension.validator.ValidationResult.Failure
 import org.komapper.extension.validator.ValidationResult.Success
@@ -10,24 +9,33 @@ import org.komapper.extension.validator.ktor.server.SchemaValidator.Companion.de
 import org.komapper.extension.validator.tryValidate
 
 /**
- * A Ktor [Validator] that validates request bodies using Kova [Validated].
+ * A Ktor [Validator] that validates request bodies using Kova [Validated] interface.
  *
- * This validator works with classes that implement [Validated]. The validator integrates
- * with Ktor's RequestValidation plugin to automatically validate incoming requests.
+ * This validator integrates with Ktor's RequestValidation plugin to automatically
+ * validate incoming request bodies. It works with any class that implements [Validated].
  *
  * Example:
  * ```kotlin
  * @Serializable
- * class Customer(val id: Int, val name: String): Validated {
- *    override fun validate() = checking {
- *      ::id { it.positive() }
- *      ::name { it.min(1) and { it.max(100) } }
- *    }
+ * data class Customer(val id: Int, val name: String) : Validated {
+ *     override fun Validation.validate() = this@Customer.schema {
+ *         ::id { positive(it) }
+ *         ::name {
+ *             notBlank(it)
+ *             min(it, 1)
+ *             max(it, 100)
+ *         }
+ *     }
  * }
  *
  * fun Application.module() {
  *     install(RequestValidation) {
  *         validate(SchemaValidator())
+ *     }
+ *     install(StatusPages) {
+ *         exception<RequestValidationException> { call, cause ->
+ *             call.respond(HttpStatusCode.BadRequest, cause.reasons.joinToString("\n"))
+ *         }
  *     }
  *     routing {
  *         post("/customers") {

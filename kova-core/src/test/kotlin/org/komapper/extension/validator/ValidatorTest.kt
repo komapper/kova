@@ -7,111 +7,35 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 class ValidatorTest :
     FunSpec({
 
-        context("validate") {
+        context("tryValidate and validate") {
             fun Validation.validate(i: Int) {
                 min(i, 1)
                 max(i, 10)
             }
 
-            test("success") {
+            test("tryValidate - success") {
+                val result = tryValidate { validate(5) }
+                result.shouldBeSuccess()
+            }
+
+            test("tryValidate - failure") {
+                val result = tryValidate { validate(0) }
+                result.shouldBeFailure()
+                result.messages.size shouldBe 1
+                result.messages[0].constraintId shouldBe "kova.comparable.min"
+            }
+
+            test("validate - success") {
                 validate { validate(5) }
             }
 
-            test("failure") {
+            test("validate - failure") {
                 val ex =
                     shouldThrow<ValidationException> {
                         validate { validate(0) }
                     }
                 ex.messages.size shouldBe 1
                 ex.messages[0].constraintId shouldBe "kova.comparable.min"
-            }
-        }
-
-        context("plus") {
-            fun Validation.validate(i: Int) {
-                max(i, 2)
-                max(i, 3)
-            }
-
-            test("success") {
-                val result = tryValidate { validate(1) }
-                result.shouldBeSuccess()
-            }
-            test("failure") {
-                val result = tryValidate { validate(4) }
-                result.shouldBeFailure()
-            }
-        }
-
-        context("and") {
-            fun Validation.validate(i: Int) {
-                min(i, 2)
-                max(i, 3)
-            }
-
-            test("success") {
-                val result = tryValidate { validate(2) }
-                result.shouldBeSuccess()
-            }
-            test("failure") {
-                val result = tryValidate { validate(4) }
-                result.shouldBeFailure()
-            }
-        }
-
-        context("or: 2") {
-            fun Validation.length2or5(string: String) = or { length(string, 2) } orElse { length(string, 5) }
-
-            test("success with length 2") {
-                val result = tryValidate { length2or5("ab") }
-                result.shouldBeSuccess()
-            }
-            test("success with length 5") {
-                val result = tryValidate { length2or5("abcde") }
-                result.shouldBeSuccess()
-            }
-            test("failure with length 3") {
-                val result = tryValidate { length2or5("abc") }
-                result.shouldBeFailure()
-                result.messages.size shouldBe 1
-                result.messages[0].let {
-                    it.constraintId shouldBe "kova.or"
-                    it.args.size shouldBe 2
-                    it.args[0]
-                        .shouldBeInstanceOf<List<Message>>()
-                        .single()
-                        .constraintId shouldBe "kova.charSequence.length"
-                    it.args[1]
-                        .shouldBeInstanceOf<List<Message>>()
-                        .single()
-                        .constraintId shouldBe "kova.charSequence.length"
-                }
-            }
-        }
-
-        context("or: 3") {
-            fun Validation.length2or5or7(string: String) =
-                or { length(string, 2) } or { length(string, 5) } orElse {
-                    length(string, 7)
-                }
-
-            test("failure with length 3") {
-                val result = tryValidate { length2or5or7("abc") }
-                result.shouldBeFailure()
-                result.messages.size shouldBe 1
-                result.messages[0].let {
-                    it.constraintId shouldBe "kova.or"
-                    it.args.size shouldBe 2
-                    it.args[0]
-                        .shouldBeInstanceOf<List<Message>>()
-                        .single()
-                        .constraintId shouldBe "kova.or"
-                    it.args[1]
-                        .shouldBeInstanceOf<List<Message>>()
-                        .single()
-                        .constraintId shouldBe "kova.charSequence.length"
-                    println(it)
-                }
             }
         }
 
@@ -134,29 +58,6 @@ class ValidatorTest :
         }
 
         context("then") {
-            fun Validation.validate(i: Int): String {
-                min(i, 3)
-                return i.toString().also { max(it, 1) }
-            }
-
-            test("success") {
-                val result = tryValidate { validate(3) }
-                result.shouldBeSuccess()
-                result.value shouldBe "3"
-            }
-            test("failure when first constraint violated") {
-                val result = tryValidate { validate(2) }
-                result.shouldBeFailure()
-                result.messages.single().constraintId shouldBe "kova.comparable.min"
-            }
-            test("failure when second constraint violated") {
-                val result = tryValidate { validate(10) }
-                result.shouldBeFailure()
-                result.messages.single().constraintId shouldBe "kova.charSequence.max"
-            }
-        }
-
-        context("then - lambda") {
             fun Validation.validate(i: Int): String {
                 min(i, 3)
                 return i.toString().also { max(it, 1) }
@@ -216,7 +117,142 @@ class ValidatorTest :
             }
         }
 
-        context("message - provider - text") {
+        context("mapping operation after failure") {
+            fun Validation.validate(string: String) =
+                string.trim().also { min(it, 3) }.uppercase().also {
+                    max(it, 3)
+                }
+
+            test("failure") {
+                val logs = mutableListOf<LogEntry>()
+                val result = tryValidate(ValidationConfig(logger = { logs.add(it) })) { validate("  ab  ") }
+                result.shouldBeFailure()
+                logs shouldBe
+                    listOf(
+                        LogEntry.Violated(
+                            constraintId = "kova.charSequence.min",
+                            root = "",
+                            path = "",
+                            input = "ab",
+                            args = listOf(3),
+                        ),
+                        LogEntry.Satisfied(constraintId = "kova.charSequence.max", root = "", path = "", input = "AB"),
+                    )
+            }
+        }
+
+        context("failFast") {
+            fun Validation.validate(string: String) {
+                min(string, 3)
+                length(string, 4)
+            }
+
+            test("failFast = false") {
+                val result = tryValidate { validate("ab") }
+                result.shouldBeFailure()
+                result.messages.size shouldBe 2
+            }
+
+            test("failFast = true") {
+                val result = tryValidate(ValidationConfig(failFast = true)) { validate("ab") }
+                result.shouldBeFailure()
+                result.messages.size shouldBe 1
+            }
+        }
+
+        context("failFast with plus operator") {
+            fun Validation.validate(string: String?) {
+                if (string == null) return
+                min(string, 3)
+                length(string, 4)
+            }
+
+            test("failFast = false") {
+                val result = tryValidate { validate("ab") }
+                result.shouldBeFailure()
+                result.messages.size shouldBe 2
+            }
+
+            test("failFast = true") {
+                val result = tryValidate(ValidationConfig(failFast = true)) { validate("ab") }
+                result.shouldBeFailure()
+                result.messages.size shouldBe 1
+            }
+        }
+
+        context("name") {
+
+            data class Request(
+                private val map: Map<String, String>,
+            ) {
+                operator fun get(key: String): String? = map[key]
+            }
+
+            fun Validation.requestKey(
+                request: Request,
+                block: Validation.(String?) -> Unit,
+            ) = request.name("Request[key]") {
+                request["key"].also { block(it) }
+            }
+
+            fun Validation.requestKeyIsNotNull(request: Request) = requestKey(request) { notNull(it) }
+
+            fun Validation.requestKeyIsNotNullAndMin3(request: Request) =
+                requestKey(request) {
+                    notNull(it)
+                    if (it != null) min(it, 3)
+                }
+
+            test("success when requestKey is not null") {
+                val result = tryValidate { requestKeyIsNotNull(Request(mapOf("key" to "abc"))) }
+                result.shouldBeSuccess()
+                result.value shouldBe "abc"
+            }
+
+            test("failure when requestKey is null") {
+                val result = tryValidate { requestKeyIsNotNull(Request(mapOf())) }
+                result.shouldBeFailure()
+                result.messages.size shouldBe 1
+                result.messages[0].let {
+                    it.path.fullName shouldBe "Request[key]"
+                    it.constraintId shouldBe "kova.nullable.notNull"
+                }
+            }
+
+            test("success when requestKey is not null and min 3") {
+                val result = tryValidate { requestKeyIsNotNullAndMin3(Request(mapOf("key" to "abc"))) }
+                result.shouldBeSuccess()
+                result.value shouldBe "abc"
+            }
+
+            test("failure when requestKey constraint violated") {
+                val result = tryValidate { requestKeyIsNotNullAndMin3(Request(mapOf("key" to "ab"))) }
+                result.shouldBeFailure()
+                result.messages.size shouldBe 1
+                result.messages[0].let {
+                    it.path.fullName shouldBe "Request[key]"
+                    it.constraintId shouldBe "kova.charSequence.min"
+                }
+            }
+        }
+
+        context("constrain") {
+            @IgnorableReturnValue
+            fun Validation.validate(string: String) = string.constrain("test") { satisfies(it == "OK") { text("Constraint failed") } }
+
+            test("success") {
+                val result = tryValidate { validate("OK") }
+                result.shouldBeSuccess()
+            }
+
+            test("failure") {
+                val result = tryValidate { validate("NG") }
+                result.shouldBeFailure()
+                result.messages.single().text shouldBe "Constraint failed"
+            }
+        }
+
+        context("withMessage - text") {
             fun Validation.validate(string: String) =
                 withMessage({ messages -> text("Invalid: consolidates messages=(${messages.joinToString { it.text }})") }) {
                     uppercase(string)
@@ -239,7 +275,7 @@ class ValidatorTest :
             }
         }
 
-        context("message - provider - resource") {
+        context("withMessage - resource") {
             fun Validation.validate(string: String) =
                 withMessage {
                     uppercase(string)
@@ -262,30 +298,7 @@ class ValidatorTest :
             }
         }
 
-        context("message - text") {
-            fun Validation.validate(string: String) =
-                withMessage("Invalid") {
-                    uppercase(string)
-                    min(string, 3)
-                    Unit
-                }
-
-            test("success") {
-                val result = tryValidate { validate("ABCDE") }
-                result.shouldBeSuccess()
-            }
-            test("failure") {
-                val result = tryValidate { validate("ab") }
-                result.shouldBeFailure()
-                val message = result.messages.single()
-                message.shouldBeInstanceOf<Message.Text>()
-                message.text shouldBe "Invalid"
-                message.root shouldBe ""
-                message.path.fullName shouldBe ""
-            }
-        }
-
-        context("message - schema") {
+        context("withMessage - text in schema") {
             data class User(
                 val id: Int,
                 val name: String,
@@ -314,30 +327,6 @@ class ValidatorTest :
                 message.text shouldBe "Must be uppercase and at least 3 characters long"
                 message.root shouldBe "User"
                 message.path.fullName shouldBe "name"
-            }
-        }
-
-        context("mapping operation after failure") {
-            fun Validation.validate(string: String) =
-                string.trim().also { min(it, 3) }.toUppercase().also {
-                    max(it, 3)
-                }
-
-            test("failure") {
-                val logs = mutableListOf<LogEntry>()
-                val result = tryValidate(ValidationConfig(logger = { logs.add(it) })) { validate("  ab  ") }
-                result.shouldBeFailure()
-                logs shouldBe
-                    listOf(
-                        LogEntry.Violated(
-                            constraintId = "kova.charSequence.min",
-                            root = "",
-                            path = "",
-                            input = "ab",
-                            args = listOf(3),
-                        ),
-                        LogEntry.Satisfied(constraintId = "kova.charSequence.max", root = "", path = "", input = "AB"),
-                    )
             }
         }
     })

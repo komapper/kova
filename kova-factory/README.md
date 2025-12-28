@@ -11,29 +11,32 @@ Factory-based validation for creating validated object instances.
 - **Type-safe construction**: Validate and transform raw inputs before object creation
 - **Composable factories**: Nest factories to build complex object hierarchies
 - **Detailed error reporting**: Get validation errors with full path information
-- **ObjectSchema integration**: Combine factory validation with schema-based property validation
+- **Property delegation**: Automatic path tracking using Kotlin property delegation
 
 ## Basic Usage
 
 ```kotlin
+import org.komapper.extension.validator.*
+import org.komapper.extension.validator.factory.*
+
 data class User(val name: String, val age: Int)
 
-object UserFactory {
-    operator fun invoke(
-        name: String,
-        age: String,
-    ) = Kova.factory<User> {
-        val name by bind(name) { it.min(1).notBlank() }
-        val age by bind(age) { it.toInt() then { it.min(0).max(120) } }
-        create { User(name(), age()) }
+fun Validation.buildUser(name: String, age: String) =
+    factory {
+        val name by bind(name) {
+            notBlank(it)
+            min(it, 1)
+            it
+        }
+        val age by bind(age) { toInt(it) }
+        User(name, age)
     }
-}
 
 // Usage - returns ValidationResult<User>
-val result = UserFactory("Alice", "25").tryCreate()
+val result = tryValidate { buildUser("Alice", "25") }
 
-// Or use create() for direct creation (throws ValidationException on failure)
-val user = UserFactory("Alice", "25").create()
+// Or use validate() for direct creation (throws ValidationException on failure)
+val user = validate { buildUser("Alice", "25") }
 ```
 
 ## Nested Factories
@@ -41,122 +44,135 @@ val user = UserFactory("Alice", "25").create()
 Factories can be composed to validate nested object structures:
 
 ```kotlin
-data class Age(val value: Int)
-data class Person(val name: String, val age: Age)
+data class Name(val value: String)
+data class FullName(val first: Name, val last: Name)
+data class User(val id: Int, val fullName: FullName)
 
-object AgeFactory {
-    operator fun invoke(age: String) =
-        Kova.factory<Age> {
-            val value by bind(age) { it.toInt() }
-            create { Age(value()) }
+fun Validation.buildName(value: String) =
+    factory {
+        val value by bind(value) {
+            notBlank(it)
+            it
         }
-}
-
-object PersonFactory {
-    operator fun invoke(
-        name: String,
-        age: String,
-    ) = Kova.factory<Person> {
-        val name by bind(name) { it.min(1).notBlank() }
-        val age by bind(AgeFactory(age))
-        create { Person(name(), age()) }
+        Name(value)
     }
-}
+
+fun Validation.buildFullName(first: String, last: String) =
+    factory {
+        val first by bind { buildName(first) }
+        val last by bind { buildName(last) }
+        FullName(first, last)
+    }
+
+fun Validation.buildUser(id: String, firstName: String, lastName: String) =
+    factory {
+        val id by bind(id) { toInt(it) }
+        val fullName by bind { buildFullName(firstName, lastName) }
+        User(id, fullName)
+    }
 
 // Usage
-val result = PersonFactory("Alice", "30").tryCreate()
-// Validation errors include full path: "name", "age.value"
-```
-
-## Integration with ObjectSchema
-
-Combine factory-based input validation with schema-based property validation:
-
-```kotlin
-object UserSchema : ObjectSchema<User>({
-    User::age { it.min(0).max(120) } // property validation
-})
-
-object UserFactory {
-    operator fun invoke(
-        name: String,
-        age: String,
-    ) = UserSchema.factory {
-        val name by bind(name) { it.min(1).notBlank() } // input validation
-        val age by bind(age) { it.toInt() }             // input validation
-        create { User(name(), age()) }
-    }
-}
-
-// Both input and property validations are enforced
-val result = UserFactory("Alice", "130").tryCreate()
-// Fails: age exceeds maximum of 120
-```
-
-## Pair and Triple Builders
-
-For simple Pair/Triple construction with validation, use the specialized builders:
-
-```kotlin
-// Pair validation
-val pairBuilder = PairFactoryBuilder(
-    firstValidator = Kova.string().notBlank().max(10),
-    secondValidator = Kova.int().positive()
-)
-val pairFactory = pairBuilder.build("hello", 42)
-val result = pairFactory.tryCreate() // Success: Pair("hello", 42)
-
-// Triple validation
-val tripleBuilder = TripleFactoryBuilder(
-    firstValidator = Kova.string().notBlank().max(50),
-    secondValidator = Kova.int().min(0).max(120),
-    thirdValidator = Kova.string().notBlank().max(100)
-)
-val tripleFactory = tripleBuilder.build("Alice", 30, "alice@example.com")
-val result = tripleFactory.tryCreate() // Success: Triple("Alice", 30, "alice@example.com")
-
-// Type transformation is supported
-val transformBuilder = PairFactoryBuilder(
-    firstValidator = Kova.string().toInt(),
-    secondValidator = Kova.string().toInt()
-)
-val factory = transformBuilder.build("10", "20")
-val result = factory.tryCreate() // Success: Pair(10, 20)
+val result = tryValidate { buildUser("1", "Alice", "Smith") }
+// Validation errors include full path: "id", "fullName.first.value", "fullName.last.value"
 ```
 
 ## API
 
 ### Factory Creation
 
-- `Kova.factory<T> { ... }` - Create a factory for type T
-- `IdentityValidator<T>.factory { ... }` - Create a factory with validator (e.g., ObjectSchema)
-- `PairFactoryBuilder(firstValidator, secondValidator)` - Builder for validated Pair construction
-- `TripleFactoryBuilder(firstValidator, secondValidator, thirdValidator)` - Builder for validated Triple construction
+- `Validation.factory { ... }` - Create a factory context for building validated objects
 
 ### Field Binding
 
-- `FactoryScope.bind(value) { validator }` - Bind and validate a field using property delegation
-- `FactoryScope.bind(factory)` - Bind a nested factory
-- `FactoryScope.create { constructor }` - Build the final object
+- `bind(value) { block }` - Bind and validate a field using property delegation
+  - The block receives the input value as `it`
+  - Must return the validated/transformed value
+  - Property name is automatically used as the validation path
+
+- `bind { block }` - Bind a nested factory call
+  - Used for composing factory functions
+  - The block should return the result of another factory call
 
 ### Execution
 
-- `Factory.tryCreate()` - Returns `ValidationResult<T>`
-- `Factory.create()` - Returns `T` or throws `ValidationException`
+- `tryValidate { factory() }` - Returns `ValidationResult<T>`
+- `validate { factory() }` - Returns `T` or throws `ValidationException`
 
 ## Error Reporting
 
-Validation errors include detailed path information:
+Validation errors include detailed path information using property names:
 
 ```kotlin
-val result = PersonFactory("   ", "abc").tryCreate()
+val result = tryValidate { buildUser("1", "", "abc") }
 if (result.isFailure()) {
     result.messages.forEach { msg ->
         println("${msg.path.fullName}: ${msg.text}")
-        // Output: "name: must not be blank"
-        //         "age.value: must be a valid integer"
+        // Output: "fullName.first.value: must not be blank"
     }
 }
+```
+
+## Advanced Usage
+
+### With Validation Config
+
+```kotlin
+val result = tryValidate(config = ValidationConfig(failFast = true)) {
+    buildUser("1", "", "")
+}
+// Only first error is reported due to failFast mode
+```
+
+### Type Transformations
+
+The factory pattern naturally supports type transformations:
+
+```kotlin
+data class Age(val value: Int)
+
+fun Validation.buildAge(ageString: String) =
+    factory {
+        val value by bind(ageString) {
+            val age = toInt(it)  // String -> Int transformation
+            min(age, 0)
+            max(age, 120)
+            age
+        }
+        Age(value)
+    }
+
+val result = tryValidate { buildAge("25") }
+// Success: Age(25)
+```
+
+### Combining Multiple Validations
+
+```kotlin
+data class User(val username: String, val email: String, val age: Int)
+
+fun Validation.buildUser(username: String, email: String, age: String) =
+    factory {
+        val username by bind(username) {
+            notBlank(it)
+            min(it, 3)
+            max(it, 20)
+            matches(it, Regex("^[a-zA-Z0-9_]+$"))
+            it
+        }
+        val email by bind(email) {
+            notBlank(it)
+            contains(it, "@")
+            min(it, 5)
+            it
+        }
+        val age by bind(age) {
+            val ageInt = toInt(it)
+            min(ageInt, 0)
+            max(ageInt, 120)
+            ageInt
+        }
+        User(username, email, age)
+    }
 ```
 
 ## See Also

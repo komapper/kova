@@ -5,67 +5,6 @@ import io.kotest.core.spec.style.FunSpec
 class NumberValidatorTest :
     FunSpec({
 
-        context("plus") {
-            fun Validation.validate(i: Int) {
-                max(i, 2)
-                max(i, 3)
-                negative(i)
-            }
-
-            test("success") {
-                val result = tryValidate { validate(-1) }
-                result.shouldBeSuccess()
-            }
-
-            test("failure") {
-                val result = tryValidate { validate(5) }
-                result.shouldBeFailure()
-                result.messages.size shouldBe 3
-                result.messages[0].constraintId shouldBe "kova.comparable.max"
-                result.messages[1].constraintId shouldBe "kova.comparable.max"
-                result.messages[2].constraintId shouldBe "kova.number.negative"
-            }
-        }
-
-        context("or") {
-            fun Validation.validate(i: Int) {
-                val _ = or { max(i, 2) } orElse { max(i, 3) }
-                min(i, 1)
-            }
-
-            test("success with value 2") {
-                val result = tryValidate { validate(2) }
-                result.shouldBeSuccess()
-            }
-            test("success with value 3") {
-                val result = tryValidate { validate(3) }
-                result.shouldBeSuccess()
-            }
-
-            test("failure with value 4") {
-                val result = tryValidate { validate(4) }
-                result.shouldBeFailure()
-                result.messages.size shouldBe 1
-                result.messages[0].constraintId shouldBe "kova.or"
-            }
-        }
-
-        context("constrain") {
-            @IgnorableReturnValue
-            fun Validation.validate(i: Int) = i.constrain("test") { satisfies(it == 10) { text("Constraint failed") } }
-
-            test("success") {
-                val result = tryValidate { validate(10) }
-                result.shouldBeSuccess()
-            }
-
-            test("failure") {
-                val result = tryValidate { validate(20) }
-                result.shouldBeFailure()
-                result.messages[0].text shouldBe "Constraint failed"
-            }
-        }
-
         context("positive") {
             test("success with positive number") {
                 val result = tryValidate { positive(1) }

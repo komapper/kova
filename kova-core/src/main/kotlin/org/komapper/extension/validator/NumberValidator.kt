@@ -5,14 +5,12 @@ package org.komapper.extension.validator
  *
  * Example:
  * ```kotlin
- * val validator = Kova.int().positive()
- * validator.validate(1)   // Success
- * validator.validate(0)   // Failure
- * validator.validate(-1)  // Failure
+ * tryValidate { positive(1) }   // Success
+ * tryValidate { positive(0) }   // Failure
+ * tryValidate { positive(-1) }  // Failure
  * ```
  *
  * @param message Custom error message provider
- * @return A new validator with the positive constraint
  */
 @IgnorableReturnValue
 fun Validation.positive(
@@ -25,14 +23,12 @@ fun Validation.positive(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.int().negative()
- * validator.validate(-1)  // Success
- * validator.validate(0)   // Failure
- * validator.validate(1)   // Failure
+ * tryValidate { negative(-1) }  // Success
+ * tryValidate { negative(0) }   // Failure
+ * tryValidate { negative(1) }   // Failure
  * ```
  *
  * @param message Custom error message provider
- * @return A new validator with the negative constraint
  */
 @IgnorableReturnValue
 fun Validation.negative(
@@ -45,14 +41,12 @@ fun Validation.negative(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.int().notPositive()
- * validator.validate(-1)  // Success
- * validator.validate(0)   // Success
- * validator.validate(1)   // Failure
+ * tryValidate { notPositive(-1) }  // Success
+ * tryValidate { notPositive(0) }   // Success
+ * tryValidate { notPositive(1) }   // Failure
  * ```
  *
  * @param message Custom error message provider
- * @return A new validator with the not-positive constraint
  */
 @IgnorableReturnValue
 fun Validation.notPositive(
@@ -65,14 +59,12 @@ fun Validation.notPositive(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.int().notNegative()
- * validator.validate(0)   // Success
- * validator.validate(1)   // Success
- * validator.validate(-1)  // Failure
+ * tryValidate { notNegative(0) }   // Success
+ * tryValidate { notNegative(1) }   // Success
+ * tryValidate { notNegative(-1) }  // Failure
  * ```
  *
  * @param message Custom error message provider
- * @return A new validator with the not-negative constraint
  */
 @IgnorableReturnValue
 fun Validation.notNegative(

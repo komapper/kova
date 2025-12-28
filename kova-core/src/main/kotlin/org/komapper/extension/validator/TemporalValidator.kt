@@ -20,16 +20,14 @@ import kotlin.reflect.KClass
  *
  * Example:
  * ```kotlin
- * val validator = Kova.localDate().future()
  * // Assuming today is 2025-01-15
- * validator.validate(LocalDate.of(2025, 1, 16))  // Success
- * validator.validate(LocalDate.of(2025, 1, 15))  // Failure (present)
- * validator.validate(LocalDate.of(2025, 1, 14))  // Failure (past)
+ * tryValidate { future(LocalDate.of(2025, 1, 16)) }  // Success
+ * tryValidate { future(LocalDate.of(2025, 1, 15)) }  // Failure (present)
+ * tryValidate { future(LocalDate.of(2025, 1, 14)) }  // Failure (past)
  * ```
  *
  * @param S The temporal type (LocalDate, LocalTime, LocalDateTime, Instant, etc.)
  * @param message Custom error message provider
- * @return A new validator with the future constraint
  */
 @IgnorableReturnValue
 inline fun <reified S> Validation.future(
@@ -44,16 +42,14 @@ inline fun <reified S> Validation.future(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.localDate().futureOrPresent()
  * // Assuming today is 2025-01-15
- * validator.validate(LocalDate.of(2025, 1, 16))  // Success (future)
- * validator.validate(LocalDate.of(2025, 1, 15))  // Success (present)
- * validator.validate(LocalDate.of(2025, 1, 14))  // Failure (past)
+ * tryValidate { futureOrPresent(LocalDate.of(2025, 1, 16)) }  // Success (future)
+ * tryValidate { futureOrPresent(LocalDate.of(2025, 1, 15)) }  // Success (present)
+ * tryValidate { futureOrPresent(LocalDate.of(2025, 1, 14)) }  // Failure (past)
  * ```
  *
  * @param S The temporal type (LocalDate, LocalTime, LocalDateTime, Instant, etc.)
  * @param message Custom error message provider
- * @return A new validator with the future-or-present constraint
  */
 @IgnorableReturnValue
 inline fun <reified S> Validation.futureOrPresent(
@@ -68,16 +64,14 @@ inline fun <reified S> Validation.futureOrPresent(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.localDate().past()
  * // Assuming today is 2025-01-15
- * validator.validate(LocalDate.of(2025, 1, 14))  // Success
- * validator.validate(LocalDate.of(2025, 1, 15))  // Failure (present)
- * validator.validate(LocalDate.of(2025, 1, 16))  // Failure (future)
+ * tryValidate { past(LocalDate.of(2025, 1, 14)) }  // Success
+ * tryValidate { past(LocalDate.of(2025, 1, 15)) }  // Failure (present)
+ * tryValidate { past(LocalDate.of(2025, 1, 16)) }  // Failure (future)
  * ```
  *
  * @param S The temporal type (LocalDate, LocalTime, LocalDateTime, Instant, etc.)
  * @param message Custom error message provider
- * @return A new validator with the past constraint
  */
 @IgnorableReturnValue
 inline fun <reified S> Validation.past(
@@ -92,11 +86,10 @@ inline fun <reified S> Validation.past(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.localDate().pastOrPresent()
  * // Assuming today is 2025-01-15
- * validator.validate(LocalDate.of(2025, 1, 14))  // Success (past)
- * validator.validate(LocalDate.of(2025, 1, 15))  // Success (present)
- * validator.validate(LocalDate.of(2025, 1, 16))  // Failure (future)
+ * tryValidate { pastOrPresent(LocalDate.of(2025, 1, 14)) }  // Success (past)
+ * tryValidate { pastOrPresent(LocalDate.of(2025, 1, 15)) }  // Success (present)
+ * tryValidate { pastOrPresent(LocalDate.of(2025, 1, 16)) }  // Failure (future)
  * ```
  *
  * @param S The temporal type (LocalDate, LocalTime, LocalDateTime, Instant, etc.)

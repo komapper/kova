@@ -5,14 +5,12 @@ package org.komapper.extension.validator
  *
  * Example:
  * ```kotlin
- * val validator = Kova.int().min(0)
- * validator.validate(10)  // Success
- * validator.validate(-1)  // Failure
+ * tryValidate { min(10, 0) }  // Success
+ * tryValidate { min(-1, 0) }  // Failure
  * ```
  *
  * @param value Minimum value (inclusive)
  * @param message Custom error message provider
- * @return A new validator with the minimum constraint
  */
 @IgnorableReturnValue
 fun <S : Comparable<S>> Validation.min(
@@ -26,14 +24,12 @@ fun <S : Comparable<S>> Validation.min(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.int().max(100)
- * validator.validate(50)   // Success
- * validator.validate(150)  // Failure
+ * tryValidate { max(50, 100) }   // Success
+ * tryValidate { max(150, 100) }  // Failure
  * ```
  *
  * @param value Maximum value (inclusive)
  * @param message Custom error message provider
- * @return A new validator with the maximum constraint
  */
 @IgnorableReturnValue
 fun <S : Comparable<S>> Validation.max(
@@ -47,15 +43,13 @@ fun <S : Comparable<S>> Validation.max(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.int().gt(0)
- * validator.validate(1)   // Success
- * validator.validate(0)   // Failure
- * validator.validate(-1)  // Failure
+ * tryValidate { gt(1, 0) }   // Success
+ * tryValidate { gt(0, 0) }   // Failure
+ * tryValidate { gt(-1, 0) }  // Failure
  * ```
  *
  * @param value The value to compare against (exclusive)
  * @param message Custom error message provider
- * @return A new validator with the greater-than constraint
  */
 @IgnorableReturnValue
 fun <S : Comparable<S>> Validation.gt(
@@ -69,15 +63,13 @@ fun <S : Comparable<S>> Validation.gt(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.int().gte(0)
- * validator.validate(1)   // Success
- * validator.validate(0)   // Success
- * validator.validate(-1)  // Failure
+ * tryValidate { gte(1, 0) }   // Success
+ * tryValidate { gte(0, 0) }   // Success
+ * tryValidate { gte(-1, 0) }  // Failure
  * ```
  *
  * @param value The value to compare against (inclusive)
  * @param message Custom error message provider
- * @return A new validator with the greater-than-or-equal constraint
  */
 @IgnorableReturnValue
 fun <S : Comparable<S>> Validation.gte(
@@ -91,15 +83,13 @@ fun <S : Comparable<S>> Validation.gte(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.int().lt(100)
- * validator.validate(50)   // Success
- * validator.validate(100)  // Failure
- * validator.validate(150)  // Failure
+ * tryValidate { lt(50, 100) }   // Success
+ * tryValidate { lt(100, 100) }  // Failure
+ * tryValidate { lt(150, 100) }  // Failure
  * ```
  *
  * @param value The value to compare against (exclusive)
  * @param message Custom error message provider
- * @return A new validator with the less-than constraint
  */
 @IgnorableReturnValue
 fun <S : Comparable<S>> Validation.lt(
@@ -113,15 +103,13 @@ fun <S : Comparable<S>> Validation.lt(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.int().lte(100)
- * validator.validate(50)   // Success
- * validator.validate(100)  // Success
- * validator.validate(150)  // Failure
+ * tryValidate { lte(50, 100) }   // Success
+ * tryValidate { lte(100, 100) }  // Success
+ * tryValidate { lte(150, 100) }  // Failure
  * ```
  *
  * @param value The value to compare against (inclusive)
  * @param message Custom error message provider
- * @return A new validator with the less-than-or-equal constraint
  */
 @IgnorableReturnValue
 fun <S : Comparable<S>> Validation.lte(
@@ -135,15 +123,13 @@ fun <S : Comparable<S>> Validation.lte(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.int().eq(42)
- * validator.validate(42)  // Success
- * validator.validate(41)  // Failure
- * validator.validate(43)  // Failure
+ * tryValidate { eq(42, 42) }  // Success
+ * tryValidate { eq(41, 42) }  // Failure
+ * tryValidate { eq(43, 42) }  // Failure
  * ```
  *
  * @param value The value to compare against
  * @param message Custom error message provider
- * @return A new validator with the equality constraint
  */
 @IgnorableReturnValue
 fun <S : Comparable<S>> Validation.eq(
@@ -157,15 +143,13 @@ fun <S : Comparable<S>> Validation.eq(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.int().notEq(0)
- * validator.validate(1)   // Success
- * validator.validate(-1)  // Success
- * validator.validate(0)   // Failure
+ * tryValidate { notEq(1, 0) }   // Success
+ * tryValidate { notEq(-1, 0) }  // Success
+ * tryValidate { notEq(0, 0) }   // Failure
  * ```
  *
  * @param value The value to compare against
  * @param message Custom error message provider
- * @return A new validator with the inequality constraint
  */
 @IgnorableReturnValue
 fun <S : Comparable<S>> Validation.notEq(

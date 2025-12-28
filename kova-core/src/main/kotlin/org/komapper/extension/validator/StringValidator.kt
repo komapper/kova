@@ -8,14 +8,12 @@ import kotlin.reflect.KClass
  *
  * Example:
  * ```kotlin
- * val validator = Kova.string().isInt()
- * validator.validate("123")  // Success
- * validator.validate("12.5") // Failure
- * validator.validate("abc")  // Failure
+ * tryValidate { isInt("123") }  // Success
+ * tryValidate { isInt("12.5") } // Failure
+ * tryValidate { isInt("abc") }  // Failure
  * ```
  *
  * @param message Custom error message provider
- * @return A new validator with the is-int constraint
  */
 @IgnorableReturnValue
 fun Validation.isInt(
@@ -28,13 +26,11 @@ fun Validation.isInt(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.string().isLong()
- * validator.validate("123456789") // Success
- * validator.validate("abc")       // Failure
+ * tryValidate { isLong("123456789") } // Success
+ * tryValidate { isLong("abc") }       // Failure
  * ```
  *
  * @param message Custom error message provider
- * @return A new validator with the is-long constraint
  */
 @IgnorableReturnValue
 fun Validation.isLong(
@@ -47,13 +43,11 @@ fun Validation.isLong(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.string().isShort()
- * validator.validate("123") // Success
- * validator.validate("abc") // Failure
+ * tryValidate { isShort("123") } // Success
+ * tryValidate { isShort("abc") } // Failure
  * ```
  *
  * @param message Custom error message provider
- * @return A new validator with the is-short constraint
  */
 @IgnorableReturnValue
 fun Validation.isShort(
@@ -66,13 +60,11 @@ fun Validation.isShort(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.string().isByte()
- * validator.validate("12")  // Success
- * validator.validate("abc") // Failure
+ * tryValidate { isByte("12") }  // Success
+ * tryValidate { isByte("abc") } // Failure
  * ```
  *
  * @param message Custom error message provider
- * @return A new validator with the is-byte constraint
  */
 @IgnorableReturnValue
 fun Validation.isByte(
@@ -85,13 +77,11 @@ fun Validation.isByte(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.string().isDouble()
- * validator.validate("12.5") // Success
- * validator.validate("abc")  // Failure
+ * tryValidate { isDouble("12.5") } // Success
+ * tryValidate { isDouble("abc") }  // Failure
  * ```
  *
  * @param message Custom error message provider
- * @return A new validator with the is-double constraint
  */
 @IgnorableReturnValue
 fun Validation.isDouble(
@@ -104,13 +94,11 @@ fun Validation.isDouble(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.string().isFloat()
- * validator.validate("12.5") // Success
- * validator.validate("abc")  // Failure
+ * tryValidate { isFloat("12.5") } // Success
+ * tryValidate { isFloat("abc") }  // Failure
  * ```
  *
  * @param message Custom error message provider
- * @return A new validator with the is-float constraint
  */
 @IgnorableReturnValue
 fun Validation.isFloat(
@@ -123,13 +111,11 @@ fun Validation.isFloat(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.string().isBigDecimal()
- * validator.validate("123.456789") // Success
- * validator.validate("abc")        // Failure
+ * tryValidate { isBigDecimal("123.456789") } // Success
+ * tryValidate { isBigDecimal("abc") }        // Failure
  * ```
  *
  * @param message Custom error message provider
- * @return A new validator with the is-big-decimal constraint
  */
 @IgnorableReturnValue
 fun Validation.isBigDecimal(
@@ -142,13 +128,11 @@ fun Validation.isBigDecimal(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.string().isBigInteger()
- * validator.validate("123456789012345") // Success
- * validator.validate("abc")             // Failure
+ * tryValidate { isBigInteger("123456789012345") } // Success
+ * tryValidate { isBigInteger("abc") }             // Failure
  * ```
  *
  * @param message Custom error message provider
- * @return A new validator with the is-big-integer constraint
  */
 @IgnorableReturnValue
 fun Validation.isBigInteger(
@@ -163,14 +147,12 @@ fun Validation.isBigInteger(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.string().isBoolean()
- * validator.validate("true")  // Success
- * validator.validate("false") // Success
- * validator.validate("yes")   // Failure
+ * tryValidate { isBoolean("true") }  // Success
+ * tryValidate { isBoolean("false") } // Success
+ * tryValidate { isBoolean("yes") }   // Failure
  * ```
  *
  * @param message Custom error message provider
- * @return A new validator with the is-boolean constraint
  */
 @IgnorableReturnValue
 fun Validation.isBoolean(
@@ -184,14 +166,12 @@ fun Validation.isBoolean(
  * Example:
  * ```kotlin
  * enum class Role { ADMIN, USER, GUEST }
- * val validator = Kova.string().isEnum(Role::class)
- * validator.validate("ADMIN") // Success
- * validator.validate("OTHER") // Failure
+ * tryValidate { isEnum("ADMIN", Role::class) } // Success
+ * tryValidate { isEnum("OTHER", Role::class) } // Failure
  * ```
  *
  * @param klass The enum class to validate against
  * @param message Custom error message provider
- * @return A new validator with the is-enum constraint
  */
 @IgnorableReturnValue
 fun <E : Enum<E>> Validation.isEnum(
@@ -206,13 +186,11 @@ fun <E : Enum<E>> Validation.isEnum(
  * Example:
  * ```kotlin
  * enum class Role { ADMIN, USER, GUEST }
- * val validator = Kova.string().isEnum<Role>()
- * validator.validate("ADMIN") // Success
- * validator.validate("OTHER") // Failure
+ * tryValidate { isEnum<Role>("ADMIN") } // Success
+ * tryValidate { isEnum<Role>("OTHER") } // Failure
  * ```
  *
  * @param message Custom error message provider
- * @return A new validator with the is-enum constraint
  */
 @IgnorableReturnValue
 inline fun <reified E : Enum<E>> Validation.isEnum(
@@ -228,12 +206,9 @@ inline fun <reified E : Enum<E>> Validation.isEnum(
  * Example:
  * ```kotlin
  * enum class Role { ADMIN, USER, GUEST }
- * val validator = Kova.string().toEnum<Role>()
- * validator.validate("ADMIN") // Success: Role.ADMIN
- * validator.validate("OTHER") // Failure
+ * tryValidate { toEnum<Role>("ADMIN") } // Success: Role.ADMIN
+ * tryValidate { toEnum<Role>("OTHER") } // Failure
  * ```
- *
- * @return A new validator that transforms string to enum type
  */
 inline fun <reified E : Enum<E>> Validation.toEnum(
     input: String,
@@ -254,13 +229,11 @@ fun <E : Enum<E>> Validation.toEnum(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.string().uppercase()
- * validator.validate("HELLO") // Success
- * validator.validate("hello") // Failure
+ * tryValidate { uppercase("HELLO") } // Success
+ * tryValidate { uppercase("hello") } // Failure
  * ```
  *
  * @param message Custom error message provider
- * @return A new validator with the uppercase constraint
  */
 @IgnorableReturnValue
 fun Validation.uppercase(
@@ -273,13 +246,11 @@ fun Validation.uppercase(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.string().lowercase()
- * validator.validate("hello") // Success
- * validator.validate("HELLO") // Failure
+ * tryValidate { lowercase("hello") } // Success
+ * tryValidate { lowercase("HELLO") } // Failure
  * ```
  *
  * @param message Custom error message provider
- * @return A new validator with the lowercase constraint
  */
 @IgnorableReturnValue
 fun Validation.lowercase(
@@ -292,11 +263,8 @@ fun Validation.lowercase(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.string().toUppercase()
- * validator.validate("hello") // Success: "HELLO"
+ * "hello".toUppercase() // "HELLO"
  * ```
- *
- * @return A new validator that transforms to uppercase
  */
 fun String.toUppercase() = uppercase()
 
@@ -305,11 +273,8 @@ fun String.toUppercase() = uppercase()
  *
  * Example:
  * ```kotlin
- * val validator = Kova.string().toLowercase()
- * validator.validate("HELLO") // Success: "hello"
+ * "HELLO".toLowercase() // "hello"
  * ```
- *
- * @return A new validator that transforms to lowercase
  */
 fun String.toLowercase() = lowercase()
 
@@ -320,12 +285,9 @@ fun String.toLowercase() = lowercase()
  *
  * Example:
  * ```kotlin
- * val validator = Kova.string().toInt()
- * validator.validate("123") // Success: 123
- * validator.validate("abc") // Failure
+ * tryValidate { toInt("123") } // Success: 123
+ * tryValidate { toInt("abc") } // Failure
  * ```
- *
- * @return A new validator that transforms string to Int
  */
 fun Validation.toInt(
     input: String,
@@ -339,12 +301,9 @@ fun Validation.toInt(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.string().toLong()
- * validator.validate("123456789") // Success: 123456789L
- * validator.validate("abc")       // Failure
+ * tryValidate { toLong("123456789") } // Success: 123456789L
+ * tryValidate { toLong("abc") }       // Failure
  * ```
- *
- * @return A new validator that transforms string to Long
  */
 fun Validation.toLong(
     input: String,
@@ -358,12 +317,9 @@ fun Validation.toLong(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.string().toShort()
- * validator.validate("123") // Success: 123.toShort()
- * validator.validate("abc") // Failure
+ * tryValidate { toShort("123") } // Success: 123.toShort()
+ * tryValidate { toShort("abc") } // Failure
  * ```
- *
- * @return A new validator that transforms string to Short
  */
 fun Validation.toShort(
     input: String,
@@ -377,12 +333,9 @@ fun Validation.toShort(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.string().toByte()
- * validator.validate("12")  // Success: 12.toByte()
- * validator.validate("abc") // Failure
+ * tryValidate { toByte("12") }  // Success: 12.toByte()
+ * tryValidate { toByte("abc") } // Failure
  * ```
- *
- * @return A new validator that transforms string to Byte
  */
 fun Validation.toByte(
     input: String,
@@ -396,12 +349,9 @@ fun Validation.toByte(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.string().toDouble()
- * validator.validate("12.5") // Success: 12.5
- * validator.validate("abc")  // Failure
+ * tryValidate { toDouble("12.5") } // Success: 12.5
+ * tryValidate { toDouble("abc") }  // Failure
  * ```
- *
- * @return A new validator that transforms string to Double
  */
 fun Validation.toDouble(
     input: String,
@@ -415,12 +365,9 @@ fun Validation.toDouble(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.string().toFloat()
- * validator.validate("12.5") // Success: 12.5f
- * validator.validate("abc")  // Failure
+ * tryValidate { toFloat("12.5") } // Success: 12.5f
+ * tryValidate { toFloat("abc") }  // Failure
  * ```
- *
- * @return A new validator that transforms string to Float
  */
 fun Validation.toFloat(
     input: String,
@@ -434,12 +381,9 @@ fun Validation.toFloat(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.string().toBigDecimal()
- * validator.validate("123.456789") // Success: BigDecimal("123.456789")
- * validator.validate("abc")        // Failure
+ * tryValidate { toBigDecimal("123.456789") } // Success: BigDecimal("123.456789")
+ * tryValidate { toBigDecimal("abc") }        // Failure
  * ```
- *
- * @return A new validator that transforms string to BigDecimal
  */
 fun Validation.toBigDecimal(
     input: String,
@@ -453,12 +397,9 @@ fun Validation.toBigDecimal(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.string().toBigInteger()
- * validator.validate("123456789012345") // Success: BigInteger("123456789012345")
- * validator.validate("abc")             // Failure
+ * tryValidate { toBigInteger("123456789012345") } // Success: BigInteger("123456789012345")
+ * tryValidate { toBigInteger("abc") }             // Failure
  * ```
- *
- * @return A new validator that transforms string to BigInteger
  */
 fun Validation.toBigInteger(
     input: String,
@@ -472,13 +413,10 @@ fun Validation.toBigInteger(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.string().toBoolean()
- * validator.validate("true")  // Success: true
- * validator.validate("false") // Success: false
- * validator.validate("yes")   // Failure
+ * tryValidate { toBoolean("true") }  // Success: true
+ * tryValidate { toBoolean("false") } // Success: false
+ * tryValidate { toBoolean("yes") }   // Failure
  * ```
- *
- * @return A new validator that transforms string to Boolean
  */
 fun Validation.toBoolean(
     input: String,

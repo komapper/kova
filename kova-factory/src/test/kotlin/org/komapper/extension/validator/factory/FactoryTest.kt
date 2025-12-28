@@ -13,12 +13,12 @@ import org.komapper.extension.validator.validate
 class FactoryTest :
     FunSpec({
 
-        context("1 argument") {
+        context("factory with single argument") {
             data class User(
                 val name: String,
             )
 
-            fun Validation.build(name: String) =
+            fun Validation.buildUser(name: String) =
                 factory {
                     val name by bind(name) {
                         notBlank(it)
@@ -27,15 +27,15 @@ class FactoryTest :
                     User(name)
                 }
 
-            context("tryCreate") {
+            context("using tryValidate") {
                 test("success") {
-                    val result = tryValidate { build("abc") }
+                    val result = tryValidate { buildUser("abc") }
                     result.shouldBeSuccess()
                     result.value shouldBe User("abc")
                 }
 
                 test("failure") {
-                    val result = tryValidate { build("") }
+                    val result = tryValidate { buildUser("") }
                     result.shouldBeFailure()
                     result.messages.size shouldBe 1
                     result.messages[0].constraintId shouldBe "kova.charSequence.notBlank"
@@ -44,47 +44,21 @@ class FactoryTest :
                 }
             }
 
-            context("create") {
+            context("using validate") {
 
                 test("success") {
-                    val user = validate { build("abc") }
+                    val user = validate { buildUser("abc") }
                     user shouldBe User("abc")
                 }
 
                 test("failure") {
-                    val ex = shouldThrow<ValidationException> { validate { build("") } }
-                    ex.messages.single().constraintId shouldBe "kova.charSequence.notBlank"
-                }
-            }
-
-            context("generateFactory and tryCreate") {
-                test("success") {
-                    val result = tryValidate { build("abc") }
-                    result.shouldBeSuccess()
-                    result.value shouldBe User("abc")
-                }
-
-                test("failure") {
-                    val result = tryValidate { build("") }
-                    result.shouldBeFailure()
-                    result.messages.single().constraintId shouldBe "kova.charSequence.notBlank"
-                }
-            }
-
-            context("generateFactory and create") {
-                test("success") {
-                    val user = validate { build("abc") }
-                    user shouldBe User("abc")
-                }
-
-                test("failure") {
-                    val ex = shouldThrow<ValidationException> { validate { build("") } }
+                    val ex = shouldThrow<ValidationException> { validate { buildUser("") } }
                     ex.messages.single().constraintId shouldBe "kova.charSequence.notBlank"
                 }
             }
         }
 
-        context("2 arguments - nest") {
+        context("factory with nested objects") {
             data class Name(
                 val value: String,
             )

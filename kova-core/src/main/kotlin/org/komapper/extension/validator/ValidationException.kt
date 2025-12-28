@@ -1,20 +1,20 @@
 package org.komapper.extension.validator
 
 /**
- * Exception thrown when validation fails using the [Validator.validate] method.
+ * Exception thrown when validation fails using the [validate] function.
  *
- * This exception contains detailed information about all validation failures.
- * Use [Validator.tryValidate] instead if you want to handle validation failures
+ * This exception contains detailed information about all validation failures,
+ * including the constraint ID, validation path, and formatted error message for each failure.
+ * Use [tryValidate] instead if you want to handle validation failures
  * programmatically without exceptions.
  *
  * Example:
  * ```kotlin
- * val validator = Kova.string().min(1).max(10)
- *
  * try {
- *     val result = validator.validate("") // Throws ValidationException
+ *     val result = validate { min("", 1); max("", 10) }
+ *     println("Valid: $result")
  * } catch (e: ValidationException) {
- *     // Access validation messages
+ *     // Access validation error messages
  *     e.messages.forEach { message ->
  *         println("Path: ${message.path.fullName}")
  *         println("Message: ${message.text}")

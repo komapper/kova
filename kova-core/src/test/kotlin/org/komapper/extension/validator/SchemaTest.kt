@@ -5,7 +5,7 @@ import io.kotest.matchers.equals.shouldBeEqual
 import io.kotest.matchers.nulls.shouldNotBeNull
 import java.time.LocalDate
 
-class ObjectSchemaTest :
+class SchemaTest :
     FunSpec({
 
         data class User(
@@ -419,7 +419,7 @@ class ObjectSchemaTest :
             }
         }
 
-        context("circular reference detection") {
+        context("recursive - circular reference detection") {
             data class NodeWithValue(
                 val value: Int,
                 var next: NodeWithValue?,
@@ -488,26 +488,6 @@ class ObjectSchemaTest :
                 result.messages.size shouldBeEqual 1
                 result.messages[0].path.fullName shouldBeEqual "value"
                 result.messages[0].constraintId.shouldNotBeNull() shouldBeEqual "kova.comparable.max"
-            }
-        }
-
-        context("temporal property") {
-            data class User(
-                val name: String,
-                val birthday: LocalDate,
-            )
-
-            fun Validation.validate(user: User) {
-                user.schema {
-                    user::name { notBlank(it) }
-                    user::birthday { }
-                }
-            }
-
-            test("success") {
-                val user = User("abc", LocalDate.of(2021, 1, 1))
-                val result = tryValidate { validate(user) }
-                result.shouldBeSuccess()
             }
         }
     })
