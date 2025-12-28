@@ -2,12 +2,14 @@ package org.komapper.extension.validator
 
 import io.kotest.core.spec.style.FunSpec
 
-class ObjectSchemaCircularReferenceTest :
+class SchemaCircularReferenceTest :
     FunSpec({
 
         test("circular reference between schemas") {
-            val city = City(emptyList())
+            val users = mutableListOf<User>()
+            val city = City(users)
             val user = User(city)
+            users.add(user)
             validate { validate(city) }
             validate { validate(user) }
         }

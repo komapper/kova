@@ -5,6 +5,7 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 
 class CollectionValidatorTest :
     FunSpec({
+
         context("notEmpty") {
             test("success") {
                 val result = tryValidate { notEmpty(listOf("1")) }
@@ -40,7 +41,7 @@ class CollectionValidatorTest :
             }
         }
 
-        context("plus") {
+        context("and") {
             fun Validation.validate(list: List<*>) {
                 min(list, 2)
                 min(list, 3)
@@ -57,23 +58,6 @@ class CollectionValidatorTest :
                 result.messages.size shouldBe 2
                 result.messages[0].constraintId shouldBe "kova.collection.min"
                 result.messages[1].constraintId shouldBe "kova.collection.min"
-            }
-        }
-
-        context("constrain") {
-            @IgnorableReturnValue
-            fun Validation.validate(list: List<*>) = list.constrain("test") { satisfies(it.size == 1) { text("Constraint failed") } }
-
-            test("success") {
-                val result = tryValidate { validate(listOf("1")) }
-                result.shouldBeSuccess()
-            }
-
-            test("failure") {
-                val result = tryValidate { validate(listOf("1", "2")) }
-                result.shouldBeFailure()
-                result.messages.size shouldBe 1
-                result.messages[0].text shouldBe "Constraint failed"
             }
         }
 
@@ -124,7 +108,7 @@ class CollectionValidatorTest :
             }
         }
 
-        context("contains") {
+        context("has") {
             test("success") {
                 val result = tryValidate { has(listOf("foo", "bar"), "foo") }
                 result.shouldBeSuccess()

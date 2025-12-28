@@ -7,13 +7,31 @@ import org.komapper.extension.validator.ValidationResult.Success
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
+/**
+ * An inclusive-or (Ior) representation of validation results.
+ *
+ * This sealed interface is used internally to represent validation results that can have
+ * both a value and error messages simultaneously ([Both]), or just errors ([FailureLike]).
+ * [ValidationResult] extends this to provide the public Success/Failure API.
+ */
 sealed interface ValidationIor<out T> {
+    /**
+     * Represents a validation result that contains error messages.
+     *
+     * This can be either a [Failure] (only errors, no value) or [Both] (value with errors).
+     */
     sealed interface FailureLike<out T> : ValidationIor<T> {
         val messages: List<Message>
 
         fun withMessage(message: Message): FailureLike<T>
     }
 
+    /**
+     * Represents a validation that produced a value but also accumulated error messages.
+     *
+     * This is used internally during validation to track partial successes. When converted
+     * to [ValidationResult], this becomes a [Failure] containing the accumulated messages.
+     */
     data class Both<out T>(
         val value: T,
         override val messages: List<Message>,
@@ -28,8 +46,7 @@ sealed interface ValidationIor<out T> {
  *
  * Example:
  * ```kotlin
- * val result = validator.tryValidate(input)
- * when (result) {
+ * when (val result = tryValidate { min("hello", 1) }) {
  *     is ValidationResult.Success -> println("Value: ${result.value}")
  *     is ValidationResult.Failure -> println("Errors: ${result.messages}")
  * }
@@ -41,8 +58,7 @@ sealed interface ValidationResult<out T> : ValidationIor<T> {
     /**
      * Represents a successful validation with the validated value.
      *
-     * @param value The validated value
-     * @param context The validation context after validation completed
+     * @property value The validated value that passed all constraints
      */
     data class Success<out T>(
         val value: T,
@@ -64,15 +80,19 @@ sealed interface ValidationResult<out T> : ValidationIor<T> {
 /**
  * Type-safe check if this result is a success.
  *
- * Uses Kotlin contracts for smart casting, so after checking `isSuccess()`,
- * the result is automatically cast to [ValidationResult.Success].
+ * Uses Kotlin contracts for smart casting. When this function returns true,
+ * the result is automatically smart-cast to [Success]. When it returns false,
+ * the result is automatically smart-cast to [Failure].
  *
  * Example:
  * ```kotlin
- * val result = validator.tryValidate(input)
+ * val result = tryValidate { min("hello", 1) }
  * if (result.isSuccess()) {
- *     // result is automatically cast to Success here
+ *     // result is automatically smart-cast to Success here
  *     println("Value: ${result.value}")
+ * } else {
+ *     // result is automatically smart-cast to Failure here
+ *     println("Errors: ${result.messages}")
  * }
  * ```
  */

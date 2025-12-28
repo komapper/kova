@@ -5,14 +5,12 @@ package org.komapper.extension.validator
  *
  * Example:
  * ```kotlin
- * val validator = Kova.string().min(3)
- * validator.validate("hello") // Success
- * validator.validate("hi")    // Failure
+ * tryValidate { min("hello", 3) } // Success
+ * tryValidate { min("hi", 3) }    // Failure
  * ```
  *
  * @param length Minimum length (inclusive)
  * @param message Custom error message provider
- * @return A new validator with the minimum length constraint
  */
 @IgnorableReturnValue
 fun Validation.min(
@@ -26,14 +24,12 @@ fun Validation.min(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.string().max(10)
- * validator.validate("hello")      // Success
- * validator.validate("very long string") // Failure
+ * tryValidate { max("hello", 10) }           // Success
+ * tryValidate { max("very long string", 10) } // Failure
  * ```
  *
  * @param length Maximum length (inclusive)
  * @param message Custom error message provider
- * @return A new validator with the maximum length constraint
  */
 @IgnorableReturnValue
 fun Validation.max(
@@ -47,14 +43,12 @@ fun Validation.max(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.string().notBlank()
- * validator.validate("hello") // Success
- * validator.validate("   ")   // Failure
- * validator.validate("")      // Failure
+ * tryValidate { notBlank("hello") } // Success
+ * tryValidate { notBlank("   ") }   // Failure
+ * tryValidate { notBlank("") }      // Failure
  * ```
  *
  * @param message Custom error message provider
- * @return A new validator with the not-blank constraint
  */
 @IgnorableReturnValue
 fun Validation.notBlank(
@@ -67,14 +61,12 @@ fun Validation.notBlank(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.string().blank()
- * validator.validate("   ")   // Success
- * validator.validate("")      // Success
- * validator.validate("hello") // Failure
+ * tryValidate { blank("   ") }   // Success
+ * tryValidate { blank("") }      // Success
+ * tryValidate { blank("hello") } // Failure
  * ```
  *
  * @param message Custom error message provider
- * @return A new validator with the blank constraint
  */
 @IgnorableReturnValue
 fun Validation.blank(
@@ -87,14 +79,12 @@ fun Validation.blank(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.string().notEmpty()
- * validator.validate("hello") // Success
- * validator.validate("   ")   // Success (contains whitespace)
- * validator.validate("")      // Failure
+ * tryValidate { notEmpty("hello") } // Success
+ * tryValidate { notEmpty("   ") }   // Success (contains whitespace)
+ * tryValidate { notEmpty("") }      // Failure
  * ```
  *
  * @param message Custom error message provider
- * @return A new validator with the not-empty constraint
  */
 @IgnorableReturnValue
 fun Validation.notEmpty(
@@ -107,14 +97,12 @@ fun Validation.notEmpty(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.string().empty()
- * validator.validate("")      // Success
- * validator.validate("   ")   // Failure (contains whitespace)
- * validator.validate("hello") // Failure
+ * tryValidate { empty("") }      // Success
+ * tryValidate { empty("   ") }   // Failure (contains whitespace)
+ * tryValidate { empty("hello") } // Failure
  * ```
  *
  * @param message Custom error message provider
- * @return A new validator with the empty constraint
  */
 @IgnorableReturnValue
 fun Validation.empty(
@@ -127,14 +115,12 @@ fun Validation.empty(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.string().length(5)
- * validator.validate("hello") // Success
- * validator.validate("hi")    // Failure
+ * tryValidate { length("hello", 5) } // Success
+ * tryValidate { length("hi", 5) }    // Failure
  * ```
  *
  * @param length Exact length required
  * @param message Custom error message provider
- * @return A new validator with the exact length constraint
  */
 @IgnorableReturnValue
 fun Validation.length(
@@ -148,14 +134,12 @@ fun Validation.length(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.string().startsWith("Hello")
- * validator.validate("Hello World") // Success
- * validator.validate("Goodbye")     // Failure
+ * tryValidate { startsWith("Hello World", "Hello") } // Success
+ * tryValidate { startsWith("Goodbye", "Hello") }     // Failure
  * ```
  *
  * @param prefix The required prefix
  * @param message Custom error message provider
- * @return A new validator with the starts-with constraint
  */
 @IgnorableReturnValue
 fun Validation.startsWith(
@@ -169,14 +153,12 @@ fun Validation.startsWith(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.string().notStartsWith("Hello")
- * validator.validate("Goodbye")     // Success
- * validator.validate("Hello World") // Failure
+ * tryValidate { notStartsWith("Goodbye", "Hello") }     // Success
+ * tryValidate { notStartsWith("Hello World", "Hello") } // Failure
  * ```
  *
  * @param prefix The prefix that must not be present
  * @param message Custom error message provider
- * @return A new validator with the not-starts-with constraint
  */
 @IgnorableReturnValue
 fun Validation.notStartsWith(
@@ -192,14 +174,12 @@ fun Validation.notStartsWith(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.string().endsWith(".txt")
- * validator.validate("document.txt") // Success
- * validator.validate("document.pdf") // Failure
+ * tryValidate { endsWith("document.txt", ".txt") } // Success
+ * tryValidate { endsWith("document.pdf", ".txt") } // Failure
  * ```
  *
  * @param suffix The required suffix
  * @param message Custom error message provider
- * @return A new validator with the ends-with constraint
  */
 @IgnorableReturnValue
 fun Validation.endsWith(
@@ -213,14 +193,12 @@ fun Validation.endsWith(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.string().notEndsWith(".txt")
- * validator.validate("document.pdf") // Success
- * validator.validate("document.txt") // Failure
+ * tryValidate { notEndsWith("document.pdf", ".txt") } // Success
+ * tryValidate { notEndsWith("document.txt", ".txt") } // Failure
  * ```
  *
  * @param suffix The suffix that must not be present
  * @param message Custom error message provider
- * @return A new validator with the not-ends-with constraint
  */
 @IgnorableReturnValue
 fun Validation.notEndsWith(
@@ -234,14 +212,12 @@ fun Validation.notEndsWith(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.string().contains("world")
- * validator.validate("hello world") // Success
- * validator.validate("hello")       // Failure
+ * tryValidate { contains("hello world", "world") } // Success
+ * tryValidate { contains("hello", "world") }       // Failure
  * ```
  *
  * @param infix The required substring
  * @param message Custom error message provider
- * @return A new validator with the contains constraint
  */
 @IgnorableReturnValue
 fun Validation.contains(
@@ -255,14 +231,12 @@ fun Validation.contains(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.string().notContains("world")
- * validator.validate("hello")       // Success
- * validator.validate("hello world") // Failure
+ * tryValidate { notContains("hello", "world") }       // Success
+ * tryValidate { notContains("hello world", "world") } // Failure
  * ```
  *
  * @param infix The substring that must not be present
  * @param message Custom error message provider
- * @return A new validator with the not-contains constraint
  */
 @IgnorableReturnValue
 fun Validation.notContains(
@@ -276,14 +250,12 @@ fun Validation.notContains(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.string().matches(Regex("\\d{3}-\\d{4}"))
- * validator.validate("123-4567") // Success
- * validator.validate("12-34")    // Failure
+ * tryValidate { matches("123-4567", Regex("\\d{3}-\\d{4}")) } // Success
+ * tryValidate { matches("12-34", Regex("\\d{3}-\\d{4}")) }    // Failure
  * ```
  *
  * @param pattern The regex pattern to match
  * @param message Custom error message provider
- * @return A new validator with the regex constraint
  */
 @IgnorableReturnValue
 fun Validation.matches(
@@ -297,14 +269,12 @@ fun Validation.matches(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.string().notMatches(Regex("\\d+"))
- * validator.validate("hello") // Success
- * validator.validate("123")   // Failure
+ * tryValidate { notMatches("hello", Regex("\\d+")) } // Success
+ * tryValidate { notMatches("123", Regex("\\d+")) }   // Failure
  * ```
  *
  * @param pattern The regex pattern that must not match
  * @param message Custom error message provider
- * @return A new validator with the not-matches constraint
  */
 @IgnorableReturnValue
 fun Validation.notMatches(

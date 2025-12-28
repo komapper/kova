@@ -3,7 +3,7 @@ package org.komapper.extension.validator
 import io.kotest.core.spec.style.FunSpec
 import java.time.LocalDate
 
-class KovaPropertiesTest :
+class MessagePropertiesTest :
     FunSpec({
 
         context("kova.charSequence") {

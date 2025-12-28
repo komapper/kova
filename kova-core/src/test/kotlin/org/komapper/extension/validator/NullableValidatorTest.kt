@@ -19,6 +19,52 @@ class NullableValidatorTest :
             }
         }
 
+        context("nullable with constraint") {
+            fun Validation.nullableMin3(i: Int?) {
+                if (i != null) min(i, 3)
+            }
+
+            test("success with non-null value") {
+                val result = tryValidate { nullableMin3(4) }
+                result.shouldBeSuccess()
+            }
+
+            test("success with null value") {
+                val result = tryValidate { nullableMin3(null) }
+                result.shouldBeSuccess()
+            }
+
+            test("failure when min3 constraint violated") {
+                val result = tryValidate { nullableMin3(2) }
+                result.shouldBeFailure()
+                result.messages.size shouldBe 1
+                result.messages[0].constraintId shouldBe "kova.comparable.min"
+            }
+        }
+
+        context("nullable with constraint - for each List element") {
+            fun Validation.nullableMin3(i: Int?) {
+                if (i != null) min(i, 3)
+            }
+
+            test("success with non-null value") {
+                val result = tryValidate { onEach(listOf(4, 5)) { nullableMin3(it) } }
+                result.shouldBeSuccess()
+            }
+
+            test("success with null value") {
+                val result = tryValidate { onEach(listOf(null, null)) { nullableMin3(it) } }
+                result.shouldBeSuccess()
+            }
+
+            test("failure when min3 constraint violated") {
+                val result = tryValidate { onEach(listOf(2, null)) { nullableMin3(it) } }
+                result.shouldBeFailure()
+                result.messages.size shouldBe 1
+                result.messages[0].constraintId shouldBe "kova.collection.onEach"
+            }
+        }
+
         context("isNull") {
             test("success") {
                 val result = tryValidate { isNull(null) }
@@ -33,7 +79,7 @@ class NullableValidatorTest :
             }
         }
 
-        context("or") {
+        context("or isNull orElse") {
             fun Validation.isNullOrMin3Max3(i: Int?) =
                 or { isNull(i) } orElse {
                     if (i == null) return@orElse
@@ -102,78 +148,6 @@ class NullableValidatorTest :
             }
         }
 
-        context("notNullAnd") {
-            fun Validation.notNullAndMin3(i: Int?) {
-                notNull(i)
-                if (i != null) min(i, 3)
-            }
-
-            test("success") {
-                val result = tryValidate { notNullAndMin3(4) }
-                result.shouldBeSuccess()
-            }
-
-            test("failure") {
-                val result = tryValidate { notNullAndMin3(null) }
-                result.shouldBeFailure()
-                result.messages.size shouldBe 1
-                result.messages[0].constraintId shouldBe "kova.nullable.notNull"
-            }
-
-            test("failure when min constraint violated") {
-                val result = tryValidate { notNullAndMin3(2) }
-                result.shouldBeFailure()
-                result.messages.size shouldBe 1
-                result.messages[0].constraintId shouldBe "kova.comparable.min"
-            }
-        }
-
-        context("and") {
-            fun Validation.nullableMin3(i: Int?) {
-                if (i != null) min(i, 3)
-            }
-
-            test("success with non-null value") {
-                val result = tryValidate { nullableMin3(4) }
-                result.shouldBeSuccess()
-            }
-
-            test("success with null value") {
-                val result = tryValidate { nullableMin3(null) }
-                result.shouldBeSuccess()
-            }
-
-            test("failure when min3 constraint violated") {
-                val result = tryValidate { nullableMin3(2) }
-                result.shouldBeFailure()
-                result.messages.size shouldBe 1
-                result.messages[0].constraintId shouldBe "kova.comparable.min"
-            }
-        }
-
-        context("and - each List element") {
-            fun Validation.nullableMin3(i: Int?) {
-                if (i != null) min(i, 3)
-            }
-
-            test("success with non-null value") {
-                val result = tryValidate { onEach(listOf(4, 5)) { nullableMin3(it) } }
-                result.shouldBeSuccess()
-            }
-
-            test("success with null value") {
-                val result = tryValidate { onEach(listOf(null, null)) { nullableMin3(it) } }
-                result.shouldBeSuccess()
-            }
-
-            test("failure when min3 constraint violated") {
-                val result = tryValidate { onEach(listOf(2, null)) { nullableMin3(it) } }
-                result.shouldBeFailure()
-                result.messages.size shouldBe 1
-                result.messages[0].constraintId shouldBe "kova.collection.onEach"
-            }
-        }
-
         context("toNonNullable") {
             fun Validation.nullableMin3(i: Int?): Int {
                 if (i != null) min(i, 3)
@@ -202,7 +176,7 @@ class NullableValidatorTest :
             }
         }
 
-        context("toNonNullable - then") {
+        context("toNonNullable - also") {
             fun Validation.notNullAndMin3AndMax3(i: Int?) = toNonNullable(i).also { max(it, 5) }.also { min(it, 3) }
 
             test("success") {

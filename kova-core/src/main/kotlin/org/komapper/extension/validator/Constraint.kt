@@ -3,23 +3,33 @@ package org.komapper.extension.validator
 /**
  * Represents a validation constraint that can be applied to a value.
  *
- * Constraints are used to define custom validation rules that go beyond simple type checks.
- * They are commonly used in ObjectSchema for object-level validation that involves multiple fields.
+ * A constraint is a function that receives a value within a [Validation] context and
+ * performs validation logic on it. Constraints are commonly used with collection validators
+ * like [onEach], property validation within schema blocks, and custom validation logic.
  *
- * Example of a custom constraint:
+ * Example with collection validation:
+ * ```kotlin
+ * tryValidate {
+ *     onEach(listOf(1, -2, 3)) { value ->
+ *         positive(value)
+ *     }
+ * }
+ * ```
+ *
+ * Example with schema validation:
  * ```kotlin
  * data class Period(val startDate: LocalDate, val endDate: LocalDate)
  *
- * object PeriodSchema : ObjectSchema<Period>({
- *     constrain("dateRange") { context ->
- *         satisfies(
- *             context.input.startDate <= context.input.endDate,
- *             "Start date must be before or equal to end date"
- *         )
+ * fun Validation.validate(period: Period) {
+ *     period.schema {
+ *         period::startDate { pastOrPresent(it) }
+ *         period::endDate { futureOrPresent(it) }
+ *         period.constrain("period") {
+ *             satisfies(it.startDate <= it.endDate) {
+ *                 text("Start date must be before or equal to end date")
+ *             }
+ *         }
  *     }
- * }) {
- *     val startDate = Period::startDate { Kova.localDate() }
- *     val endDate = Period::endDate { Kova.localDate() }
  * }
  * ```
  *
@@ -30,16 +40,33 @@ typealias Constraint<T> = Validation.(T) -> Unit
 /**
  * Creates a text-based validation message.
  *
- * Use this method to create simple text messages for constraint violations.
- * The message will include the current validation context (root, path, constraint ID).
+ * Use this method to create simple text messages for constraint violations
+ * without i18n support. The message will include the current validation context
+ * (root, path, constraint ID).
  *
  * Example usage in a constraint:
  * ```kotlin
- * constrain("positive") { context ->
- *     satisfies(
- *         context.input > 0,
- *         context.text("Value must be positive")
- *     )
+ * tryValidate {
+ *     10.constrain("positive") {
+ *         satisfies(it > 0) { text("Value must be positive") }
+ *     }
+ * }
+ * ```
+ *
+ * Example with schema validation:
+ * ```kotlin
+ * data class Period(val startDate: LocalDate, val endDate: LocalDate)
+ *
+ * fun Validation.validate(period: Period) {
+ *     period.schema {
+ *         period::startDate { pastOrPresent(it) }
+ *         period::endDate { futureOrPresent(it) }
+ *         period.constrain("period") {
+ *             satisfies(it.startDate <= it.endDate) {
+ *                 text("Start date must be before or equal to end date")
+ *             }
+ *         }
+ *     }
  * }
  * ```
  *

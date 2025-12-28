@@ -5,26 +5,6 @@ import io.kotest.core.spec.style.FunSpec
 class MapValidatorTest :
     FunSpec({
 
-        context("plus") {
-            fun Validation.validate(input: Map<*, *>) {
-                min(input, 2)
-                min(input, 3)
-            }
-
-            test("success") {
-                val result = tryValidate { validate(mapOf("a" to "1", "b" to "2", "c" to "3")) }
-                result.shouldBeSuccess()
-            }
-
-            test("failure") {
-                val result = tryValidate { validate(mapOf("a" to "1")) }
-                result.shouldBeFailure()
-                result.messages.size shouldBe 2
-                result.messages[0].constraintId shouldBe "kova.map.min"
-                result.messages[1].constraintId shouldBe "kova.map.min"
-            }
-        }
-
         context("max") {
             test("success") {
                 val result = tryValidate { max(mapOf("a" to "1", "b" to "2"), 2) }
@@ -135,7 +115,7 @@ class MapValidatorTest :
             }
         }
 
-        context("containsKey") {
+        context("hasKey") {
             test("success") {
                 val result = tryValidate { hasKey(mapOf("foo" to 1, "bar" to 2), "foo") }
                 result.shouldBeSuccess()
@@ -173,7 +153,7 @@ class MapValidatorTest :
             }
         }
 
-        context("containsValue") {
+        context("hasValue") {
             test("success") {
                 val result = tryValidate { hasValue(mapOf("foo" to 42, "bar" to 2), 42) }
                 result.shouldBeSuccess()

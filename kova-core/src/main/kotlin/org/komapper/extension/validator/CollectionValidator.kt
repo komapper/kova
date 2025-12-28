@@ -7,14 +7,12 @@ typealias LengthMessageProvider = (actualSize: Int) -> Message
  *
  * Example:
  * ```kotlin
- * val validator = Kova.collection<String>().min(2)
- * validator.validate(listOf("a", "b", "c")) // Success
- * validator.validate(listOf("a"))           // Failure
+ * tryValidate { min(listOf("a", "b", "c"), 2) } // Success
+ * tryValidate { min(listOf("a"), 2) }           // Failure
  * ```
  *
  * @param size Minimum collection size (inclusive)
  * @param message Custom error message provider
- * @return A new validator with the minimum size constraint
  */
 @IgnorableReturnValue
 fun Validation.min(
@@ -28,14 +26,12 @@ fun Validation.min(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.collection<String>().max(3)
- * validator.validate(listOf("a", "b"))       // Success
- * validator.validate(listOf("a", "b", "c", "d")) // Failure
+ * tryValidate { max(listOf("a", "b"), 3) }            // Success
+ * tryValidate { max(listOf("a", "b", "c", "d"), 3) }  // Failure
  * ```
  *
  * @param size Maximum collection size (inclusive)
  * @param message Custom error message provider
- * @return A new validator with the maximum size constraint
  */
 @IgnorableReturnValue
 fun Validation.max(
@@ -49,13 +45,11 @@ fun Validation.max(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.collection<String>().notEmpty()
- * validator.validate(listOf("a")) // Success
- * validator.validate(listOf())    // Failure
+ * tryValidate { notEmpty(listOf("a")) } // Success
+ * tryValidate { notEmpty(listOf()) }    // Failure
  * ```
  *
  * @param message Custom error message provider
- * @return A new validator with the not-empty constraint
  */
 @IgnorableReturnValue
 fun Validation.notEmpty(
@@ -68,14 +62,12 @@ fun Validation.notEmpty(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.collection<String>().length(3)
- * validator.validate(listOf("a", "b", "c")) // Success
- * validator.validate(listOf("a", "b"))      // Failure
+ * tryValidate { length(listOf("a", "b", "c"), 3) } // Success
+ * tryValidate { length(listOf("a", "b"), 3) }      // Failure
  * ```
  *
  * @param size Exact collection size required
  * @param message Custom error message provider
- * @return A new validator with the exact size constraint
  */
 @IgnorableReturnValue
 fun Validation.length(
@@ -89,14 +81,12 @@ fun Validation.length(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.collection<String>().contains("foo")
- * validator.validate(listOf("foo", "bar"))  // Success
- * validator.validate(listOf("bar", "baz"))  // Failure
+ * tryValidate { has(listOf("foo", "bar"), "foo") }  // Success
+ * tryValidate { has(listOf("bar", "baz"), "foo") }  // Failure
  * ```
  *
  * @param element The element that must be present in the collection
  * @param message Custom error message provider
- * @return A new validator with the contains constraint
  */
 @IgnorableReturnValue
 fun <E> Validation.has(
@@ -110,14 +100,12 @@ fun <E> Validation.has(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.collection<String>().notContains("foo")
- * validator.validate(listOf("bar", "baz"))  // Success
- * validator.validate(listOf("foo", "bar"))  // Failure
+ * tryValidate { notContains(listOf("bar", "baz"), "foo") }  // Success
+ * tryValidate { notContains(listOf("foo", "bar"), "foo") }  // Failure
  * ```
  *
  * @param element The element that must not be present in the collection
  * @param message Custom error message provider
- * @return A new validator with the notContains constraint
  */
 @IgnorableReturnValue
 fun <E> Validation.notContains(
@@ -134,16 +122,16 @@ fun <E> Validation.notContains(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.collection<String>()
- *     .notEmpty()
- *     .onEach(Kova.string().min(2).max(10))
+ * tryValidate {
+ *     onEach(listOf("abc", "def")) { min(it, 2); max(it, 10) }
+ * } // Success
  *
- * validator.validate(listOf("abc", "def"))    // Success
- * validator.validate(listOf("a", "b"))        // Failure: elements too short
+ * tryValidate {
+ *     onEach(listOf("a", "b")) { min(it, 2); max(it, 10) }
+ * } // Failure: elements too short
  * ```
  *
  * @param validate The validator to apply to each element
- * @return A new validator with per-element validation
  */
 @IgnorableReturnValue
 fun <E> Validation.onEach(

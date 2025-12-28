@@ -9,13 +9,11 @@ import kotlin.contracts.contract
  *
  * Example:
  * ```kotlin
- * val validator = Kova.string().asNullable().isNull()
- * validator.validate(null)    // Success: null
- * validator.validate("hello") // Failure
+ * tryValidate { isNull(null) }    // Success
+ * tryValidate { isNull("hello") } // Failure
  * ```
  *
  * @param message Custom error message provider
- * @return A new validator that only accepts null
  */
 @IgnorableReturnValue
 fun <T> Validation.isNull(
@@ -37,13 +35,11 @@ inline fun <T> Validation.isNullOr(
  *
  * Example:
  * ```kotlin
- * val validator = Kova.string().asNullable().notNull()
- * validator.validate("hello") // Success: "hello"
- * validator.validate(null)    // Failure
+ * tryValidate { notNull("hello") } // Success
+ * tryValidate { notNull(null) }    // Failure
  * ```
  *
  * @param message Custom error message provider
- * @return A new validator that rejects null
  */
 @IgnorableReturnValue
 fun <T> Validation.notNull(
@@ -52,20 +48,22 @@ fun <T> Validation.notNull(
 ) = input.constrain("kova.nullable.notNull") { toNonNullable(input, message) }
 
 /**
- * Converts a nullable validator to a validator with non-nullable output.
+ * Converts a nullable input to a non-nullable output.
  *
- * This adds a `notNull()` constraint and converts the output type from `S?` to `S`.
+ * This validates that the input is not null and converts the output type from `T?` to `T & Any`.
  *
  * Example:
  * ```kotlin
- * val nullableValidator = Kova.string().min(3).asNullable()
- * val nonNullableValidator: Validator<String?, String> = nullableValidator.toNonNullable()
+ * fun Validation.validateString(s: String?): String {
+ *     if (s != null) min(s, 3)
+ *     return toNonNullable(s)
+ * }
  *
- * nonNullableValidator.validate("hello") // Success: "hello" (non-null type)
- * nonNullableValidator.validate(null)    // Failure
+ * tryValidate { validateString("hello") } // Success
+ * tryValidate { validateString(null) }    // Failure
  * ```
  *
- * @return A validator that rejects null and produces non-nullable output
+ * @return The non-null input value with type `T & Any`
  */
 @IgnorableReturnValue
 fun <T> Validation.toNonNullable(
