@@ -48,8 +48,7 @@ sealed interface Message {
      * @property context The message context containing constraint metadata and validation state
      * @property text The formatted message text
      */
-    @ConsistentCopyVisibility
-    data class Text internal constructor(
+    class Text internal constructor(
         override val constraintId: String,
         override val root: String,
         override val path: Path,
@@ -61,7 +60,7 @@ sealed interface Message {
         override fun withDetails(
             input: Any?,
             constraintId: String,
-        ) = copy(input = input, constraintId = constraintId)
+        ) = Text(constraintId = constraintId, root = root, path = path, text = text, input = input)
     }
 
     /**
