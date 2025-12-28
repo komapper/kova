@@ -172,7 +172,7 @@ data class Validation(
      * @param args Arguments to be interpolated into the message template using MessageFormat
      * @return A [Message.Resource] instance configured with the provided arguments
      */
-    fun String.resource(vararg args: Any?): Message.Resource = Message.Resource(this, root, path, null, args = args)
+    fun String.resource(vararg args: Any?): Message.Resource = Message.Resource(this, this, root, path, null, args = args)
 
     val String.resource: Message.Resource get() = resource()
 }
@@ -187,9 +187,13 @@ val Validation.clock: Clock get() = config.clock
 /**
  * Evaluates a condition and raises a validation error if it fails.
  *
- * If the condition is true, this function returns normally. If the condition is false,
- * it raises a validation error with the provided message, which gets accumulated in
- * the validation context (or immediately fails if failFast is enabled).
+ * This is the preferred form for most validation constraints, as it accepts a [MessageProvider]
+ * lambda that is only evaluated when the condition is false. This provides lazy message construction,
+ * which is beneficial when message creation involves resource lookups or formatting.
+ *
+ * If the condition is true, this function returns normally without evaluating the message.
+ * If the condition is false, it evaluates the message provider and raises a validation error,
+ * which gets accumulated in the validation context (or immediately fails if failFast is enabled).
  *
  * Example:
  * ```kotlin
@@ -200,19 +204,50 @@ val Validation.clock: Clock get() = config.clock
  *     satisfies(it > 0, message)
  * }
  *
- * tryValidate { positive(5) }  // Success
- * tryValidate { positive(-1) } // Failure
+ * tryValidate { positive(5) }  // Success (message provider not evaluated)
+ * tryValidate { positive(-1) } // Failure (message provider evaluated)
  * ```
  *
  * @param condition The condition to evaluate
- * @param message A MessageProvider that produces the error message if the condition is false
+ * @param message A MessageProvider lambda that produces the error message if the condition is false
+ * @see satisfies Overload that accepts a Message directly
  */
 fun Validation.satisfies(
     condition: Boolean,
     message: MessageProvider,
 ) {
     contract { returns() implies condition }
-    if (!condition) raise(message())
+    satisfies(condition, message())
+}
+
+/**
+ * Evaluates a condition and raises a validation error if it fails.
+ *
+ * This is a lower-level variant that accepts a [Message] instance directly, rather than
+ * a lazy [MessageProvider]. Use this when you already have a constructed [Message] object
+ * or when message construction is trivial. For most cases, prefer the [MessageProvider]
+ * overload for lazy evaluation.
+ *
+ * If the condition is true, this function returns normally. If the condition is false,
+ * it raises the provided validation error message, which gets accumulated in the validation
+ * context (or immediately fails if failFast is enabled).
+ *
+ * Example:
+ * ```kotlin
+ * val errorMessage = "kova.string.pattern".resource(pattern)
+ * satisfies(input.matches(regex), errorMessage)
+ * ```
+ *
+ * @param condition The condition to evaluate
+ * @param message The error message to raise if the condition is false
+ * @see satisfies Overload that accepts a MessageProvider for lazy evaluation
+ */
+fun Validation.satisfies(
+    condition: Boolean,
+    message: Message,
+) {
+    contract { returns() implies condition }
+    if (!condition) raise(message)
 }
 
 /**

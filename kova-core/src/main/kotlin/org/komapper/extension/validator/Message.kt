@@ -87,6 +87,7 @@ sealed interface Message {
      * @property args Arguments for formatting the resource message using [MessageFormat]
      */
     class Resource internal constructor(
+        private val key: String,
         override val constraintId: String,
         override val root: String,
         override val path: Path,
@@ -94,7 +95,7 @@ sealed interface Message {
         vararg val args: Any?,
     ) : Message {
         override val text: String by lazy {
-            val pattern = getPattern(constraintId)
+            val pattern = getPattern(key)
             val newArgs = args.map(::resolveArg)
             MessageFormat.format(pattern, *newArgs.toTypedArray())
         }
@@ -114,7 +115,8 @@ sealed interface Message {
             constraintId: String,
         ): Message =
             Resource(
-                constraintId = this.constraintId,
+                key = key,
+                constraintId = constraintId,
                 root = root,
                 path = path,
                 input = input,

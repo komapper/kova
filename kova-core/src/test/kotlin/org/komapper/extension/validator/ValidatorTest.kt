@@ -92,10 +92,20 @@ class ValidatorTest :
                     val result = tryValidate(ValidationConfig(logger = { add(it) })) { validate(" abcde ") }
                     result.shouldBeSuccess()
                 } shouldBe
-                    listOf(
-                        LogEntry.Satisfied(constraintId = "kova.charSequence.min", root = "", path = "", input = "abcde"),
-                        LogEntry.Satisfied(constraintId = "kova.charSequence.max", root = "", path = "", input = "abcde"),
-                    )
+                        listOf(
+                            LogEntry.Satisfied(
+                                constraintId = "kova.charSequence.min",
+                                root = "",
+                                path = "",
+                                input = "abcde",
+                            ),
+                            LogEntry.Satisfied(
+                                constraintId = "kova.charSequence.max",
+                                root = "",
+                                path = "",
+                                input = "abcde",
+                            ),
+                        )
             }
 
             test("failure") {
@@ -104,16 +114,21 @@ class ValidatorTest :
                 result.shouldBeFailure()
 
                 logs shouldBe
-                    listOf(
-                        LogEntry.Violated(
-                            constraintId = "kova.charSequence.min",
-                            root = "",
-                            path = "",
-                            input = "ab",
-                            args = listOf(3),
-                        ),
-                        LogEntry.Satisfied(constraintId = "kova.charSequence.max", root = "", path = "", input = "ab"),
-                    )
+                        listOf(
+                            LogEntry.Violated(
+                                constraintId = "kova.charSequence.min",
+                                root = "",
+                                path = "",
+                                input = "ab",
+                                args = listOf(3),
+                            ),
+                            LogEntry.Satisfied(
+                                constraintId = "kova.charSequence.max",
+                                root = "",
+                                path = "",
+                                input = "ab",
+                            ),
+                        )
             }
         }
 
@@ -128,16 +143,21 @@ class ValidatorTest :
                 val result = tryValidate(ValidationConfig(logger = { logs.add(it) })) { validate("  ab  ") }
                 result.shouldBeFailure()
                 logs shouldBe
-                    listOf(
-                        LogEntry.Violated(
-                            constraintId = "kova.charSequence.min",
-                            root = "",
-                            path = "",
-                            input = "ab",
-                            args = listOf(3),
-                        ),
-                        LogEntry.Satisfied(constraintId = "kova.charSequence.max", root = "", path = "", input = "AB"),
-                    )
+                        listOf(
+                            LogEntry.Violated(
+                                constraintId = "kova.charSequence.min",
+                                root = "",
+                                path = "",
+                                input = "ab",
+                                args = listOf(3),
+                            ),
+                            LogEntry.Satisfied(
+                                constraintId = "kova.charSequence.max",
+                                root = "",
+                                path = "",
+                                input = "AB",
+                            ),
+                        )
             }
         }
 
@@ -236,10 +256,12 @@ class ValidatorTest :
             }
         }
 
-        context("constrain") {
+        context("constrain - with text message") {
             @IgnorableReturnValue
-            fun Validation.validate(string: String) = string.constrain("test") { satisfies(it == "OK") { text("Constraint failed") } }
-
+            fun Validation.validate(string: String) =
+                string.constrain("test") {
+                    satisfies(it == "OK", text("Constraint failed"))
+                }
             test("success") {
                 val result = tryValidate { validate("OK") }
                 result.shouldBeSuccess()
@@ -248,7 +270,29 @@ class ValidatorTest :
             test("failure") {
                 val result = tryValidate { validate("NG") }
                 result.shouldBeFailure()
-                result.messages.single().text shouldBe "Constraint failed"
+                result.messages[0].text shouldBe "Constraint failed"
+                result.messages[0].constraintId shouldBe "test"
+            }
+        }
+
+        context("constrain - with resource message") {
+            @IgnorableReturnValue
+            fun Validation.validate(
+                string: String,
+            ) = string.constrain("test") {
+                satisfies(it.isNotBlank(), "kova.charSequence.notBlank".resource)
+            }
+
+            test("success") {
+                val result = tryValidate { validate("OK") }
+                result.shouldBeSuccess()
+            }
+
+            test("failure") {
+                val result = tryValidate { validate(" ") }
+                result.shouldBeFailure()
+                result.messages[0].text shouldBe "must not be blank"
+                result.messages[0].constraintId shouldBe "test"
             }
         }
 
