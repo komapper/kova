@@ -39,13 +39,13 @@ data class Customer(
         ::id { positive(it) }
         ::firstName {
             notBlank(it)
-            min(it, 1)
-            max(it, 50)
+            minLength(it, 1)
+            maxLength(it, 50)
         }
         ::lastName {
             notBlank(it)
-            min(it, 1)
-            max(it, 50)
+            minLength(it, 1)
+            maxLength(it, 50)
         }
     }
 }
@@ -102,13 +102,13 @@ data class User(
     override fun Validation.validate() = this@User.schema {
         ::name {
             notBlank(it)
-            min(it, 1)
-            max(it, 100)
+            minLength(it, 1)
+            maxLength(it, 100)
         }
         ::email {
             notBlank(it)
             contains(it, "@")
-            min(it, 5)
+            minLength(it, 5)
         }
         ::age {
             min(it, 0)
@@ -133,7 +133,7 @@ data class Customer(val id: Int, val name: String) : Validated {
             )
         }
         ::name {
-            min(
+            minLength(
                 it,
                 1,
                 message = { text("Name is required") }
@@ -153,11 +153,11 @@ data class Address(val street: String, val city: String) : Validated {
     override fun Validation.validate() = this@Address.schema {
         ::street {
             notBlank(it)
-            min(it, 1)
+            minLength(it, 1)
         }
         ::city {
             notBlank(it)
-            min(it, 1)
+            minLength(it, 1)
         }
     }
 }
@@ -167,7 +167,7 @@ data class User(val name: String, val address: Address) : Validated {
     override fun Validation.validate() = this@User.schema {
         ::name {
             notBlank(it)
-            min(it, 1)
+            minLength(it, 1)
         }
         ::address { addr ->
             // Nested validation is handled automatically
@@ -277,13 +277,13 @@ data class Customer(val id: Int, val firstName: String, val lastName: String) : 
         ::id { positive(it) }
         ::firstName {
             notBlank(it)
-            min(it, 1)
-            max(it, 50)
+            minLength(it, 1)
+            maxLength(it, 50)
         }
         ::lastName {
             notBlank(it)
-            min(it, 1)
-            max(it, 50)
+            minLength(it, 1)
+            maxLength(it, 50)
         }
     }
 }

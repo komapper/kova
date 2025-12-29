@@ -25,7 +25,7 @@ fun Validation.buildUser(name: String, age: String) =
     factory {
         val name by bind(name) {
             notBlank(it)
-            min(it, 1)
+            minLength(it, 1)
             it
         }
         val age by bind(age) { toInt(it) }
@@ -154,15 +154,15 @@ fun Validation.buildUser(username: String, email: String, age: String) =
     factory {
         val username by bind(username) {
             notBlank(it)
-            min(it, 3)
-            max(it, 20)
+            minLength(it, 3)
+            maxLength(it, 20)
             matches(it, Regex("^[a-zA-Z0-9_]+$"))
             it
         }
         val email by bind(email) {
             notBlank(it)
             contains(it, "@")
-            min(it, 5)
+            minLength(it, 5)
             it
         }
         val age by bind(age) {
