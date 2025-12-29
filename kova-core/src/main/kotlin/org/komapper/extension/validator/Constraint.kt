@@ -45,7 +45,6 @@ data class Constraint(
      *
      * @param condition The condition to evaluate
      * @param message A MessageProvider lambda that produces the error message if the condition is false
-     * @see satisfies Overload that accepts a Message directly
      */
     fun satisfies(
         condition: Boolean,
