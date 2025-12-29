@@ -31,8 +31,8 @@ All validators are extension functions on `Validation` with **input-first parame
 ```kotlin
 tryValidate {
     notBlank(name)
-    min(name, 1)
-    max(name, 100)
+    minLength(name, 1)
+    maxLength(name, 100)
     name
 }
 ```
@@ -40,7 +40,7 @@ tryValidate {
 ### Schema Validation
 ```kotlin
 fun Validation.validate(user: User) = user.schema {
-    user::name { min(it, 1); max(it, 100) }
+    user::name { minLength(it, 1); maxLength(it, 100) }
     user::age { min(it, 0); max(it, 120) }
 }
 ```
@@ -59,7 +59,7 @@ fun Validation.buildUser(rawName: String, rawAge: String) = factory {
 data class Customer(...) : Validated {
     override fun Validation.validate() = this@Customer.schema {
         this@Customer::id { positive(it) }
-        this@Customer::name { notBlank(it); min(it, 1) }
+        this@Customer::name { notBlank(it); minLength(it, 1) }
     }
 }
 ```
