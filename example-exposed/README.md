@@ -1,27 +1,66 @@
-# Kova + Exposed Integration Example
+# Exposed ORM Integration Example
 
-This example demonstrates how to integrate **Kova** validation with **JetBrains Exposed** ORM using entity hooks.
+This example demonstrates how to integrate Kova validation with [JetBrains Exposed](https://github.com/JetBrains/Exposed) ORM using entity hooks for automatic validation.
 
 ## Overview
 
-The example shows how to automatically validate Exposed DAO entities when they are created, using Kova's `ObjectSchema` and Exposed's `EntityHook` mechanism.
+Shows how to automatically validate Exposed DAO entities when they are created, preventing invalid data from being persisted to the database. Uses Kova's schema validation with Exposed's `EntityHook` mechanism to intercept entity creation and validate before saving.
 
-## Key Components
+See the [main README](../README.md) for core validation concepts.
 
-### Entity Schemas
+## Key Features
 
-- **City.Schema**: Validates that city name is not empty
-- **User.Schema**: Validates that user name is not blank (min 1 character) and age is between 0-120
+- **Automatic validation on entity creation** - Validates entities before they're persisted
+- **EntityHook integration** - Uses Exposed's lifecycle hooks to trigger validation
+- **Prevents invalid data** - Throws `ValidationException` if validation fails
 
-### Hook Mechanism
+## How It Works
 
-The `subscribe()` extension function registers a Kova validator with Exposed's EntityHook:
+### Entity Validation
+
+Define validation schemas for your entities:
 
 ```kotlin
-fun <ID : Any, T : Entity<ID>> EntityClass<ID, T>.subscribe(validator: Validator<T, T>): (EntityChange) -> Unit
+fun Validation.validate(city: City) = city.schema {
+    city::name { notEmpty(it) }
+}
+
+fun Validation.validate(user: User) = user.schema {
+    user::name { minLength(it, 1); notBlank(it) }
+    user::age { min(it, 0); max(it, 120) }
+}
 ```
 
-This hook is triggered on entity creation and validates the entity using the provided schema. If validation fails, a `ValidationException` is thrown with detailed error messages.
+See [Object Validation](../README.md#object-validation) in the main README for more about schema validation.
+
+### Hook Registration
+
+Register validation hooks in entity companion objects:
+
+```kotlin
+class City(id: EntityID<Int>) : IntEntity(id) {
+    var name by Cities.name
+
+    companion object : IntEntityClass<City>(Cities) {
+        init {
+            subscribe { validate(it) }
+        }
+    }
+}
+```
+
+The `subscribe()` extension function integrates Kova with Exposed's EntityHook:
+
+```kotlin
+fun <ID : Any, T : Entity<ID>> EntityClass<ID, T>.subscribe(
+    validate: Validation.(T) -> Unit
+): (EntityChange) -> Unit
+```
+
+This hook:
+1. Intercepts entity creation events
+2. Validates the entity using the provided schema
+3. Throws `ValidationException` if validation fails, preventing the entity from being saved
 
 ## Running the Example
 
@@ -29,26 +68,13 @@ This hook is triggered on entity creation and validates the entity using the pro
 ./gradlew example-exposed:run
 ```
 
-The main function demonstrates three scenarios:
+The example demonstrates three scenarios:
 
 1. **Success**: Valid city and user creation
 2. **Invalid City**: Empty city name triggers validation error
-3. **Invalid User**: Empty user name and negative age trigger multiple validation errors
+3. **Invalid User**: Empty name and negative age trigger multiple validation errors
 
-## Output
+## See Also
 
-The example prints validation errors with detailed information:
-
-```
-Message(constraintId=kova.charSequence.notEmpty, text='must not be empty', root=example.City, path=name, input=, args=[])
-
-Message(constraintId=kova.charSequence.min, text='must be at least 1 characters', root=example.User, path=name, input=, args=[(length, 1)])
-Message(constraintId=kova.charSequence.notBlank, text='must not be blank', root=example.User, path=name, input=, args=[])
-Message(constraintId=kova.comparable.min, text='must be greater than or equal to 0', root=example.User, path=age, input=-1, args=[(value, 0)])
-```
-
-## Dependencies
-
-- Kova Core
-- Exposed DAO & JDBC
-- H2 Database (in-memory)
+- [Main README](../README.md) - Core validation concepts and available validators
+- [Exposed Documentation](https://github.com/JetBrains/Exposed) - JetBrains Exposed ORM
