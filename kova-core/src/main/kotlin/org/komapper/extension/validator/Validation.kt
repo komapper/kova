@@ -633,7 +633,6 @@ inline fun <R> Validation.mapEachMessage(
     block: Validation.() -> R,
 ): R = block(copy(acc = { accumulate(it.map(transform)) }))
 
-
 /**
  * Represents a path through the object graph during validation.
  *
