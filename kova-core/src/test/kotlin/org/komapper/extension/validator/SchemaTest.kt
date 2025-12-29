@@ -388,7 +388,7 @@ class SchemaTest :
             fun Validation.validate(node: Node) {
                 node.schema {
                     node::children {
-                        max(it, 3)
+                        maxSize(it, 3)
                         onEach(it) { child -> validate(child) }
                     }
                 }

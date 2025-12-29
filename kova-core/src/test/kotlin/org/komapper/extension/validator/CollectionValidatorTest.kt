@@ -43,8 +43,8 @@ class CollectionValidatorTest :
 
         context("and") {
             fun Validation.validate(list: List<*>) {
-                min(list, 2)
-                min(list, 3)
+                minSize(list, 2)
+                minSize(list, 3)
             }
 
             test("success") {
@@ -56,8 +56,8 @@ class CollectionValidatorTest :
                 val result = tryValidate { validate(listOf("1")) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 2
-                result.messages[0].constraintId shouldBe "kova.collection.min"
-                result.messages[1].constraintId shouldBe "kova.collection.min"
+                result.messages[0].constraintId shouldBe "kova.collection.minSize"
+                result.messages[1].constraintId shouldBe "kova.collection.minSize"
             }
         }
 

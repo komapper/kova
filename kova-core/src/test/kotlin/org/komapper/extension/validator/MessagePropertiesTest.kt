@@ -198,17 +198,17 @@ class MessagePropertiesTest :
         }
 
         context("kova.collection") {
-            test("min") {
-                val result = tryValidate { min(listOf("a", "b"), 3) }
+            test("minSize") {
+                val result = tryValidate { minSize(listOf("a", "b"), 3) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "Collection (size 2) must have at least 3 elements"
             }
 
-            test("min with message") {
+            test("minSize with message") {
                 val result =
                     tryValidate {
-                        min(
+                        minSize(
                             listOf("a", "b"),
                             3,
                         ) { text("Collection (size $it) must have at least 3 elements") }
@@ -218,17 +218,17 @@ class MessagePropertiesTest :
                 message.text shouldBe "Collection (size 2) must have at least 3 elements"
             }
 
-            test("max") {
-                val result = tryValidate { max(listOf("a", "b", "c", "d"), 3) }
+            test("maxSize") {
+                val result = tryValidate { maxSize(listOf("a", "b", "c", "d"), 3) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "Collection (size 4) must have at most 3 elements"
             }
 
-            test("max with message") {
+            test("maxSize with message") {
                 val result =
                     tryValidate {
-                        max(
+                        maxSize(
                             listOf("a", "b", "c", "d"),
                             3,
                         ) { text("Collection (size $it) must have at most 3 elements") }

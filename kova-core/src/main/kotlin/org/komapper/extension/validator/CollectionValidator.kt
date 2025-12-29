@@ -7,38 +7,38 @@ typealias SizeMessageProvider = (actualSize: Int) -> Message
  *
  * Example:
  * ```kotlin
- * tryValidate { min(listOf("a", "b", "c"), 2) } // Success
- * tryValidate { min(listOf("a"), 2) }           // Failure
+ * tryValidate { minSize(listOf("a", "b", "c"), 2) } // Success
+ * tryValidate { minSize(listOf("a"), 2) }           // Failure
  * ```
  *
  * @param size Minimum collection size (inclusive)
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun Validation.min(
+fun Validation.minSize(
     input: Collection<*>,
     size: Int,
-    message: SizeMessageProvider = { "kova.collection.min".resource(it, size) },
-) = input.constrain("kova.collection.min") { satisfies(it.size >= size) { message(it.size) } }
+    message: SizeMessageProvider = { "kova.collection.minSize".resource(it, size) },
+) = input.constrain("kova.collection.minSize") { satisfies(it.size >= size) { message(it.size) } }
 
 /**
  * Validates that the collection size does not exceed the specified maximum.
  *
  * Example:
  * ```kotlin
- * tryValidate { max(listOf("a", "b"), 3) }            // Success
- * tryValidate { max(listOf("a", "b", "c", "d"), 3) }  // Failure
+ * tryValidate { maxSize(listOf("a", "b"), 3) }            // Success
+ * tryValidate { maxSize(listOf("a", "b", "c", "d"), 3) }  // Failure
  * ```
  *
  * @param size Maximum collection size (inclusive)
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun Validation.max(
+fun Validation.maxSize(
     input: Collection<*>,
     size: Int,
-    message: SizeMessageProvider = { "kova.collection.max".resource(it, size) },
-) = input.constrain("kova.collection.max") { satisfies(it.size <= size) { message(it.size) } }
+    message: SizeMessageProvider = { "kova.collection.maxSize".resource(it, size) },
+) = input.constrain("kova.collection.maxSize") { satisfies(it.size <= size) { message(it.size) } }
 
 /**
  * Validates that the collection is not empty.
