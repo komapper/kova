@@ -1,9 +1,15 @@
 package org.komapper.extension.validator
 
 import io.kotest.core.spec.style.FunSpec
+import java.util.Locale
 
 class MessageProviderTest :
     FunSpec({
+
+        beforeSpec {
+            Locale.setDefault(Locale.US)
+        }
+
         context("MessageProvider") {
             val input = "abc"
 

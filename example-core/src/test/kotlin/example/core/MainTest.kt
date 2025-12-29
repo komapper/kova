@@ -46,11 +46,11 @@ class MainTest :
                 val result = tryValidate { validate(user) }
 
                 result.shouldBeFailure()
-                val messages = result.messages.map { it.text }
-                messages.size shouldBe 3
-                messages.any { it.contains("at least 1 characters") } shouldBe true
-                messages.any { it.contains("must not be blank") } shouldBe true
-                messages.any { it.contains("greater than or equal to 0") } shouldBe true
+                val ids = result.messages.map { it.constraintId }
+                ids.size shouldBe 3
+                ids[0] shouldBe "kova.charSequence.minLength"
+                ids[1] shouldBe "kova.charSequence.notBlank"
+                ids[2] shouldBe "kova.comparable.min"
             }
 
             test("failure - age exceeds maximum") {
@@ -58,8 +58,9 @@ class MainTest :
                 val result = tryValidate { validate(user) }
 
                 result.shouldBeFailure()
-                val messages = result.messages.map { it.text }
-                messages.any { it.contains("less than or equal to 120") } shouldBe true
+                val ids = result.messages.map { it.constraintId }
+                ids.size shouldBe 1
+                ids[0] shouldBe "kova.comparable.max"
             }
         }
 

@@ -4,9 +4,14 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.equals.shouldBeEqual
 import io.kotest.matchers.nulls.shouldNotBeNull
 import java.time.LocalDate
+import java.util.Locale
 
 class SchemaTest :
     FunSpec({
+
+        beforeSpec {
+            Locale.setDefault(Locale.US)
+        }
 
         data class User(
             val id: Int,
