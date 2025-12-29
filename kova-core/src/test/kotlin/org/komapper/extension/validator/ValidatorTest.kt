@@ -260,7 +260,7 @@ class ValidatorTest :
             @IgnorableReturnValue
             fun Validation.validate(string: String) =
                 string.constrain("test") {
-                    satisfies(it == "OK", text("Constraint failed"))
+                    satisfies(it == "OK") { text("Constraint failed") }
                 }
             test("success") {
                 val result = tryValidate { validate("OK") }
@@ -279,7 +279,7 @@ class ValidatorTest :
             @IgnorableReturnValue
             fun Validation.validate(string: String) =
                 string.constrain("test") {
-                    satisfies(it.isNotBlank(), "kova.charSequence.notBlank".resource)
+                    satisfies(it.isNotBlank()) { "kova.charSequence.notBlank".resource }
                 }
 
             test("success") {
