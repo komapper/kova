@@ -448,17 +448,17 @@ class MessagePropertiesTest :
         }
 
         context("kova.map") {
-            test("min") {
-                val result = tryValidate { min(mapOf("a" to 1, "b" to 2), 3) }
+            test("minSize") {
+                val result = tryValidate { minSize(mapOf("a" to 1, "b" to 2), 3) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "Map (size 2) must have at least 3 entries"
             }
 
-            test("min with message") {
+            test("minSize with message") {
                 val result =
                     tryValidate {
-                        min(
+                        minSize(
                             mapOf("a" to 1, "b" to 2),
                             3,
                         ) { text("Map (size $it) must have at least 3 entries") }
@@ -468,17 +468,17 @@ class MessagePropertiesTest :
                 message.text shouldBe "Map (size 2) must have at least 3 entries"
             }
 
-            test("max") {
-                val result = tryValidate { max(mapOf("a" to 1, "b" to 2, "c" to 3), 2) }
+            test("maxSize") {
+                val result = tryValidate { maxSize(mapOf("a" to 1, "b" to 2, "c" to 3), 2) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "Map (size 3) must have at most 2 entries"
             }
 
-            test("max with message") {
+            test("maxSize with message") {
                 val result =
                     tryValidate {
-                        max(
+                        maxSize(
                             mapOf(
                                 "a" to 1,
                                 "b" to 2,

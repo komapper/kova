@@ -5,8 +5,8 @@ package org.komapper.extension.validator
  *
  * Example:
  * ```kotlin
- * tryValidate { min(mapOf("a" to 1, "b" to 2, "c" to 3), 2) } // Success
- * tryValidate { min(mapOf("a" to 1), 2) }                     // Failure
+ * tryValidate { minSize(mapOf("a" to 1, "b" to 2, "c" to 3), 2) } // Success
+ * tryValidate { minSize(mapOf("a" to 1), 2) }                     // Failure
  * ```
  *
  * @param size Minimum map size (inclusive)
@@ -14,19 +14,19 @@ package org.komapper.extension.validator
  * @return A new validator with the minimum size constraint
  */
 @IgnorableReturnValue
-fun Validation.min(
+fun Validation.minSize(
     input: Map<*, *>,
     size: Int,
-    message: SizeMessageProvider = { "kova.map.min".resource(it, size) },
-) = input.constrain("kova.map.min") { satisfies(it.size >= size) { message(it.size) } }
+    message: SizeMessageProvider = { "kova.map.minSize".resource(it, size) },
+) = input.constrain("kova.map.minSize") { satisfies(it.size >= size) { message(it.size) } }
 
 /**
  * Validates that the map size does not exceed the specified maximum.
  *
  * Example:
  * ```kotlin
- * tryValidate { max(mapOf("a" to 1, "b" to 2), 3) }                   // Success
- * tryValidate { max(mapOf("a" to 1, "b" to 2, "c" to 3, "d" to 4), 3) } // Failure
+ * tryValidate { maxSize(mapOf("a" to 1, "b" to 2), 3) }                   // Success
+ * tryValidate { maxSize(mapOf("a" to 1, "b" to 2, "c" to 3, "d" to 4), 3) } // Failure
  * ```
  *
  * @param size Maximum map size (inclusive)
@@ -34,11 +34,11 @@ fun Validation.min(
  * @return A new validator with the maximum size constraint
  */
 @IgnorableReturnValue
-fun Validation.max(
+fun Validation.maxSize(
     input: Map<*, *>,
     size: Int,
-    message: SizeMessageProvider = { "kova.map.max".resource(it, size) },
-) = input.constrain("kova.map.max") { satisfies(it.size <= size) { message(it.size) } }
+    message: SizeMessageProvider = { "kova.map.maxSize".resource(it, size) },
+) = input.constrain("kova.map.maxSize") { satisfies(it.size <= size) { message(it.size) } }
 
 /**
  * Validates that the map is not empty.
