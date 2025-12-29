@@ -9,25 +9,46 @@ import org.komapper.extension.validator.notBlank
 import org.komapper.extension.validator.notNegative
 import org.komapper.extension.validator.tryValidate
 
+/**
+ * Simple data class for demonstrating basic schema validation.
+ * Shows validation of primitive properties (String and Int).
+ */
 data class User(
     val name: String,
     val age: Int,
 )
 
+/**
+ * Value object for age, used to demonstrate nested schema validation.
+ */
 data class Age(
     val value: Int,
 )
 
+/**
+ * Data class containing a nested object (Age).
+ * Demonstrates how Kova handles nested schema validation.
+ */
 data class Person(
     val name: String,
     val age: Age,
 )
 
+/**
+ * Data class for demonstrating cross-property validation.
+ * Shows how to validate relationships between multiple properties.
+ */
 data class PriceRange(
     val minPrice: Double,
     val maxPrice: Double,
 )
 
+/**
+ * Schema validation for User.
+ * Validates that:
+ * - name is not blank and has minimum length of 1
+ * - age is between 0 and 120
+ */
 fun Validation.validate(user: User) =
     user.schema {
         user::name {
@@ -40,6 +61,10 @@ fun Validation.validate(user: User) =
         }
     }
 
+/**
+ * Schema validation for Age value object.
+ * Validates that the value is between 0 and 120.
+ */
 fun Validation.validate(age: Age) =
     age.schema {
         age::value {
@@ -48,6 +73,11 @@ fun Validation.validate(age: Age) =
         }
     }
 
+/**
+ * Schema validation for Person with nested object.
+ * Demonstrates how to reuse validators - the age property uses validate(Age).
+ * This creates a nested validation path (e.g., "age.value").
+ */
 fun Validation.validate(person: Person) =
     person.schema {
         person::name {
@@ -57,6 +87,11 @@ fun Validation.validate(person: Person) =
         person::age { validate(it) }
     }
 
+/**
+ * Schema validation with cross-property constraint.
+ * Validates individual properties first, then checks the relationship
+ * between minPrice and maxPrice using a custom constraint.
+ */
 fun Validation.validate(range: PriceRange) =
     range.schema {
         range::minPrice { notNegative(it) }
@@ -69,41 +104,59 @@ fun Validation.validate(range: PriceRange) =
         }
     }
 
+/**
+ * Main function demonstrating various Kova validation scenarios.
+ *
+ * This example demonstrates:
+ * 1. Basic schema validation - validating primitive properties
+ * 2. Nested schema validation - validating objects containing other objects
+ * 3. Cross-property validation - validating relationships between properties
+ *
+ * All examples use tryValidate() which returns ValidationResult (Success or Failure).
+ * For each scenario, both successful and failing cases are shown.
+ */
 fun main() {
-    println("\n# Validation")
+    println("\n# Example 1: Basic schema validation")
 
+    // Valid user - name is not blank and age is within range
     tryValidate { validate(User("a", 10)) }.printResult()
-    // ## Success
-    // User(name=a, age=10)
 
+    // Invalid user - name is blank and age is negative
+    // Shows how multiple validation errors are collected
     tryValidate { validate(User("  ", -1)) }.printResult()
-    // ## Failure
-    // Message(constraintId=kova.charSequence.notBlank, text='must not be blank', root=example.User, path=name, input=  , args=[])
-    // Message(constraintId=kova.comparable.min, text='must be greater than or equal to 0', root=example.User, path=age, input=-1, args=[0])
 
-    println("\n# Validation(nested object schema)")
+    println("\n# Example 2: Nested schema validation")
 
+    // Valid person - both name and nested age object are valid
     tryValidate { validate(Person("a", Age(10))) }.printResult()
-    // ## Success
-    // Person(name=a, age=Age(value=10))
 
+    // Invalid person - demonstrates nested validation path
+    // Notice how the path "age.value" shows the nested property location
     tryValidate { validate(Person("  ", Age(-1))) }.printResult()
-    // ## Failure
-    // Message(constraintId=kova.charSequence.notBlank, text='must not be blank', root=example.Person, path=name, input=  , args=[])
-    // Message(constraintId=kova.comparable.min, text='must be greater than or equal to 0', root=example.Person, path=age.value, input=-1, args=[0])
 
+    println("\n# Example 3: Cross-property validation")
+
+    // Valid price range - minPrice <= maxPrice
     tryValidate { validate(PriceRange(10.0, 20.0)) }.printResult()
-    // ## Success
 
+    // Invalid price range - minPrice > maxPrice violates the relationship constraint
     tryValidate { validate(PriceRange(30.0, 20.0)) }.printResult()
-    // ## Failure
-    // Message(text='minPrice must be less than or equal to maxPrice', root=example.core.PriceRange, path=, input=PriceRange(minPrice=30.0, maxPrice=20.0))
 }
 
+/**
+ * Helper function to print validation results in a readable format.
+ * Displays "Success" for valid data or "Failure" with detailed error messages.
+ *
+ * Error messages include:
+ * - constraintId: the validation rule that failed
+ * - text: human-readable error message
+ * - path: the property path where the error occurred
+ * - input: the actual value that failed validation
+ * - args: arguments passed to the constraint (e.g., min/max values)
+ */
 private fun ValidationResult<*>.printResult() {
     if (isSuccess()) {
         println("## Success")
-        println("${this.value}")
     } else {
         println("## Failure")
         println(this.messages.joinToString("\n"))
