@@ -45,7 +45,7 @@ inline fun <T> Validation.isNullOr(
 fun <T> Validation.notNull(
     input: T,
     message: MessageProvider = { "kova.nullable.notNull".resource },
-) = input.constrain("kova.nullable.notNull") { toNonNullable(input, message) }
+) = input.constrain("kova.nullable.notNull") { satisfies(it != null, message) }
 
 /**
  * Converts a nullable input to a non-nullable output.
@@ -69,8 +69,34 @@ fun <T> Validation.notNull(
 fun <T> Validation.toNonNullable(
     input: T,
     message: MessageProvider = { "kova.nullable.notNull".resource },
+): T & Any = toNonNullable(input, "kova.nullable.notNull", message)
+
+/**
+ * Converts a nullable input to a non-nullable output with a custom constraint ID.
+ *
+ * This is an internal overload that allows specifying a custom constraint ID
+ * for the null check validation. It validates that the input is not null and
+ * converts the output type from `T?` to `T & Any`.
+ *
+ * This overload is primarily used internally when building custom validators
+ * that need to use a specific constraint ID for error reporting.
+ *
+ * @param input The nullable input value to validate and convert
+ * @param constraintId Custom constraint ID for the validation error
+ * @param message Custom error message provider
+ * @return The non-null input value with type `T & Any`
+ */
+@IgnorableReturnValue
+fun <T> Validation.toNonNullable(
+    input: T,
+    constraintId: String,
+    message: MessageProvider,
 ): T & Any {
     contract { returns() implies (input != null) }
-    Constraint(this).satisfies(input != null, message)
-    return input
+    val accumulateValue =
+        input.constrain(constraintId) {
+            satisfies(input != null, message)
+            input
+        }
+    return accumulateValue.value
 }

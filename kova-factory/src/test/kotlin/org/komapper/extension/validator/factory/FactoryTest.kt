@@ -68,9 +68,14 @@ class FactoryTest :
                 val last: Name,
             )
 
+            data class Age(
+                val value: Int,
+            )
+
             data class User(
                 val id: Int,
                 val fullName: FullName,
+                val age: Age,
             )
 
             fun Validation.buildName(value: String) =
@@ -91,32 +96,42 @@ class FactoryTest :
                 FullName(first, last)
             }
 
+            fun Validation.buildAge(value: String) =
+                factory {
+                    val value by bind(value) { toInt(it) }
+                    Age(value)
+                }
+
             fun Validation.buildUser(
                 id: String,
                 firstName: String,
                 lastName: String,
+                age: String,
             ) = factory {
                 val id by bind(id) { toInt(it) }
                 val fullName by bind { buildFullName(firstName, lastName) }
-                User(id, fullName)
+                val age by bind { buildAge(age) }
+                User(id, fullName, age)
             }
 
             test("success") {
-                val result = tryValidate { buildUser("1", "abc", "def") }
+                val result = tryValidate { buildUser("1", "abc", "def", "20") }
                 result.shouldBeSuccess()
-                result.value shouldBe User(1, FullName(Name("abc"), Name("def")))
+                result.value shouldBe User(1, FullName(Name("abc"), Name("def")), Age(20))
             }
             test("failure") {
-                val result = tryValidate { buildUser("1", "", "") }
+                val result = tryValidate { buildUser("1", "", "", "abc") }
                 result.shouldBeFailure()
-                result.messages.size shouldBe 2
+                result.messages.size shouldBe 3
                 result.messages[0].constraintId shouldBe "kova.charSequence.notBlank"
                 result.messages[0].path.fullName shouldBe "fullName.first.value"
                 result.messages[1].constraintId shouldBe "kova.charSequence.notBlank"
                 result.messages[1].path.fullName shouldBe "fullName.last.value"
+                result.messages[2].constraintId shouldBe "kova.string.isInt"
+                result.messages[2].path.fullName shouldBe "age.value"
             }
             test("failure - fail fast") {
-                val result = tryValidate(config = ValidationConfig(failFast = true)) { buildUser("1", "", "") }
+                val result = tryValidate(config = ValidationConfig(failFast = true)) { buildUser("1", "", "", "") }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.charSequence.notBlank"

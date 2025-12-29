@@ -220,7 +220,10 @@ fun <E : Enum<E>> Validation.toEnum(
     klass: KClass<E>,
     message: (validNames: List<String>) -> Message = { "kova.string.isEnum".resource(it) },
 ): E =
-    toNonNullable(runCatching { java.lang.Enum.valueOf(klass.java, input) }.getOrNull()) {
+    toNonNullable(
+        runCatching { java.lang.Enum.valueOf(klass.java, input) }.getOrNull(),
+        "kova.string.isEnum",
+    ) {
         message(klass.java.enumConstants.map { enum -> enum.name })
     }
 
@@ -272,7 +275,7 @@ fun Validation.lowercase(
 fun Validation.toInt(
     input: String,
     message: MessageProvider = { "kova.string.isInt".resource },
-) = toNonNullable(input.toIntOrNull(), message)
+) = toNonNullable(input.toIntOrNull(), "kova.string.isInt", message)
 
 /**
  * Validates that the string can be parsed as a Long and converts it.
@@ -288,7 +291,7 @@ fun Validation.toInt(
 fun Validation.toLong(
     input: String,
     message: MessageProvider = { "kova.string.isLong".resource },
-) = toNonNullable(input.toLongOrNull(), message)
+) = toNonNullable(input.toLongOrNull(), "kova.string.isLong", message)
 
 /**
  * Validates that the string can be parsed as a Short and converts it.
@@ -304,7 +307,7 @@ fun Validation.toLong(
 fun Validation.toShort(
     input: String,
     message: MessageProvider = { "kova.string.isShort".resource },
-) = toNonNullable(input.toShortOrNull(), message)
+) = toNonNullable(input.toShortOrNull(), "kova.string.isShort", message)
 
 /**
  * Validates that the string can be parsed as a Byte and converts it.
@@ -320,7 +323,7 @@ fun Validation.toShort(
 fun Validation.toByte(
     input: String,
     message: MessageProvider = { "kova.string.isByte".resource },
-) = toNonNullable(input.toByteOrNull(), message)
+) = toNonNullable(input.toByteOrNull(), "kova.string.isByte", message)
 
 /**
  * Validates that the string can be parsed as a Double and converts it.
@@ -336,7 +339,7 @@ fun Validation.toByte(
 fun Validation.toDouble(
     input: String,
     message: MessageProvider = { "kova.string.isDouble".resource },
-) = toNonNullable(input.toDoubleOrNull(), message)
+) = toNonNullable(input.toDoubleOrNull(), "kova.string.isDouble", message)
 
 /**
  * Validates that the string can be parsed as a Float and converts it.
@@ -352,7 +355,7 @@ fun Validation.toDouble(
 fun Validation.toFloat(
     input: String,
     message: MessageProvider = { "kova.string.isFloat".resource },
-) = toNonNullable(input.toFloatOrNull(), message)
+) = toNonNullable(input.toFloatOrNull(), "kova.string.isFloat", message)
 
 /**
  * Validates that the string can be parsed as a BigDecimal and converts it.
@@ -368,7 +371,7 @@ fun Validation.toFloat(
 fun Validation.toBigDecimal(
     input: String,
     message: MessageProvider = { "kova.string.isBigDecimal".resource },
-) = toNonNullable(input.toBigDecimalOrNull(), message)
+) = toNonNullable(input.toBigDecimalOrNull(), "kova.string.isBigDecimal", message)
 
 /**
  * Validates that the string can be parsed as a BigInteger and converts it.
@@ -384,7 +387,7 @@ fun Validation.toBigDecimal(
 fun Validation.toBigInteger(
     input: String,
     message: MessageProvider = { "kova.string.isBigInteger".resource },
-) = toNonNullable(input.toBigIntegerOrNull(), message)
+) = toNonNullable(input.toBigIntegerOrNull(), "kova.string.isBigInteger", message)
 
 /**
  * Validates that the string can be parsed as a Boolean and converts it.
@@ -401,4 +404,4 @@ fun Validation.toBigInteger(
 fun Validation.toBoolean(
     input: String,
     message: MessageProvider = { "kova.string.isBoolean".resource },
-) = toNonNullable(input.toBooleanStrictOrNull(), message)
+) = toNonNullable(input.toBooleanStrictOrNull(), "kova.string.isBoolean", message)
