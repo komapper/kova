@@ -394,6 +394,22 @@ isNullOr(email) { contains(it, "@") }
 val name = toNonNullable(nullableName)
 ```
 
+### Conditional Validation with `or` and `orElse`
+
+Try the first validation; if it fails, try the next. Useful for alternative validation rules.
+
+```kotlin
+// Accept either domestic or international phone format
+fun Validation.validatePhone(phone: String) =
+    or { matches(phone, Regex("^\\d{3}-\\d{4}$")) }
+        .orElse { matches(phone, Regex("^\\+\\d{1,3}-\\d+$")) }
+
+// Chain multiple alternatives
+or { matches(id, Regex("^[a-z]+$")) }
+    .or { matches(id, Regex("^\\d+$")) }
+    .orElse { matches(id, Regex("^[A-Z]+$")) }
+```
+
 ### Wrapping Errors with `withMessage`
 
 The `withMessage` function wraps validation logic and consolidates multiple errors into a single custom message. This is useful when you want to present a higher-level error message instead of detailed field-level errors:
