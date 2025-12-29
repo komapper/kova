@@ -38,20 +38,39 @@ dependencies {
 
 ### Basic Validation
 
+Validate individual values by calling validator functions within a `tryValidate` block. Each validator is an extension function on `Validation` that takes the input as the first parameter.
+
 ```kotlin
 import org.komapper.extension.validator.*
 
 val result = tryValidate {
     val name = "Wireless Mouse"
     notBlank(name)
-    min(name, 1)
-    max(name, 100)
+    minLength(name, 1)
+    maxLength(name, 100)
     name
 }
 
 when {
     result.isSuccess() -> println("Valid: ${result.value}")
-    else -> result.messages.forEach { println("Error: ${it.text}") }
+    else -> result.messages.forEach { println("Error: $it") }
+}
+```
+
+Alternatively, use `validate` to get the value directly or throw a `ValidationException`:
+
+```kotlin
+try {
+    val name = validate {
+        val name = "Wireless Mouse"
+        notBlank(name)
+        minLength(name, 1)
+        maxLength(name, 100)
+        name
+    }
+    println("Valid: $name")
+} catch (e: ValidationException) {
+    e.messages.forEach { println("Error: $it") }
 }
 ```
 
@@ -61,7 +80,7 @@ Define extension functions on `Validation` for reusable validation logic:
 
 ```kotlin
 fun Validation.validatePassword(password: String) {
-    min(password, 8)
+    minLength(password, 8)
     matches(password, Regex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$"))
 }
 
@@ -70,26 +89,70 @@ val result = tryValidate { validatePassword("SecurePass123") }
 
 ### Object Validation
 
+Validate data class properties using the `schema` function.
+
 ```kotlin
 data class Product(val id: Int, val name: String, val price: Double)
 
-fun Validation.validateProduct(product: Product) = product.schema {
+fun Validation.validate(product: Product) = product.schema {
     product::id { min(it, 1) }
-    product::name { notBlank(it); min(it, 1); max(it, 100) }
+    product::name { notBlank(it); minLength(it, 1); maxLength(it, 100) }
     product::price { min(it, 0.0) }
 }
 
-val result = tryValidate { validateProduct(Product(1, "Mouse", 29.99)) }
+val result = tryValidate { validate(Product(1, "Mouse", 29.99)) }
 ```
 
-**Cross-property validation** validates relationships between multiple properties:
+#### Nested object validation
+
+Validate nested objects by calling their validation functions within the parent's schema. Error messages include the full path to the failed property:
+
+```kotlin
+data class Address(val street: String, val city: String, val zipCode: String)
+data class Customer(val name: String, val email: String, val address: Address)
+
+fun Validation.validate(address: Address) = address.schema {
+    address::street { notBlank(it); minLength(it, 1) }
+    address::city { notBlank(it); minLength(it, 1) }
+    address::zipCode { matches(it, Regex("^\\d{5}(-\\d{4})?$")) }
+}
+
+fun Validation.validate(customer: Customer) = customer.schema {
+    customer::name { notBlank(it); minLength(it, 1); maxLength(it, 100) }
+    customer::email { notBlank(it); contains(it, "@") }
+    customer::address { validate(it) }  // Nested validation
+}
+
+val result = tryValidate {
+    validate(Customer(
+        name = "John Doe",
+        email = "invalid-email",
+        address = Address(street = "", city = "Tokyo", zipCode = "123")
+    ))
+}
+
+if (!result.isSuccess()) {
+    result.messages.forEach { println(it) }
+    // Message(constraintId=kova.charSequence.contains, text='must contain "@"', root=Customer, path=email, input=invalid-email, args=[@])
+    // Message(constraintId=kova.charSequence.notBlank, text='must not be blank', root=Customer, path=address.street, input=, args=[])
+    // Message(constraintId=kova.charSequence.minLength, text='must be at least 1 characters', root=Customer, path=address.street, input=, args=[1])
+    // Message(constraintId=kova.charSequence.matches, text='must match pattern: ^\d{5}(-\d{4})?$', root=Customer, path=address.zipCode, input=123, args=[^\d{5}(-\d{4})?$])
+}
+```
+
+Notice how the error messages show the full path (e.g., `address.street`, `address.zipCode`) to pinpoint exactly where validation failed in the nested structure.
+
+#### Cross-property validation
+
+Validates relationships between multiple properties using `constrain` within a `schema` block:
 
 ```kotlin
 data class PriceRange(val minPrice: Double, val maxPrice: Double)
 
-fun Validation.validatePriceRange(range: PriceRange) = range.schema {
+fun Validation.validate(range: PriceRange) = range.schema {
     range::minPrice { notNegative(it) }
     range::maxPrice { notNegative(it) }
+
     // Validate relationship
     range.constrain("priceRange") {
         satisfies(it.minPrice <= it.maxPrice) {
@@ -98,7 +161,7 @@ fun Validation.validatePriceRange(range: PriceRange) = range.schema {
     }
 }
 
-val result = tryValidate { validatePriceRange(PriceRange(10.0, 100.0)) }
+val result = tryValidate { validate(PriceRange(10.0, 100.0)) }
 ```
 
 ## Factory Validation
@@ -111,7 +174,7 @@ import org.komapper.extension.validator.factory.*
 data class User(val name: String, val age: Int)
 
 fun Validation.buildUser(name: String, age: String) = factory {
-    val name by bind(name) { notBlank(it); min(it, 1); it }
+    val name by bind(name) { notBlank(it); minLength(it, 1); it }
     val age by bind(age) { toInt(it) }
     User(name, age)
 }
@@ -119,12 +182,7 @@ fun Validation.buildUser(name: String, age: String) = factory {
 val result = tryValidate { buildUser("Alice", "25") }
 ```
 
-**Key features:**
-- Type-safe construction with automatic path tracking via property delegation
-- Composable factories for building complex nested object hierarchies
-- Validates and transforms inputs before object creation
-
-For detailed documentation including nested factories, error reporting, and advanced usage patterns, see **[kova-factory/README.md](kova-factory/README.md)**.
+For detailed documentation, see **[kova-factory/README.md](kova-factory/README.md)**.
 
 ## Ktor Integration
 
@@ -136,9 +194,9 @@ data class Customer(val id: Int, val name: String) : Validated {
     override fun Validation.validate() = validate(this@Customer)
 }
 
-fun Validation.validateCustomer(customer: Customer) = customer.schema {
+fun Validation.validate(customer: Customer) = customer.schema {
     customer::id { positive(it) }
-    customer::name { notBlank(it); min(it, 1); max(it, 50) }
+    customer::name { notBlank(it); minLength(it, 1); maxLength(it, 50) }
 }
 
 fun Application.module() {
@@ -165,10 +223,15 @@ All validators are extension functions on `Validation` that take the input as th
 
 ### String & CharSequence
 
+Supported types: `String`, `CharSequence`
+
 ```kotlin
-min(input, 1)                       // Minimum length
-max(input, 100)                     // Maximum length
+// Length validation
+minLength(input, 1)                 // Minimum length
+maxLength(input, 100)               // Maximum length
 length(input, 10)                   // Exact length
+
+// Content validation
 blank(input)                        // Must be blank (empty or whitespace only)
 notBlank(input)                     // Must not be blank
 empty(input)                        // Must be empty
@@ -183,6 +246,16 @@ matches(input, Regex("\\d+"))       // Must match regex
 notMatches(input, Regex("\\d+"))    // Must not match regex
 uppercase(input)                    // Must be uppercase
 lowercase(input)                    // Must be lowercase
+
+// Comparable validation
+min(input, "a")                     // Minimum value (>= "a")
+max(input, "z")                     // Maximum value (<= "z")
+gt(input, "a")                      // Greater than (> "a")
+gte(input, "a")                     // Greater than or equal (>= "a")
+lt(input, "z")                      // Less than (< "z")
+lte(input, "z")                     // Less than or equal (<= "z")
+eq(input, "value")                  // Equal to (== "value")
+notEq(input, "value")               // Not equal to (!= "value")
 
 // String-specific validation
 isInt(input)                        // Validates string is valid Int
@@ -252,8 +325,8 @@ pastOrPresent(input)                      // Must be in the past or present
 Supported types: `List`, `Set`, `Collection`
 
 ```kotlin
-min(input, 1)                       // Minimum size
-max(input, 10)                      // Maximum size
+minSize(input, 1)                   // Minimum size
+maxSize(input, 10)                  // Maximum size
 size(input, 5)                      // Exact size
 notEmpty(input)                     // Must not be empty
 contains(input, "foo")              // Must contain element (alias: has)
@@ -266,8 +339,8 @@ onEach(input) { element ->          // Validate each element
 ### Maps
 
 ```kotlin
-min(input, 1)                       // Minimum size
-max(input, 10)                      // Maximum size
+minSize(input, 1)                   // Minimum size
+maxSize(input, 10)                  // Maximum size
 size(input, 5)                      // Exact size
 notEmpty(input)                     // Must not be empty
 containsKey(input, "foo")           // Must contain key (alias: hasKey)
@@ -293,7 +366,7 @@ toNonNullable(input)                // Convert nullable to non-nullable (fails i
 
 ### Comparable Types
 
-Supported types: `UInt`, `ULong`, `UByte`, `UShort`
+Supports all `Comparable` types, such as `UInt`, `ULong`, `UByte`, and `UShort`.
 
 ```kotlin
 min(input, 0u)                      // Minimum value (>= 0u)
@@ -311,6 +384,7 @@ notEq(input, 0u)                    // Not equal to (!= 0u)
 ```kotlin
 literal(input, "completed")         // Must equal specific value
 literal(input, "a", "b", "c")       // Must be one of allowed values
+literal(input, listOf("a", "b", "c"))  // Must be one of allowed values (from List)
 ```
 
 ## Error Handling
@@ -319,24 +393,76 @@ literal(input, "a", "b", "c")       // Must be one of allowed values
 
 ```kotlin
 val result = tryValidate {
-    val password = "pass"
-    min(password, 8)
+    val username = "joe"
+    minLength(username, 5)
 }
 
 if (!result.isSuccess()) {
-    result.messages.forEach { message ->
-        println("${message.path}: ${message.text}")
+    result.messages.forEach {
+        println(it)
+        // Message(constraintId=kova.charSequence.minLength, text='must be at least 5 characters', root=, path=, input=joe, args=[5])
     }
 }
 ```
 
-### Fail-Fast Mode
+### Validation Configuration
+
+You can customize validation behavior using `ValidationConfig`:
+
+#### Fail-Fast Mode
+
+Stop at the first error instead of collecting all errors:
 
 ```kotlin
 val result = tryValidate(config = ValidationConfig(failFast = true)) {
-    min(password, 8)
-    max(password, 20)
+    minLength(password, 8)
+    maxLength(password, 20)
+    matches(password, Regex(".*[A-Z].*"))
 }  // Stops at first error
+```
+
+#### Custom Clock for Temporal Validation
+
+Provide a custom clock for temporal validators (useful for testing):
+
+```kotlin
+import java.time.Clock
+import java.time.Instant
+import java.time.ZoneId
+
+val fixedClock = Clock.fixed(Instant.parse("2024-06-15T10:00:00Z"), ZoneId.of("UTC"))
+
+val result = tryValidate(config = ValidationConfig(clock = fixedClock)) {
+    val date = LocalDate.of(2024, 6, 20)
+    future(date)  // Uses the fixed clock for comparison
+}
+```
+
+#### Debug Logging
+
+Enable logging to debug validation flow:
+
+```kotlin
+val result = tryValidate(config = ValidationConfig(
+    logger = { logEntry -> println("[Validation] $logEntry") }
+)) {
+    minLength(username, 3)
+    maxLength(username, 20)
+}
+```
+
+#### Combined Configuration
+
+All options can be combined:
+
+```kotlin
+val result = tryValidate(config = ValidationConfig(
+    failFast = true,
+    clock = Clock.systemUTC(),
+    logger = { logEntry -> println(logEntry) }
+)) {
+    // validation logic
+}
 ```
 
 ### Custom Error Messages
@@ -346,10 +472,10 @@ All validators accept an optional `message` parameter for custom error messages.
 ```kotlin
 val result = tryValidate {
     // Custom text message
-    min(username, 3, message = { text("Username must be at least 3 characters") })
+    minLength(username, 3, message = { text("Username must be at least 3 characters") })
 
     // Internationalized message with parameters
-    max(bio, 500, message = { "custom.bio.tooLong".resource(500) })
+    maxLength(bio, 500, message = { "custom.bio.tooLong".resource(500) })
 }
 ```
 
@@ -366,6 +492,12 @@ fun Validation.isUrlPath(input: String) {
             text("Must be a valid URL path")
         }
     }
+}
+
+val result = tryValidate { isUrlPath("/a/../b") }
+if (!result.isSuccess()) {
+    result.messages.forEach(::println)
+    // Message(text='Must be a valid URL path', root=, path=, input=/a/../b)
 }
 ```
 
@@ -401,13 +533,19 @@ Try the first validation; if it fails, try the next. Useful for alternative vali
 ```kotlin
 // Accept either domestic or international phone format
 fun Validation.validatePhone(phone: String) =
-    or { matches(phone, Regex("^\\d{3}-\\d{4}$")) }
-        .orElse { matches(phone, Regex("^\\+\\d{1,3}-\\d+$")) }
+    or { matches(phone, Regex("^\\d{3}-\\d{4}$")) }      // Domestic format: 123-4567
+        .orElse { matches(phone, Regex("^\\+\\d{1,3}-\\d+$")) }  // International format: +1-1234567
+
+val result = tryValidate { validatePhone("123-abc-456") }
+if (!result.isSuccess()) {
+    result.messages.map { it.text }.forEach { println(it) }
+    // at least one constraint must be satisfied: [[must match pattern: ^\d{3}-\d{4}$], [must match pattern: ^\+\d{1,3}-\d+$]]
+}
 
 // Chain multiple alternatives
-or { matches(id, Regex("^[a-z]+$")) }
-    .or { matches(id, Regex("^\\d+$")) }
-    .orElse { matches(id, Regex("^[A-Z]+$")) }
+or { matches(id, Regex("^[a-z]+$")) }    // Lowercase letters only
+    .or { matches(id, Regex("^\\d+$")) }  // Digits only
+    .orElse { matches(id, Regex("^[A-Z]+$")) }  // Uppercase letters only
 ```
 
 ### Wrapping Errors with `withMessage`
@@ -417,17 +555,20 @@ The `withMessage` function wraps validation logic and consolidates multiple erro
 ```kotlin
 data class Address(val street: String, val city: String, val zipCode: String)
 
-fun Validation.validateAddress(address: Address) = address.schema {
+fun Validation.validate(address: Address) = address.schema {
     address::zipCode {
         withMessage("Invalid ZIP code format") {
             matches(it, Regex("^\\d{5}(-\\d{4})?$"))
-            min(it, 5)
+            minLength(it, 5)
         }
     }
 }
 
-// If validation fails, shows "Invalid ZIP code format"
-// instead of individual regex/min errors
+val result = tryValidate { validate(Address("Eitai", "Tokyo", "123-456")) }
+if (!result.isSuccess()) {
+    result.messages.forEach { println(it) }
+    // Message(text='Invalid ZIP code format', root=Address, path=zipCode, input=null)
+}
 ```
 
 You can also use a transform function to customize how multiple errors are consolidated:
@@ -437,7 +578,7 @@ fun Validation.validatePassword(password: String) =
     withMessage({ messages ->
         text("Password validation failed: ${messages.size} errors found")
     }) {
-        min(password, 8)
+        minLength(password, 8)
         matches(password, Regex(".*[A-Z].*"))
         matches(password, Regex(".*[0-9].*"))
     }
@@ -453,7 +594,7 @@ Error messages use resource bundles from `kova.properties`. The `resource()` fun
 
 ```kotlin
 // Using resource keys from kova.properties
-min(str, 5, message = { "custom.message.key".resource(5) })
+minLength(str, 5, message = { "custom.message.key".resource(5) })
 
 // Multiple parameters
 fun Validation.range(
@@ -471,6 +612,17 @@ Corresponding entry in `kova.properties`:
 kova.number.range=The value must be between {0} and {1}.
 ```
 
+## Examples
+
+The project includes several example modules demonstrating different use cases:
+
+- **[example-core](example-core/)** - Basic validation examples including schema validation, cross-property validation, and nested object validation
+- **[example-factory](example-factory/)** - Factory pattern examples showing how to validate and transform raw input into typed objects
+- **[example-ktor](example-ktor/)** - Ktor integration examples with request validation and error handling
+- **[example-exposed](example-exposed/)** - Database integration examples using Exposed ORM
+
+Each example module contains complete, runnable code that you can use as a reference for your own projects.
+
 ## Building and Testing
 
 ```bash
@@ -486,7 +638,7 @@ kova.number.range=The value must be between {0} and {1}.
 
 ## Requirements
 
-- Kotlin 1.9+
+- Kotlin 2.3.0+
 - Java 17+
 - Gradle 8.14+
 

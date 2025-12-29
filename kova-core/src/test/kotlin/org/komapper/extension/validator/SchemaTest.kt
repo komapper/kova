@@ -42,8 +42,8 @@ class SchemaTest :
             fun Validation.validate(user: User) =
                 user.schema {
                     user::name {
-                        min(it, 1)
-                        max(it, 10)
+                        minLength(it, 1)
+                        maxLength(it, 10)
                     }
                     user::id { min(it, 1) }
                 }
@@ -62,7 +62,7 @@ class SchemaTest :
                 result.messages[0].let {
                     it.root shouldBe "User"
                     it.path.fullName shouldBe "name"
-                    it.constraintId shouldBe "kova.charSequence.max"
+                    it.constraintId shouldBe "kova.charSequence.maxLength"
                 }
             }
 
@@ -75,7 +75,7 @@ class SchemaTest :
                 result.messages[0].let {
                     it.root shouldBe "User"
                     it.path.fullName shouldBe "name"
-                    it.constraintId shouldBe "kova.charSequence.max"
+                    it.constraintId shouldBe "kova.charSequence.maxLength"
                 }
                 result.messages[1].let {
                     it.root shouldBe "User"
@@ -90,8 +90,8 @@ class SchemaTest :
                 user.schema {
                     or<Unit> {
                         user::name {
-                            min(it, 1)
-                            max(it, 10)
+                            minLength(it, 1)
+                            maxLength(it, 10)
                         }
                     } orElse { user::id { min(it, 1) } }
                 }
@@ -165,8 +165,8 @@ class SchemaTest :
                 user?.schema {
                     user::id { min(it, 1) }
                     user::name {
-                        min(it, 1)
-                        max(it, 10)
+                        minLength(it, 1)
+                        maxLength(it, 10)
                     }
                 }
 
@@ -187,8 +187,8 @@ class SchemaTest :
                 user.schema {
                     user::id { min(it, 1) }
                     user::name {
-                        min(it, 1)
-                        max(it, 10)
+                        minLength(it, 1)
+                        maxLength(it, 10)
                     }
                 }
 
@@ -206,7 +206,7 @@ class SchemaTest :
                 result.messages[0].let {
                     it.root shouldBe "User"
                     it.path.fullName shouldBe "name"
-                    it.constraintId shouldBe "kova.charSequence.max"
+                    it.constraintId shouldBe "kova.charSequence.maxLength"
                 }
             }
 
@@ -224,7 +224,7 @@ class SchemaTest :
                 result.messages[1].let {
                     it.root shouldBe "User"
                     it.path.fullName shouldBe "name"
-                    it.constraintId shouldBe "kova.charSequence.max"
+                    it.constraintId shouldBe "kova.charSequence.maxLength"
                 }
             }
         }
@@ -234,8 +234,8 @@ class SchemaTest :
                 street.schema {
                     street::id { min(it, 1) }
                     street::name {
-                        min(it, 3)
-                        max(it, 5)
+                        minLength(it, 3)
+                        maxLength(it, 5)
                     }
                 }
 
@@ -257,7 +257,7 @@ class SchemaTest :
                 result.messages[0].let {
                     it.root shouldBe "Employee"
                     it.path.fullName shouldBe "address.street.name"
-                    it.constraintId shouldBe "kova.charSequence.max"
+                    it.constraintId shouldBe "kova.charSequence.maxLength"
                 }
             }
         }
@@ -267,8 +267,8 @@ class SchemaTest :
                 street.schema {
                     street::id { min(it, 1) }
                     street::name {
-                        min(it, 3)
-                        max(it, 5)
+                        minLength(it, 3)
+                        maxLength(it, 5)
                     }
                 }
 
@@ -329,8 +329,8 @@ class SchemaTest :
                 street.schema {
                     street::id { min(it, 1) }
                     street::name {
-                        min(it, 3)
-                        max(it, 5)
+                        minLength(it, 3)
+                        maxLength(it, 5)
                     }
                 }
 
@@ -388,7 +388,7 @@ class SchemaTest :
             fun Validation.validate(node: Node) {
                 node.schema {
                     node::children {
-                        max(it, 3)
+                        maxSize(it, 3)
                         onEach(it) { child -> validate(child) }
                     }
                 }

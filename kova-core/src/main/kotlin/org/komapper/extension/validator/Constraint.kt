@@ -26,7 +26,7 @@ data class Constraint(
     /**
      * Evaluates a condition and raises a validation error if it fails.
      *
-     * This is the preferred form for most validation constraints. It accepts a [MessageProvider]
+     * This accepts a [MessageProvider]
      * lambda that is only evaluated when the condition is false, enabling lazy message construction.
      * This is beneficial when message creation involves resource lookups or formatting.
      *
@@ -45,34 +45,12 @@ data class Constraint(
      *
      * @param condition The condition to evaluate
      * @param message A MessageProvider lambda that produces the error message if the condition is false
-     * @see satisfies Overload that accepts a Message directly
      */
     fun satisfies(
         condition: Boolean,
         message: MessageProvider,
     ) {
         contract { returns() implies condition }
-        satisfies(condition, message())
-    }
-
-    /**
-     * Lower-level variant that accepts a [Message] instance directly instead of a [MessageProvider].
-     *
-     * Example:
-     * ```kotlin
-     * val errorMessage = "kova.string.pattern".resource(pattern)
-     * satisfies(input.matches(regex), errorMessage)
-     * ```
-     *
-     * @param condition The condition to evaluate
-     * @param message The error message to raise if the condition is false
-     * @see satisfies Overload that accepts a MessageProvider for lazy evaluation
-     */
-    fun satisfies(
-        condition: Boolean,
-        message: Message,
-    ) {
-        contract { returns() implies condition }
-        if (!condition) validation.raise(message)
+        if (!condition) validation.raise(message())
     }
 }

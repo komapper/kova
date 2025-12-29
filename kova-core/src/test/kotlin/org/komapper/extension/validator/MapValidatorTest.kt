@@ -5,16 +5,16 @@ import io.kotest.core.spec.style.FunSpec
 class MapValidatorTest :
     FunSpec({
 
-        context("max") {
+        context("maxSize") {
             test("success") {
-                val result = tryValidate { max(mapOf("a" to "1", "b" to "2"), 2) }
+                val result = tryValidate { maxSize(mapOf("a" to "1", "b" to "2"), 2) }
                 result.shouldBeSuccess()
             }
 
             test("failure") {
-                val result = tryValidate { max(mapOf("a" to "1", "b" to "2", "c" to "3"), 2) }
+                val result = tryValidate { maxSize(mapOf("a" to "1", "b" to "2", "c" to "3"), 2) }
                 result.shouldBeFailure()
-                result.messages.single().constraintId shouldBe "kova.map.max"
+                result.messages.single().constraintId shouldBe "kova.map.maxSize"
             }
         }
 

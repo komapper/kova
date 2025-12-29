@@ -8,28 +8,28 @@ class MessagePropertiesTest :
 
         context("kova.charSequence") {
             test("min") {
-                val result = tryValidate { min("abc", 5) }
+                val result = tryValidate { minLength("abc", 5) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be at least 5 characters"
             }
 
             test("min with message") {
-                val result = tryValidate { min("abc", 5) { text("must be at least 5 characters") } }
+                val result = tryValidate { minLength("abc", 5) { text("must be at least 5 characters") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be at least 5 characters"
             }
 
             test("max") {
-                val result = tryValidate { max("abcdef", 5) }
+                val result = tryValidate { maxLength("abcdef", 5) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be at most 5 characters"
             }
 
             test("max with message") {
-                val result = tryValidate { max("abcdef", 5) { text("must be at most 5 characters") } }
+                val result = tryValidate { maxLength("abcdef", 5) { text("must be at most 5 characters") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be at most 5 characters"
@@ -198,17 +198,17 @@ class MessagePropertiesTest :
         }
 
         context("kova.collection") {
-            test("min") {
-                val result = tryValidate { min(listOf("a", "b"), 3) }
+            test("minSize") {
+                val result = tryValidate { minSize(listOf("a", "b"), 3) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "Collection (size 2) must have at least 3 elements"
             }
 
-            test("min with message") {
+            test("minSize with message") {
                 val result =
                     tryValidate {
-                        min(
+                        minSize(
                             listOf("a", "b"),
                             3,
                         ) { text("Collection (size $it) must have at least 3 elements") }
@@ -218,17 +218,17 @@ class MessagePropertiesTest :
                 message.text shouldBe "Collection (size 2) must have at least 3 elements"
             }
 
-            test("max") {
-                val result = tryValidate { max(listOf("a", "b", "c", "d"), 3) }
+            test("maxSize") {
+                val result = tryValidate { maxSize(listOf("a", "b", "c", "d"), 3) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "Collection (size 4) must have at most 3 elements"
             }
 
-            test("max with message") {
+            test("maxSize with message") {
                 val result =
                     tryValidate {
-                        max(
+                        maxSize(
                             listOf("a", "b", "c", "d"),
                             3,
                         ) { text("Collection (size $it) must have at most 3 elements") }
@@ -448,17 +448,17 @@ class MessagePropertiesTest :
         }
 
         context("kova.map") {
-            test("min") {
-                val result = tryValidate { min(mapOf("a" to 1, "b" to 2), 3) }
+            test("minSize") {
+                val result = tryValidate { minSize(mapOf("a" to 1, "b" to 2), 3) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "Map (size 2) must have at least 3 entries"
             }
 
-            test("min with message") {
+            test("minSize with message") {
                 val result =
                     tryValidate {
-                        min(
+                        minSize(
                             mapOf("a" to 1, "b" to 2),
                             3,
                         ) { text("Map (size $it) must have at least 3 entries") }
@@ -468,17 +468,17 @@ class MessagePropertiesTest :
                 message.text shouldBe "Map (size 2) must have at least 3 entries"
             }
 
-            test("max") {
-                val result = tryValidate { max(mapOf("a" to 1, "b" to 2, "c" to 3), 2) }
+            test("maxSize") {
+                val result = tryValidate { maxSize(mapOf("a" to 1, "b" to 2, "c" to 3), 2) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "Map (size 3) must have at most 2 entries"
             }
 
-            test("max with message") {
+            test("maxSize with message") {
                 val result =
                     tryValidate {
-                        max(
+                        maxSize(
                             mapOf(
                                 "a" to 1,
                                 "b" to 2,
@@ -513,7 +513,7 @@ class MessagePropertiesTest :
             }
 
             test("onEachKey") {
-                val result = tryValidate { onEachKey(mapOf("a" to 1, "bb" to 2)) { min(it, 2) } }
+                val result = tryValidate { onEachKey(mapOf("a" to 1, "bb" to 2)) { minLength(it, 2) } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "Some keys do not satisfy the constraint: [must be at least 2 characters]"

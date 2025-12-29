@@ -60,7 +60,7 @@ class ValidatorTest :
         context("then") {
             fun Validation.validate(i: Int): String {
                 min(i, 3)
-                return i.toString().also { max(it, 1) }
+                return i.toString().also { maxLength(it, 1) }
             }
 
             test("success") {
@@ -76,15 +76,15 @@ class ValidatorTest :
             test("failure when second constraint violated") {
                 val result = tryValidate { validate(10) }
                 result.shouldBeFailure()
-                result.messages.single().constraintId shouldBe "kova.charSequence.max"
+                result.messages.single().constraintId shouldBe "kova.charSequence.maxLength"
             }
         }
 
         context("logs") {
             fun Validation.validate(string: String) =
                 string.trim().let {
-                    min(it, 3)
-                    max(it, 5)
+                    minLength(it, 3)
+                    maxLength(it, 5)
                 }
 
             test("success") {
@@ -94,13 +94,13 @@ class ValidatorTest :
                 } shouldBe
                     listOf(
                         LogEntry.Satisfied(
-                            constraintId = "kova.charSequence.min",
+                            constraintId = "kova.charSequence.minLength",
                             root = "",
                             path = "",
                             input = "abcde",
                         ),
                         LogEntry.Satisfied(
-                            constraintId = "kova.charSequence.max",
+                            constraintId = "kova.charSequence.maxLength",
                             root = "",
                             path = "",
                             input = "abcde",
@@ -116,14 +116,14 @@ class ValidatorTest :
                 logs shouldBe
                     listOf(
                         LogEntry.Violated(
-                            constraintId = "kova.charSequence.min",
+                            constraintId = "kova.charSequence.minLength",
                             root = "",
                             path = "",
                             input = "ab",
                             args = listOf(3),
                         ),
                         LogEntry.Satisfied(
-                            constraintId = "kova.charSequence.max",
+                            constraintId = "kova.charSequence.maxLength",
                             root = "",
                             path = "",
                             input = "ab",
@@ -134,8 +134,8 @@ class ValidatorTest :
 
         context("mapping operation after failure") {
             fun Validation.validate(string: String) =
-                string.trim().also { min(it, 3) }.uppercase().also {
-                    max(it, 3)
+                string.trim().also { minLength(it, 3) }.uppercase().also {
+                    maxLength(it, 3)
                 }
 
             test("failure") {
@@ -145,14 +145,14 @@ class ValidatorTest :
                 logs shouldBe
                     listOf(
                         LogEntry.Violated(
-                            constraintId = "kova.charSequence.min",
+                            constraintId = "kova.charSequence.minLength",
                             root = "",
                             path = "",
                             input = "ab",
                             args = listOf(3),
                         ),
                         LogEntry.Satisfied(
-                            constraintId = "kova.charSequence.max",
+                            constraintId = "kova.charSequence.maxLength",
                             root = "",
                             path = "",
                             input = "AB",
@@ -163,7 +163,7 @@ class ValidatorTest :
 
         context("failFast") {
             fun Validation.validate(string: String) {
-                min(string, 3)
+                minLength(string, 3)
                 length(string, 4)
             }
 
@@ -183,7 +183,7 @@ class ValidatorTest :
         context("failFast with plus operator") {
             fun Validation.validate(string: String?) {
                 if (string == null) return
-                min(string, 3)
+                minLength(string, 3)
                 length(string, 4)
             }
 
@@ -220,7 +220,7 @@ class ValidatorTest :
             fun Validation.requestKeyIsNotNullAndMin3(request: Request) =
                 requestKey(request) {
                     notNull(it)
-                    if (it != null) min(it, 3)
+                    if (it != null) minLength(it, 3)
                 }
 
             test("success when requestKey is not null") {
@@ -251,7 +251,7 @@ class ValidatorTest :
                 result.messages.size shouldBe 1
                 result.messages[0].let {
                     it.path.fullName shouldBe "Request[key]"
-                    it.constraintId shouldBe "kova.charSequence.min"
+                    it.constraintId shouldBe "kova.charSequence.minLength"
                 }
             }
         }
@@ -260,7 +260,7 @@ class ValidatorTest :
             @IgnorableReturnValue
             fun Validation.validate(string: String) =
                 string.constrain("test") {
-                    satisfies(it == "OK", text("Constraint failed"))
+                    satisfies(it == "OK") { text("Constraint failed") }
                 }
             test("success") {
                 val result = tryValidate { validate("OK") }
@@ -279,7 +279,7 @@ class ValidatorTest :
             @IgnorableReturnValue
             fun Validation.validate(string: String) =
                 string.constrain("test") {
-                    satisfies(it.isNotBlank(), "kova.charSequence.notBlank".resource)
+                    satisfies(it.isNotBlank()) { "kova.charSequence.notBlank".resource }
                 }
 
             test("success") {
@@ -299,7 +299,7 @@ class ValidatorTest :
             fun Validation.validate(string: String) =
                 withMessage({ messages -> text("Invalid: consolidates messages=(${messages.joinToString { it.text }})") }) {
                     uppercase(string)
-                    min(string, 3)
+                    minLength(string, 3)
                     Unit
                 }
 
@@ -322,7 +322,7 @@ class ValidatorTest :
             fun Validation.validate(string: String) =
                 withMessage {
                     uppercase(string)
-                    min(string, 3)
+                    minLength(string, 3)
                     Unit
                 }
 
@@ -353,7 +353,7 @@ class ValidatorTest :
                     user::name {
                         withMessage({ text("Must be uppercase and at least 3 characters long") }) {
                             uppercase(it)
-                            min(it, 3)
+                            minLength(it, 3)
                         }
                     }
                 }
