@@ -2,9 +2,14 @@ package org.komapper.extension.validator
 
 import io.kotest.core.spec.style.FunSpec
 import java.text.MessageFormat
+import java.util.Locale
 
 class MessageTest :
     FunSpec({
+
+        beforeSpec {
+            Locale.setDefault(Locale.US)
+        }
 
         test("getPattern") {
             val pattern = getPattern("kova.comparable.min")

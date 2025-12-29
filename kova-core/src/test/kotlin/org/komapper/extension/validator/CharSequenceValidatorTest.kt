@@ -1,9 +1,14 @@
 package org.komapper.extension.validator
 
 import io.kotest.core.spec.style.FunSpec
+import java.util.Locale
 
 class CharSequenceValidatorTest :
     FunSpec({
+
+        beforeSpec {
+            Locale.setDefault(Locale.US)
+        }
 
         context("with conversion") {
             fun Validation.validate(string: String) =

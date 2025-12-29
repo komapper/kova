@@ -1,9 +1,14 @@
 package org.komapper.extension.validator
 
 import io.kotest.core.spec.style.FunSpec
+import java.util.Locale
 
 class StringValidatorTest :
     FunSpec({
+
+        beforeSpec {
+            Locale.setDefault(Locale.US)
+        }
 
         context("notBlank with message") {
             test("success") {

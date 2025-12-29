@@ -2,9 +2,14 @@ package org.komapper.extension.validator
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.types.shouldBeInstanceOf
+import java.util.Locale
 
 class ConditionalTest :
     FunSpec({
+
+        beforeSpec {
+            Locale.setDefault(Locale.US)
+        }
 
         context("if expression") {
             fun Validation.validate(i: Int) {

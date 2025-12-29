@@ -13,9 +13,14 @@ import java.time.Year
 import java.time.YearMonth
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
+import java.util.Locale
 
 class TemporalValidatorTest :
     FunSpec({
+
+        beforeSpec {
+            Locale.setDefault(Locale.US)
+        }
 
         context("LocalDate") {
             val date = LocalDate.of(2025, 1, 1)

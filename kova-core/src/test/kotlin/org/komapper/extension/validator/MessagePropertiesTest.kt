@@ -2,33 +2,38 @@ package org.komapper.extension.validator
 
 import io.kotest.core.spec.style.FunSpec
 import java.time.LocalDate
+import java.util.Locale
 
 class MessagePropertiesTest :
     FunSpec({
 
+        beforeSpec {
+            Locale.setDefault(Locale.US)
+        }
+
         context("kova.charSequence") {
-            test("min") {
+            test("minLength") {
                 val result = tryValidate { minLength("abc", 5) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be at least 5 characters"
             }
 
-            test("min with message") {
+            test("minLength with message") {
                 val result = tryValidate { minLength("abc", 5) { text("must be at least 5 characters") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be at least 5 characters"
             }
 
-            test("max") {
+            test("maxLength") {
                 val result = tryValidate { maxLength("abcdef", 5) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be at most 5 characters"
             }
 
-            test("max with message") {
+            test("maxLength with message") {
                 val result = tryValidate { maxLength("abcdef", 5) { text("must be at most 5 characters") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()

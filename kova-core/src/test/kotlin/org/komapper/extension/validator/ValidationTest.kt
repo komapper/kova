@@ -3,6 +3,7 @@ package org.komapper.extension.validator
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
+import java.util.Locale
 
 data class TestData(
     val value: String,
@@ -10,6 +11,10 @@ data class TestData(
 
 class ValidationContextTest :
     FunSpec({
+
+        beforeSpec {
+            Locale.setDefault(Locale.US)
+        }
 
         context("addRoot") {
             test("no root") {

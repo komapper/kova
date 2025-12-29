@@ -1,9 +1,14 @@
 package org.komapper.extension.validator
 
 import io.kotest.core.spec.style.FunSpec
+import java.util.Locale
 
 class SchemaCircularReferenceTest :
     FunSpec({
+
+        beforeSpec {
+            Locale.setDefault(Locale.US)
+        }
 
         test("circular reference between schemas") {
             val users = mutableListOf<User>()

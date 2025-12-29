@@ -1,9 +1,14 @@
 package org.komapper.extension.validator
 
 import io.kotest.core.spec.style.FunSpec
+import java.util.Locale
 
 class NumberValidatorTest :
     FunSpec({
+
+        beforeSpec {
+            Locale.setDefault(Locale.US)
+        }
 
         context("positive") {
             test("success with positive number") {
