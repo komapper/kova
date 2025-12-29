@@ -6,7 +6,9 @@ import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationConfig
 import org.komapper.extension.validator.ValidationException
 import org.komapper.extension.validator.max
+import org.komapper.extension.validator.maxLength
 import org.komapper.extension.validator.min
+import org.komapper.extension.validator.minLength
 import org.komapper.extension.validator.notBlank
 import org.komapper.extension.validator.positive
 import org.komapper.extension.validator.toInt
@@ -23,7 +25,7 @@ class PairFactoryBuilderTest :
             ) = buildPair(
                 bind(first) {
                     notBlank(it)
-                    max(it, 10)
+                    maxLength(it, 10)
                     it
                 },
                 bind(second) {
@@ -106,8 +108,8 @@ class PairFactoryBuilderTest :
             ) = buildPair(
                 bind(name) {
                     notBlank(it)
-                    min(it, 1)
-                    max(it, 50)
+                    minLength(it, 1)
+                    maxLength(it, 50)
                     it
                 },
                 bind(age) {
@@ -127,7 +129,7 @@ class PairFactoryBuilderTest :
                 val longName = "a".repeat(51)
                 val result = tryValidate { build(longName, 30) }
                 result.shouldBeFailure()
-                result.messages.single().constraintId shouldBe "kova.charSequence.max"
+                result.messages.single().constraintId shouldBe "kova.charSequence.maxLength"
             }
 
             test("failure - age out of range") {

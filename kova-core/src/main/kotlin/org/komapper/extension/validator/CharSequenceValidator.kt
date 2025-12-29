@@ -5,38 +5,38 @@ package org.komapper.extension.validator
  *
  * Example:
  * ```kotlin
- * tryValidate { min("hello", 3) } // Success
- * tryValidate { min("hi", 3) }    // Failure
+ * tryValidate { minLength("hello", 3) } // Success
+ * tryValidate { minLength("hi", 3) }    // Failure
  * ```
  *
  * @param length Minimum length (inclusive)
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun Validation.min(
+fun Validation.minLength(
     input: CharSequence,
     length: Int,
-    message: MessageProvider = { "kova.charSequence.min".resource(length) },
-) = input.constrain("kova.charSequence.min") { satisfies(it.length >= length, message) }
+    message: MessageProvider = { "kova.charSequence.minLength".resource(length) },
+) = input.constrain("kova.charSequence.minLength") { satisfies(it.length >= length, message) }
 
 /**
  * Validates that the character sequence length does not exceed the specified maximum.
  *
  * Example:
  * ```kotlin
- * tryValidate { max("hello", 10) }           // Success
- * tryValidate { max("very long string", 10) } // Failure
+ * tryValidate { maxLength("hello", 10) }           // Success
+ * tryValidate { maxLength("very long string", 10) } // Failure
  * ```
  *
  * @param length Maximum length (inclusive)
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun Validation.max(
+fun Validation.maxLength(
     input: CharSequence,
     length: Int,
-    message: MessageProvider = { "kova.charSequence.max".resource(length) },
-) = input.constrain("kova.charSequence.max") { satisfies(it.length <= length, message) }
+    message: MessageProvider = { "kova.charSequence.maxLength".resource(length) },
+) = input.constrain("kova.charSequence.maxLength") { satisfies(it.length <= length, message) }
 
 /**
  * Validates that the character sequence is not blank (not empty and not only whitespace).

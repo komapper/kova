@@ -6,7 +6,9 @@ import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationConfig
 import org.komapper.extension.validator.ValidationException
 import org.komapper.extension.validator.max
+import org.komapper.extension.validator.maxLength
 import org.komapper.extension.validator.min
+import org.komapper.extension.validator.minLength
 import org.komapper.extension.validator.notBlank
 import org.komapper.extension.validator.positive
 import org.komapper.extension.validator.toInt
@@ -24,7 +26,7 @@ class TripleFactoryBuilderTest :
             ) = buildTriple(
                 bind(first) {
                     notBlank(it)
-                    max(it, 10)
+                    maxLength(it, 10)
                     it
                 },
                 bind(second) {
@@ -33,7 +35,7 @@ class TripleFactoryBuilderTest :
                 },
                 bind(third) {
                     notBlank(it)
-                    max(it, 20)
+                    maxLength(it, 20)
                     it
                 },
             )
@@ -129,8 +131,8 @@ class TripleFactoryBuilderTest :
             ) = buildTriple(
                 bind(name) {
                     notBlank(it)
-                    min(it, 1)
-                    max(it, 50)
+                    minLength(it, 1)
+                    maxLength(it, 50)
                     it
                 },
                 bind(age) {
@@ -140,7 +142,7 @@ class TripleFactoryBuilderTest :
                 },
                 bind(email) {
                     notBlank(it)
-                    max(it, 100)
+                    maxLength(it, 100)
                     it
                 },
             )
@@ -155,7 +157,7 @@ class TripleFactoryBuilderTest :
                 val longName = "a".repeat(51)
                 val result = tryValidate { build(longName, 30, "alice@example.com") }
                 result.shouldBeFailure()
-                result.messages.single().constraintId shouldBe "kova.charSequence.max"
+                result.messages.single().constraintId shouldBe "kova.charSequence.maxLength"
             }
 
             test("failure - age out of range") {
@@ -168,7 +170,7 @@ class TripleFactoryBuilderTest :
                 val longEmail = "a".repeat(101)
                 val result = tryValidate { build("Alice", 30, longEmail) }
                 result.shouldBeFailure()
-                result.messages.single().constraintId shouldBe "kova.charSequence.max"
+                result.messages.single().constraintId shouldBe "kova.charSequence.maxLength"
             }
         }
 

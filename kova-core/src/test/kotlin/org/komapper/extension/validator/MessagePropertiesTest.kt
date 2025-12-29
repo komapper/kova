@@ -8,28 +8,28 @@ class MessagePropertiesTest :
 
         context("kova.charSequence") {
             test("min") {
-                val result = tryValidate { min("abc", 5) }
+                val result = tryValidate { minLength("abc", 5) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be at least 5 characters"
             }
 
             test("min with message") {
-                val result = tryValidate { min("abc", 5) { text("must be at least 5 characters") } }
+                val result = tryValidate { minLength("abc", 5) { text("must be at least 5 characters") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be at least 5 characters"
             }
 
             test("max") {
-                val result = tryValidate { max("abcdef", 5) }
+                val result = tryValidate { maxLength("abcdef", 5) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be at most 5 characters"
             }
 
             test("max with message") {
-                val result = tryValidate { max("abcdef", 5) { text("must be at most 5 characters") } }
+                val result = tryValidate { maxLength("abcdef", 5) { text("must be at most 5 characters") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be at most 5 characters"
@@ -513,7 +513,7 @@ class MessagePropertiesTest :
             }
 
             test("onEachKey") {
-                val result = tryValidate { onEachKey(mapOf("a" to 1, "bb" to 2)) { min(it, 2) } }
+                val result = tryValidate { onEachKey(mapOf("a" to 1, "bb" to 2)) { minLength(it, 2) } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "Some keys do not satisfy the constraint: [must be at least 2 characters]"

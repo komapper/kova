@@ -5,6 +5,7 @@ import org.komapper.extension.validator.ValidationResult
 import org.komapper.extension.validator.isSuccess
 import org.komapper.extension.validator.max
 import org.komapper.extension.validator.min
+import org.komapper.extension.validator.minLength
 import org.komapper.extension.validator.notBlank
 import org.komapper.extension.validator.notNegative
 import org.komapper.extension.validator.tryValidate
@@ -52,7 +53,7 @@ data class PriceRange(
 fun Validation.validate(user: User) =
     user.schema {
         user::name {
-            min(it, 1)
+            minLength(it, 1)
             notBlank(it)
         }
         user::age {
@@ -81,7 +82,7 @@ fun Validation.validate(age: Age) =
 fun Validation.validate(person: Person) =
     person.schema {
         person::name {
-            min(it, 1)
+            minLength(it, 1)
             notBlank(it)
         }
         person::age { validate(it) }

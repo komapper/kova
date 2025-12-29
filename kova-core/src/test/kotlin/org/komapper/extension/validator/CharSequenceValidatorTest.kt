@@ -26,29 +26,29 @@ class CharSequenceValidatorTest :
             }
         }
 
-        context("min") {
+        context("minLength") {
             test("success") {
-                val result = tryValidate { min("abc", 3) }
+                val result = tryValidate { minLength("abc", 3) }
                 result.shouldBeSuccess()
             }
 
             test("failure") {
-                val result = tryValidate { min("ab", 3) }
+                val result = tryValidate { minLength("ab", 3) }
                 result.shouldBeFailure()
-                result.messages.single().constraintId shouldBe "kova.charSequence.min"
+                result.messages.single().constraintId shouldBe "kova.charSequence.minLength"
             }
         }
 
-        context("max") {
+        context("maxLength") {
             test("success") {
-                val result = tryValidate { max("a", 1) }
+                val result = tryValidate { maxLength("a", 1) }
                 result.shouldBeSuccess()
             }
 
             test("failure") {
-                val result = tryValidate { max("ab", 1) }
+                val result = tryValidate { maxLength("ab", 1) }
                 result.shouldBeFailure()
-                result.messages.single().constraintId shouldBe "kova.charSequence.max"
+                result.messages.single().constraintId shouldBe "kova.charSequence.maxLength"
             }
         }
 
@@ -224,7 +224,7 @@ class CharSequenceValidatorTest :
         }
 
         context("nullableString") {
-            fun Validation.max1(string: String?) = max(toNonNullable(string), 1)
+            fun Validation.max1(string: String?) = maxLength(toNonNullable(string), 1)
 
             test("success") {
                 val result = tryValidate { max1("1") }
@@ -237,7 +237,7 @@ class CharSequenceValidatorTest :
             test("failure") {
                 val result = tryValidate { max1("12") }
                 result.shouldBeFailure()
-                result.messages.single().constraintId shouldBe "kova.charSequence.max"
+                result.messages.single().constraintId shouldBe "kova.charSequence.maxLength"
             }
         }
     })

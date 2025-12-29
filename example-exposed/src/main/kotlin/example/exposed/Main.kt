@@ -18,6 +18,7 @@ import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationException
 import org.komapper.extension.validator.max
 import org.komapper.extension.validator.min
+import org.komapper.extension.validator.minLength
 import org.komapper.extension.validator.notBlank
 import org.komapper.extension.validator.notEmpty
 import org.komapper.extension.validator.validate
@@ -109,7 +110,7 @@ fun Validation.validate(city: City) =
 fun Validation.validate(user: User) =
     user.schema {
         user::name {
-            min(it, 1)
+            minLength(it, 1)
             notBlank(it)
         }
         user::age {

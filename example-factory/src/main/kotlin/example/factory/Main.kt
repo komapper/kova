@@ -7,6 +7,7 @@ import org.komapper.extension.validator.factory.factory
 import org.komapper.extension.validator.isSuccess
 import org.komapper.extension.validator.max
 import org.komapper.extension.validator.min
+import org.komapper.extension.validator.minLength
 import org.komapper.extension.validator.notBlank
 import org.komapper.extension.validator.toInt
 import org.komapper.extension.validator.tryValidate
@@ -74,7 +75,7 @@ fun Validation.buildUser(
     age: String,
 ) = factory {
     val name by bind(name) {
-        min(it, 1)
+        minLength(it, 1)
         notBlank(it)
         it
     } // argument validator
@@ -109,7 +110,7 @@ fun Validation.buildPerson(
     age: String,
 ) = factory {
     val name by bind(name) {
-        min(it, 1)
+        minLength(it, 1)
         notBlank(it)
         it
     } // argument validator
