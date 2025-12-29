@@ -44,8 +44,8 @@ import org.komapper.extension.validator.*
 val result = tryValidate {
     val name = "Wireless Mouse"
     notBlank(name)
-    min(name, 1)
-    max(name, 100)
+    minLength(name, 1)
+    maxLength(name, 100)
     name
 }
 
@@ -61,7 +61,7 @@ Define extension functions on `Validation` for reusable validation logic:
 
 ```kotlin
 fun Validation.validatePassword(password: String) {
-    min(password, 8)
+    minLength(password, 8)
     matches(password, Regex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$"))
 }
 
@@ -75,7 +75,7 @@ data class Product(val id: Int, val name: String, val price: Double)
 
 fun Validation.validateProduct(product: Product) = product.schema {
     product::id { min(it, 1) }
-    product::name { notBlank(it); min(it, 1); max(it, 100) }
+    product::name { notBlank(it); minLength(it, 1); maxLength(it, 100) }
     product::price { min(it, 0.0) }
 }
 
@@ -111,7 +111,7 @@ import org.komapper.extension.validator.factory.*
 data class User(val name: String, val age: Int)
 
 fun Validation.buildUser(name: String, age: String) = factory {
-    val name by bind(name) { notBlank(it); min(it, 1); it }
+    val name by bind(name) { notBlank(it); minLength(it, 1); it }
     val age by bind(age) { toInt(it) }
     User(name, age)
 }
@@ -138,7 +138,7 @@ data class Customer(val id: Int, val name: String) : Validated {
 
 fun Validation.validateCustomer(customer: Customer) = customer.schema {
     customer::id { positive(it) }
-    customer::name { notBlank(it); min(it, 1); max(it, 50) }
+    customer::name { notBlank(it); minLength(it, 1); maxLength(it, 50) }
 }
 
 fun Application.module() {
@@ -166,8 +166,8 @@ All validators are extension functions on `Validation` that take the input as th
 ### String & CharSequence
 
 ```kotlin
-min(input, 1)                       // Minimum length
-max(input, 100)                     // Maximum length
+minLength(input, 1)                 // Minimum length
+maxLength(input, 100)               // Maximum length
 length(input, 10)                   // Exact length
 blank(input)                        // Must be blank (empty or whitespace only)
 notBlank(input)                     // Must not be blank
@@ -252,8 +252,8 @@ pastOrPresent(input)                      // Must be in the past or present
 Supported types: `List`, `Set`, `Collection`
 
 ```kotlin
-min(input, 1)                       // Minimum size
-max(input, 10)                      // Maximum size
+minSize(input, 1)                   // Minimum size
+maxSize(input, 10)                  // Maximum size
 size(input, 5)                      // Exact size
 notEmpty(input)                     // Must not be empty
 contains(input, "foo")              // Must contain element (alias: has)
@@ -266,8 +266,8 @@ onEach(input) { element ->          // Validate each element
 ### Maps
 
 ```kotlin
-min(input, 1)                       // Minimum size
-max(input, 10)                      // Maximum size
+minSize(input, 1)                   // Minimum size
+maxSize(input, 10)                  // Maximum size
 size(input, 5)                      // Exact size
 notEmpty(input)                     // Must not be empty
 containsKey(input, "foo")           // Must contain key (alias: hasKey)
@@ -320,7 +320,7 @@ literal(input, "a", "b", "c")       // Must be one of allowed values
 ```kotlin
 val result = tryValidate {
     val password = "pass"
-    min(password, 8)
+    minLength(password, 8)
 }
 
 if (!result.isSuccess()) {
@@ -334,8 +334,8 @@ if (!result.isSuccess()) {
 
 ```kotlin
 val result = tryValidate(config = ValidationConfig(failFast = true)) {
-    min(password, 8)
-    max(password, 20)
+    minLength(password, 8)
+    maxLength(password, 20)
 }  // Stops at first error
 ```
 
@@ -346,10 +346,10 @@ All validators accept an optional `message` parameter for custom error messages.
 ```kotlin
 val result = tryValidate {
     // Custom text message
-    min(username, 3, message = { text("Username must be at least 3 characters") })
+    minLength(username, 3, message = { text("Username must be at least 3 characters") })
 
     // Internationalized message with parameters
-    max(bio, 500, message = { "custom.bio.tooLong".resource(500) })
+    maxLength(bio, 500, message = { "custom.bio.tooLong".resource(500) })
 }
 ```
 
@@ -421,7 +421,7 @@ fun Validation.validateAddress(address: Address) = address.schema {
     address::zipCode {
         withMessage("Invalid ZIP code format") {
             matches(it, Regex("^\\d{5}(-\\d{4})?$"))
-            min(it, 5)
+            minLength(it, 5)
         }
     }
 }
@@ -437,7 +437,7 @@ fun Validation.validatePassword(password: String) =
     withMessage({ messages ->
         text("Password validation failed: ${messages.size} errors found")
     }) {
-        min(password, 8)
+        minLength(password, 8)
         matches(password, Regex(".*[A-Z].*"))
         matches(password, Regex(".*[0-9].*"))
     }
@@ -453,7 +453,7 @@ Error messages use resource bundles from `kova.properties`. The `resource()` fun
 
 ```kotlin
 // Using resource keys from kova.properties
-min(str, 5, message = { "custom.message.key".resource(5) })
+minLength(str, 5, message = { "custom.message.key".resource(5) })
 
 // Multiple parameters
 fun Validation.range(
