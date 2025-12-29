@@ -13,13 +13,13 @@ Add Kova to your Gradle project:
 ```kotlin
 dependencies {
     // Core validation library
-    implementation("org.komapper:kova-core:0.0.3")
+    implementation("org.komapper:kova-core:0.0.4")
 
     // Factory validation (optional)
-    implementation("org.komapper:kova-factory:0.0.3")
+    implementation("org.komapper:kova-factory:0.0.4")
 
     // Ktor integration (optional)
-    implementation("org.komapper:kova-ktor:0.0.3")
+    implementation("org.komapper:kova-ktor:0.0.4")
 }
 ```
 
