@@ -21,6 +21,24 @@ fun <T> Validation.isNull(
     message: MessageProvider = { "kova.nullable.isNull".resource },
 ) = input.constrain("kova.nullable.isNull") { satisfies(it == null, message) }
 
+/**
+ * Validates that the input is null OR satisfies the given constraints.
+ *
+ * This constraint tries to validate that the input is null first. If that fails,
+ * it executes the provided block with the non-null input value. This is useful
+ * when a value can be either null or must satisfy certain constraints if present.
+ *
+ * Example:
+ * ```kotlin
+ * tryValidate { isNullOr(null) { min(it, 3) } }      // Success (is null)
+ * tryValidate { isNullOr("hello") { min(it, 3) } }  // Success (satisfies min)
+ * tryValidate { isNullOr("hi") { min(it, 3) } }     // Failure (too short)
+ * ```
+ *
+ * @param input The nullable input value to validate
+ * @param message Custom error message provider for null validation
+ * @param block Validation block to execute if input is not null
+ */
 @IgnorableReturnValue
 inline fun <T> Validation.isNullOr(
     input: T,
@@ -51,6 +69,8 @@ fun <T> Validation.notNull(
  * Converts a nullable input to a non-nullable output.
  *
  * This validates that the input is not null and converts the output type from `T?` to `T & Any`.
+ * The validation uses the "kova.nullable.notNull" constraint ID and properly propagates the
+ * validation path context for error reporting.
  *
  * Example:
  * ```kotlin
@@ -63,6 +83,8 @@ fun <T> Validation.notNull(
  * tryValidate { validateString(null) }    // Failure
  * ```
  *
+ * @param input The nullable input value to validate and convert
+ * @param message Custom error message provider for the null check
  * @return The non-null input value with type `T & Any`
  */
 @IgnorableReturnValue
