@@ -587,7 +587,8 @@ inline fun Validation.log(block: () -> LogEntry) {
  * @param id The constraint identifier (e.g., "kova.number.min")
  * @return The enriched message with input and constraint ID details
  */
-fun Validation.logAndAddDetails(
+@PublishedApi
+internal fun Validation.logAndAddDetails(
     message: Message,
     input: Any?,
     id: String,
@@ -628,7 +629,8 @@ fun Validation.logAndAddDetails(
  * @param block The validation logic to execute
  * @return The result of executing the validation block
  */
-inline fun <R> Validation.mapEachMessage(
+@PublishedApi
+internal inline fun <R> Validation.mapEachMessage(
     noinline transform: (Message) -> Message,
     block: Validation.() -> R,
 ): R = block(copy(acc = { accumulate(it.map(transform)) }))
