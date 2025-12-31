@@ -89,8 +89,8 @@ class ObjectGraphTest :
             fun Validation.validate(car: Car) =
                 car.schema {
                     car::driver {
-                        val person = toNonNullable(it)
-                        validate(person)
+                        val v = toNonNullable(it)
+                        validate(v)
                     }
                 }
 
