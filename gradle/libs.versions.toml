@@ -29,6 +29,9 @@ exposed-dao = { module = "org.jetbrains.exposed:exposed-dao", version.ref = "exp
 exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed" }
 jdbc-h2 = { module = "com.h2database:h2", version = "2.4.240" }
 
+hibernate-validator = { module = "org.hibernate.validator:hibernate-validator", version = "9.1.0.Final" }
+expressly = { module = "org.glassfish.expressly:expressly", version = "6.0.0" }
+
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
