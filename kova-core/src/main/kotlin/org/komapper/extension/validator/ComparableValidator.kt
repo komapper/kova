@@ -63,20 +63,20 @@ fun <S : Comparable<S>> Validation.gtValue(
  *
  * Example:
  * ```kotlin
- * tryValidate { gte(1, 0) }   // Success
- * tryValidate { gte(0, 0) }   // Success
- * tryValidate { gte(-1, 0) }  // Failure
+ * tryValidate { gteValue(1, 0) }   // Success
+ * tryValidate { gteValue(0, 0) }   // Success
+ * tryValidate { gteValue(-1, 0) }  // Failure
  * ```
  *
  * @param value The value to compare against (inclusive)
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <S : Comparable<S>> Validation.gte(
+fun <S : Comparable<S>> Validation.gteValue(
     input: S,
     value: S,
-    message: MessageProvider = { "kova.comparable.gte".resource(value) },
-) = input.constrain("kova.comparable.gte") { satisfies(it >= value, message) }
+    message: MessageProvider = { "kova.comparable.gteValue".resource(value) },
+) = input.constrain("kova.comparable.gteValue") { satisfies(it >= value, message) }
 
 /**
  * Validates that the number is strictly less than the specified value.
@@ -103,20 +103,20 @@ fun <S : Comparable<S>> Validation.ltValue(
  *
  * Example:
  * ```kotlin
- * tryValidate { lte(50, 100) }   // Success
- * tryValidate { lte(100, 100) }  // Success
- * tryValidate { lte(150, 100) }  // Failure
+ * tryValidate { lteValue(50, 100) }   // Success
+ * tryValidate { lteValue(100, 100) }  // Success
+ * tryValidate { lteValue(150, 100) }  // Failure
  * ```
  *
  * @param value The value to compare against (inclusive)
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <S : Comparable<S>> Validation.lte(
+fun <S : Comparable<S>> Validation.lteValue(
     input: S,
     value: S,
-    message: MessageProvider = { "kova.comparable.lte".resource(value) },
-) = input.constrain("kova.comparable.lte") { satisfies(it <= value, message) }
+    message: MessageProvider = { "kova.comparable.lteValue".resource(value) },
+) = input.constrain("kova.comparable.lteValue") { satisfies(it <= value, message) }
 
 /**
  * Validates that the value is equal to the specified value.

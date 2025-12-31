@@ -71,21 +71,21 @@ class ComparableValidatorTest :
                 }
             }
 
-            context("gte (greater than or equal)") {
+            context("gteValue (greater than or equal)") {
                 test("success with value greater than threshold") {
-                    val result = tryValidate { gte(6u, 5u) }
+                    val result = tryValidate { gteValue(6u, 5u) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with equal value") {
-                    val result = tryValidate { gte(5u, 5u) }
+                    val result = tryValidate { gteValue(5u, 5u) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure with value less than threshold") {
-                    val result = tryValidate { gte(4u, 5u) }
+                    val result = tryValidate { gteValue(4u, 5u) }
                     result.shouldBeFailure()
-                    result.messages[0].constraintId shouldBe "kova.comparable.gte"
+                    result.messages[0].constraintId shouldBe "kova.comparable.gteValue"
                 }
             }
 
@@ -113,21 +113,21 @@ class ComparableValidatorTest :
                 }
             }
 
-            context("lte (less than or equal)") {
+            context("lteValue (less than or equal)") {
                 test("success with value less than threshold") {
-                    val result = tryValidate { lte(4u, 5u) }
+                    val result = tryValidate { lteValue(4u, 5u) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with equal value") {
-                    val result = tryValidate { lte(5u, 5u) }
+                    val result = tryValidate { lteValue(5u, 5u) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure with value greater than threshold") {
-                    val result = tryValidate { lte(6u, 5u) }
+                    val result = tryValidate { lteValue(6u, 5u) }
                     result.shouldBeFailure()
-                    result.messages[0].constraintId shouldBe "kova.comparable.lte"
+                    result.messages[0].constraintId shouldBe "kova.comparable.lteValue"
                 }
             }
 
