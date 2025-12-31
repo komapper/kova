@@ -96,7 +96,7 @@ fun Validation.validate(
 
     if (Check.CAR in checks) {
         car::passedVehicleInspection {
-            eq(it, true) { text("The car has to pass the vehicle inspection first") }
+            eqValue(it, true) { text("The car has to pass the vehicle inspection first") }
         }
     }
 }

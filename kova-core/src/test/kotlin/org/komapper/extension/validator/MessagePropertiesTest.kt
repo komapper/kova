@@ -392,29 +392,29 @@ class MessagePropertiesTest :
                 message.text shouldBe "must be less than or equal to 10"
             }
 
-            test("eq") {
-                val result = tryValidate { eq(10, 42) }
+            test("eqValue") {
+                val result = tryValidate { eqValue(10, 42) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be equal to 42"
             }
 
-            test("eq with message") {
-                val result = tryValidate { eq(10, 42) { text("must be equal to 42") } }
+            test("eqValue with message") {
+                val result = tryValidate { eqValue(10, 42) { text("must be equal to 42") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be equal to 42"
             }
 
-            test("notEq") {
-                val result = tryValidate { notEq(0, 0) }
+            test("notEqValue") {
+                val result = tryValidate { notEqValue(0, 0) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must not be equal to 0"
             }
 
-            test("notEq with message") {
-                val result = tryValidate { notEq(0, 0) { text("must not be equal to 0") } }
+            test("notEqValue with message") {
+                val result = tryValidate { notEqValue(0, 0) { text("must not be equal to 0") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must not be equal to 0"

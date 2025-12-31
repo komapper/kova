@@ -123,37 +123,37 @@ fun <S : Comparable<S>> Validation.lteValue(
  *
  * Example:
  * ```kotlin
- * tryValidate { eq(42, 42) }  // Success
- * tryValidate { eq(41, 42) }  // Failure
- * tryValidate { eq(43, 42) }  // Failure
+ * tryValidate { eqValue(42, 42) }  // Success
+ * tryValidate { eqValue(41, 42) }  // Failure
+ * tryValidate { eqValue(43, 42) }  // Failure
  * ```
  *
  * @param value The value to compare against
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <S : Comparable<S>> Validation.eq(
+fun <S : Comparable<S>> Validation.eqValue(
     input: S,
     value: S,
-    message: MessageProvider = { "kova.comparable.eq".resource(value) },
-) = input.constrain("kova.comparable.eq") { satisfies(it == value, message) }
+    message: MessageProvider = { "kova.comparable.eqValue".resource(value) },
+) = input.constrain("kova.comparable.eqValue") { satisfies(it == value, message) }
 
 /**
  * Validates that the value is not equal to the specified value.
  *
  * Example:
  * ```kotlin
- * tryValidate { notEq(1, 0) }   // Success
- * tryValidate { notEq(-1, 0) }  // Success
- * tryValidate { notEq(0, 0) }   // Failure
+ * tryValidate { notEqValue(1, 0) }   // Success
+ * tryValidate { notEqValue(-1, 0) }  // Success
+ * tryValidate { notEqValue(0, 0) }   // Failure
  * ```
  *
  * @param value The value to compare against
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <S : Comparable<S>> Validation.notEq(
+fun <S : Comparable<S>> Validation.notEqValue(
     input: S,
     value: S,
-    message: MessageProvider = { "kova.comparable.notEq".resource(value) },
-) = input.constrain("kova.comparable.notEq") { satisfies(it != value, message) }
+    message: MessageProvider = { "kova.comparable.notEqValue".resource(value) },
+) = input.constrain("kova.comparable.notEqValue") { satisfies(it != value, message) }

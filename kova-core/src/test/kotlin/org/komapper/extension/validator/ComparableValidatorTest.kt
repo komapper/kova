@@ -131,40 +131,40 @@ class ComparableValidatorTest :
                 }
             }
 
-            context("eq (equal)") {
+            context("eqValue (equal)") {
                 test("success with equal value") {
-                    val result = tryValidate { eq(5u, 5u) }
+                    val result = tryValidate { eqValue(5u, 5u) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure with value greater than threshold") {
-                    val result = tryValidate { eq(6u, 5u) }
+                    val result = tryValidate { eqValue(6u, 5u) }
                     result.shouldBeFailure()
-                    result.messages[0].constraintId shouldBe "kova.comparable.eq"
+                    result.messages[0].constraintId shouldBe "kova.comparable.eqValue"
                 }
 
                 test("failure with value less than threshold") {
-                    val result = tryValidate { eq(4u, 5u) }
+                    val result = tryValidate { eqValue(4u, 5u) }
                     result.shouldBeFailure()
-                    result.messages[0].constraintId shouldBe "kova.comparable.eq"
+                    result.messages[0].constraintId shouldBe "kova.comparable.eqValue"
                 }
             }
 
-            context("notEq (not equal)") {
+            context("notEqValue (not equal)") {
                 test("success with value greater than threshold") {
-                    val result = tryValidate { notEq(6u, 5u) }
+                    val result = tryValidate { notEqValue(6u, 5u) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with value less than threshold") {
-                    val result = tryValidate { notEq(4u, 5u) }
+                    val result = tryValidate { notEqValue(4u, 5u) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure with equal value") {
-                    val result = tryValidate { notEq(5u, 5u) }
+                    val result = tryValidate { notEqValue(5u, 5u) }
                     result.shouldBeFailure()
-                    result.messages[0].constraintId shouldBe "kova.comparable.notEq"
+                    result.messages[0].constraintId shouldBe "kova.comparable.notEqValue"
                 }
             }
         }

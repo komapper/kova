@@ -254,8 +254,8 @@ gtValue(input, "a")                 // Greater than (> "a")
 gteValue(input, "a")                // Greater than or equal (>= "a")
 ltValue(input, "z")                 // Less than (< "z")
 lteValue(input, "z")                // Less than or equal (<= "z")
-eq(input, "value")                  // Equal to (== "value")
-notEq(input, "value")               // Not equal to (!= "value")
+eqValue(input, "value")             // Equal to (== "value")
+notEqValue(input, "value")          // Not equal to (!= "value")
 
 // String-specific validation
 isInt(input)                        // Validates string is valid Int
@@ -293,8 +293,8 @@ gtValue(input, 0)                   // Greater than (> 0)
 gteValue(input, 0)                  // Greater than or equal (>= 0)
 ltValue(input, 100)                 // Less than (< 100)
 lteValue(input, 100)                // Less than or equal (<= 100)
-eq(input, 42)                       // Equal to (== 42)
-notEq(input, 0)                     // Not equal to (!= 0)
+eqValue(input, 42)                  // Equal to (== 42)
+notEqValue(input, 0)                // Not equal to (!= 0)
 positive(input)                     // Must be positive (> 0)
 negative(input)                     // Must be negative (< 0)
 notPositive(input)                  // Must not be positive (<= 0)
@@ -312,8 +312,8 @@ gtValue(input, LocalDate.of(2024, 6, 1))      // Greater than (>)
 gteValue(input, LocalDate.of(2024, 1, 1))     // Greater than or equal (>=)
 ltValue(input, LocalDate.of(2025, 1, 1))      // Less than (<)
 lteValue(input, LocalDate.of(2024, 12, 31))   // Less than or equal (<=)
-eq(input, LocalDate.of(2024, 6, 15))     // Equal to (==)
-notEq(input, LocalDate.of(2024, 1, 1))   // Not equal to (!=)
+eqValue(input, LocalDate.of(2024, 6, 15))     // Equal to (==)
+notEqValue(input, LocalDate.of(2024, 1, 1))   // Not equal to (!=)
 future(input)                             // Must be in the future
 futureOrPresent(input)                    // Must be in the future or present
 past(input)                               // Must be in the past
@@ -375,8 +375,8 @@ gtValue(input, 0u)                  // Greater than (> 0u)
 gteValue(input, 0u)                 // Greater than or equal (>= 0u)
 ltValue(input, 100u)                // Less than (< 100u)
 lteValue(input, 100u)               // Less than or equal (<= 100u)
-eq(input, 42u)                      // Equal to (== 42u)
-notEq(input, 0u)                    // Not equal to (!= 0u)
+eqValue(input, 42u)                 // Equal to (== 42u)
+notEqValue(input, 0u)               // Not equal to (!= 0u)
 ```
 
 ### Literal Values

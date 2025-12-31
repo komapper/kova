@@ -3,7 +3,7 @@ package example.hibernate.validator
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import org.komapper.extension.validator.Validation
-import org.komapper.extension.validator.eq
+import org.komapper.extension.validator.eqValue
 import org.komapper.extension.validator.maxLength
 import org.komapper.extension.validator.minLength
 import org.komapper.extension.validator.minValue
@@ -67,7 +67,7 @@ class GroupTest :
                         minValue(it, 18) { text("You have to be 18 to drive a car") }
                     }
                     driver::hasDriverLicense {
-                        eq(it, true) {
+                        eqValue(it, true) {
                             text("You first have to pass the driving test")
                         }
                     }
@@ -94,7 +94,7 @@ class GroupTest :
 
                 if (Check.CAR in checks) {
                     car::passedVehicleInspection {
-                        eq(
+                        eqValue(
                             it,
                             true,
                         ) { text("The car has to pass the vehicle inspection first") }
