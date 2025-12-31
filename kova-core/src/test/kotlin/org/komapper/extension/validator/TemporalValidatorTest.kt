@@ -135,21 +135,21 @@ class TemporalValidatorTest :
                 }
             }
 
-            context("gt") {
+            context("gtValue") {
                 val date = LocalDate.of(2025, 6, 15)
 
                 test("success") {
-                    val result = tryValidate { gt(date.plusDays(1), date) }
+                    val result = tryValidate { gtValue(date.plusDays(1), date) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure with equal value") {
-                    val result = tryValidate { gt(date, date) }
+                    val result = tryValidate { gtValue(date, date) }
                     result.shouldBeFailure()
                 }
 
                 test("failure with smaller value") {
-                    val result = tryValidate { gt(date.minusDays(1), date) }
+                    val result = tryValidate { gtValue(date.minusDays(1), date) }
                     result.shouldBeFailure()
                 }
             }
@@ -173,21 +173,21 @@ class TemporalValidatorTest :
                 }
             }
 
-            context("lt") {
+            context("ltValue") {
                 val date = LocalDate.of(2025, 6, 15)
 
                 test("success") {
-                    val result = tryValidate { lt(date.minusDays(1), date) }
+                    val result = tryValidate { ltValue(date.minusDays(1), date) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure with equal value") {
-                    val result = tryValidate { lt(date, date) }
+                    val result = tryValidate { ltValue(date, date) }
                     result.shouldBeFailure()
                 }
 
                 test("failure with greater value") {
-                    val result = tryValidate { lt(date.plusDays(1), date) }
+                    val result = tryValidate { ltValue(date.plusDays(1), date) }
                     result.shouldBeFailure()
                 }
             }
@@ -326,21 +326,21 @@ class TemporalValidatorTest :
                 }
             }
 
-            context("gt") {
+            context("gtValue") {
                 val time = LocalTime.of(12, 0, 0)
 
                 test("success") {
-                    val result = tryValidate { gt(time.plusHours(1), time) }
+                    val result = tryValidate { gtValue(time.plusHours(1), time) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure with equal value") {
-                    val result = tryValidate { gt(time, time) }
+                    val result = tryValidate { gtValue(time, time) }
                     result.shouldBeFailure()
                 }
 
                 test("failure with smaller value") {
-                    val result = tryValidate { gt(time.minusHours(1), time) }
+                    val result = tryValidate { gtValue(time.minusHours(1), time) }
                     result.shouldBeFailure()
                 }
             }
@@ -364,21 +364,21 @@ class TemporalValidatorTest :
                 }
             }
 
-            context("lt") {
+            context("ltValue") {
                 val time = LocalTime.of(12, 0, 0)
 
                 test("success") {
-                    val result = tryValidate { lt(time.minusHours(1), time) }
+                    val result = tryValidate { ltValue(time.minusHours(1), time) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure with equal value") {
-                    val result = tryValidate { lt(time, time) }
+                    val result = tryValidate { ltValue(time, time) }
                     result.shouldBeFailure()
                 }
 
                 test("failure with greater value") {
-                    val result = tryValidate { lt(time.plusHours(1), time) }
+                    val result = tryValidate { ltValue(time.plusHours(1), time) }
                     result.shouldBeFailure()
                 }
             }
@@ -516,21 +516,21 @@ class TemporalValidatorTest :
                 }
             }
 
-            context("gt") {
+            context("gtValue") {
                 val dateTime = LocalDateTime.of(2025, 6, 15, 12, 0, 0)
 
                 test("success") {
-                    val result = tryValidate { gt(dateTime.plusHours(1), dateTime) }
+                    val result = tryValidate { gtValue(dateTime.plusHours(1), dateTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure with equal value") {
-                    val result = tryValidate { gt(dateTime, dateTime) }
+                    val result = tryValidate { gtValue(dateTime, dateTime) }
                     result.shouldBeFailure()
                 }
 
                 test("failure with smaller value") {
-                    val result = tryValidate { gt(dateTime.minusHours(1), dateTime) }
+                    val result = tryValidate { gtValue(dateTime.minusHours(1), dateTime) }
                     result.shouldBeFailure()
                 }
             }
@@ -554,21 +554,21 @@ class TemporalValidatorTest :
                 }
             }
 
-            context("lt") {
+            context("ltValue") {
                 val dateTime = LocalDateTime.of(2025, 6, 15, 12, 0, 0)
 
                 test("success") {
-                    val result = tryValidate { lt(dateTime.minusHours(1), dateTime) }
+                    val result = tryValidate { ltValue(dateTime.minusHours(1), dateTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure with equal value") {
-                    val result = tryValidate { lt(dateTime, dateTime) }
+                    val result = tryValidate { ltValue(dateTime, dateTime) }
                     result.shouldBeFailure()
                 }
 
                 test("failure with greater value") {
-                    val result = tryValidate { lt(dateTime.plusHours(1), dateTime) }
+                    val result = tryValidate { ltValue(dateTime.plusHours(1), dateTime) }
                     result.shouldBeFailure()
                 }
             }
@@ -700,21 +700,21 @@ class TemporalValidatorTest :
                 }
             }
 
-            context("gt") {
+            context("gtValue") {
                 val monthDay = MonthDay.of(6, 15)
 
                 test("success") {
-                    val result = tryValidate { gt(MonthDay.of(6, 16), monthDay) }
+                    val result = tryValidate { gtValue(MonthDay.of(6, 16), monthDay) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure with equal value") {
-                    val result = tryValidate { gt(monthDay, monthDay) }
+                    val result = tryValidate { gtValue(monthDay, monthDay) }
                     result.shouldBeFailure()
                 }
 
                 test("failure with smaller value") {
-                    val result = tryValidate { gt(MonthDay.of(6, 14), monthDay) }
+                    val result = tryValidate { gtValue(MonthDay.of(6, 14), monthDay) }
                     result.shouldBeFailure()
                 }
             }
@@ -738,21 +738,21 @@ class TemporalValidatorTest :
                 }
             }
 
-            context("lt") {
+            context("ltValue") {
                 val monthDay = MonthDay.of(6, 15)
 
                 test("success") {
-                    val result = tryValidate { lt(MonthDay.of(6, 14), monthDay) }
+                    val result = tryValidate { ltValue(MonthDay.of(6, 14), monthDay) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure with equal value") {
-                    val result = tryValidate { lt(monthDay, monthDay) }
+                    val result = tryValidate { ltValue(monthDay, monthDay) }
                     result.shouldBeFailure()
                 }
 
                 test("failure with greater value") {
-                    val result = tryValidate { lt(MonthDay.of(6, 16), monthDay) }
+                    val result = tryValidate { ltValue(MonthDay.of(6, 16), monthDay) }
                     result.shouldBeFailure()
                 }
             }

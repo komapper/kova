@@ -335,16 +335,16 @@ class MessagePropertiesTest :
                 message.text shouldBe "must be less than or equal to 10"
             }
 
-            test("gt") {
-                val result = tryValidate { gt(10, 10) }
+            test("gtValue") {
+                val result = tryValidate { gtValue(10, 10) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be greater than 10"
             }
 
-            test("gt with message") {
+            test("gtValue with message") {
                 val result =
-                    tryValidate { gt(10, 10) { text("must be greater than 10") } }
+                    tryValidate { gtValue(10, 10) { text("must be greater than 10") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be greater than 10"
@@ -364,15 +364,15 @@ class MessagePropertiesTest :
                 message.text shouldBe "must be greater than or equal to 10"
             }
 
-            test("lt") {
-                val result = tryValidate { lt(10, 10) }
+            test("ltValue") {
+                val result = tryValidate { ltValue(10, 10) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be less than 10"
             }
 
-            test("lt with message") {
-                val result = tryValidate { lt(10, 10) { text("must be less than 10") } }
+            test("ltValue with message") {
+                val result = tryValidate { ltValue(10, 10) { text("must be less than 10") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be less than 10"
@@ -662,7 +662,7 @@ class MessagePropertiesTest :
                 val result =
                     tryValidate {
                         val value = 0
-                        or { positive(value) } orElse { lt(value, 0) }
+                        or { positive(value) } orElse { ltValue(value, 0) }
                     }
                 result.shouldBeFailure()
                 val message = result.messages.single()

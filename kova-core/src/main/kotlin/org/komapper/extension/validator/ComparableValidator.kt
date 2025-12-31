@@ -43,20 +43,20 @@ fun <S : Comparable<S>> Validation.maxValue(
  *
  * Example:
  * ```kotlin
- * tryValidate { gt(1, 0) }   // Success
- * tryValidate { gt(0, 0) }   // Failure
- * tryValidate { gt(-1, 0) }  // Failure
+ * tryValidate { gtValue(1, 0) }   // Success
+ * tryValidate { gtValue(0, 0) }   // Failure
+ * tryValidate { gtValue(-1, 0) }  // Failure
  * ```
  *
  * @param value The value to compare against (exclusive)
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <S : Comparable<S>> Validation.gt(
+fun <S : Comparable<S>> Validation.gtValue(
     input: S,
     value: S,
-    message: MessageProvider = { "kova.comparable.gt".resource(value) },
-) = input.constrain("kova.comparable.gt") { satisfies(it > value, message) }
+    message: MessageProvider = { "kova.comparable.gtValue".resource(value) },
+) = input.constrain("kova.comparable.gtValue") { satisfies(it > value, message) }
 
 /**
  * Validates that the number is greater than or equal to the specified value.
@@ -83,20 +83,20 @@ fun <S : Comparable<S>> Validation.gte(
  *
  * Example:
  * ```kotlin
- * tryValidate { lt(50, 100) }   // Success
- * tryValidate { lt(100, 100) }  // Failure
- * tryValidate { lt(150, 100) }  // Failure
+ * tryValidate { ltValue(50, 100) }   // Success
+ * tryValidate { ltValue(100, 100) }  // Failure
+ * tryValidate { ltValue(150, 100) }  // Failure
  * ```
  *
  * @param value The value to compare against (exclusive)
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <S : Comparable<S>> Validation.lt(
+fun <S : Comparable<S>> Validation.ltValue(
     input: S,
     value: S,
-    message: MessageProvider = { "kova.comparable.lt".resource(value) },
-) = input.constrain("kova.comparable.lt") { satisfies(it < value, message) }
+    message: MessageProvider = { "kova.comparable.ltValue".resource(value) },
+) = input.constrain("kova.comparable.ltValue") { satisfies(it < value, message) }
 
 /**
  * Validates that the number is less than or equal to the specified value.

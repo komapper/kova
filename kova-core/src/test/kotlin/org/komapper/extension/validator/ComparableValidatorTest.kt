@@ -47,27 +47,27 @@ class ComparableValidatorTest :
                 }
             }
 
-            context("gt (greater than)") {
+            context("gtValue (greater than)") {
                 test("success with value greater than threshold") {
-                    val result = tryValidate { gt(6u, 5u) }
+                    val result = tryValidate { gtValue(6u, 5u) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with large value") {
-                    val result = tryValidate { gt(100u, 5u) }
+                    val result = tryValidate { gtValue(100u, 5u) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure with equal value") {
-                    val result = tryValidate { gt(5u, 5u) }
+                    val result = tryValidate { gtValue(5u, 5u) }
                     result.shouldBeFailure()
-                    result.messages[0].constraintId shouldBe "kova.comparable.gt"
+                    result.messages[0].constraintId shouldBe "kova.comparable.gtValue"
                 }
 
                 test("failure with value less than threshold") {
-                    val result = tryValidate { gt(4u, 5u) }
+                    val result = tryValidate { gtValue(4u, 5u) }
                     result.shouldBeFailure()
-                    result.messages[0].constraintId shouldBe "kova.comparable.gt"
+                    result.messages[0].constraintId shouldBe "kova.comparable.gtValue"
                 }
             }
 
@@ -89,27 +89,27 @@ class ComparableValidatorTest :
                 }
             }
 
-            context("lt (less than)") {
+            context("ltValue (less than)") {
                 test("success with value less than threshold") {
-                    val result = tryValidate { lt(4u, 5u) }
+                    val result = tryValidate { ltValue(4u, 5u) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with zero") {
-                    val result = tryValidate { lt(0u, 5u) }
+                    val result = tryValidate { ltValue(0u, 5u) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure with equal value") {
-                    val result = tryValidate { lt(5u, 5u) }
+                    val result = tryValidate { ltValue(5u, 5u) }
                     result.shouldBeFailure()
-                    result.messages[0].constraintId shouldBe "kova.comparable.lt"
+                    result.messages[0].constraintId shouldBe "kova.comparable.ltValue"
                 }
 
                 test("failure with value greater than threshold") {
-                    val result = tryValidate { lt(6u, 5u) }
+                    val result = tryValidate { ltValue(6u, 5u) }
                     result.shouldBeFailure()
-                    result.messages[0].constraintId shouldBe "kova.comparable.lt"
+                    result.messages[0].constraintId shouldBe "kova.comparable.ltValue"
                 }
             }
 
