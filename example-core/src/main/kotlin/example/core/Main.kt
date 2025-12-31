@@ -3,9 +3,9 @@ package example.core
 import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationResult
 import org.komapper.extension.validator.isSuccess
-import org.komapper.extension.validator.max
-import org.komapper.extension.validator.min
+import org.komapper.extension.validator.maxValue
 import org.komapper.extension.validator.minLength
+import org.komapper.extension.validator.minValue
 import org.komapper.extension.validator.notBlank
 import org.komapper.extension.validator.notNegative
 import org.komapper.extension.validator.tryValidate
@@ -57,8 +57,8 @@ fun Validation.validate(user: User) =
             notBlank(it)
         }
         user::age {
-            min(it, 0)
-            max(it, 120)
+            minValue(it, 0)
+            maxValue(it, 120)
         }
     }
 
@@ -69,8 +69,8 @@ fun Validation.validate(user: User) =
 fun Validation.validate(age: Age) =
     age.schema {
         age::value {
-            min(it, 0)
-            max(it, 120)
+            minValue(it, 0)
+            maxValue(it, 120)
         }
     }
 

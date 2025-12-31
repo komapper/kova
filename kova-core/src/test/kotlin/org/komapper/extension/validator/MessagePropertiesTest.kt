@@ -308,113 +308,113 @@ class MessagePropertiesTest :
 
         context("kova.comparable") {
             test("min") {
-                val result = tryValidate { min(5, 10) }
+                val result = tryValidate { minValue(5, 10) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be greater than or equal to 10"
             }
 
             test("min with message") {
-                val result = tryValidate { min(5, 10) { text("must be greater than or equal to 10") } }
+                val result = tryValidate { minValue(5, 10) { text("must be greater than or equal to 10") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be greater than or equal to 10"
             }
 
             test("max") {
-                val result = tryValidate { max(15, 10) }
+                val result = tryValidate { maxValue(15, 10) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be less than or equal to 10"
             }
 
             test("max with message") {
-                val result = tryValidate { max(15, 10) { text("must be less than or equal to 10") } }
+                val result = tryValidate { maxValue(15, 10) { text("must be less than or equal to 10") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be less than or equal to 10"
             }
 
-            test("gt") {
-                val result = tryValidate { gt(10, 10) }
+            test("gtValue") {
+                val result = tryValidate { gtValue(10, 10) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be greater than 10"
             }
 
-            test("gt with message") {
+            test("gtValue with message") {
                 val result =
-                    tryValidate { gt(10, 10) { text("must be greater than 10") } }
+                    tryValidate { gtValue(10, 10) { text("must be greater than 10") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be greater than 10"
             }
 
-            test("gte") {
-                val result = tryValidate { gte(9, 10) }
+            test("gteValue") {
+                val result = tryValidate { gteValue(9, 10) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be greater than or equal to 10"
             }
 
-            test("gte with message") {
-                val result = tryValidate { gte(9, 10) { text("must be greater than or equal to 10") } }
+            test("gteValue with message") {
+                val result = tryValidate { gteValue(9, 10) { text("must be greater than or equal to 10") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be greater than or equal to 10"
             }
 
-            test("lt") {
-                val result = tryValidate { lt(10, 10) }
+            test("ltValue") {
+                val result = tryValidate { ltValue(10, 10) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be less than 10"
             }
 
-            test("lt with message") {
-                val result = tryValidate { lt(10, 10) { text("must be less than 10") } }
+            test("ltValue with message") {
+                val result = tryValidate { ltValue(10, 10) { text("must be less than 10") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be less than 10"
             }
 
-            test("lte") {
-                val result = tryValidate { lte(11, 10) }
+            test("lteValue") {
+                val result = tryValidate { lteValue(11, 10) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be less than or equal to 10"
             }
 
-            test("lte with message") {
-                val result = tryValidate { lte(11, 10) { text("must be less than or equal to 10") } }
+            test("lteValue with message") {
+                val result = tryValidate { lteValue(11, 10) { text("must be less than or equal to 10") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be less than or equal to 10"
             }
 
-            test("eq") {
-                val result = tryValidate { eq(10, 42) }
+            test("eqValue") {
+                val result = tryValidate { eqValue(10, 42) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be equal to 42"
             }
 
-            test("eq with message") {
-                val result = tryValidate { eq(10, 42) { text("must be equal to 42") } }
+            test("eqValue with message") {
+                val result = tryValidate { eqValue(10, 42) { text("must be equal to 42") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be equal to 42"
             }
 
-            test("notEq") {
-                val result = tryValidate { notEq(0, 0) }
+            test("notEqValue") {
+                val result = tryValidate { notEqValue(0, 0) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must not be equal to 0"
             }
 
-            test("notEq with message") {
-                val result = tryValidate { notEq(0, 0) { text("must not be equal to 0") } }
+            test("notEqValue with message") {
+                val result = tryValidate { notEqValue(0, 0) { text("must not be equal to 0") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must not be equal to 0"
@@ -662,7 +662,7 @@ class MessagePropertiesTest :
                 val result =
                     tryValidate {
                         val value = 0
-                        or { positive(value) } orElse { lt(value, 0) }
+                        or { positive(value) } orElse { ltValue(value, 0) }
                     }
                 result.shouldBeFailure()
                 val message = result.messages.single()

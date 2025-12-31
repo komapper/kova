@@ -45,7 +45,7 @@ fun Validation.validate(car: Car) = car.schema {
         minLength(v, 2)
         maxLength(v, 14)
     }
-    car::seatCount { min(it, 2) }
+    car::seatCount { minValue(it, 2) }
 }
 
 val result = tryValidate { validate(car) }
@@ -96,7 +96,7 @@ fun Validation.validate(
 
     if (Check.CAR in checks) {
         car::passedVehicleInspection {
-            eq(it, true) { text("The car has to pass the vehicle inspection first") }
+            eqValue(it, true) { text("The car has to pass the vehicle inspection first") }
         }
     }
 }

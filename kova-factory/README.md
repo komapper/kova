@@ -75,7 +75,7 @@ data class Age(val value: Int)
 fun Validation.buildAge(ageString: String) = factory {
     val value by bind(ageString) {
         val age = toInt(it)  // String -> Int
-        min(age, 0); max(age, 120)
+        minValue(age, 0); maxValue(age, 120)
         age
     }
     Age(value)
@@ -128,7 +128,7 @@ fun Validation.buildUser(username: String, email: String, age: String) = factory
     }
     val age by bind(age) {
         val ageInt = toInt(it)
-        min(ageInt, 0); max(ageInt, 120)
+        minValue(ageInt, 0); maxValue(ageInt, 120)
         ageInt
     }
     User(username, email, age)

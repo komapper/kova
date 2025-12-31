@@ -95,9 +95,9 @@ Validate data class properties using the `schema` function.
 data class Product(val id: Int, val name: String, val price: Double)
 
 fun Validation.validate(product: Product) = product.schema {
-    product::id { min(it, 1) }
+    product::id { minValue(it, 1) }
     product::name { notBlank(it); minLength(it, 1); maxLength(it, 100) }
-    product::price { min(it, 0.0) }
+    product::price { minValue(it, 0.0) }
 }
 
 val result = tryValidate { validate(Product(1, "Mouse", 29.99)) }
@@ -248,14 +248,14 @@ uppercase(input)                    // Must be uppercase
 lowercase(input)                    // Must be lowercase
 
 // Comparable validation
-min(input, "a")                     // Minimum value (>= "a")
-max(input, "z")                     // Maximum value (<= "z")
-gt(input, "a")                      // Greater than (> "a")
-gte(input, "a")                     // Greater than or equal (>= "a")
-lt(input, "z")                      // Less than (< "z")
-lte(input, "z")                     // Less than or equal (<= "z")
-eq(input, "value")                  // Equal to (== "value")
-notEq(input, "value")               // Not equal to (!= "value")
+minValue(input, "a")                // Minimum value (>= "a")
+maxValue(input, "z")                // Maximum value (<= "z")
+gtValue(input, "a")                 // Greater than (> "a")
+gteValue(input, "a")                // Greater than or equal (>= "a")
+ltValue(input, "z")                 // Less than (< "z")
+lteValue(input, "z")                // Less than or equal (<= "z")
+eqValue(input, "value")             // Equal to (== "value")
+notEqValue(input, "value")          // Not equal to (!= "value")
 
 // String-specific validation
 isInt(input)                        // Validates string is valid Int
@@ -287,14 +287,14 @@ toEnum<Status>(input)               // Validate and convert to enum
 Supported types: `Int`, `Long`, `Double`, `Float`, `Byte`, `Short`, `BigDecimal`, `BigInteger`
 
 ```kotlin
-min(input, 0)                       // Minimum value (>= 0)
-max(input, 100)                     // Maximum value (<= 100)
-gt(input, 0)                        // Greater than (> 0)
-gte(input, 0)                       // Greater than or equal (>= 0)
-lt(input, 100)                      // Less than (< 100)
-lte(input, 100)                     // Less than or equal (<= 100)
-eq(input, 42)                       // Equal to (== 42)
-notEq(input, 0)                     // Not equal to (!= 0)
+minValue(input, 0)                  // Minimum value (>= 0)
+maxValue(input, 100)                // Maximum value (<= 100)
+gtValue(input, 0)                   // Greater than (> 0)
+gteValue(input, 0)                  // Greater than or equal (>= 0)
+ltValue(input, 100)                 // Less than (< 100)
+lteValue(input, 100)                // Less than or equal (<= 100)
+eqValue(input, 42)                  // Equal to (== 42)
+notEqValue(input, 0)                // Not equal to (!= 0)
 positive(input)                     // Must be positive (> 0)
 negative(input)                     // Must be negative (< 0)
 notPositive(input)                  // Must not be positive (<= 0)
@@ -306,14 +306,14 @@ notNegative(input)                  // Must not be negative (>= 0)
 Supported types: `LocalDate`, `LocalTime`, `LocalDateTime`, `Instant`, `OffsetDateTime`, `OffsetTime`, `ZonedDateTime`, `Year`, `YearMonth`, `MonthDay`
 
 ```kotlin
-min(input, LocalDate.of(2024, 1, 1))     // Minimum date/time (>=)
-max(input, LocalDate.of(2024, 12, 31))   // Maximum date/time (<=)
-gt(input, LocalDate.of(2024, 6, 1))      // Greater than (>)
-gte(input, LocalDate.of(2024, 1, 1))     // Greater than or equal (>=)
-lt(input, LocalDate.of(2025, 1, 1))      // Less than (<)
-lte(input, LocalDate.of(2024, 12, 31))   // Less than or equal (<=)
-eq(input, LocalDate.of(2024, 6, 15))     // Equal to (==)
-notEq(input, LocalDate.of(2024, 1, 1))   // Not equal to (!=)
+minValue(input, LocalDate.of(2024, 1, 1))     // Minimum date/time (>=)
+maxValue(input, LocalDate.of(2024, 12, 31))   // Maximum date/time (<=)
+gtValue(input, LocalDate.of(2024, 6, 1))      // Greater than (>)
+gteValue(input, LocalDate.of(2024, 1, 1))     // Greater than or equal (>=)
+ltValue(input, LocalDate.of(2025, 1, 1))      // Less than (<)
+lteValue(input, LocalDate.of(2024, 12, 31))   // Less than or equal (<=)
+eqValue(input, LocalDate.of(2024, 6, 15))     // Equal to (==)
+notEqValue(input, LocalDate.of(2024, 1, 1))   // Not equal to (!=)
 future(input)                             // Must be in the future
 futureOrPresent(input)                    // Must be in the future or present
 past(input)                               // Must be in the past
@@ -332,7 +332,7 @@ notEmpty(input)                     // Must not be empty
 contains(input, "foo")              // Must contain element (alias: has)
 notContains(input, "bar")           // Must not contain element
 onEach(input) { element ->          // Validate each element
-    min(element, 1)
+    minValue(element, 1)
 }
 ```
 
@@ -348,10 +348,10 @@ notContainsKey(input, "bar")        // Must not contain key
 containsValue(input, 42)            // Must contain value (alias: hasValue)
 notContainsValue(input, 0)          // Must not contain value
 onEachKey(input) { key ->           // Validate each key
-    min(key, 1)
+    minValue(key, 1)
 }
 onEachValue(input) { value ->       // Validate each value
-    min(value, 0)
+    minValue(value, 0)
 }
 ```
 
@@ -369,14 +369,14 @@ toNonNullable(input)                // Convert nullable to non-nullable (fails i
 Supports all `Comparable` types, such as `UInt`, `ULong`, `UByte`, and `UShort`.
 
 ```kotlin
-min(input, 0u)                      // Minimum value (>= 0u)
-max(input, 100u)                    // Maximum value (<= 100u)
-gt(input, 0u)                       // Greater than (> 0u)
-gte(input, 0u)                      // Greater than or equal (>= 0u)
-lt(input, 100u)                     // Less than (< 100u)
-lte(input, 100u)                    // Less than or equal (<= 100u)
-eq(input, 42u)                      // Equal to (== 42u)
-notEq(input, 0u)                    // Not equal to (!= 0u)
+minValue(input, 0u)                 // Minimum value (>= 0u)
+maxValue(input, 100u)               // Maximum value (<= 100u)
+gtValue(input, 0u)                  // Greater than (> 0u)
+gteValue(input, 0u)                 // Greater than or equal (>= 0u)
+ltValue(input, 100u)                // Less than (< 100u)
+lteValue(input, 100u)               // Less than or equal (<= 100u)
+eqValue(input, 42u)                 // Equal to (== 42u)
+notEqValue(input, 0u)               // Not equal to (!= 0u)
 ```
 
 ### Literal Values

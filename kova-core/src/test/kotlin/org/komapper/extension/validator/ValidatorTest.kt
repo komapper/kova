@@ -14,8 +14,8 @@ class ValidatorTest :
 
         context("tryValidate and validate") {
             fun Validation.validate(i: Int) {
-                min(i, 1)
-                max(i, 10)
+                minValue(i, 1)
+                maxValue(i, 10)
             }
 
             test("tryValidate - success") {
@@ -27,7 +27,7 @@ class ValidatorTest :
                 val result = tryValidate { validate(0) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
-                result.messages[0].constraintId shouldBe "kova.comparable.min"
+                result.messages[0].constraintId shouldBe "kova.comparable.minValue"
             }
 
             test("validate - success") {
@@ -40,13 +40,13 @@ class ValidatorTest :
                         validate { validate(0) }
                     }
                 ex.messages.size shouldBe 1
-                ex.messages[0].constraintId shouldBe "kova.comparable.min"
+                ex.messages[0].constraintId shouldBe "kova.comparable.minValue"
             }
         }
 
         context("map") {
             fun Validation.validate(i: Int): Int {
-                min(i, 1)
+                minValue(i, 1)
                 return i * 2
             }
             test("success") {
@@ -64,7 +64,7 @@ class ValidatorTest :
 
         context("then") {
             fun Validation.validate(i: Int): String {
-                min(i, 3)
+                minValue(i, 3)
                 return i.toString().also { maxLength(it, 1) }
             }
 
@@ -76,7 +76,7 @@ class ValidatorTest :
             test("failure when first constraint violated") {
                 val result = tryValidate { validate(2) }
                 result.shouldBeFailure()
-                result.messages.single().constraintId shouldBe "kova.comparable.min"
+                result.messages.single().constraintId shouldBe "kova.comparable.minValue"
             }
             test("failure when second constraint violated") {
                 val result = tryValidate { validate(10) }

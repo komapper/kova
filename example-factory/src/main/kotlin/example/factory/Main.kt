@@ -5,9 +5,9 @@ import org.komapper.extension.validator.ValidationResult
 import org.komapper.extension.validator.factory.bind
 import org.komapper.extension.validator.factory.factory
 import org.komapper.extension.validator.isSuccess
-import org.komapper.extension.validator.max
-import org.komapper.extension.validator.min
+import org.komapper.extension.validator.maxValue
 import org.komapper.extension.validator.minLength
+import org.komapper.extension.validator.minValue
 import org.komapper.extension.validator.notBlank
 import org.komapper.extension.validator.toInt
 import org.komapper.extension.validator.tryValidate
@@ -45,8 +45,8 @@ data class Person(
 fun Validation.validate(user: User) =
     user.schema {
         user::age {
-            min(it, 0)
-            max(it, 120)
+            minValue(it, 0)
+            maxValue(it, 120)
         } // property validator
     }
 
