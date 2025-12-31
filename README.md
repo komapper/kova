@@ -620,6 +620,7 @@ The project includes several example modules demonstrating different use cases:
 - **[example-factory](example-factory/)** - Factory pattern examples showing how to validate and transform raw input into typed objects
 - **[example-ktor](example-ktor/)** - Ktor integration examples with request validation and error handling
 - **[example-exposed](example-exposed/)** - Database integration examples using Exposed ORM
+- **[example-hibernate-validator](example-hibernate-validator/)** - Side-by-side comparison of Kova and Hibernate Validator validation approaches
 
 Each example module contains complete, runnable code that you can use as a reference for your own projects.
 
