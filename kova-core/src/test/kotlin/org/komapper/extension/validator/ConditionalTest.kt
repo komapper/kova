@@ -13,7 +13,7 @@ class ConditionalTest :
 
         context("if expression") {
             fun Validation.validate(i: Int) {
-                if (i % 2 == 0) min(i, 3)
+                if (i % 2 == 0) minValue(i, 3)
             }
             test("success when condition not met") {
                 val result = tryValidate { validate(1) }
@@ -24,13 +24,13 @@ class ConditionalTest :
                 val result = tryValidate { validate(2) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
-                result.messages[0].constraintId shouldBe "kova.comparable.min"
+                result.messages[0].constraintId shouldBe "kova.comparable.minValue"
             }
 
             context("and") {
                 fun Validation.validateAndMin1(i: Int) {
-                    if (i % 2 == 0) min(i, 3)
-                    min(i, 1)
+                    if (i % 2 == 0) minValue(i, 3)
+                    minValue(i, 1)
                 }
 
                 test("success") {
@@ -42,8 +42,8 @@ class ConditionalTest :
                     val result = tryValidate { validateAndMin1(0) }
                     result.shouldBeFailure()
                     result.messages.size shouldBe 2
-                    result.messages[0].constraintId shouldBe "kova.comparable.min"
-                    result.messages[1].constraintId shouldBe "kova.comparable.min"
+                    result.messages[0].constraintId shouldBe "kova.comparable.minValue"
+                    result.messages[1].constraintId shouldBe "kova.comparable.minValue"
                 }
             }
         }
@@ -51,7 +51,7 @@ class ConditionalTest :
         context("if expression -  early return") {
             fun Validation.nullableMin3(i: Int?): Int {
                 if (i == null) return 0
-                min(i, 3)
+                minValue(i, 3)
                 return i
             }
 
@@ -72,15 +72,15 @@ class ConditionalTest :
                 val result = tryValidate { nullableMin3(2) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
-                result.messages[0].constraintId shouldBe "kova.comparable.min"
+                result.messages[0].constraintId shouldBe "kova.comparable.minValue"
             }
         }
 
         context("elvis operator") {
             fun Validation.nullableThenMin3AndMax3(i: Int?) =
                 (i ?: 4).also {
-                    min(it, 3)
-                    max(it, 5)
+                    minValue(it, 3)
+                    maxValue(it, 5)
                 }
 
             test("success") {
@@ -98,21 +98,21 @@ class ConditionalTest :
                 val result = tryValidate { nullableThenMin3AndMax3(2) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
-                result.messages[0].constraintId shouldBe "kova.comparable.min"
+                result.messages[0].constraintId shouldBe "kova.comparable.minValue"
             }
 
             test("failure when max5 constraint violated") {
                 val result = tryValidate { nullableThenMin3AndMax3(6) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
-                result.messages[0].constraintId shouldBe "kova.comparable.max"
+                result.messages[0].constraintId shouldBe "kova.comparable.maxValue"
             }
         }
 
         context("and") {
             fun Validation.validate(i: Int) {
-                max(i, 2)
-                max(i, 3)
+                maxValue(i, 2)
+                maxValue(i, 3)
                 negative(i)
             }
 
@@ -125,16 +125,16 @@ class ConditionalTest :
                 val result = tryValidate { validate(5) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 3
-                result.messages[0].constraintId shouldBe "kova.comparable.max"
-                result.messages[1].constraintId shouldBe "kova.comparable.max"
+                result.messages[0].constraintId shouldBe "kova.comparable.maxValue"
+                result.messages[1].constraintId shouldBe "kova.comparable.maxValue"
                 result.messages[2].constraintId shouldBe "kova.number.negative"
             }
         }
 
         context("or") {
             fun Validation.validate(i: UInt) {
-                val _ = or { max(i, 10u) } orElse { max(i, 20u) }
-                min(i, 5u)
+                val _ = or { maxValue(i, 10u) } orElse { maxValue(i, 20u) }
+                minValue(i, 5u)
             }
 
             test("success : 10") {
@@ -159,7 +159,7 @@ class ConditionalTest :
             fun Validation.nullableMax5OrMin3(i: Int?): Int {
                 if (i == null) return 0
                 return i.let {
-                    val _ = or { max(it, 5) } orElse { min(it, 3) }
+                    val _ = or { maxValue(it, 5) } orElse { minValue(it, 3) }
                     it
                 }
             }
@@ -170,7 +170,7 @@ class ConditionalTest :
                     val result = tryValidate(config) { nullableMax5OrMin3(3) }
                     result.shouldBeSuccess()
                     result.value shouldBe 3
-                } shouldBe listOf(LogEntry.Satisfied(constraintId = "kova.comparable.max", root = "", path = "", input = 3))
+                } shouldBe listOf(LogEntry.Satisfied(constraintId = "kova.comparable.maxValue", root = "", path = "", input = 3))
             }
 
             test("success: 2") {
@@ -179,7 +179,7 @@ class ConditionalTest :
                     val result = tryValidate(config) { nullableMax5OrMin3(2) }
                     result.shouldBeSuccess()
                     result.value shouldBe 2
-                } shouldBe listOf(LogEntry.Satisfied(constraintId = "kova.comparable.max", root = "", path = "", input = 2))
+                } shouldBe listOf(LogEntry.Satisfied(constraintId = "kova.comparable.maxValue", root = "", path = "", input = 2))
             }
 
             test("success: 6") {
@@ -191,13 +191,13 @@ class ConditionalTest :
                 logs shouldBe
                     listOf(
                         LogEntry.Violated(
-                            constraintId = "kova.comparable.max",
+                            constraintId = "kova.comparable.maxValue",
                             root = "",
                             path = "",
                             input = 6,
                             args = listOf(5),
                         ),
-                        LogEntry.Satisfied(constraintId = "kova.comparable.min", root = "", path = "", input = 6),
+                        LogEntry.Satisfied(constraintId = "kova.comparable.minValue", root = "", path = "", input = 6),
                     )
             }
 

@@ -45,7 +45,7 @@ fun Validation.validate(car: Car) = car.schema {
         minLength(v, 2)
         maxLength(v, 14)
     }
-    car::seatCount { min(it, 2) }
+    car::seatCount { minValue(it, 2) }
 }
 
 val result = tryValidate { validate(car) }

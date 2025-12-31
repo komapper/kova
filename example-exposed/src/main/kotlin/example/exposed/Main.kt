@@ -16,9 +16,9 @@ import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationException
-import org.komapper.extension.validator.max
-import org.komapper.extension.validator.min
+import org.komapper.extension.validator.maxValue
 import org.komapper.extension.validator.minLength
+import org.komapper.extension.validator.minValue
 import org.komapper.extension.validator.notBlank
 import org.komapper.extension.validator.notEmpty
 import org.komapper.extension.validator.validate
@@ -114,8 +114,8 @@ fun Validation.validate(user: User) =
             notBlank(it)
         }
         user::age {
-            min(it, 0)
-            max(it, 120)
+            minValue(it, 0)
+            maxValue(it, 120)
         }
     }
 

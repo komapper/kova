@@ -26,7 +26,7 @@ class NullableValidatorTest :
 
         context("nullable with constraint") {
             fun Validation.nullableMin3(i: Int?) {
-                if (i != null) min(i, 3)
+                if (i != null) minValue(i, 3)
             }
 
             test("success with non-null value") {
@@ -43,13 +43,13 @@ class NullableValidatorTest :
                 val result = tryValidate { nullableMin3(2) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
-                result.messages[0].constraintId shouldBe "kova.comparable.min"
+                result.messages[0].constraintId shouldBe "kova.comparable.minValue"
             }
         }
 
         context("nullable with constraint - for each List element") {
             fun Validation.nullableMin3(i: Int?) {
-                if (i != null) min(i, 3)
+                if (i != null) minValue(i, 3)
             }
 
             test("success with non-null value") {
@@ -88,8 +88,8 @@ class NullableValidatorTest :
             fun Validation.isNullOrMin3Max3(i: Int?) =
                 or { isNull(i) } orElse {
                     if (i == null) return@orElse
-                    min(i, 3)
-                    max(i, 3)
+                    minValue(i, 3)
+                    maxValue(i, 3)
                 }
 
             test("success with null value") {
@@ -117,8 +117,8 @@ class NullableValidatorTest :
         context("isNullOr") {
             fun Validation.isNullOrMin3Max3(i: Int?) =
                 isNullOr(i) {
-                    min(it, 3)
-                    max(it, 3)
+                    minValue(it, 3)
+                    maxValue(it, 3)
                 }
 
             test("success with null value") {
@@ -155,7 +155,7 @@ class NullableValidatorTest :
 
         context("toNonNullable") {
             fun Validation.nullableMin3(i: Int?): Int {
-                if (i != null) min(i, 3)
+                if (i != null) minValue(i, 3)
                 return toNonNullable(i)
             }
 
@@ -177,12 +177,12 @@ class NullableValidatorTest :
                 val result = tryValidate { nullableMin3(2) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
-                result.messages[0].constraintId shouldBe "kova.comparable.min"
+                result.messages[0].constraintId shouldBe "kova.comparable.minValue"
             }
         }
 
         context("toNonNullable - also") {
-            fun Validation.notNullAndMin3AndMax3(i: Int?) = toNonNullable(i).also { max(it, 5) }.also { min(it, 3) }
+            fun Validation.notNullAndMin3AndMax3(i: Int?) = toNonNullable(i).also { maxValue(it, 5) }.also { minValue(it, 3) }
 
             test("success") {
                 val result = tryValidate { notNullAndMin3AndMax3(4) }
@@ -200,14 +200,14 @@ class NullableValidatorTest :
                 val result = tryValidate { notNullAndMin3AndMax3(2) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
-                result.messages[0].constraintId shouldBe "kova.comparable.min"
+                result.messages[0].constraintId shouldBe "kova.comparable.minValue"
             }
 
             test("failure when max5 constraint violated") {
                 val result = tryValidate { notNullAndMin3AndMax3(6) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
-                result.messages[0].constraintId shouldBe "kova.comparable.max"
+                result.messages[0].constraintId shouldBe "kova.comparable.maxValue"
             }
         }
 
@@ -215,19 +215,19 @@ class NullableValidatorTest :
             test("success: 3") {
                 val logs = mutableListOf<LogEntry>()
                 val config = ValidationConfig(logger = { logs.add(it) })
-                val result = tryValidate(config) { isNullOr(3) { min(it, 3) } }
+                val result = tryValidate(config) { isNullOr(3) { minValue(it, 3) } }
                 result.shouldBeSuccess()
                 logs shouldBe
                     listOf(
                         LogEntry.Violated(constraintId = "kova.nullable.isNull", root = "", path = "", input = 3, args = listOf()),
-                        LogEntry.Satisfied(constraintId = "kova.comparable.min", root = "", path = "", input = 3),
+                        LogEntry.Satisfied(constraintId = "kova.comparable.minValue", root = "", path = "", input = 3),
                     )
             }
 
             test("success: null") {
                 buildList {
                     val config = ValidationConfig(logger = { add(it) })
-                    val result = tryValidate(config) { isNullOr<Int?>(null) { min(it, 3) } }
+                    val result = tryValidate(config) { isNullOr<Int?>(null) { minValue(it, 3) } }
                     result.shouldBeSuccess()
                 } shouldBe
                     listOf(

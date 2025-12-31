@@ -41,7 +41,7 @@ tryValidate {
 ```kotlin
 fun Validation.validate(user: User) = user.schema {
     user::name { minLength(it, 1); maxLength(it, 100) }
-    user::age { min(it, 0); max(it, 120) }
+    user::age { minValue(it, 0); maxValue(it, 120) }
 }
 ```
 

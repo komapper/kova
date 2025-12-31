@@ -12,7 +12,7 @@ class MessageTest :
         }
 
         test("getPattern") {
-            val pattern = getPattern("kova.comparable.min")
+            val pattern = getPattern("kova.comparable.minValue")
             val formatted = MessageFormat.format(pattern, 0)
             formatted shouldBe "must be greater than or equal to 0"
         }

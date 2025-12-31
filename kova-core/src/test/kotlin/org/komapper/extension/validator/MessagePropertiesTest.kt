@@ -308,28 +308,28 @@ class MessagePropertiesTest :
 
         context("kova.comparable") {
             test("min") {
-                val result = tryValidate { min(5, 10) }
+                val result = tryValidate { minValue(5, 10) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be greater than or equal to 10"
             }
 
             test("min with message") {
-                val result = tryValidate { min(5, 10) { text("must be greater than or equal to 10") } }
+                val result = tryValidate { minValue(5, 10) { text("must be greater than or equal to 10") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be greater than or equal to 10"
             }
 
             test("max") {
-                val result = tryValidate { max(15, 10) }
+                val result = tryValidate { maxValue(15, 10) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be less than or equal to 10"
             }
 
             test("max with message") {
-                val result = tryValidate { max(15, 10) { text("must be less than or equal to 10") } }
+                val result = tryValidate { maxValue(15, 10) { text("must be less than or equal to 10") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be less than or equal to 10"

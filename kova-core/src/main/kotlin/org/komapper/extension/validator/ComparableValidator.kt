@@ -5,38 +5,38 @@ package org.komapper.extension.validator
  *
  * Example:
  * ```kotlin
- * tryValidate { min(10, 0) }  // Success
- * tryValidate { min(-1, 0) }  // Failure
+ * tryValidate { minValue(10, 0) }  // Success
+ * tryValidate { minValue(-1, 0) }  // Failure
  * ```
  *
  * @param value Minimum value (inclusive)
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <S : Comparable<S>> Validation.min(
+fun <S : Comparable<S>> Validation.minValue(
     input: S,
     value: S,
-    message: MessageProvider = { "kova.comparable.min".resource(value) },
-) = input.constrain("kova.comparable.min") { satisfies(it >= value, message) }
+    message: MessageProvider = { "kova.comparable.minValue".resource(value) },
+) = input.constrain("kova.comparable.minValue") { satisfies(it >= value, message) }
 
 /**
  * Validates that the number is less than or equal to the specified maximum value.
  *
  * Example:
  * ```kotlin
- * tryValidate { max(50, 100) }   // Success
- * tryValidate { max(150, 100) }  // Failure
+ * tryValidate { maxValue(50, 100) }   // Success
+ * tryValidate { maxValue(150, 100) }  // Failure
  * ```
  *
  * @param value Maximum value (inclusive)
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <S : Comparable<S>> Validation.max(
+fun <S : Comparable<S>> Validation.maxValue(
     input: S,
     value: S,
-    message: MessageProvider = { "kova.comparable.max".resource(value) },
-) = input.constrain("kova.comparable.max") { satisfies(it <= value, message) }
+    message: MessageProvider = { "kova.comparable.maxValue".resource(value) },
+) = input.constrain("kova.comparable.maxValue") { satisfies(it <= value, message) }
 
 /**
  * Validates that the number is strictly greater than the specified value.

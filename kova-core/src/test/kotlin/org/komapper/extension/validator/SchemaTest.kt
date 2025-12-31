@@ -50,7 +50,7 @@ class SchemaTest :
                         minLength(it, 1)
                         maxLength(it, 10)
                     }
-                    user::id { min(it, 1) }
+                    user::id { minValue(it, 1) }
                 }
 
             test("success") {
@@ -85,7 +85,7 @@ class SchemaTest :
                 result.messages[1].let {
                     it.root shouldBe "User"
                     it.path.fullName shouldBe "id"
-                    it.constraintId shouldBe "kova.comparable.min"
+                    it.constraintId shouldBe "kova.comparable.minValue"
                 }
             }
         }
@@ -98,7 +98,7 @@ class SchemaTest :
                             minLength(it, 1)
                             maxLength(it, 10)
                         }
-                    } orElse { user::id { min(it, 1) } }
+                    } orElse { user::id { minValue(it, 1) } }
                 }
 
             test("success when both schemas are satisfied") {
@@ -168,7 +168,7 @@ class SchemaTest :
         context("nullable") {
             fun Validation.validate(user: User?) =
                 user?.schema {
-                    user::id { min(it, 1) }
+                    user::id { minValue(it, 1) }
                     user::name {
                         minLength(it, 1)
                         maxLength(it, 10)
@@ -190,7 +190,7 @@ class SchemaTest :
         context("prop - simple") {
             fun Validation.validate(user: User) =
                 user.schema {
-                    user::id { min(it, 1) }
+                    user::id { minValue(it, 1) }
                     user::name {
                         minLength(it, 1)
                         maxLength(it, 10)
@@ -224,7 +224,7 @@ class SchemaTest :
                 result.messages[0].let {
                     it.root shouldBe "User"
                     it.path.fullName shouldBe "id"
-                    it.constraintId shouldBe "kova.comparable.min"
+                    it.constraintId shouldBe "kova.comparable.minValue"
                 }
                 result.messages[1].let {
                     it.root shouldBe "User"
@@ -237,7 +237,7 @@ class SchemaTest :
         context("prop - nest") {
             fun Validation.validate(street: Street) =
                 street.schema {
-                    street::id { min(it, 1) }
+                    street::id { minValue(it, 1) }
                     street::name {
                         minLength(it, 3)
                         maxLength(it, 5)
@@ -270,7 +270,7 @@ class SchemaTest :
         context("prop - nest - dynamic") {
             fun Validation.validate(street: Street) =
                 street.schema {
-                    street::id { min(it, 1) }
+                    street::id { minValue(it, 1) }
                     street::name {
                         minLength(it, 3)
                         maxLength(it, 5)
@@ -332,7 +332,7 @@ class SchemaTest :
         context("prop - nullable") {
             fun Validation.validate(street: Street) =
                 street.schema {
-                    street::id { min(it, 1) }
+                    street::id { minValue(it, 1) }
                     street::name {
                         minLength(it, 3)
                         maxLength(it, 5)
@@ -433,8 +433,8 @@ class SchemaTest :
             fun Validation.validate(node: NodeWithValue) {
                 node.schema {
                     node::value {
-                        min(it, 0)
-                        max(it, 100)
+                        minValue(it, 0)
+                        maxValue(it, 100)
                     }
                     node::next { if (it != null) validate(it) }
                 }
@@ -468,7 +468,7 @@ class SchemaTest :
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].path.fullName shouldBe "next.next.value"
-                result.messages[0].constraintId shouldBe "kova.comparable.max"
+                result.messages[0].constraintId shouldBe "kova.comparable.maxValue"
             }
 
             test("failure when constraint violated in root object") {
@@ -479,7 +479,7 @@ class SchemaTest :
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].path.fullName shouldBe "value"
-                result.messages[0].constraintId shouldBe "kova.comparable.min"
+                result.messages[0].constraintId shouldBe "kova.comparable.minValue"
             }
 
             // To avoid StackOverflowError, use 'shouldBeEqual' instead of 'shouldBe'
@@ -492,7 +492,7 @@ class SchemaTest :
                 result.shouldBeFailure()
                 result.messages.size shouldBeEqual 1
                 result.messages[0].path.fullName shouldBeEqual "value"
-                result.messages[0].constraintId.shouldNotBeNull() shouldBeEqual "kova.comparable.max"
+                result.messages[0].constraintId.shouldNotBeNull() shouldBeEqual "kova.comparable.maxValue"
             }
         }
     })
