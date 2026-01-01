@@ -66,7 +66,7 @@ class NullableValidatorTest :
                 val result = tryValidate { onEach(listOf(2, null)) { nullableMin3(it) } }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
-                result.messages[0].constraintId shouldBe "kova.collection.onEach"
+                result.messages[0].constraintId shouldBe "kova.iterable.onEach"
             }
         }
 

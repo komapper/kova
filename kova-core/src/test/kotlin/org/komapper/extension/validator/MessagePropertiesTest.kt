@@ -262,48 +262,6 @@ class MessagePropertiesTest :
                 val message = result.messages.single()
                 message.text shouldBe "Collection (size 2) must have exactly 3 elements"
             }
-
-            test("onEach") {
-                val result = tryValidate { onEach(listOf(1, -2, 3)) { positive(it) } }
-                result.shouldBeFailure()
-                val message = result.messages.single()
-                message.text shouldBe "Some elements do not satisfy the constraint: [must be positive]"
-            }
-
-            test("notEmpty") {
-                val result = tryValidate { notEmpty(emptyList<Nothing>()) }
-                result.shouldBeFailure()
-                val message = result.messages.single()
-                message.text shouldBe "must not be empty"
-            }
-
-            test("contains") {
-                val result = tryValidate { has(listOf("bar", "baz"), "foo") }
-                result.shouldBeFailure()
-                val message = result.messages.single()
-                message.text shouldBe "must contain foo"
-            }
-
-            test("contains with message") {
-                val result = tryValidate { has(listOf("bar", "baz"), "foo") { text("must contain foo") } }
-                result.shouldBeFailure()
-                val message = result.messages.single()
-                message.text shouldBe "must contain foo"
-            }
-
-            test("notContains") {
-                val result = tryValidate { notContains(listOf("foo", "bar"), "foo") }
-                result.shouldBeFailure()
-                val message = result.messages.single()
-                message.text shouldBe "must not contain foo"
-            }
-
-            test("notContains with message") {
-                val result = tryValidate { notContains(listOf("foo", "bar"), "foo") { text("must not contain foo") } }
-                result.shouldBeFailure()
-                val message = result.messages.single()
-                message.text shouldBe "must not contain foo"
-            }
         }
 
         context("kova.comparable") {
@@ -477,6 +435,50 @@ class MessagePropertiesTest :
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be one of: [1, 2, 3]"
+            }
+        }
+
+        context("kova.iterable") {
+            test("onEach") {
+                val result = tryValidate { onEach(listOf(1, -2, 3)) { positive(it) } }
+                result.shouldBeFailure()
+                val message = result.messages.single()
+                message.text shouldBe "Some elements do not satisfy the constraint: [must be positive]"
+            }
+
+            test("notEmpty") {
+                val result = tryValidate { notEmpty(emptyList<Nothing>()) }
+                result.shouldBeFailure()
+                val message = result.messages.single()
+                message.text shouldBe "must not be empty"
+            }
+
+            test("contains") {
+                val result = tryValidate { has(listOf("bar", "baz"), "foo") }
+                result.shouldBeFailure()
+                val message = result.messages.single()
+                message.text shouldBe "must contain foo"
+            }
+
+            test("contains with message") {
+                val result = tryValidate { has(listOf("bar", "baz"), "foo") { text("must contain foo") } }
+                result.shouldBeFailure()
+                val message = result.messages.single()
+                message.text shouldBe "must contain foo"
+            }
+
+            test("notContains") {
+                val result = tryValidate { notContains(listOf("foo", "bar"), "foo") }
+                result.shouldBeFailure()
+                val message = result.messages.single()
+                message.text shouldBe "must not contain foo"
+            }
+
+            test("notContains with message") {
+                val result = tryValidate { notContains(listOf("foo", "bar"), "foo") { text("must not contain foo") } }
+                result.shouldBeFailure()
+                val message = result.messages.single()
+                message.text shouldBe "must not contain foo"
             }
         }
 
