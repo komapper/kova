@@ -277,6 +277,7 @@ class ValidatorTest :
                 result.shouldBeFailure()
                 result.messages[0].text shouldBe "Constraint failed"
                 result.messages[0].constraintId shouldBe "test"
+                result.messages[0].toString() shouldBe "Message(constraintId=test, text='Constraint failed', root=, path=, input=NG)"
             }
         }
 
@@ -297,6 +298,8 @@ class ValidatorTest :
                 result.shouldBeFailure()
                 result.messages[0].text shouldBe "must not be blank"
                 result.messages[0].constraintId shouldBe "test"
+                result.messages[0].toString() shouldBe
+                    "Message(constraintId=test, text='must not be blank', root=, path=, input= , args=[])"
             }
         }
 

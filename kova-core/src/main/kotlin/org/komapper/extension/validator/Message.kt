@@ -3,6 +3,22 @@ package org.komapper.extension.validator
 import java.text.MessageFormat
 import java.util.ResourceBundle
 
+/**
+ * A lazy provider for validation error messages.
+ *
+ * This is a function type that returns a [Message] when invoked. MessageProviders are used
+ * throughout the validation framework to defer message creation until a validation constraint
+ * actually fails, improving performance by avoiding unnecessary message construction.
+ *
+ * MessageProviders are typically used with the `satisfies` function in custom validators:
+ * ```kotlin
+ * fun Validation.alphanumeric(input: String) = input.constrain("custom.alphanumeric") {
+ *     satisfies(it.all { c -> c.isLetterOrDigit() }) {
+ *         "kova.string.alphanumeric".resource  // This lambda is a MessageProvider
+ *     }
+ * }
+ * ```
+ */
 typealias MessageProvider = () -> Message
 
 /**
@@ -58,7 +74,8 @@ sealed interface Message {
         override val text: String,
         override val input: Any?,
     ) : Message {
-        override fun toString(): String = "Message(text='$text', root=$root, path=${path.fullName}, input=$input)"
+        override fun toString(): String =
+            "Message(constraintId=$constraintId, text='$text', root=$root, path=${path.fullName}, input=$input)"
 
         override fun withDetails(
             input: Any?,
