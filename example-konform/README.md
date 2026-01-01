@@ -170,7 +170,7 @@ fun Validation.validate(event: Event) = event.schema {
 - Konform's `onEach` operates directly on property references; Kova's `onEach` takes the collection as input
 - Kova provides `onEachValue` for map values; Konform uses `onEach` with `Map.Entry::value`
 - Kova allows easy extraction of reusable validation logic as extension functions
-- Kova groups collection element errors under a parent message with `descendants` property
+- **Error Structure**: Konform returns flat error list with indexed paths (e.g., `.attendees[0].email`); Kova groups collection element errors under a parent message with `descendants` property, showing detailed paths like `attendees[0]<iterable element>.email`
 
 ### Reusable Validation Logic ([SplitTest.kt](src/test/kotlin/example/konform/SplitTest.kt))
 
@@ -242,8 +242,9 @@ private val validationRef get(): Validation<Node> = validationNode
 ```kotlin
 fun Validation.validate(node: Node) {
     node.schema {
-        node::children {
-            maxSize(it, 2)
+        node::children { children ->
+            maxSize(children, 2)
+            onEach(children) { validate(it) }  // Recursive call
         }
     }
 }
