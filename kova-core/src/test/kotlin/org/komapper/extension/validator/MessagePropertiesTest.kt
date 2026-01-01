@@ -56,6 +56,36 @@ class MessagePropertiesTest :
             }
         }
 
+        context("kova.boolean") {
+            test("isTrue") {
+                val result = tryValidate { isTrue(false) }
+                result.shouldBeFailure()
+                val message = result.messages.single()
+                message.text shouldBe "must be true"
+            }
+
+            test("isTrue with message") {
+                val result = tryValidate { isTrue(false) { text("must be true") } }
+                result.shouldBeFailure()
+                val message = result.messages.single()
+                message.text shouldBe "must be true"
+            }
+
+            test("isFalse") {
+                val result = tryValidate { isFalse(true) }
+                result.shouldBeFailure()
+                val message = result.messages.single()
+                message.text shouldBe "must be false"
+            }
+
+            test("isFalse with message") {
+                val result = tryValidate { isFalse(true) { text("must be false") } }
+                result.shouldBeFailure()
+                val message = result.messages.single()
+                message.text shouldBe "must be false"
+            }
+        }
+
         context("kova.charSequence") {
             test("minLength") {
                 val result = tryValidate { minLength("abc", 5) }
