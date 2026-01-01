@@ -74,7 +74,8 @@ sealed interface Message {
         override val text: String,
         override val input: Any?,
     ) : Message {
-        override fun toString(): String = "Message(constraintId=$constraintId, text='$text', root=$root, path=${path.fullName}, input=$input)"
+        override fun toString(): String =
+            "Message(constraintId=$constraintId, text='$text', root=$root, path=${path.fullName}, input=$input)"
 
         override fun withDetails(
             input: Any?,
