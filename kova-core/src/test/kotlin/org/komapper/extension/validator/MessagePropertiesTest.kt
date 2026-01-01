@@ -350,15 +350,15 @@ class MessagePropertiesTest :
                 message.text shouldBe "must be greater than 10"
             }
 
-            test("gteValue") {
-                val result = tryValidate { gteValue(9, 10) }
+            test("gtEqValue") {
+                val result = tryValidate { gtEqValue(9, 10) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be greater than or equal to 10"
             }
 
-            test("gteValue with message") {
-                val result = tryValidate { gteValue(9, 10) { text("must be greater than or equal to 10") } }
+            test("gtEqValue with message") {
+                val result = tryValidate { gtEqValue(9, 10) { text("must be greater than or equal to 10") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be greater than or equal to 10"
@@ -378,15 +378,15 @@ class MessagePropertiesTest :
                 message.text shouldBe "must be less than 10"
             }
 
-            test("lteValue") {
-                val result = tryValidate { lteValue(11, 10) }
+            test("ltEqValue") {
+                val result = tryValidate { ltEqValue(11, 10) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be less than or equal to 10"
             }
 
-            test("lteValue with message") {
-                val result = tryValidate { lteValue(11, 10) { text("must be less than or equal to 10") } }
+            test("ltEqValue with message") {
+                val result = tryValidate { ltEqValue(11, 10) { text("must be less than or equal to 10") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be less than or equal to 10"
