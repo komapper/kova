@@ -320,6 +320,19 @@ past(input)                               // Must be in the past
 pastOrPresent(input)                      // Must be in the past or present
 ```
 
+### Iterables
+
+Supported types: Any `Iterable` (including `List`, `Set`, `Collection`)
+
+```kotlin
+notEmpty(input)                     // Must not be empty
+contains(input, "foo")              // Must contain element (alias: has)
+notContains(input, "bar")           // Must not contain element
+onEach(input) { element ->          // Validate each element
+    minValue(element, 1)
+}
+```
+
 ### Collections
 
 Supported types: `List`, `Set`, `Collection`
@@ -328,12 +341,6 @@ Supported types: `List`, `Set`, `Collection`
 minSize(input, 1)                   // Minimum size
 maxSize(input, 10)                  // Maximum size
 size(input, 5)                      // Exact size
-notEmpty(input)                     // Must not be empty
-contains(input, "foo")              // Must contain element (alias: has)
-notContains(input, "bar")           // Must not contain element
-onEach(input) { element ->          // Validate each element
-    minValue(element, 1)
-}
 ```
 
 ### Maps
@@ -361,6 +368,13 @@ onEachValue(input) { value ->       // Validate each value
 isNull(input)                       // Must be null
 notNull(input)                      // Must not be null (enables smart casting, stops on failure)
 isNullOr(input) { block }           // Accept null or validate non-null
+```
+
+### Boolean
+
+```kotlin
+isTrue(input)                       // Must be true
+isFalse(input)                      // Must be false
 ```
 
 ### Comparable Types
