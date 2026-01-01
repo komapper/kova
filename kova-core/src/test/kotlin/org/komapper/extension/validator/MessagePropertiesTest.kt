@@ -392,34 +392,6 @@ class MessagePropertiesTest :
                 message.text shouldBe "must be less than or equal to 10"
             }
 
-            test("eqValue") {
-                val result = tryValidate { eqValue(10, 42) }
-                result.shouldBeFailure()
-                val message = result.messages.single()
-                message.text shouldBe "must be equal to 42"
-            }
-
-            test("eqValue with message") {
-                val result = tryValidate { eqValue(10, 42) { text("must be equal to 42") } }
-                result.shouldBeFailure()
-                val message = result.messages.single()
-                message.text shouldBe "must be equal to 42"
-            }
-
-            test("notEqValue") {
-                val result = tryValidate { notEqValue(0, 0) }
-                result.shouldBeFailure()
-                val message = result.messages.single()
-                message.text shouldBe "must not be equal to 0"
-            }
-
-            test("notEqValue with message") {
-                val result = tryValidate { notEqValue(0, 0) { text("must not be equal to 0") } }
-                result.shouldBeFailure()
-                val message = result.messages.single()
-                message.text shouldBe "must not be equal to 0"
-            }
-
             test("inRange") {
                 val result = tryValidate { inRange(15, 1..10) }
                 result.shouldBeFailure()
@@ -464,6 +436,34 @@ class MessagePropertiesTest :
         }
 
         context("kova.any") {
+
+            test("eqValue") {
+                val result = tryValidate { eqValue(10, 42) }
+                result.shouldBeFailure()
+                val message = result.messages.single()
+                message.text shouldBe "must be equal to 42"
+            }
+
+            test("eqValue with message") {
+                val result = tryValidate { eqValue(10, 42) { text("must be equal to 42") } }
+                result.shouldBeFailure()
+                val message = result.messages.single()
+                message.text shouldBe "must be equal to 42"
+            }
+
+            test("notEqValue") {
+                val result = tryValidate { notEqValue(0, 0) }
+                result.shouldBeFailure()
+                val message = result.messages.single()
+                message.text shouldBe "must not be equal to 0"
+            }
+
+            test("notEqValue with message") {
+                val result = tryValidate { notEqValue(0, 0) { text("must not be equal to 0") } }
+                result.shouldBeFailure()
+                val message = result.messages.single()
+                message.text shouldBe "must not be equal to 0"
+            }
 
             test("inIterable") {
                 val result = tryValidate { inIterable(5, listOf(1, 2, 3)) }
