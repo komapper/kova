@@ -18,7 +18,7 @@
 - **kova-core**: Core validation (`org.komapper.extension.validator`)
 - **kova-factory**: Factory validation with property delegation (`org.komapper.extension.validator.factory`)
 - **kova-ktor**: Ktor integration (`org.komapper.extension.validator.ktor.server`)
-- **example-core**, **example-factory**, **example-ktor**, **example-exposed**, **example-hibernate-validator**: Examples
+- **example-core**, **example-factory**, **example-ktor**, **example-exposed**, **example-hibernate-validator**, **example-konform**: Examples
 
 ## Core API
 

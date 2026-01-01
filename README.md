@@ -647,6 +647,7 @@ The project includes several example modules demonstrating different use cases:
 - **[example-ktor](example-ktor/)** - Ktor integration examples with request validation and error handling
 - **[example-exposed](example-exposed/)** - Database integration examples using Exposed ORM
 - **[example-hibernate-validator](example-hibernate-validator/)** - Side-by-side comparison of Kova and Hibernate Validator validation approaches
+- **[example-konform](example-konform/)** - Side-by-side comparison of Kova and Konform validation approaches
 
 Each example module contains complete, runnable code that you can use as a reference for your own projects.
 

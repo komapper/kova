@@ -55,6 +55,12 @@ sealed interface Message {
     /** The input value being validated */
     val input: Any?
 
+    /** Arguments for formatting the message text using [MessageFormat] */
+    val args: List<Any?>
+
+    /** Nested validation error messages extracted from [args] */
+    val descendants: List<Message>
+
     /**
      * A simple text message without i18n support.
      *
@@ -74,6 +80,10 @@ sealed interface Message {
         override val text: String,
         override val input: Any?,
     ) : Message {
+        override val args: List<Any?> = emptyList()
+
+        override val descendants: List<Message> = emptyList()
+
         override fun toString(): String =
             "Message(constraintId=$constraintId, text='$text', root=$root, path=${path.fullName}, input=$input)"
 
@@ -109,24 +119,34 @@ sealed interface Message {
         override val root: String,
         override val path: Path,
         override val input: Any?,
-        vararg val args: Any?,
+        override val args: List<Any?>,
     ) : Message {
         override val text: String by lazy {
             val pattern = getPattern(key)
-            val newArgs = args.map(::resolveArg)
-            MessageFormat.format(pattern, *newArgs.toTypedArray())
+            val formatArgs = args.map { arg -> resolveMessage(arg, { it.text }) }
+            MessageFormat.format(pattern, *formatArgs.toTypedArray())
         }
 
-        private fun resolveArg(arg: Any?): Any? =
+        override val descendants: List<Message> by lazy {
+            buildList {
+                args.forEach { arg -> resolveMessage(arg, { add(it) }) }
+            }
+        }
+
+        @IgnorableReturnValue
+        private fun <T> resolveMessage(
+            arg: Any?,
+            resolver: (Message) -> T,
+        ): Any? =
             when (arg) {
                 is ClosedRange<*>, is OpenEndRange<*> -> arg
-                is Message -> arg.text
-                is Iterable<*> -> arg.map { resolveArg(it) }
+                is Message -> resolver(arg)
+                is Iterable<*> -> arg.map { resolveMessage(it, resolver) }
                 else -> arg
             }
 
         override fun toString(): String =
-            "Message(constraintId=$constraintId, text='$text', root=$root, path=${path.fullName}, input=$input, args=${args.contentToString()})"
+            "Message(constraintId=$constraintId, text='$text', root=$root, path=${path.fullName}, input=$input, args=$args)"
 
         override fun withDetails(
             input: Any?,

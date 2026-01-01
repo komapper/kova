@@ -25,6 +25,9 @@ class MessageTest :
 
                 resource3.text shouldBe
                     "at least one constraint must be satisfied: [[must be at least 1 characters], must be at most 5 characters]"
+                resource3.descendants.size shouldBe 2
+                resource3.descendants[0] shouldBe resource1
+                resource3.descendants[1] shouldBe resource2
             }
         }
 

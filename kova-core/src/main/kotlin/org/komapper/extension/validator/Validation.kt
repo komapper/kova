@@ -341,7 +341,7 @@ data class Validation(
      * @param args Arguments to be interpolated into the message template using MessageFormat
      * @return A [Message.Resource] instance configured with the provided arguments
      */
-    fun String.resource(vararg args: Any?): Message.Resource = Message.Resource(this, this, root, path, null, args = args)
+    fun String.resource(vararg args: Any?): Message.Resource = Message.Resource(this, this, root, path, null, args = args.toList())
 
     val String.resource: Message.Resource get() = resource()
 }
@@ -599,7 +599,7 @@ internal fun Validation.logAndAddDetails(
             root = message.root,
             path = message.path.fullName,
             input = input,
-            args = if (message is Message.Resource) message.args.asList() else emptyList(),
+            args = if (message is Message.Resource) message.args else emptyList(),
         )
     }
     return message.withDetails(input, id)
