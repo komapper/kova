@@ -41,9 +41,9 @@ class Car(
 fun Validation.validate(car: Car) = car.schema {
     car::manufacturer { notNull(it) }
     car::licensePlate {
-        val v = toNonNullable(it)
-        minLength(v, 2)
-        maxLength(v, 14)
+        notNull(it)
+        minLength(it, 2)
+        maxLength(it, 14)
     }
     car::seatCount { minValue(it, 2) }
 }
@@ -73,8 +73,8 @@ class Car(
 ```kotlin
 fun Validation.validate(car: Car) = car.schema {
     car::driver {
-        val v = toNonNullable(it)
-        validate(v)  // Explicit nested validation
+        notNull(it)
+        validate(it)  // Explicit nested validation
     }
 }
 ```
@@ -132,11 +132,11 @@ class Car(
 
 **Kova:**
 ```kotlin
-fun Validation.validateLicensePlate(licensePlate: String) {
-    val v = toNonNullable(licensePlate)
-    minLength(v, 2)
-    maxLength(v, 14)
-    uppercase(v)
+fun Validation.validateLicensePlate(licensePlate: String?) {
+    notNull(licensePlate)
+    minLength(licensePlate, 2)
+    maxLength(licensePlate, 14)
+    uppercase(licensePlate)
 }
 
 fun Validation.validate(car: Car) = car.schema {
@@ -227,7 +227,7 @@ fun Validation.validate(car: Car) = car.schema {
 | **Configuration**  | Annotation-based                         | Function-based (DSL)                                 |
 | **Type Safety**    | Runtime reflection                       | Compile-time type checking                           |
 | **Composition**    | Meta-annotations                         | Regular function calls                               |
-| **Null Handling**  | Implicit (annotations on nullable types) | Explicit (`toNonNullable`, `isNull`)                 |
+| **Null Handling**  | Implicit (annotations on nullable types) | Explicit (`notNull`, `isNull`, `isNullOr`)           |
 | **Error Handling** | Exception or violation set               | Exception or `ValidationResult<T>` (Success/Failure) |
 | **Extensibility**  | Custom validators + annotations          | Extension functions                                  |
 

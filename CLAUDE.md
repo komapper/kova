@@ -84,7 +84,8 @@ fun Validation.alphanumeric(input: String) = input.constrain("custom.alphanumeri
 - Returns `null` when circular reference detected (schema skips property)
 
 ### Nullable Handling
-- `isNull(input)`, `notNull(input)`, `isNullOr(input) { block }`, `toNonNullable(input)`
+- `isNull(input)`, `notNull(input)`, `isNullOr(input) { block }`
+- `notNull(input)` uses Kotlin contract for smart casting and raises immediately on null (stops subsequent validation)
 
 ### Conditional Validation
 - `or { ... } orElse { ... }` - try first, fallback to second

@@ -55,8 +55,7 @@ inline fun <T> Validation.isNullOr(
  * Validates that the input is not null.
  *
  * This constraint fails if the input is null. Uses the "kova.nullable.notNull"
- * constraint ID. Unlike [toNonNullable], this function does not convert the type
- * to non-nullable.
+ * constraint ID.
  *
  * Example:
  * ```kotlin
@@ -71,38 +70,12 @@ inline fun <T> Validation.isNullOr(
 fun <T> Validation.notNull(
     input: T,
     message: MessageProvider = { "kova.nullable.notNull".resource },
-) = input.constrain("kova.nullable.notNull") { satisfies(it != null, message) }
-
-/**
- * Converts a nullable input to a non-nullable output.
- *
- * This validates that the input is not null and converts the output type from `T?` to `T & Any`.
- * Uses the "kova.nullable.notNull" constraint ID. Unlike [notNull], this function performs
- * type conversion and returns a non-nullable value.
- *
- * This function properly tracks the validation path context, ensuring error messages include
- * the full property path when used in nested validation scenarios (e.g., factory validations).
- *
- * Example:
- * ```kotlin
- * fun Validation.validateString(s: String?): String {
- *     if (s != null) min(s, 3)
- *     return toNonNullable(s)
- * }
- *
- * tryValidate { validateString("hello") } // Success
- * tryValidate { validateString(null) }    // Failure
- * ```
- *
- * @param input The nullable input value to validate and convert
- * @param message Custom error message provider for the null check
- * @return The non-null input value with type `T & Any`
- */
-@IgnorableReturnValue
-fun <T> Validation.toNonNullable(
-    input: T,
-    message: MessageProvider = { "kova.nullable.notNull".resource },
-): T & Any = toNonNullable(input, "kova.nullable.notNull", message)
+): Accumulate.Value<Unit> {
+    contract { returns() implies (input != null) }
+    return input.constrain("kova.nullable.notNull") { satisfies(it != null, message) }.also {
+        if (it is Accumulate.Error) it.raise()
+    }
+}
 
 /**
  * Converts a nullable input to a non-nullable output with a custom constraint ID.
@@ -130,7 +103,6 @@ fun <T> Validation.toNonNullable(
     constraintId: String,
     message: MessageProvider,
 ): T & Any {
-    contract { returns() implies (input != null) }
     val accumulateValue =
         input.constrain(constraintId) {
             satisfies(input != null, message)

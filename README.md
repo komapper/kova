@@ -359,9 +359,8 @@ onEachValue(input) { value ->       // Validate each value
 
 ```kotlin
 isNull(input)                       // Must be null
-notNull(input)                      // Must not be null
+notNull(input)                      // Must not be null (enables smart casting, stops on failure)
 isNullOr(input) { block }           // Accept null or validate non-null
-toNonNullable(input)                // Convert nullable to non-nullable (fails if null)
 ```
 
 ### Comparable Types
@@ -528,8 +527,13 @@ notNull(value)
 // Validate only if non-null
 isNullOr(email) { contains(it, "@") }
 
-// Convert nullable to non-nullable with validation
-val name = toNonNullable(nullableName)
+// notNull enables smart casting - subsequent validators work on non-null type
+fun Validation.validateName(name: String?): String {
+    notNull(name)           // Validates and enables smart cast
+    minLength(name, 1)      // Compiler knows name is non-null
+    maxLength(name, 100)
+    return name             // Return type is String (non-nullable)
+}
 ```
 
 ### Conditional Validation with `or` and `orElse`
