@@ -229,7 +229,10 @@ class CharSequenceValidatorTest :
         }
 
         context("nullableString") {
-            fun Validation.max1(string: String?) = maxLength(toNonNullable(string), 1)
+            fun Validation.max1(string: String?) {
+                notNull(string)
+                maxLength(string, 1)
+            }
 
             test("success") {
                 val result = tryValidate { max1("1") }

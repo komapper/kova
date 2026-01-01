@@ -5,7 +5,7 @@ import io.kotest.matchers.shouldBe
 import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.maxLength
 import org.komapper.extension.validator.minLength
-import org.komapper.extension.validator.toNonNullable
+import org.komapper.extension.validator.notNull
 import org.komapper.extension.validator.tryValidate
 import org.komapper.extension.validator.uppercase
 import java.util.Locale
@@ -23,14 +23,14 @@ class ConstraintCompositionTest :
 
         context("kova") {
             class Car(
-                val licensePlate: String,
+                val licensePlate: String?,
             )
 
-            fun Validation.validateLicensePlate(licensePlate: String) {
-                val v = toNonNullable(licensePlate)
-                minLength(v, 2)
-                maxLength(v, 14)
-                uppercase(v)
+            fun Validation.validateLicensePlate(s: String?) {
+                notNull(s)
+                minLength(s, 2)
+                maxLength(s, 14)
+                uppercase(s)
             }
 
             fun Validation.validate(car: Car) =

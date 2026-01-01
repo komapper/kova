@@ -7,7 +7,6 @@ import jakarta.validation.ValidatorFactory
 import jakarta.validation.constraints.NotNull
 import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.notNull
-import org.komapper.extension.validator.toNonNullable
 import org.komapper.extension.validator.tryValidate
 import java.util.Locale
 import jakarta.validation.Validation as HibernateValidation
@@ -89,8 +88,8 @@ class ObjectGraphTest :
             fun Validation.validate(car: Car) =
                 car.schema {
                     car::driver {
-                        val v = toNonNullable(it)
-                        validate(v)
+                        notNull(it)
+                        validate(it)
                     }
                 }
 

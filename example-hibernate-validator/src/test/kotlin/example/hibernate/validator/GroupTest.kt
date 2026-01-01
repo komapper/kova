@@ -8,7 +8,6 @@ import org.komapper.extension.validator.maxLength
 import org.komapper.extension.validator.minLength
 import org.komapper.extension.validator.minValue
 import org.komapper.extension.validator.notNull
-import org.komapper.extension.validator.toNonNullable
 import org.komapper.extension.validator.tryValidate
 import java.util.Locale
 
@@ -83,9 +82,9 @@ class GroupTest :
                         notNull(it)
                     }
                     car::licencePlate {
-                        val v = toNonNullable(it)
-                        minLength(v, 2)
-                        maxLength(v, 14)
+                        notNull(it)
+                        minLength(it, 2)
+                        maxLength(it, 14)
                     }
                     car::seatCount {
                         minValue(it, 2)
