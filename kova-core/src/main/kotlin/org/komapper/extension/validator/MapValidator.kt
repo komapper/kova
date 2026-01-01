@@ -219,12 +219,10 @@ fun <K, V> Validation.onEach(
     input: Map<K, V>,
     validator: Validation.(Map.Entry<K, V>) -> Unit,
 ) = input.constrain("kova.map.onEach") {
-    appendPath(text = "<map entry>") {
-        validateOnEach(
-            input,
-            "kova.map.onEach",
-            validator,
-        )
+    with(validation) {
+        validateOnEach(input, "kova.map.onEach") { entry ->
+            appendPath(text = "<map entry>") { validator(entry) }
+        }
     }
 }
 
@@ -253,8 +251,10 @@ fun <K> Validation.onEachKey(
     input: Map<K, *>,
     validator: Validation.(K) -> Unit,
 ) = input.constrain("kova.map.onEachKey") {
-    validateOnEach(input, "kova.map.onEachKey") { entry ->
-        appendPath(text = "<map key>") { validator(entry.key) }
+    with(validation) {
+        validateOnEach(input, "kova.map.onEachKey") { entry ->
+            appendPath(text = "<map key>") { validator(entry.key) }
+        }
     }
 }
 
@@ -283,8 +283,10 @@ fun <V> Validation.onEachValue(
     input: Map<*, V>,
     validator: Validation.(V) -> Unit,
 ) = input.constrain("kova.map.onEachValue") {
-    validateOnEach(input, "kova.map.onEachValue") { entry ->
-        appendPath(text = "[${entry.key}]<map value>") { validator(entry.value) }
+    with(validation) {
+        validateOnEach(input, "kova.map.onEachValue") { entry ->
+            appendPath(text = "[${entry.key}]<map value>") { validator(entry.value) }
+        }
     }
 }
 

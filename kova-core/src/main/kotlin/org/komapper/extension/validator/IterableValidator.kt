@@ -100,11 +100,13 @@ fun <E> Validation.onEach(
     input: Iterable<E>,
     validate: Validation.(E) -> Unit,
 ) = input.constrain("kova.iterable.onEach") {
-    withMessage({ "kova.iterable.onEach".resource(it) }) {
-        for ((i, element) in input.withIndex()) {
-            accumulating {
-                appendPath("[$i]<iterable element>") {
-                    validate(element)
+    with(validation) {
+        withMessage({ "kova.iterable.onEach".resource(it) }) {
+            for ((i, element) in input.withIndex()) {
+                accumulating {
+                    appendPath("[$i]<iterable element>") {
+                        validate(element)
+                    }
                 }
             }
         }

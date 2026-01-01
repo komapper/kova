@@ -86,9 +86,11 @@ class MapValidatorTest :
             }
 
             test("failure") {
-                val result = tryValidate { validate(mapOf("a" to "a", "b" to "b")) }
+                val input = mapOf("a" to "a", "b" to "b")
+                val result = tryValidate { validate(input) }
                 result.shouldBeFailure()
                 result.messages[0].constraintId shouldBe "kova.map.onEach"
+                result.messages[0].input shouldBe input
             }
         }
 
@@ -99,10 +101,12 @@ class MapValidatorTest :
             }
 
             test("failure") {
-                val result = tryValidate { onEachKey(mapOf("a" to "1", "bb" to "2", "ccc" to "3")) { length(it, 1) } }
+                val input = mapOf("a" to "1", "bb" to "2", "ccc" to "3")
+                val result = tryValidate { onEachKey(input) { length(it, 1) } }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.map.onEachKey"
+                result.messages[0].input shouldBe input
             }
         }
 
@@ -113,10 +117,12 @@ class MapValidatorTest :
             }
 
             test("failure") {
-                val result = tryValidate { onEachValue(mapOf("a" to "1", "b" to "22", "c" to "333")) { length(it, 1) } }
+                val input = mapOf("a" to "1", "b" to "22", "c" to "333")
+                val result = tryValidate { onEachValue(input) { length(it, 1) } }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.map.onEachValue"
+                result.messages[0].input shouldBe input
             }
         }
 

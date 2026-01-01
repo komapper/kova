@@ -32,12 +32,14 @@ class IterableValidatorTest :
             }
 
             test("failure") {
-                val result = tryValidate { onEach(listOf("123", "4567", "8910")) { length(it, 3) } }
+                val input = listOf("123", "4567", "8910")
+                val result = tryValidate { onEach(input) { length(it, 3) } }
                 result.shouldBeFailure()
                 result.messages.single().let {
                     it.constraintId shouldBe "kova.iterable.onEach"
                     it.text shouldBe
                         "Some elements do not satisfy the constraint: [must be exactly 3 characters, must be exactly 3 characters]"
+                    it.input shouldBe input
                     it.args.single().shouldBeInstanceOf<List<Message>> { messages ->
                         messages.size shouldBe 2
                         messages[0].constraintId shouldBe "kova.charSequence.length"
@@ -63,6 +65,7 @@ class IterableValidatorTest :
                     it.constraintId shouldBe "kova.iterable.onEach"
                     it.text shouldBe
                         "Some elements do not satisfy the constraint: [must be exactly 3 characters]"
+                    it.input shouldBe listOf("123", "4567", "8910")
                     it.args
                         .single()
                         .shouldBeInstanceOf<List<Message>>()
