@@ -78,11 +78,11 @@ fun <T> Validation.notNull(
 /**
  * Converts a nullable input to a non-nullable output with a custom constraint ID.
  *
- * This is an internal overload that allows specifying a custom constraint ID for the
+ * This is an internal function that allows specifying a custom constraint ID for the
  * null check validation. It validates that the input is not null and converts the output
  * type from `T?` to `T & Any`.
  *
- * This overload is primarily used internally by type conversion validators (e.g., [toInt],
+ * This function is primarily used internally by type conversion validators (e.g., [toInt],
  * [toLong], [toEnum]) that need to report errors with their specific constraint IDs
  * (e.g., "kova.string.isInt", "kova.string.isEnum") rather than the generic
  * "kova.nullable.notNull".
