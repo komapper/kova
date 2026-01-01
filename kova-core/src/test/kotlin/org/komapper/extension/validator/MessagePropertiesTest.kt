@@ -463,31 +463,17 @@ class MessagePropertiesTest :
             }
         }
 
-        context("kova.literal") {
-            test("single") {
-                val result = tryValidate { literal(10, 42) }
-                result.shouldBeFailure()
-                val message = result.messages.single()
-                message.text shouldBe "must be 42"
-            }
+        context("kova.any") {
 
-            test("single with message") {
-                val result =
-                    tryValidate { literal(10, 42) { text("must be 42") } }
-                result.shouldBeFailure()
-                val message = result.messages.single()
-                message.text shouldBe "must be 42"
-            }
-
-            test("list") {
-                val result = tryValidate { literal(5, listOf(1, 2, 3)) }
+            test("inIterable") {
+                val result = tryValidate { inIterable(5, listOf(1, 2, 3)) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be one of: [1, 2, 3]"
             }
 
-            test("list with message") {
-                val result = tryValidate { literal(5, listOf(1, 2, 3)) { text("must be one of: ${listOf(1, 2, 3)}") } }
+            test("inIterable with message") {
+                val result = tryValidate { inIterable(5, listOf(1, 2, 3)) { text("must be one of: ${listOf(1, 2, 3)}") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be one of: [1, 2, 3]"
