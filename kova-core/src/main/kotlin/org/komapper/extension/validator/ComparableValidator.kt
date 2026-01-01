@@ -63,20 +63,20 @@ fun <S : Comparable<S>> Validation.gtValue(
  *
  * Example:
  * ```kotlin
- * tryValidate { gteValue(1, 0) }   // Success
- * tryValidate { gteValue(0, 0) }   // Success
- * tryValidate { gteValue(-1, 0) }  // Failure
+ * tryValidate { gtEqValue(1, 0) }   // Success
+ * tryValidate { gtEqValue(0, 0) }   // Success
+ * tryValidate { gtEqValue(-1, 0) }  // Failure
  * ```
  *
  * @param value The value to compare against (inclusive)
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <S : Comparable<S>> Validation.gteValue(
+fun <S : Comparable<S>> Validation.gtEqValue(
     input: S,
     value: S,
-    message: MessageProvider = { "kova.comparable.gteValue".resource(value) },
-) = input.constrain("kova.comparable.gteValue") { satisfies(it >= value, message) }
+    message: MessageProvider = { "kova.comparable.gtEqValue".resource(value) },
+) = input.constrain("kova.comparable.gtEqValue") { satisfies(it >= value, message) }
 
 /**
  * Validates that the number is strictly less than the specified value.
@@ -103,20 +103,20 @@ fun <S : Comparable<S>> Validation.ltValue(
  *
  * Example:
  * ```kotlin
- * tryValidate { lteValue(50, 100) }   // Success
- * tryValidate { lteValue(100, 100) }  // Success
- * tryValidate { lteValue(150, 100) }  // Failure
+ * tryValidate { ltEqValue(50, 100) }   // Success
+ * tryValidate { ltEqValue(100, 100) }  // Success
+ * tryValidate { ltEqValue(150, 100) }  // Failure
  * ```
  *
  * @param value The value to compare against (inclusive)
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <S : Comparable<S>> Validation.lteValue(
+fun <S : Comparable<S>> Validation.ltEqValue(
     input: S,
     value: S,
-    message: MessageProvider = { "kova.comparable.lteValue".resource(value) },
-) = input.constrain("kova.comparable.lteValue") { satisfies(it <= value, message) }
+    message: MessageProvider = { "kova.comparable.ltEqValue".resource(value) },
+) = input.constrain("kova.comparable.ltEqValue") { satisfies(it <= value, message) }
 
 /**
  * Validates that the value is equal to the specified value.

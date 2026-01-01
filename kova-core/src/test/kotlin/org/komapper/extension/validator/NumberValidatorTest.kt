@@ -168,39 +168,39 @@ class NumberValidatorTest :
             }
         }
 
-        context("gteValue (greater than or equal)") {
+        context("gtEqValue (greater than or equal)") {
             test("success with value greater than threshold") {
-                val result = tryValidate { gteValue(6, 5) }
+                val result = tryValidate { gtEqValue(6, 5) }
                 result.shouldBeSuccess()
             }
 
             test("success with equal value") {
-                val result = tryValidate { gteValue(5, 5) }
+                val result = tryValidate { gtEqValue(5, 5) }
                 result.shouldBeSuccess()
             }
 
             test("failure with value less than threshold") {
-                val result = tryValidate { gteValue(4, 5) }
+                val result = tryValidate { gtEqValue(4, 5) }
                 result.shouldBeFailure()
-                result.messages[0].constraintId shouldBe "kova.comparable.gteValue"
+                result.messages[0].constraintId shouldBe "kova.comparable.gtEqValue"
             }
         }
 
-        context("gteValue with double") {
+        context("gtEqValue with double") {
             test("success with greater value") {
-                val result = tryValidate { gteValue(5.6, 5.5) }
+                val result = tryValidate { gtEqValue(5.6, 5.5) }
                 result.shouldBeSuccess()
             }
 
             test("success with equal value") {
-                val result = tryValidate { gteValue(5.5, 5.5) }
+                val result = tryValidate { gtEqValue(5.5, 5.5) }
                 result.shouldBeSuccess()
             }
 
             test("failure with value less than threshold") {
-                val result = tryValidate { gteValue(5.4, 5.5) }
+                val result = tryValidate { gtEqValue(5.4, 5.5) }
                 result.shouldBeFailure()
-                result.messages[0].constraintId shouldBe "kova.comparable.gteValue"
+                result.messages[0].constraintId shouldBe "kova.comparable.gtEqValue"
             }
         }
 
@@ -247,39 +247,39 @@ class NumberValidatorTest :
             }
         }
 
-        context("lteValue (less than or equal)") {
+        context("ltEqValue (less than or equal)") {
             test("success with value less than threshold") {
-                val result = tryValidate { lteValue(4, 5) }
+                val result = tryValidate { ltEqValue(4, 5) }
                 result.shouldBeSuccess()
             }
 
             test("success with equal value") {
-                val result = tryValidate { lteValue(5, 5) }
+                val result = tryValidate { ltEqValue(5, 5) }
                 result.shouldBeSuccess()
             }
 
             test("failure with value greater than threshold") {
-                val result = tryValidate { lteValue(6, 5) }
+                val result = tryValidate { ltEqValue(6, 5) }
                 result.shouldBeFailure()
-                result.messages[0].constraintId shouldBe "kova.comparable.lteValue"
+                result.messages[0].constraintId shouldBe "kova.comparable.ltEqValue"
             }
         }
 
-        context("lteValue with double") {
+        context("ltEqValue with double") {
             test("success with smaller value") {
-                val result = tryValidate { lteValue(5.4, 5.5) }
+                val result = tryValidate { ltEqValue(5.4, 5.5) }
                 result.shouldBeSuccess()
             }
 
             test("success with equal value") {
-                val result = tryValidate { lteValue(5.5, 5.5) }
+                val result = tryValidate { ltEqValue(5.5, 5.5) }
                 result.shouldBeSuccess()
             }
 
             test("failure with value greater than threshold") {
-                val result = tryValidate { lteValue(5.6, 5.5) }
+                val result = tryValidate { ltEqValue(5.6, 5.5) }
                 result.shouldBeFailure()
-                result.messages[0].constraintId shouldBe "kova.comparable.lteValue"
+                result.messages[0].constraintId shouldBe "kova.comparable.ltEqValue"
             }
         }
 
