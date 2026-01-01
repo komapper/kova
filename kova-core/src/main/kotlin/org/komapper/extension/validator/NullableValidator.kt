@@ -72,19 +72,17 @@ fun <T> Validation.notNull(
     message: MessageProvider = { "kova.nullable.notNull".resource },
 ): Accumulate.Value<Unit> {
     contract { returns() implies (input != null) }
-    return input.constrain("kova.nullable.notNull") { satisfies(it != null, message) }.also {
-        if (it is Accumulate.Error) it.raise()
-    }
+    return raiseIfNull(input, "kova.nullable.notNull", message)
 }
 
 /**
  * Converts a nullable input to a non-nullable output with a custom constraint ID.
  *
- * This is an internal overload that allows specifying a custom constraint ID for the
+ * This is an internal function that allows specifying a custom constraint ID for the
  * null check validation. It validates that the input is not null and converts the output
  * type from `T?` to `T & Any`.
  *
- * This overload is primarily used internally by type conversion validators (e.g., [toInt],
+ * This function is primarily used internally by type conversion validators (e.g., [toInt],
  * [toLong], [toEnum]) that need to report errors with their specific constraint IDs
  * (e.g., "kova.string.isInt", "kova.string.isEnum") rather than the generic
  * "kova.nullable.notNull".
@@ -102,11 +100,16 @@ fun <T> Validation.toNonNullable(
     input: T,
     constraintId: String,
     message: MessageProvider,
-): T & Any {
-    val accumulateValue =
-        input.constrain(constraintId) {
-            satisfies(input != null, message)
-            input
-        }
-    return accumulateValue.value
+): T & Any = raiseIfNull(input, constraintId, message).let { input }
+
+@IgnorableReturnValue
+private fun <T> Validation.raiseIfNull(
+    input: T,
+    constraintId: String,
+    message: MessageProvider,
+): Accumulate.Value<Unit> {
+    contract { returns() implies (input != null) }
+    return input.constrain(constraintId) { satisfies(it != null, message) }.also {
+        if (it is Accumulate.Error) it.raise()
+    }
 }
