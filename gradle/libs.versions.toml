@@ -32,7 +32,7 @@ jdbc-h2 = { module = "com.h2database:h2", version = "2.4.240" }
 hibernate-validator = { module = "org.hibernate.validator:hibernate-validator", version = "9.1.0.Final" }
 expressly = { module = "org.glassfish.expressly:expressly", version = "6.0.0" }
 
-konform = { module = "io.konform:konform-jvm", version = "0.11.0"}
+konform = { module = "io.konform:konform-jvm", version = "0.11.1"}
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
