@@ -72,9 +72,7 @@ fun <T> Validation.notNull(
     message: MessageProvider = { "kova.nullable.notNull".resource },
 ): Accumulate.Value<Unit> {
     contract { returns() implies (input != null) }
-    return input.constrain("kova.nullable.notNull") { satisfies(it != null, message) }.also {
-        if (it is Accumulate.Error) it.raise()
-    }
+    return raiseIfNull(input, "kova.nullable.notNull", message)
 }
 
 /**
@@ -102,11 +100,16 @@ fun <T> Validation.toNonNullable(
     input: T,
     constraintId: String,
     message: MessageProvider,
-): T & Any {
-    val accumulateValue =
-        input.constrain(constraintId) {
-            satisfies(input != null, message)
-            input
-        }
-    return accumulateValue.value
+): T & Any = raiseIfNull(input, constraintId, message).let { input }
+
+@IgnorableReturnValue
+private fun <T> Validation.raiseIfNull(
+    input: T,
+    constraintId: String,
+    message: MessageProvider,
+): Accumulate.Value<Unit> {
+    contract { returns() implies (input != null) }
+    return input.constrain(constraintId) { satisfies(it != null, message) }.also {
+        if (it is Accumulate.Error) it.raise()
+    }
 }
