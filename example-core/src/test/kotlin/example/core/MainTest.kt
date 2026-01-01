@@ -50,7 +50,7 @@ class MainTest :
                 ids.size shouldBe 3
                 ids[0] shouldBe "kova.charSequence.minLength"
                 ids[1] shouldBe "kova.charSequence.notBlank"
-                ids[2] shouldBe "kova.comparable.minValue"
+                ids[2] shouldBe "kova.comparable.inRange"
             }
 
             test("failure - age exceeds maximum") {
@@ -60,7 +60,7 @@ class MainTest :
                 result.shouldBeFailure()
                 val ids = result.messages.map { it.constraintId }
                 ids.size shouldBe 1
-                ids[0] shouldBe "kova.comparable.maxValue"
+                ids[0] shouldBe "kova.comparable.inRange"
             }
         }
 

@@ -27,4 +27,13 @@ class MessagePropertiesJaTest :
                 message.text shouldBe "コレクション(サイズ2)は少なくとも3個の要素を持つ必要があります"
             }
         }
+
+        context("kova.comparable") {
+            test("inRange") {
+                val result = tryValidate { inRange(5, 1..<5) }
+                result.shouldBeFailure()
+                val message = result.messages.single()
+                message.text shouldBe "1..4の範囲内である必要があります"
+            }
+        }
     })

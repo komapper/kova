@@ -377,6 +377,12 @@ ltValue(input, 100u)                // Less than (< 100u)
 lteValue(input, 100u)               // Less than or equal (<= 100u)
 eqValue(input, 42u)                 // Equal to (== 42u)
 notEqValue(input, 0u)               // Not equal to (!= 0u)
+
+// Range validation
+inRange(input, 1..10)               // Within range (supports both 1..10 and 1..<10 syntax)
+inRange(input, 1..<10)              // Within range with open-ended syntax (exclusive end)
+inClosedRange(input, 1.0..10.0)     // Within closed range (inclusive start and end)
+inOpenEndRange(input, 1..<10)       // Within open-ended range (inclusive start, exclusive end)
 ```
 
 ### Literal Values
