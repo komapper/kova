@@ -167,6 +167,132 @@ class ComparableValidatorTest :
                     result.messages[0].constraintId shouldBe "kova.comparable.notEqValue"
                 }
             }
+
+            context("inRange") {
+                test("success with value in range (closed range syntax)") {
+                    val result = tryValidate { inRange(5u, 1u..10u) }
+                    result.shouldBeSuccess()
+                }
+
+                test("success with value at start of range (closed range syntax)") {
+                    val result = tryValidate { inRange(1u, 1u..10u) }
+                    result.shouldBeSuccess()
+                }
+
+                test("success with value at end of range (closed range syntax)") {
+                    val result = tryValidate { inRange(10u, 1u..10u) }
+                    result.shouldBeSuccess()
+                }
+
+                test("failure with value below range (closed range syntax)") {
+                    val result = tryValidate { inRange(0u, 1u..10u) }
+                    result.shouldBeFailure()
+                    result.messages[0].constraintId shouldBe "kova.comparable.inRange"
+                }
+
+                test("failure with value above range (closed range syntax)") {
+                    val result = tryValidate { inRange(11u, 1u..10u) }
+                    result.shouldBeFailure()
+                    result.messages[0].constraintId shouldBe "kova.comparable.inRange"
+                }
+
+                test("success with value in range (open-ended range syntax)") {
+                    val result = tryValidate { inRange(5u, 1u..<10u) }
+                    result.shouldBeSuccess()
+                }
+
+                test("success with value at start of range (open-ended range syntax)") {
+                    val result = tryValidate { inRange(1u, 1u..<10u) }
+                    result.shouldBeSuccess()
+                }
+
+                test("success with value just before end (open-ended range syntax)") {
+                    val result = tryValidate { inRange(9u, 1u..<10u) }
+                    result.shouldBeSuccess()
+                }
+
+                test("failure with value at end of range (open-ended range syntax - exclusive)") {
+                    val result = tryValidate { inRange(10u, 1u..<10u) }
+                    result.shouldBeFailure()
+                    result.messages[0].constraintId shouldBe "kova.comparable.inRange"
+                }
+
+                test("failure with value below range (open-ended range syntax)") {
+                    val result = tryValidate { inRange(0u, 1u..<10u) }
+                    result.shouldBeFailure()
+                    result.messages[0].constraintId shouldBe "kova.comparable.inRange"
+                }
+
+                test("failure with value above range (open-ended range syntax)") {
+                    val result = tryValidate { inRange(11u, 1u..<10u) }
+                    result.shouldBeFailure()
+                    result.messages[0].constraintId shouldBe "kova.comparable.inRange"
+                }
+            }
+
+            context("inClosedRange") {
+                test("success with value in range") {
+                    val result = tryValidate { inClosedRange(5u, 1u..10u) }
+                    result.shouldBeSuccess()
+                }
+
+                test("success with value at start of range") {
+                    val result = tryValidate { inClosedRange(1u, 1u..10u) }
+                    result.shouldBeSuccess()
+                }
+
+                test("success with value at end of range") {
+                    val result = tryValidate { inClosedRange(10u, 1u..10u) }
+                    result.shouldBeSuccess()
+                }
+
+                test("failure with value below range") {
+                    val result = tryValidate { inClosedRange(0u, 1u..10u) }
+                    result.shouldBeFailure()
+                    result.messages[0].constraintId shouldBe "kova.comparable.inClosedRange"
+                }
+
+                test("failure with value above range") {
+                    val result = tryValidate { inClosedRange(11u, 1u..10u) }
+                    result.shouldBeFailure()
+                    result.messages[0].constraintId shouldBe "kova.comparable.inClosedRange"
+                }
+            }
+
+            context("inOpenEndRange") {
+                test("success with value in range") {
+                    val result = tryValidate { inOpenEndRange(5u, 1u..<10u) }
+                    result.shouldBeSuccess()
+                }
+
+                test("success with value at start of range") {
+                    val result = tryValidate { inOpenEndRange(1u, 1u..<10u) }
+                    result.shouldBeSuccess()
+                }
+
+                test("success with value just before end of range") {
+                    val result = tryValidate { inOpenEndRange(9u, 1u..<10u) }
+                    result.shouldBeSuccess()
+                }
+
+                test("failure with value at end of range (exclusive)") {
+                    val result = tryValidate { inOpenEndRange(10u, 1u..<10u) }
+                    result.shouldBeFailure()
+                    result.messages[0].constraintId shouldBe "kova.comparable.inOpenEndRange"
+                }
+
+                test("failure with value below range") {
+                    val result = tryValidate { inOpenEndRange(0u, 1u..<10u) }
+                    result.shouldBeFailure()
+                    result.messages[0].constraintId shouldBe "kova.comparable.inOpenEndRange"
+                }
+
+                test("failure with value above range") {
+                    val result = tryValidate { inOpenEndRange(11u, 1u..<10u) }
+                    result.shouldBeFailure()
+                    result.messages[0].constraintId shouldBe "kova.comparable.inOpenEndRange"
+                }
+            }
         }
 
         context("uLong") {

@@ -102,6 +102,7 @@ sealed interface Message {
 
         private fun resolveArg(arg: Any?): Any? =
             when (arg) {
+                is ClosedRange<*>, is OpenEndRange<*> -> arg
                 is Message -> arg.text
                 is Iterable<*> -> arg.map { resolveArg(it) }
                 else -> arg

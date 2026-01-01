@@ -419,6 +419,48 @@ class MessagePropertiesTest :
                 val message = result.messages.single()
                 message.text shouldBe "must not be equal to 0"
             }
+
+            test("inRange") {
+                val result = tryValidate { inRange(15, 1..10) }
+                result.shouldBeFailure()
+                val message = result.messages.single()
+                message.text shouldBe "must be within range 1..10"
+            }
+
+            test("inRange with message") {
+                val result = tryValidate { inRange(15, 1..10) { text("must be within range 1..10") } }
+                result.shouldBeFailure()
+                val message = result.messages.single()
+                message.text shouldBe "must be within range 1..10"
+            }
+
+            test("inClosedRange") {
+                val result = tryValidate { inClosedRange(15, 1..10) }
+                result.shouldBeFailure()
+                val message = result.messages.single()
+                message.text shouldBe "must be within range 1..10"
+            }
+
+            test("inClosedRange with message") {
+                val result = tryValidate { inClosedRange(15, 1..10) { text("must be within range 1..10") } }
+                result.shouldBeFailure()
+                val message = result.messages.single()
+                message.text shouldBe "must be within range 1..10"
+            }
+
+            test("inOpenEndRange") {
+                val result = tryValidate { inOpenEndRange(10, 1..<10) }
+                result.shouldBeFailure()
+                val message = result.messages.single()
+                message.text shouldBe "must be within range 1..9"
+            }
+
+            test("inOpenEndRange with message") {
+                val result = tryValidate { inOpenEndRange(10, 1..<10) { text("must be within range 1..<10") } }
+                result.shouldBeFailure()
+                val message = result.messages.single()
+                message.text shouldBe "must be within range 1..<10"
+            }
         }
 
         context("kova.literal") {
