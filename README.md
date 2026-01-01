@@ -384,12 +384,14 @@ inClosedRange(input, 1.0..10.0)     // Within closed range (inclusive start and 
 inOpenEndRange(input, 1..<10)       // Within open-ended range (inclusive start, exclusive end)
 ```
 
-### Literal Values
+### Any Type Validators
+
+Works with any type:
 
 ```kotlin
-literal(input, "completed")         // Must equal specific value
-literal(input, "a", "b", "c")       // Must be one of allowed values
-literal(input, listOf("a", "b", "c"))  // Must be one of allowed values (from List)
+eqValue(input, "completed")            // Must equal specific value
+notEqValue(input, "rejected")          // Must not equal specific value
+inIterable(input, listOf("a", "b", "c"))  // Must be one of allowed values
 ```
 
 ## Error Handling
