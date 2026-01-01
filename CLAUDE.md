@@ -77,7 +77,7 @@ fun Validation.alphanumeric(input: String) = input.constrain("custom.alphanumeri
 ### Message System
 - `"kova.constraint.id".resource(arg1, arg2)` - i18n messages from `kova.properties`
 - `satisfies(condition) { message }` - MessageProvider is `() -> Message`
-- Constraint IDs: `kova.comparable.*`, `kova.charSequence.*`, `kova.string.*`, `kova.number.*`
+- Constraint IDs: `kova.any.*`, `kova.comparable.*`, `kova.charSequence.*`, `kova.string.*`, `kova.number.*`
 
 ### Circular Reference Detection
 - `Validation.addPathChecked()` detects circular refs via object identity (`===`)
@@ -108,7 +108,7 @@ fun Validation.alphanumeric(input: String) = input.constrain("custom.alphanumeri
 
 ### kova-core
 - `Validator.kt`, `Validation.kt`, `ValidationResult.kt`, `ValidationConfig.kt`
-- `CharSequenceValidator.kt`, `StringValidator.kt`, `NumberValidator.kt`, `ComparableValidator.kt`
+- `AnyValidator.kt`, `CharSequenceValidator.kt`, `StringValidator.kt`, `NumberValidator.kt`, `ComparableValidator.kt`
 - `CollectionValidator.kt`, `MapValidator.kt`, `TemporalValidator.kt`
 - `Constraint.kt`, `Accumulate.kt`, `Message.kt`, `Path.kt`
 
