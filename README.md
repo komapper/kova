@@ -101,7 +101,7 @@ if (result.isSuccess()) {
 
 ### Object Validation
 
-Validate data class properties using the `schema` function.
+Validate class properties using the `schema` function.
 
 ```kotlin
 data class Product(val id: Int, val name: String, val price: Double)
@@ -114,6 +114,39 @@ fun Validation.validate(product: Product) = product.schema {
 
 val result = tryValidate { validate(Product(1, "Mouse", 29.99)) }
 ```
+
+#### Reusable validators
+
+Extract common validation logic into reusable validator functions:
+
+```kotlin
+fun Validation.validateName(name: String, maxLength: Int = 100): String {
+    notBlank(name); minLength(name, 1); maxLength(name, maxLength)
+    return name
+}
+
+fun Validation.validatePrice(price: Double): Double {
+    minValue(price, 0.0); maxValue(price, 1000000.0)
+    return price
+}
+
+data class Product(val name: String, val price: Double)
+data class Service(val title: String, val price: Double)
+
+fun Validation.validate(product: Product) = product.schema {
+    product::name { validateName(it) }
+    product::price { validatePrice(it) }
+}
+
+fun Validation.validate(service: Service) = service.schema {
+    service::title { validateName(it, 200) }  // Reused for different property
+    service::price { validatePrice(it) }  // Reused across schemas
+}
+```
+
+Reusable validators can be shared across multiple schemas, ensuring consistent validation rules throughout your application.
+
+Validators can accept parameters to make them more flexible. By using default parameter values, you can provide sensible defaults while allowing customization when needed. In the example above, `validateName` uses a default `maxLength` of 100, but the `Service.title` validation overrides it to 200, demonstrating how the same validator can be adapted to different requirements.
 
 #### Nested object validation
 
