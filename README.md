@@ -34,6 +34,49 @@ dependencies {
 - **Ktor Integration**: Automatic request validation with Ktor's RequestValidation plugin
 - **Zero Dependencies**: No external runtime dependencies, only requires Kotlin standard library
 
+## Table of Contents
+
+- [Setup](#setup)
+- [Features](#features)
+- [Quick Start](#quick-start)
+  - [Basic Validation](#basic-validation)
+  - [Multiple Validators](#multiple-validators)
+  - [Object Validation](#object-validation)
+- [Factory Validation](#factory-validation)
+- [Ktor Integration](#ktor-integration)
+- [Available Validators](#available-validators)
+  - [String & CharSequence](#string--charsequence)
+  - [Numbers](#numbers)
+  - [Temporal Types](#temporal-types)
+  - [Iterables](#iterables)
+  - [Collections](#collections)
+  - [Maps](#maps)
+  - [Nullable](#nullable)
+  - [Boolean](#boolean)
+  - [Comparable Types](#comparable-types)
+  - [Any Type Validators](#any-type-validators)
+- [Error Handling](#error-handling)
+  - [Basic Error Handling](#basic-error-handling)
+  - [Message Properties](#message-properties)
+  - [Custom Error Messages](#custom-error-messages)
+- [Validation Configuration](#validation-configuration)
+  - [Fail-Fast Mode](#fail-fast-mode)
+  - [Custom Clock for Temporal Validation](#custom-clock-for-temporal-validation)
+  - [Debug Logging](#debug-logging)
+  - [Combined Configuration](#combined-configuration)
+- [Advanced Topics](#advanced-topics)
+  - [Custom Constraints](#custom-constraints)
+  - [Nullable Validation](#nullable-validation)
+  - [Conditional Validation with `or` and `orElse`](#conditional-validation-with-or-and-orelse)
+  - [Wrapping Errors with `withMessage`](#wrapping-errors-with-withmessage)
+  - [Circular Reference Detection](#circular-reference-detection)
+  - [Internationalization](#internationalization)
+- [Examples](#examples)
+- [Building and Testing](#building-and-testing)
+- [Requirements](#requirements)
+- [License](#license)
+- [Contributing](#contributing)
+
 ## Quick Start
 
 ### Basic Validation
@@ -518,11 +561,25 @@ if (!result.isSuccess()) {
 }
 ```
 
-### Validation Configuration
+### Custom Error Messages
+
+All validators accept an optional `message` parameter for custom error messages. You can use `text()` for plain text messages or `resource()` for internationalized messages:
+
+```kotlin
+val result = tryValidate {
+    // Custom text message
+    minLength(username, 3, message = { text("Username must be at least 3 characters") })
+
+    // Internationalized message with parameters
+    maxLength(bio, 500, message = { "custom.bio.tooLong".resource(500) })
+}
+```
+
+## Validation Configuration
 
 You can customize validation behavior using `ValidationConfig`:
 
-#### Fail-Fast Mode
+### Fail-Fast Mode
 
 Stop at the first error instead of collecting all errors:
 
@@ -535,10 +592,10 @@ fun Validation.validateProductName(name: String) {
 // Stops at first error
 val result = tryValidate(ValidationConfig(failFast = true)) {
     validateProductName("Wireless Mouse")
-} 
+}
 ```
 
-#### Custom Clock for Temporal Validation
+### Custom Clock for Temporal Validation
 
 Provide a custom clock for temporal validators (useful for testing):
 
@@ -559,7 +616,7 @@ val result = tryValidate(config = ValidationConfig(clock = fixedClock)) {
 }
 ```
 
-#### Debug Logging
+### Debug Logging
 
 Enable logging to debug validation flow:
 
@@ -572,7 +629,7 @@ val result = tryValidate(config = ValidationConfig(
 }
 ```
 
-#### Combined Configuration
+### Combined Configuration
 
 All options can be combined:
 
@@ -583,20 +640,6 @@ val result = tryValidate(config = ValidationConfig(
     logger = { logEntry -> println(logEntry) }
 )) {
     // validation logic
-}
-```
-
-### Custom Error Messages
-
-All validators accept an optional `message` parameter for custom error messages. You can use `text()` for plain text messages or `resource()` for internationalized messages:
-
-```kotlin
-val result = tryValidate {
-    // Custom text message
-    minLength(username, 3, message = { text("Username must be at least 3 characters") })
-
-    // Internationalized message with parameters
-    maxLength(bio, 500, message = { "custom.bio.tooLong".resource(500) })
 }
 ```
 
