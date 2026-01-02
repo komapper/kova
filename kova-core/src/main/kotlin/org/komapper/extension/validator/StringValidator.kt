@@ -53,7 +53,7 @@ fun Validation.isLong(
 fun Validation.isShort(
     input: String,
     message: MessageProvider = { "kova.string.isShort".resource },
-) = input.constrain("kova.string.isShort") { toShort(input, message) }
+) = input.constrain("kova.string.isShort") { val _ = toShort(input, message) }
 
 /**
  * Validates that the string can be parsed as a Byte.
@@ -70,7 +70,7 @@ fun Validation.isShort(
 fun Validation.isByte(
     input: String,
     message: MessageProvider = { "kova.string.isByte".resource },
-) = input.constrain("kova.string.isByte") { toByte(input, message) }
+) = input.constrain("kova.string.isByte") { val _ = toByte(input, message) }
 
 /**
  * Validates that the string can be parsed as a Double.
@@ -87,7 +87,7 @@ fun Validation.isByte(
 fun Validation.isDouble(
     input: String,
     message: MessageProvider = { "kova.string.isDouble".resource },
-) = input.constrain("kova.string.isDouble") { toDouble(input, message) }
+) = input.constrain("kova.string.isDouble") { val _ = toDouble(input, message) }
 
 /**
  * Validates that the string can be parsed as a Float.
@@ -104,7 +104,7 @@ fun Validation.isDouble(
 fun Validation.isFloat(
     input: String,
     message: MessageProvider = { "kova.string.isFloat".resource },
-) = input.constrain("kova.string.isFloat") { toFloat(input, message) }
+) = input.constrain("kova.string.isFloat") { val _ = toFloat(input, message) }
 
 /**
  * Validates that the string can be parsed as a BigDecimal.
@@ -121,7 +121,7 @@ fun Validation.isFloat(
 fun Validation.isBigDecimal(
     input: String,
     message: MessageProvider = { "kova.string.isBigDecimal".resource },
-) = input.constrain("kova.string.isBigDecimal") { toBigDecimal(input, message) }
+) = input.constrain("kova.string.isBigDecimal") { val _ = toBigDecimal(input, message) }
 
 /**
  * Validates that the string can be parsed as a BigInteger.

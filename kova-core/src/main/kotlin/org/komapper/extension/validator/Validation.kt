@@ -51,12 +51,12 @@ data class Validation(
      * @param check Constraint logic that validates the input value
      */
     @IgnorableReturnValue
-    inline fun <T, R> T.constrain(
+    inline fun <T> T.constrain(
         id: String,
-        check: Constraint.(T) -> R,
+        check: Constraint.(T) -> Unit,
     ) = accumulating {
         mapEachMessage({ logAndAddDetails(it, this@constrain, id) }) {
-            val result = Constraint(this).check(this@constrain)
+            Constraint(this).check(this@constrain)
             log {
                 LogEntry.Satisfied(
                     constraintId = id,
@@ -65,7 +65,6 @@ data class Validation(
                     input = this@constrain,
                 )
             }
-            result
         }
     }
 
@@ -173,8 +172,8 @@ data class Validation(
      */
     inline fun <T, R> T.name(
         name: String,
-        block: Validation.() -> R,
-    ): R = addPath(name, this, block)
+        block: Validation.(T) -> R,
+    ): R = addPath(name, this, { block(this@name) })
 
     /**
      * Validates an object using its class name as the validation root.
@@ -254,7 +253,7 @@ data class Validation(
     operator fun <S> (Validation.() -> S).provideDelegate(
         thisRef: Any?,
         property: KProperty<*>,
-    ): Accumulate.Value<S> = name(property.name) { accumulating { this@provideDelegate() } }
+    ): Accumulate.Value<S> = null.name(property.name) { accumulating { this@provideDelegate() } }
 
     /**
      * Creates a text-based validation message with plain text content.

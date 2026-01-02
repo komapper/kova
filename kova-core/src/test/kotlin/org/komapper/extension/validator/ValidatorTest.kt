@@ -216,8 +216,8 @@ class ValidatorTest :
             fun Validation.requestKey(
                 request: Request,
                 block: Validation.(String?) -> Unit,
-            ) = request.name("Request[key]") {
-                request["key"].also { block(it) }
+            ) = request.name("Request[key]") { r ->
+                r["key"].also { block(it) }
             }
 
             fun Validation.requestKeyIsNotNull(request: Request) = requestKey(request) { notNull(it) }

@@ -3,7 +3,6 @@ package org.komapper.extension.validator
 import org.komapper.extension.validator.ValidationIor.FailureLike
 import org.komapper.extension.validator.ValidationResult.Failure
 import org.komapper.extension.validator.ValidationResult.Success
-import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
 /**
@@ -95,11 +94,37 @@ sealed interface ValidationResult<out T> : ValidationIor<T> {
  * }
  * ```
  */
-@OptIn(ExperimentalContracts::class)
 fun <T> ValidationResult<T>.isSuccess(): Boolean {
     contract {
         returns(true) implies (this@isSuccess is Success)
         returns(false) implies (this@isSuccess is Failure)
     }
     return this is Success
+}
+
+/**
+ * Type-safe check if this result is a failure.
+ *
+ * Uses Kotlin contracts for smart casting. When this function returns true,
+ * the result is automatically smart-cast to [Failure]. When it returns false,
+ * the result is automatically smart-cast to [Success].
+ *
+ * Example:
+ * ```kotlin
+ * val result = tryValidate { min("hello", 1) }
+ * if (result.isFailure()) {
+ *     // result is automatically smart-cast to Failure here
+ *     println("Errors: ${result.messages}")
+ * } else {
+ *     // result is automatically smart-cast to Success here
+ *     println("Value: ${result.value}")
+ * }
+ * ```
+ */
+fun <T> ValidationResult<T>.isFailure(): Boolean {
+    contract {
+        returns(true) implies (this@isFailure is Failure)
+        returns(false) implies (this@isFailure is Success<T>)
+    }
+    return this is Failure
 }
