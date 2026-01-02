@@ -43,48 +43,59 @@ Validate individual values by calling validator functions within a `tryValidate`
 ```kotlin
 import org.komapper.extension.validator.*
 
-val result = tryValidate {
-    val name = "Wireless Mouse"
+fun Validation.validateProductName(name: String): String {
     notBlank(name)
-    minLength(name, 1)
-    maxLength(name, 100)
-    name
+    inRange(name.length, 1 .. 100)
+    return name
 }
 
-when {
-    result.isSuccess() -> println("Valid: ${result.value}")
-    else -> result.messages.forEach { println("Error: $it") }
+// in this case, the return type is ValidationResult.Success<Unit>
+val result = tryValidate { validateProductName("Wireless Mouse") }
+if (result.isSuccess()) { 
+    println("Valid: ${result.name}") // Valid: Wireless Mouse 
+} else {
+    result.messages.forEach { println("Invalid: $it") }
 }
 ```
 
-Alternatively, use `validate` to get the value directly or throw a `ValidationException`:
+Alternatively, use `validate` to throw a `ValidationException` on failure:
 
 ```kotlin
 try {
-    val name = validate {
-        val name = "Wireless Mouse"
-        notBlank(name)
-        minLength(name, 1)
-        maxLength(name, 100)
-        name
-    }
-    println("Valid: $name")
+    val value = validate { validateProductName("Wireless Mouse") }
+    println("Valid: $value") // Valid: Wireless Mouse
 } catch (e: ValidationException) {
-    e.messages.forEach { println("Error: $it") }
+    e.messages.forEach { println("Invalid: $it") }
 }
 ```
 
-### Reusable Validation Functions
+### Multiple Validators
 
-Define extension functions on `Validation` for reusable validation logic:
+You can execute multiple validators together by calling them sequentially within a `tryValidate` block. The last expression determines the return value:
 
 ```kotlin
-fun Validation.validatePassword(password: String) {
-    minLength(password, 8)
-    matches(password, Regex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$"))
+fun Validation.validateProductName(name: String): String {
+    notBlank(name)
+    inRange(name.length, 1..100)
+    return name
 }
 
-val result = tryValidate { validatePassword("SecurePass123") }
+fun Validation.validatePrice(price: Double): Double {
+    inClosedRange(price, 0.0..1000.0)
+    return price
+}
+
+val result = tryValidate {
+    val name = validateProductName("Wireless Mouse")
+    val price = validatePrice(29.99)
+    name to price
+}
+
+if (result.isSuccess()) {
+    println("Valid: ${result.value}") // Valid: (Wireless Mouse, 29.99)
+} else {
+    result.messages.forEach { println("Invalid: $it") }
+}
 ```
 
 ### Object Validation
@@ -123,21 +134,13 @@ fun Validation.validate(customer: Customer) = customer.schema {
     customer::address { validate(it) }  // Nested validation
 }
 
-val result = tryValidate {
-    validate(Customer(
-        name = "John Doe",
-        email = "invalid-email",
-        address = Address(street = "", city = "Tokyo", zipCode = "123")
-    ))
-}
+val customer = Customer(
+    name = "John Doe",
+    email = "invalid-email",
+    address = Address(street = "", city = "Tokyo", zipCode = "123")
+)
 
-if (!result.isSuccess()) {
-    result.messages.forEach { println(it) }
-    // Message(constraintId=kova.charSequence.contains, text='must contain "@"', root=Customer, path=email, input=invalid-email, args=[@])
-    // Message(constraintId=kova.charSequence.notBlank, text='must not be blank', root=Customer, path=address.street, input=, args=[])
-    // Message(constraintId=kova.charSequence.minLength, text='must be at least 1 characters', root=Customer, path=address.street, input=, args=[1])
-    // Message(constraintId=kova.charSequence.matches, text='must match pattern: ^\d{5}(-\d{4})?$', root=Customer, path=address.zipCode, input=123, args=[^\d{5}(-\d{4})?$])
-}
+val result = tryValidate { validate(customer) }
 ```
 
 Notice how the error messages show the full path (e.g., `address.street`, `address.zipCode`) to pinpoint exactly where validation failed in the nested structure.
@@ -435,11 +438,15 @@ You can customize validation behavior using `ValidationConfig`:
 Stop at the first error instead of collecting all errors:
 
 ```kotlin
-val result = tryValidate(config = ValidationConfig(failFast = true)) {
-    minLength(password, 8)
-    maxLength(password, 20)
-    matches(password, Regex(".*[A-Z].*"))
-}  // Stops at first error
+fun Validation.validateProductName(name: String) {
+    notBlank(name)
+    inRange(name.length, 1..100)
+}
+
+// Stops at first error
+val result = tryValidate(ValidationConfig(failFast = true)) {
+    validateProductName("Wireless Mouse")
+} 
 ```
 
 #### Custom Clock for Temporal Validation
@@ -450,6 +457,10 @@ Provide a custom clock for temporal validators (useful for testing):
 import java.time.Clock
 import java.time.Instant
 import java.time.ZoneId
+
+fun Validation.validateDate(date: LocalDate) {
+    future(date)
+}
 
 val fixedClock = Clock.fixed(Instant.parse("2024-06-15T10:00:00Z"), ZoneId.of("UTC"))
 
