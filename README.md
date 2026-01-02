@@ -59,10 +59,11 @@ if (result.isSuccess()) {
 }
 ```
 
-Alternatively, use `validate` to throw a `ValidationException` on failure:
+Alternatively, use `validate` to get the value directly or throw a `ValidationException` on failure:
 
 ```kotlin
 try {
+    // // in this case, the return type is String
     val value = validate { validateProductName("Wireless Mouse") }
     println("Valid: $value") // Valid: Wireless Mouse
 } catch (e: ValidationException) {
