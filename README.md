@@ -43,13 +43,14 @@ Validate individual values by calling validator functions within a `tryValidate`
 ```kotlin
 import org.komapper.extension.validator.*
 
+// Define validator function
 fun Validation.validateProductName(name: String): String {
     notBlank(name)
     inRange(name.length, 1 .. 100)
     return name
 }
 
-// in this case, the return type is ValidationResult.Success<Unit>
+// in this case, the return type is ValidationResult.Success<String>
 val result = tryValidate { validateProductName("Wireless Mouse") }
 if (result.isSuccess()) { 
     println("Valid: ${result.name}") // Valid: Wireless Mouse 
