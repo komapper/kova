@@ -464,6 +464,60 @@ if (!result.isSuccess()) {
 }
 ```
 
+### Message Properties
+
+Each validation error is represented by a `Message` object with the following properties that provide detailed error reporting information:
+
+| Property       | Type            | Description                                                                                                                                                                                       |
+|----------------|-----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `text`         | `String`        | The formatted error message text, ready to display to users. For resource-based messages, parameters are already substituted using MessageFormat.                                                 |
+| `constraintId` | `String`        | The unique identifier for the constraint that failed (e.g., `kova.charSequence.minLength`). Useful for programmatic error handling or custom error formatting.                                    |
+| `root`         | `String`        | The root object identifier in the validation hierarchy. For schema validation, this is the simple class name (e.g., `Customer`). For simple validations, this is empty.                           |
+| `path`         | `Path`          | The path to the validated value in the object graph (e.g., `address.zipCode` for nested properties, `items[0]` for collection elements). Use `path.fullName` to get the string representation.    |
+| `input`        | `Any?`          | The actual input value that failed validation. Useful for debugging or creating custom error messages that include the problematic value.                                                         |
+| `args`         | `List<Any?>`    | Arguments used for MessageFormat substitution. These correspond to the `{0}`, `{1}`, etc. placeholders in resource bundle messages. Can include nested Message objects for composite validations. |
+| `descendants`  | `List<Message>` | Nested error messages from collection/map element validations or the `or` operator. For example, `onEach` validations include descendant messages for each failing element.                       |
+
+**Message Types:**
+- `Message.Text`: Simple text messages created with `text()`. Used for hardcoded error messages.
+- `Message.Resource`: I18n messages loaded from `kova.properties` using `resource()`. The `constraintId` is used as the resource bundle key.
+
+**Example of extracting message details:**
+
+```kotlin
+// Data class
+data class Product(val id: Int, val name: String, val price: Double)
+
+// Schema validation function
+fun Validation.validate(product: Product) = product.schema {
+    product::id { minValue(it, 1) }
+    product::name {
+        notBlank(it)
+        minLength(it, 3)
+        maxLength(it, 100)
+    }
+    product::price { minValue(it, 0.0) }
+}
+
+// Usage
+val result = tryValidate {
+    val product = Product(id = 0, name = "ab", price = 10.0)
+    validate(product)
+}
+
+// Extract message details
+if (!result.isSuccess()) {
+    result.messages.forEach { message ->
+        println("Constraint: ${message.constraintId}")      // kova.charSequence.minLength
+        println("Error text: ${message.text}")              // must be at least 3 characters
+        println("Root object: ${message.root}")             // Product
+        println("Path: ${message.path.fullName}")           // name
+        println("Invalid value: ${message.input}")          // ab
+        println("Arguments: ${message.args}")               // [3]
+    }
+}
+```
+
 ### Validation Configuration
 
 You can customize validation behavior using `ValidationConfig`:
