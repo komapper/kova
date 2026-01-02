@@ -51,12 +51,12 @@ data class Validation(
      * @param check Constraint logic that validates the input value
      */
     @IgnorableReturnValue
-    inline fun <T, R> T.constrain(
+    inline fun <T> T.constrain(
         id: String,
-        check: Constraint.(T) -> R,
+        check: Constraint.(T) -> Unit,
     ) = accumulating {
         mapEachMessage({ logAndAddDetails(it, this@constrain, id) }) {
-            val result = Constraint(this).check(this@constrain)
+            Constraint(this).check(this@constrain)
             log {
                 LogEntry.Satisfied(
                     constraintId = id,
@@ -65,7 +65,6 @@ data class Validation(
                     input = this@constrain,
                 )
             }
-            result
         }
     }
 
