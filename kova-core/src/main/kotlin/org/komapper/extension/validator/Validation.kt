@@ -172,8 +172,8 @@ data class Validation(
      */
     inline fun <T, R> T.name(
         name: String,
-        block: Validation.() -> R,
-    ): R = addPath(name, this, block)
+        block: Validation.(T) -> R,
+    ): R = addPath(name, this, { block(this@name) })
 
     /**
      * Validates an object using its class name as the validation root.
@@ -253,7 +253,7 @@ data class Validation(
     operator fun <S> (Validation.() -> S).provideDelegate(
         thisRef: Any?,
         property: KProperty<*>,
-    ): Accumulate.Value<S> = name(property.name) { accumulating { this@provideDelegate() } }
+    ): Accumulate.Value<S> = null.name(property.name) { accumulating { this@provideDelegate() } }
 
     /**
      * Creates a text-based validation message with plain text content.

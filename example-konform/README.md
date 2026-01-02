@@ -206,8 +206,8 @@ fun Validation.validate(userProfile: UserProfile) = userProfile.schema {
     userProfile::age {
         checkAge(it)
     }
-    name("ageMinus10") {
-        checkAge(userProfile.age?.let { age -> age - 10 })
+    userProfile.age.name("ageMinus10") {
+        checkAge(it?.let { age -> age - 10 })
     }
 }
 ```

@@ -90,7 +90,6 @@ class QuickStartTest :
 
                 result.shouldBeFailure()
             }
-
         }
 
         context("object") {

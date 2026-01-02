@@ -29,7 +29,7 @@ class CustomPathTest :
 
             fun Validation.validate(car: Car) =
                 car.schema {
-                    name("passengers") {
+                    car.name("passengers") {
                         car.constrain("validPassengerCount") {
                             satisfies(it.passengers.size <= it.seatCount) {
                                 text("There must be not more passengers than seats.")
