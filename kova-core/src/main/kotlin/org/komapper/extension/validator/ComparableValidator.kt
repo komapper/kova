@@ -75,8 +75,8 @@ fun <S : Comparable<S>> Validation.ensureGreaterThan(
 fun <S : Comparable<S>> Validation.ensureGreaterThanOrEqual(
     input: S,
     value: S,
-    message: MessageProvider = { "kova.comparable.greaterThanOrEquals".resource(value) },
-) = input.constrain("kova.comparable.greaterThanOrEquals") { satisfies(it >= value, message) }
+    message: MessageProvider = { "kova.comparable.greaterThanOrEqual".resource(value) },
+) = input.constrain("kova.comparable.greaterThanOrEqual") { satisfies(it >= value, message) }
 
 /**
  * Validates that the number is strictly less than the specified value.
@@ -115,8 +115,8 @@ fun <S : Comparable<S>> Validation.ensureLessThan(
 fun <S : Comparable<S>> Validation.ensureLessThanOrEqual(
     input: S,
     value: S,
-    message: MessageProvider = { "kova.comparable.lessThanOrEquals".resource(value) },
-) = input.constrain("kova.comparable.lessThanOrEquals") { satisfies(it <= value, message) }
+    message: MessageProvider = { "kova.comparable.lessThanOrEqual".resource(value) },
+) = input.constrain("kova.comparable.lessThanOrEqual") { satisfies(it <= value, message) }
 
 /**
  * Validates that the value is within the specified range.

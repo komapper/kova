@@ -85,7 +85,7 @@ class ComparableValidatorTest :
                 test("failure with value less than threshold") {
                     val result = tryValidate { ensureGreaterThanOrEqual(4u, 5u) }
                     result.shouldBeFailure()
-                    result.messages[0].constraintId shouldBe "kova.comparable.greaterThanOrEquals"
+                    result.messages[0].constraintId shouldBe "kova.comparable.greaterThanOrEqual"
                 }
             }
 
@@ -127,7 +127,7 @@ class ComparableValidatorTest :
                 test("failure with value greater than threshold") {
                     val result = tryValidate { ensureLessThanOrEqual(6u, 5u) }
                     result.shouldBeFailure()
-                    result.messages[0].constraintId shouldBe "kova.comparable.lessThanOrEquals"
+                    result.messages[0].constraintId shouldBe "kova.comparable.lessThanOrEqual"
                 }
             }
 
