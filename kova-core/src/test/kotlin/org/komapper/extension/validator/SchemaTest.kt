@@ -47,10 +47,10 @@ class SchemaTest :
             fun Validation.validate(user: User) =
                 user.schema {
                     user::name {
-                        minLength(it, 1)
-                        maxLength(it, 10)
+                        ensureMinLength(it, 1)
+                        ensureMaxLength(it, 10)
                     }
-                    user::id { minValue(it, 1) }
+                    user::id { ensureMin(it, 1) }
                 }
 
             test("success") {
@@ -85,7 +85,7 @@ class SchemaTest :
                 result.messages[1].let {
                     it.root shouldBe "User"
                     it.path.fullName shouldBe "id"
-                    it.constraintId shouldBe "kova.comparable.minValue"
+                    it.constraintId shouldBe "kova.comparable.min"
                 }
             }
         }
@@ -95,10 +95,10 @@ class SchemaTest :
                 user.schema {
                     or<Unit> {
                         user::name {
-                            minLength(it, 1)
-                            maxLength(it, 10)
+                            ensureMinLength(it, 1)
+                            ensureMaxLength(it, 10)
                         }
-                    } orElse { user::id { minValue(it, 1) } }
+                    } orElse { user::id { ensureMin(it, 1) } }
                 }
 
             test("success when both schemas are satisfied") {
@@ -168,10 +168,10 @@ class SchemaTest :
         context("nullable") {
             fun Validation.validate(user: User?) =
                 user?.schema {
-                    user::id { minValue(it, 1) }
+                    user::id { ensureMin(it, 1) }
                     user::name {
-                        minLength(it, 1)
-                        maxLength(it, 10)
+                        ensureMinLength(it, 1)
+                        ensureMaxLength(it, 10)
                     }
                 }
 
@@ -190,10 +190,10 @@ class SchemaTest :
         context("prop - simple") {
             fun Validation.validate(user: User) =
                 user.schema {
-                    user::id { minValue(it, 1) }
+                    user::id { ensureMin(it, 1) }
                     user::name {
-                        minLength(it, 1)
-                        maxLength(it, 10)
+                        ensureMinLength(it, 1)
+                        ensureMaxLength(it, 10)
                     }
                 }
 
@@ -224,7 +224,7 @@ class SchemaTest :
                 result.messages[0].let {
                     it.root shouldBe "User"
                     it.path.fullName shouldBe "id"
-                    it.constraintId shouldBe "kova.comparable.minValue"
+                    it.constraintId shouldBe "kova.comparable.min"
                 }
                 result.messages[1].let {
                     it.root shouldBe "User"
@@ -237,10 +237,10 @@ class SchemaTest :
         context("prop - nest") {
             fun Validation.validate(street: Street) =
                 street.schema {
-                    street::id { minValue(it, 1) }
+                    street::id { ensureMin(it, 1) }
                     street::name {
-                        minLength(it, 3)
-                        maxLength(it, 5)
+                        ensureMinLength(it, 3)
+                        ensureMaxLength(it, 5)
                     }
                 }
 
@@ -270,10 +270,10 @@ class SchemaTest :
         context("prop - nest - dynamic") {
             fun Validation.validate(street: Street) =
                 street.schema {
-                    street::id { minValue(it, 1) }
+                    street::id { ensureMin(it, 1) }
                     street::name {
-                        minLength(it, 3)
-                        maxLength(it, 5)
+                        ensureMinLength(it, 3)
+                        ensureMaxLength(it, 5)
                     }
                 }
 
@@ -282,8 +282,8 @@ class SchemaTest :
                     address::street { validate(it) }
                     address::postalCode {
                         when (address.country) {
-                            "US" -> length(it, 8)
-                            else -> length(it, 5)
+                            "US" -> ensureLength(it, 8)
+                            else -> ensureLength(it, 5)
                         }
                     }
                 }
@@ -332,10 +332,10 @@ class SchemaTest :
         context("prop - nullable") {
             fun Validation.validate(street: Street) =
                 street.schema {
-                    street::id { minValue(it, 1) }
+                    street::id { ensureMin(it, 1) }
                     street::name {
-                        minLength(it, 3)
-                        maxLength(it, 5)
+                        ensureMinLength(it, 3)
+                        ensureMaxLength(it, 5)
                     }
                 }
 
@@ -350,8 +350,8 @@ class SchemaTest :
 
             fun Validation.validate2(person: Person) =
                 person.schema {
-                    person::firstName { notNull(it) }
-                    person::lastName { notNull(it) }
+                    person::firstName { ensureNotNull(it) }
+                    person::lastName { ensureNotNull(it) }
                     person::address { if (it != null) validate(it) }
                 }
 
@@ -393,8 +393,8 @@ class SchemaTest :
             fun Validation.validate(node: Node) {
                 node.schema {
                     node::children {
-                        maxSize(it, 3)
-                        onEach(it) { child -> validate(child) }
+                        ensureMaxSize(it, 3)
+                        ensureEach(it) { child -> validate(child) }
                     }
                 }
             }
@@ -405,7 +405,7 @@ class SchemaTest :
                 result.shouldBeSuccess()
             }
 
-            test("failure when children size exceeds 3") {
+            test("failure when children ensureSize exceeds 3") {
                 val node = Node(listOf(Node(), Node(), Node(listOf(Node(), Node(), Node(), Node()))))
                 val result = tryValidate { validate(node) }
                 result.shouldBeFailure()
@@ -414,7 +414,7 @@ class SchemaTest :
                     "Some elements do not satisfy the constraint: [Collection (size 4) must have at most 3 elements]"
             }
 
-            test("failure when grandchildren size exceeds 3") {
+            test("failure when grandchildren ensureSize exceeds 3") {
                 val node = Node(listOf(Node(), Node(), Node(listOf(Node(listOf(Node(), Node(), Node(), Node()))))))
                 val result = tryValidate { validate(node) }
                 result.shouldBeFailure()
@@ -433,8 +433,8 @@ class SchemaTest :
             fun Validation.validate(node: NodeWithValue) {
                 node.schema {
                     node::value {
-                        minValue(it, 0)
-                        maxValue(it, 100)
+                        ensureMin(it, 0)
+                        ensureMax(it, 100)
                     }
                     node::next { if (it != null) validate(it) }
                 }
@@ -468,7 +468,7 @@ class SchemaTest :
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].path.fullName shouldBe "next.next.value"
-                result.messages[0].constraintId shouldBe "kova.comparable.maxValue"
+                result.messages[0].constraintId shouldBe "kova.comparable.max"
             }
 
             test("failure when constraint violated in root object") {
@@ -479,11 +479,11 @@ class SchemaTest :
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].path.fullName shouldBe "value"
-                result.messages[0].constraintId shouldBe "kova.comparable.minValue"
+                result.messages[0].constraintId shouldBe "kova.comparable.min"
             }
 
             // To avoid StackOverflowError, use 'shouldBeEqual' instead of 'shouldBe'
-            test("failure when circular reference has constraint violation") {
+            test("failure when circular reference ensureHas constraint violation") {
                 val node1 = NodeWithValue(200, null) // Invalid: > 100
                 val node2 = NodeWithValue(20, node1)
                 node1.next = node2 // Create circular reference
@@ -492,7 +492,7 @@ class SchemaTest :
                 result.shouldBeFailure()
                 result.messages.size shouldBeEqual 1
                 result.messages[0].path.fullName shouldBeEqual "value"
-                result.messages[0].constraintId.shouldNotBeNull() shouldBeEqual "kova.comparable.maxValue"
+                result.messages[0].constraintId.shouldNotBeNull() shouldBeEqual "kova.comparable.max"
             }
         }
     })

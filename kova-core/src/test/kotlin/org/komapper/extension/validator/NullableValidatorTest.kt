@@ -26,7 +26,7 @@ class NullableValidatorTest :
 
         context("nullable with constraint") {
             fun Validation.nullableMin3(i: Int?) {
-                if (i != null) minValue(i, 3)
+                if (i != null) ensureMin(i, 3)
             }
 
             test("success with non-null value") {
@@ -43,53 +43,53 @@ class NullableValidatorTest :
                 val result = tryValidate { nullableMin3(2) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
-                result.messages[0].constraintId shouldBe "kova.comparable.minValue"
+                result.messages[0].constraintId shouldBe "kova.comparable.min"
             }
         }
 
         context("nullable with constraint - for each List element") {
             fun Validation.nullableMin3(i: Int?) {
-                if (i != null) minValue(i, 3)
+                if (i != null) ensureMin(i, 3)
             }
 
             test("success with non-null value") {
-                val result = tryValidate { onEach(listOf(4, 5)) { nullableMin3(it) } }
+                val result = tryValidate { ensureEach(listOf(4, 5)) { nullableMin3(it) } }
                 result.shouldBeSuccess()
             }
 
             test("success with null value") {
-                val result = tryValidate { onEach(listOf(null, null)) { nullableMin3(it) } }
+                val result = tryValidate { ensureEach(listOf(null, null)) { nullableMin3(it) } }
                 result.shouldBeSuccess()
             }
 
             test("failure when min3 constraint violated") {
-                val result = tryValidate { onEach(listOf(2, null)) { nullableMin3(it) } }
+                val result = tryValidate { ensureEach(listOf(2, null)) { nullableMin3(it) } }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
-                result.messages[0].constraintId shouldBe "kova.iterable.onEach"
+                result.messages[0].constraintId shouldBe "kova.iterable.each"
             }
         }
 
-        context("isNull") {
+        context("ensureNull") {
             test("success") {
-                val result = tryValidate { isNull(null) }
+                val result = tryValidate { ensureNull(null) }
                 result.shouldBeSuccess()
             }
 
             test("failure") {
-                val result = tryValidate { isNull(4) }
+                val result = tryValidate { ensureNull(4) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
-                result.messages[0].constraintId shouldBe "kova.nullable.isNull"
+                result.messages[0].constraintId shouldBe "kova.nullable.null"
             }
         }
 
-        context("or isNull orElse") {
+        context("or ensureNull orElse") {
             fun Validation.isNullOrMin3Max3(i: Int?) =
-                or { isNull(i) } orElse {
+                or { ensureNull(i) } orElse {
                     if (i == null) return@orElse
-                    minValue(i, 3)
-                    maxValue(i, 3)
+                    ensureMin(i, 3)
+                    ensureMax(i, 3)
                 }
 
             test("success with null value") {
@@ -114,11 +114,11 @@ class NullableValidatorTest :
             }
         }
 
-        context("isNullOr") {
+        context("ensureNullOr") {
             fun Validation.isNullOrMin3Max3(i: Int?) =
-                isNullOr(i) {
-                    minValue(it, 3)
-                    maxValue(it, 3)
+                ensureNullOr(i) {
+                    ensureMin(it, 3)
+                    ensureMax(it, 3)
                 }
 
             test("success with null value") {
@@ -131,7 +131,7 @@ class NullableValidatorTest :
                 result.shouldBeSuccess()
             }
 
-            test("failure when isNull and max3 constraints violated") {
+            test("failure when ensureNull and max3 constraints violated") {
                 val result = tryValidate { isNullOrMin3Max3(5) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
@@ -139,25 +139,25 @@ class NullableValidatorTest :
             }
         }
 
-        context("notNull") {
+        context("ensureNotNull") {
             test("success") {
-                val result = tryValidate { notNull(4) }
+                val result = tryValidate { ensureNotNull(4) }
                 result.shouldBeSuccess()
             }
 
             test("failure") {
-                val result = tryValidate { notNull(null) }
+                val result = tryValidate { ensureNotNull(null) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.nullable.notNull"
             }
         }
 
-        context("notNull and other constraints") {
+        context("ensureNotNull and other constraints") {
             fun Validation.notNullAndMin3AndMax3(i: Int?): Int {
-                notNull(i)
-                maxValue(i, 5)
-                minValue(i, 3)
+                ensureNotNull(i)
+                ensureMax(i, 5)
+                ensureMin(i, 3)
                 return i
             }
 
@@ -166,7 +166,7 @@ class NullableValidatorTest :
                 result.shouldBeSuccess()
             }
 
-            test("failure when notNull constraint is violated") {
+            test("failure when ensureNotNull constraint is violated") {
                 val result = tryValidate { notNullAndMin3AndMax3(null) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
@@ -177,14 +177,14 @@ class NullableValidatorTest :
                 val result = tryValidate { notNullAndMin3AndMax3(2) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
-                result.messages[0].constraintId shouldBe "kova.comparable.minValue"
+                result.messages[0].constraintId shouldBe "kova.comparable.min"
             }
 
             test("failure when max5 constraint violated") {
                 val result = tryValidate { notNullAndMin3AndMax3(6) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
-                result.messages[0].constraintId shouldBe "kova.comparable.maxValue"
+                result.messages[0].constraintId shouldBe "kova.comparable.max"
             }
         }
 
@@ -192,24 +192,24 @@ class NullableValidatorTest :
             test("success: 3") {
                 val logs = mutableListOf<LogEntry>()
                 val config = ValidationConfig(logger = { logs.add(it) })
-                val result = tryValidate(config) { isNullOr(3) { minValue(it, 3) } }
+                val result = tryValidate(config) { ensureNullOr(3) { ensureMin(it, 3) } }
                 result.shouldBeSuccess()
                 logs shouldBe
                     listOf(
-                        LogEntry.Violated(constraintId = "kova.nullable.isNull", root = "", path = "", input = 3, args = listOf()),
-                        LogEntry.Satisfied(constraintId = "kova.comparable.minValue", root = "", path = "", input = 3),
+                        LogEntry.Violated(constraintId = "kova.nullable.null", root = "", path = "", input = 3, args = listOf()),
+                        LogEntry.Satisfied(constraintId = "kova.comparable.min", root = "", path = "", input = 3),
                     )
             }
 
             test("success: null") {
                 buildList {
                     val config = ValidationConfig(logger = { add(it) })
-                    val result = tryValidate(config) { isNullOr<Int?>(null) { minValue(it, 3) } }
+                    val result = tryValidate(config) { ensureNullOr<Int?>(null) { ensureMin(it, 3) } }
                     result.shouldBeSuccess()
                 } shouldBe
                     listOf(
                         LogEntry.Satisfied(
-                            constraintId = "kova.nullable.isNull",
+                            constraintId = "kova.nullable.null",
                             root = "",
                             path = "",
                             input = null,

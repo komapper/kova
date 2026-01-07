@@ -160,7 +160,7 @@ class ValidationCancellationException(
      * control flow rather than exceptional conditions. This also prevents bugs on
      * Android versions 6.0 and below.
      *
-     * @return this exception with an empty stack trace
+     * @return this exception with an ensureEmpty stack trace
      */
     override fun fillInStackTrace(): Throwable {
         // Prevent Android <= 6.0 bug.
@@ -174,7 +174,7 @@ class ValidationCancellationException(
  * Executes a validation block with structured error recovery.
  *
  * This function creates an [Accumulate.Error] context and executes the validation block.
- * If the block raises a [ValidationCancellationException] that matches the created error
+ * If the block raises a [ValidationCancellationException] that ensureMatches the created error
  * context, the recovery function is invoked. If the exception belongs to a different
  * error context, it is re-thrown to propagate to the appropriate handler.
  *

@@ -78,7 +78,7 @@ data class Validation(
      *
      * Example:
      * ```kotlin
-     * val result: ValidationIor<String> = or { notBlank(name) }
+     * val result: ValidationIor<String> = or { ensureNotBlank(name) }
      * val value: String = result.bind()  // Extracts or raises
      * ```
      *
@@ -158,7 +158,7 @@ data class Validation(
      *
      * tryValidate {
      *     user.address.name("address") {
-     *         notBlank(user.address.city)
+     *         ensureNotBlank(user.address.city)
      *         // Error path will be "address.city"
      *     }
      * }
@@ -188,7 +188,7 @@ data class Validation(
      * data class User(val name: String, val age: Int)
      *
      * fun Validation.validate(user: User) = user.schema {
-     *     user::name { notBlank(it); minLength(it, 1); maxLength(it, 100) }
+     *     user::name { ensureNotBlank(it); ensureMinLength(it, 1); ensureMaxLength(it, 100) }
      *     user::age { min(it, 0); max(it, 120) }
      * }
      *
@@ -221,9 +221,9 @@ data class Validation(
      * data class User(val name: String, val age: Int, val email: String?)
      *
      * fun Validation.validate(user: User) = user.schema {
-     *     user::name { notBlank(it); minLength(it, 1) }
+     *     user::name { ensureNotBlank(it); ensureMinLength(it, 1) }
      *     user::age { min(it, 0); max(it, 120) }
-     *     user::email { isNullOr(it) { matches(it, emailRegex) } }
+     *     user::email { ensureNullOr(it) { ensureMatches(it, emailRegex) } }
      * }
      * ```
      *
@@ -265,8 +265,8 @@ data class Validation(
      * Example usage in a constraint:
      * ```kotlin
      * tryValidate {
-     *     10.constrain("positive") {
-     *         satisfies(it > 0) { text("Value must be positive") }
+     *     10.constrain("ensurePositive") {
+     *         satisfies(it > 0) { text("Value must be ensurePositive") }
      *     }
      * }
      * ```
@@ -276,8 +276,8 @@ data class Validation(
      * data class Period(val startDate: LocalDate, val endDate: LocalDate)
      *
      * fun Validation.validate(period: Period) = period.schema {
-     *     period::startDate { pastOrPresent(it) }
-     *     period::endDate { futureOrPresent(it) }
+     *     period::startDate { ensurePastOrPresent(it) }
+     *     period::endDate { ensureFutureOrPresent(it) }
      *     period.constrain("period") {
      *         satisfies(it.startDate <= it.endDate) {
      *             text("Start date must be before or equal to end date")
@@ -306,10 +306,10 @@ data class Validation(
      * ```kotlin
      * fun Validation.min(
      *     input: Int,
-     *     minValue: Int,
-     *     message: MessageProvider = { "kova.number.min".resource(minValue) }
+     *     ensureMin: Int,
+     *     message: MessageProvider = { "kova.number.min".resource(ensureMin) }
      * ) = input.constrain("kova.number.min") {
-     *     satisfies(it >= minValue, message)
+     *     satisfies(it >= ensureMin, message)
      * }
      *
      * tryValidate { min(5, 0) } // Success
@@ -324,11 +324,11 @@ data class Validation(
      * ```kotlin
      * fun Validation.range(
      *     input: Int,
-     *     minValue: Int,
-     *     maxValue: Int,
-     *     message: MessageProvider = { "kova.number.range".resource(minValue, maxValue) }
+     *     ensureMin: Int,
+     *     ensureMax: Int,
+     *     message: MessageProvider = { "kova.number.range".resource(ensureMin, ensureMax) }
      * ) = input.constrain("kova.number.range") {
-     *     satisfies(it in minValue..maxValue, message)
+     *     satisfies(it in ensureMin..ensureMax, message)
      * }
      * ```
      *
@@ -346,7 +346,7 @@ data class Validation(
 }
 
 /**
- * The clock used for temporal validation constraints (past, future, etc.).
+ * The clock used for temporal validation constraints (ensurePast, ensureFuture, etc.).
  *
  * Delegates to [ValidationConfig.clock].
  */
@@ -357,10 +357,10 @@ val Validation.clock: Clock get() = config.clock
  *
  * @property failFast If true, validation stops at the first failure instead of collecting all errors.
  *                    Default is false (collect all errors).
- * @property clock The clock used for temporal validation constraints (past, future, pastOrPresent, futureOrPresent).
+ * @property clock The clock used for temporal validation constraints (ensurePast, ensureFuture, ensurePastOrPresent, ensureFutureOrPresent).
  *                 Defaults to [Clock.systemDefaultZone]. Use a fixed clock for deterministic testing.
  * @property logger Optional callback function for receiving debug log messages during validation.
- *                  If null (default), no logging is performed. Each log message contains information
+ *                  If null (default), no logging is performed. Each log message ensureContains information
  *                  about constraint satisfaction/violation, including constraint ID, root, path, and input value.
  *
  * Example:
@@ -376,7 +376,7 @@ val Validation.clock: Clock get() = config.clock
  * val fixedClock = Clock.fixed(Instant.parse("2025-01-01T00:00:00Z"), ZoneOffset.UTC)
  * val testConfig = ValidationConfig(clock = fixedClock)
  * val result2 = tryValidate(testConfig) {
- *     past(LocalDate.of(2024, 12, 31))
+ *     ensurePast(LocalDate.of(2024, 12, 31))
  * }
  * ```
  */
@@ -481,7 +481,7 @@ inline fun <R> Validation.bindObject(
  * Adds a path segment with circular reference detection and executes a block.
  *
  * This function combines [addPath] with circular reference checking. If the object
- * has already appeared in the validation path, it returns null to prevent
+ * ensureHas already appeared in the validation path, it returns null to prevent
  * infinite validation loops.
  *
  * The caller (typically the property invoke operator in [schema] validation)

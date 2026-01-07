@@ -17,8 +17,8 @@ class QuickStartTest :
 
         context("basic") {
             fun Validation.validateProductName(name: String): String {
-                notBlank(name)
-                inRange(name.length, 1..100)
+                ensureNotBlank(name)
+                ensureInRange(name.length, 1..100)
                 return name
             }
 
@@ -47,13 +47,13 @@ class QuickStartTest :
 
         context("multiple") {
             fun Validation.validateProductName(name: String): String {
-                notBlank(name)
-                inRange(name.length, 1..100)
+                ensureNotBlank(name)
+                ensureInRange(name.length, 1..100)
                 return name
             }
 
             fun Validation.validatePrice(price: Double): Double {
-                inClosedRange(price, 0.0..1000.0)
+                ensureInClosedRange(price, 0.0..1000.0)
                 return price
             }
 
@@ -101,13 +101,13 @@ class QuickStartTest :
 
             fun Validation.validate(product: Product) =
                 product.schema {
-                    product::id { minValue(it, 1) }
+                    product::id { ensureMin(it, 1) }
                     product::name {
-                        notBlank(it)
-                        minLength(it, 1)
-                        maxLength(it, 100)
+                        ensureNotBlank(it)
+                        ensureMinLength(it, 1)
+                        ensureMaxLength(it, 100)
                     }
-                    product::price { minValue(it, 0.0) }
+                    product::price { ensureMin(it, 0.0) }
                 }
 
             test("test") {
@@ -132,26 +132,26 @@ class QuickStartTest :
             fun Validation.validate(address: Address) =
                 address.schema {
                     address::street {
-                        notBlank(it)
-                        minLength(it, 1)
+                        ensureNotBlank(it)
+                        ensureMinLength(it, 1)
                     }
                     address::city {
-                        notBlank(it)
-                        minLength(it, 1)
+                        ensureNotBlank(it)
+                        ensureMinLength(it, 1)
                     }
-                    address::zipCode { matches(it, Regex("^\\d{5}(-\\d{4})?$")) }
+                    address::zipCode { ensureMatches(it, Regex("^\\d{5}(-\\d{4})?$")) }
                 }
 
             fun Validation.validate(customer: Customer) =
                 customer.schema {
                     customer::name {
-                        notBlank(it)
-                        minLength(it, 1)
-                        maxLength(it, 100)
+                        ensureNotBlank(it)
+                        ensureMinLength(it, 1)
+                        ensureMaxLength(it, 100)
                     }
                     customer::email {
-                        notBlank(it)
-                        contains(it, "@")
+                        ensureNotBlank(it)
+                        ensureContains(it, "@")
                     }
                     customer::address { validate(it) } // Nested validation
                 }
@@ -171,10 +171,10 @@ class QuickStartTest :
                 } else {
                     println("Invalid")
                     result.messages.joinToString("\n").let { println(it) }
-                    // Message(constraintId=kova.charSequence.contains, text='must contain "@"', root=Customer, path=email, input=invalid-email, args=[@])
-                    // Message(constraintId=kova.charSequence.notBlank, text='must not be blank', root=Customer, path=address.street, input=, args=[])
+                    // Message(constraintId=kova.charSequence.ensureContains, text='must contain "@"', root=Customer, path=email, input=invalid-email, args=[@])
+                    // Message(constraintId=kova.charSequence.ensureNotBlank, text='must not be ensureBlank', root=Customer, path=address.street, input=, args=[])
                     // Message(constraintId=kova.charSequence.minLength, text='must be at least 1 characters', root=Customer, path=address.street, input=, args=[1])
-                    // Message(constraintId=kova.charSequence.matches, text='must match pattern: ^\d{5}(-\d{4})?$', root=Customer, path=address.zipCode, input=123, args=[^\d{5}(-\d{4})?$])
+                    // Message(constraintId=kova.charSequence.ensureMatches, text='must match pattern: ^\d{5}(-\d{4})?$', root=Customer, path=address.zipCode, input=123, args=[^\d{5}(-\d{4})?$])
                 }
 
                 result.shouldBeFailure()
@@ -189,8 +189,8 @@ class QuickStartTest :
 
             fun Validation.validate(range: PriceRange) =
                 range.schema {
-                    range::minPrice { notNegative(it) }
-                    range::maxPrice { notNegative(it) }
+                    range::minPrice { ensureNotNegative(it) }
+                    range::maxPrice { ensureNotNegative(it) }
 
                     // Validate relationship
                     range.constrain("priceRange") {
@@ -209,8 +209,8 @@ class QuickStartTest :
 
         context("fail fast") {
             fun Validation.validateProductName(name: String) {
-                notBlank(name)
-                inRange(name.length, 1..100)
+                ensureNotBlank(name)
+                ensureInRange(name.length, 1..100)
             }
 
             test("test") {
@@ -225,7 +225,7 @@ class QuickStartTest :
 
         context("custom clock") {
             fun Validation.validateDate(date: LocalDate) {
-                future(date)
+                ensureFuture(date)
             }
 
             test("test") {
@@ -233,7 +233,7 @@ class QuickStartTest :
                 val result =
                     tryValidate(config = ValidationConfig(clock = fixedClock)) {
                         val date = LocalDate.of(2024, 6, 20)
-                        future(date) // Uses the fixed clock for comparison
+                        ensureFuture(date) // Uses the fixed clock for comparison
                     }
 
                 result.shouldBeSuccess()
@@ -242,8 +242,8 @@ class QuickStartTest :
 
         context("debug logging") {
             fun Validation.validateUsername(username: String) {
-                minLength(username, 3)
-                maxLength(username, 20)
+                ensureMinLength(username, 3)
+                ensureMaxLength(username, 20)
             }
 
             test("test") {

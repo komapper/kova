@@ -4,40 +4,40 @@ package org.komapper.extension.validator
  * Validates that the boolean value is true.
  *
  * This constraint checks if the input boolean value is true.
- * Uses the "kova.boolean.isTrue" constraint ID.
+ * Uses the "kova.boolean.true" constraint ID.
  *
  * Example:
  * ```kotlin
- * tryValidate { isTrue(true) }   // Success
- * tryValidate { isTrue(false) }  // Failure
+ * tryValidate { ensureTrue(true) }   // Success
+ * tryValidate { ensureTrue(false) }  // Failure
  * ```
  *
  * @param input The boolean value to validate
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun Validation.isTrue(
+fun Validation.ensureTrue(
     input: Boolean,
-    message: MessageProvider = { "kova.boolean.isTrue".resource() },
-) = input.constrain("kova.boolean.isTrue") { satisfies(it, message) }
+    message: MessageProvider = { "kova.boolean.true".resource() },
+) = input.constrain("kova.boolean.true") { satisfies(it, message) }
 
 /**
  * Validates that the boolean value is false.
  *
  * This constraint checks if the input boolean value is false.
- * Uses the "kova.boolean.isFalse" constraint ID.
+ * Uses the "kova.boolean.false" constraint ID.
  *
  * Example:
  * ```kotlin
- * tryValidate { isFalse(false) }  // Success
- * tryValidate { isFalse(true) }   // Failure
+ * tryValidate { ensureFalse(false) }  // Success
+ * tryValidate { ensureFalse(true) }   // Failure
  * ```
  *
  * @param input The boolean value to validate
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun Validation.isFalse(
+fun Validation.ensureFalse(
     input: Boolean,
-    message: MessageProvider = { "kova.boolean.isFalse".resource() },
-) = input.constrain("kova.boolean.isFalse") { satisfies(!it, message) }
+    message: MessageProvider = { "kova.boolean.false".resource() },
+) = input.constrain("kova.boolean.false") { satisfies(!it, message) }

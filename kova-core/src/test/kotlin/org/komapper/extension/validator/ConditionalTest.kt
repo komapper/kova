@@ -13,7 +13,7 @@ class ConditionalTest :
 
         context("if expression") {
             fun Validation.validate(i: Int) {
-                if (i % 2 == 0) minValue(i, 3)
+                if (i % 2 == 0) ensureMin(i, 3)
             }
             test("success when condition not met") {
                 val result = tryValidate { validate(1) }
@@ -24,13 +24,13 @@ class ConditionalTest :
                 val result = tryValidate { validate(2) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
-                result.messages[0].constraintId shouldBe "kova.comparable.minValue"
+                result.messages[0].constraintId shouldBe "kova.comparable.min"
             }
 
             context("and") {
                 fun Validation.validateAndMin1(i: Int) {
-                    if (i % 2 == 0) minValue(i, 3)
-                    minValue(i, 1)
+                    if (i % 2 == 0) ensureMin(i, 3)
+                    ensureMin(i, 1)
                 }
 
                 test("success") {
@@ -42,8 +42,8 @@ class ConditionalTest :
                     val result = tryValidate { validateAndMin1(0) }
                     result.shouldBeFailure()
                     result.messages.size shouldBe 2
-                    result.messages[0].constraintId shouldBe "kova.comparable.minValue"
-                    result.messages[1].constraintId shouldBe "kova.comparable.minValue"
+                    result.messages[0].constraintId shouldBe "kova.comparable.min"
+                    result.messages[1].constraintId shouldBe "kova.comparable.min"
                 }
             }
         }
@@ -51,7 +51,7 @@ class ConditionalTest :
         context("if expression -  early return") {
             fun Validation.nullableMin3(i: Int?): Int {
                 if (i == null) return 0
-                minValue(i, 3)
+                ensureMin(i, 3)
                 return i
             }
 
@@ -72,15 +72,15 @@ class ConditionalTest :
                 val result = tryValidate { nullableMin3(2) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
-                result.messages[0].constraintId shouldBe "kova.comparable.minValue"
+                result.messages[0].constraintId shouldBe "kova.comparable.min"
             }
         }
 
         context("elvis operator") {
             fun Validation.nullableThenMin3AndMax3(i: Int?) =
                 (i ?: 4).also {
-                    minValue(it, 3)
-                    maxValue(it, 5)
+                    ensureMin(it, 3)
+                    ensureMax(it, 5)
                 }
 
             test("success") {
@@ -98,22 +98,22 @@ class ConditionalTest :
                 val result = tryValidate { nullableThenMin3AndMax3(2) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
-                result.messages[0].constraintId shouldBe "kova.comparable.minValue"
+                result.messages[0].constraintId shouldBe "kova.comparable.min"
             }
 
             test("failure when max5 constraint violated") {
                 val result = tryValidate { nullableThenMin3AndMax3(6) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
-                result.messages[0].constraintId shouldBe "kova.comparable.maxValue"
+                result.messages[0].constraintId shouldBe "kova.comparable.max"
             }
         }
 
         context("and") {
             fun Validation.validate(i: Int) {
-                maxValue(i, 2)
-                maxValue(i, 3)
-                negative(i)
+                ensureMax(i, 2)
+                ensureMax(i, 3)
+                ensureNegative(i)
             }
 
             test("success") {
@@ -125,16 +125,16 @@ class ConditionalTest :
                 val result = tryValidate { validate(5) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 3
-                result.messages[0].constraintId shouldBe "kova.comparable.maxValue"
-                result.messages[1].constraintId shouldBe "kova.comparable.maxValue"
+                result.messages[0].constraintId shouldBe "kova.comparable.max"
+                result.messages[1].constraintId shouldBe "kova.comparable.max"
                 result.messages[2].constraintId shouldBe "kova.number.negative"
             }
         }
 
         context("or") {
             fun Validation.validate(i: UInt) {
-                val _ = or { maxValue(i, 10u) } orElse { maxValue(i, 20u) }
-                minValue(i, 5u)
+                val _ = or { ensureMax(i, 10u) } orElse { ensureMax(i, 20u) }
+                ensureMin(i, 5u)
             }
 
             test("success : 10") {
@@ -159,7 +159,7 @@ class ConditionalTest :
             fun Validation.nullableMax5OrMin3(i: Int?): Int {
                 if (i == null) return 0
                 return i.let {
-                    val _ = or { maxValue(it, 5) } orElse { minValue(it, 3) }
+                    val _ = or { ensureMax(it, 5) } orElse { ensureMin(it, 3) }
                     it
                 }
             }
@@ -170,7 +170,7 @@ class ConditionalTest :
                     val result = tryValidate(config) { nullableMax5OrMin3(3) }
                     result.shouldBeSuccess()
                     result.value shouldBe 3
-                } shouldBe listOf(LogEntry.Satisfied(constraintId = "kova.comparable.maxValue", root = "", path = "", input = 3))
+                } shouldBe listOf(LogEntry.Satisfied(constraintId = "kova.comparable.max", root = "", path = "", input = 3))
             }
 
             test("success: 2") {
@@ -179,7 +179,7 @@ class ConditionalTest :
                     val result = tryValidate(config) { nullableMax5OrMin3(2) }
                     result.shouldBeSuccess()
                     result.value shouldBe 2
-                } shouldBe listOf(LogEntry.Satisfied(constraintId = "kova.comparable.maxValue", root = "", path = "", input = 2))
+                } shouldBe listOf(LogEntry.Satisfied(constraintId = "kova.comparable.max", root = "", path = "", input = 2))
             }
 
             test("success: 6") {
@@ -191,13 +191,13 @@ class ConditionalTest :
                 logs shouldBe
                     listOf(
                         LogEntry.Violated(
-                            constraintId = "kova.comparable.maxValue",
+                            constraintId = "kova.comparable.max",
                             root = "",
                             path = "",
                             input = 6,
                             args = listOf(5),
                         ),
-                        LogEntry.Satisfied(constraintId = "kova.comparable.minValue", root = "", path = "", input = 6),
+                        LogEntry.Satisfied(constraintId = "kova.comparable.min", root = "", path = "", input = 6),
                     )
             }
 
@@ -212,17 +212,17 @@ class ConditionalTest :
         }
 
         context("or: 2 branches") {
-            fun Validation.length2or5(string: String) = or { length(string, 2) } orElse { length(string, 5) }
+            fun Validation.length2or5(string: String) = or { ensureLength(string, 2) } orElse { ensureLength(string, 5) }
 
-            test("success with length 2") {
+            test("success with ensureLength 2") {
                 val result = tryValidate { length2or5("ab") }
                 result.shouldBeSuccess()
             }
-            test("success with length 5") {
+            test("success with ensureLength 5") {
                 val result = tryValidate { length2or5("abcde") }
                 result.shouldBeSuccess()
             }
-            test("failure with length 3") {
+            test("failure with ensureLength 3") {
                 val result = tryValidate { length2or5("abc") }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
@@ -243,11 +243,11 @@ class ConditionalTest :
 
         context("or: 3 branches") {
             fun Validation.length2or5or7(string: String) =
-                or { length(string, 2) } or { length(string, 5) } orElse {
-                    length(string, 7)
+                or { ensureLength(string, 2) } or { ensureLength(string, 5) } orElse {
+                    ensureLength(string, 7)
                 }
 
-            test("failure with length 3") {
+            test("failure with ensureLength 3") {
                 val result = tryValidate { length2or5or7("abc") }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1

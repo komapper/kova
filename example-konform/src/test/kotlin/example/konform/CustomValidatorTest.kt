@@ -4,9 +4,9 @@ import io.konform.validation.path.ValidationPath
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import org.komapper.extension.validator.Validation
-import org.komapper.extension.validator.minLength
-import org.komapper.extension.validator.notBlank
-import org.komapper.extension.validator.notContains
+import org.komapper.extension.validator.ensureMinLength
+import org.komapper.extension.validator.ensureNotBlank
+import org.komapper.extension.validator.ensureNotContains
 import org.komapper.extension.validator.tryValidate
 import java.util.Locale
 import io.konform.validation.Validation as KonformValidation
@@ -64,9 +64,9 @@ class CustomValidatorTest :
             fun Validation.validate(userProfile: UserProfile) =
                 userProfile.schema {
                     userProfile::fullName {
-                        notContains(it, "\t") { text("Name cannot contain a tab") }
-                        notBlank(it) { text("Name must have a non-whitespace character") }
-                        minLength(it, 5) { text("Must have 5 characters") }
+                        ensureNotContains(it, "\t") { text("Name cannot contain a tab") }
+                        ensureNotBlank(it) { text("Name must have a non-whitespace character") }
+                        ensureMinLength(it, 5) { text("Must have 5 characters") }
                     }
                 }
 

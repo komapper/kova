@@ -10,47 +10,47 @@ class CollectionValidatorTest :
             Locale.setDefault(Locale.US)
         }
 
-        context("size") {
+        context("ensureSize") {
             test("success") {
-                val result = tryValidate { size(listOf("1", "2"), 2) }
+                val result = tryValidate { ensureSize(listOf("1", "2"), 2) }
                 result.shouldBeSuccess()
             }
 
             test("failure with too few elements") {
-                val result = tryValidate { size(listOf("1"), 2) }
+                val result = tryValidate { ensureSize(listOf("1"), 2) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.collection.size"
             }
 
             test("failure with too many elements") {
-                val result = tryValidate { size(listOf("1", "2", "3"), 2) }
+                val result = tryValidate { ensureSize(listOf("1", "2", "3"), 2) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.collection.size"
             }
         }
 
-        context("minSize and maxSize") {
-            test("minSize success") {
-                val result = tryValidate { minSize(listOf("1", "2", "3"), 2) }
+        context("ensureMinSize and ensureMaxSize") {
+            test("ensureMinSize success") {
+                val result = tryValidate { ensureMinSize(listOf("1", "2", "3"), 2) }
                 result.shouldBeSuccess()
             }
 
-            test("minSize failure") {
-                val result = tryValidate { minSize(listOf("1"), 2) }
+            test("ensureMinSize failure") {
+                val result = tryValidate { ensureMinSize(listOf("1"), 2) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.collection.minSize"
             }
 
-            test("maxSize success") {
-                val result = tryValidate { maxSize(listOf("1", "2"), 3) }
+            test("ensureMaxSize success") {
+                val result = tryValidate { ensureMaxSize(listOf("1", "2"), 3) }
                 result.shouldBeSuccess()
             }
 
-            test("maxSize failure") {
-                val result = tryValidate { maxSize(listOf("1", "2", "3", "4"), 3) }
+            test("ensureMaxSize failure") {
+                val result = tryValidate { ensureMaxSize(listOf("1", "2", "3", "4"), 3) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.collection.maxSize"
@@ -59,8 +59,8 @@ class CollectionValidatorTest :
             test("multiple constraints") {
                 val result =
                     tryValidate {
-                        minSize(listOf("1"), 2)
-                        minSize(listOf("1"), 3)
+                        ensureMinSize(listOf("1"), 2)
+                        ensureMinSize(listOf("1"), 3)
                     }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 2

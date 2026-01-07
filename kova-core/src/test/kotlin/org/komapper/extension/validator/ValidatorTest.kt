@@ -14,8 +14,8 @@ class ValidatorTest :
 
         context("tryValidate and validate") {
             fun Validation.validate(i: Int) {
-                minValue(i, 1)
-                maxValue(i, 10)
+                ensureMin(i, 1)
+                ensureMax(i, 10)
             }
 
             test("tryValidate - success") {
@@ -27,7 +27,7 @@ class ValidatorTest :
                 val result = tryValidate { validate(0) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
-                result.messages[0].constraintId shouldBe "kova.comparable.minValue"
+                result.messages[0].constraintId shouldBe "kova.comparable.min"
             }
 
             test("validate - success") {
@@ -40,13 +40,13 @@ class ValidatorTest :
                         validate { validate(0) }
                     }
                 ex.messages.size shouldBe 1
-                ex.messages[0].constraintId shouldBe "kova.comparable.minValue"
+                ex.messages[0].constraintId shouldBe "kova.comparable.min"
             }
         }
 
         context("map") {
             fun Validation.validate(i: Int): Int {
-                minValue(i, 1)
+                ensureMin(i, 1)
                 return i * 2
             }
             test("success") {
@@ -64,8 +64,8 @@ class ValidatorTest :
 
         context("then") {
             fun Validation.validate(i: Int): String {
-                minValue(i, 3)
-                return i.toString().also { maxLength(it, 1) }
+                ensureMin(i, 3)
+                return i.toString().also { ensureMaxLength(it, 1) }
             }
 
             test("success") {
@@ -76,7 +76,7 @@ class ValidatorTest :
             test("failure when first constraint violated") {
                 val result = tryValidate { validate(2) }
                 result.shouldBeFailure()
-                result.messages.single().constraintId shouldBe "kova.comparable.minValue"
+                result.messages.single().constraintId shouldBe "kova.comparable.min"
             }
             test("failure when second constraint violated") {
                 val result = tryValidate { validate(10) }
@@ -88,8 +88,8 @@ class ValidatorTest :
         context("logs") {
             fun Validation.validate(string: String) =
                 string.trim().let {
-                    minLength(it, 3)
-                    maxLength(it, 5)
+                    ensureMinLength(it, 3)
+                    ensureMaxLength(it, 5)
                 }
 
             test("success") {
@@ -139,8 +139,8 @@ class ValidatorTest :
 
         context("mapping operation after failure") {
             fun Validation.validate(string: String) =
-                string.trim().also { minLength(it, 3) }.uppercase().also {
-                    maxLength(it, 3)
+                string.trim().also { ensureMinLength(it, 3) }.uppercase().also {
+                    ensureMaxLength(it, 3)
                 }
 
             test("failure") {
@@ -168,8 +168,8 @@ class ValidatorTest :
 
         context("failFast") {
             fun Validation.validate(string: String) {
-                minLength(string, 3)
-                length(string, 4)
+                ensureMinLength(string, 3)
+                ensureLength(string, 4)
             }
 
             test("failFast = false") {
@@ -188,8 +188,8 @@ class ValidatorTest :
         context("failFast with plus operator") {
             fun Validation.validate(string: String?) {
                 if (string == null) return
-                minLength(string, 3)
-                length(string, 4)
+                ensureMinLength(string, 3)
+                ensureLength(string, 4)
             }
 
             test("failFast = false") {
@@ -220,12 +220,12 @@ class ValidatorTest :
                 r["key"].also { block(it) }
             }
 
-            fun Validation.requestKeyIsNotNull(request: Request) = requestKey(request) { notNull(it) }
+            fun Validation.requestKeyIsNotNull(request: Request) = requestKey(request) { ensureNotNull(it) }
 
             fun Validation.requestKeyIsNotNullAndMin3(request: Request) =
                 requestKey(request) {
-                    notNull(it)
-                    if (it != null) minLength(it, 3)
+                    ensureNotNull(it)
+                    if (it != null) ensureMinLength(it, 3)
                 }
 
             test("success when requestKey is not null") {
@@ -306,8 +306,8 @@ class ValidatorTest :
         context("withMessage - text") {
             fun Validation.validate(string: String) =
                 withMessage({ messages -> text("Invalid: consolidates messages=(${messages.joinToString { it.text }})") }) {
-                    uppercase(string)
-                    minLength(string, 3)
+                    ensureUppercase(string)
+                    ensureMinLength(string, 3)
                     Unit
                 }
 
@@ -329,8 +329,8 @@ class ValidatorTest :
         context("withMessage - resource") {
             fun Validation.validate(string: String) =
                 withMessage {
-                    uppercase(string)
-                    minLength(string, 3)
+                    ensureUppercase(string)
+                    ensureMinLength(string, 3)
                     Unit
                 }
 
@@ -360,8 +360,8 @@ class ValidatorTest :
                     user::id { }
                     user::name {
                         withMessage({ text("Must be uppercase and at least 3 characters long") }) {
-                            uppercase(it)
-                            minLength(it, 3)
+                            ensureUppercase(it)
+                            ensureMinLength(it, 3)
                         }
                     }
                 }

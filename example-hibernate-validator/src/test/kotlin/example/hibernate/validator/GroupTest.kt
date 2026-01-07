@@ -3,11 +3,11 @@ package example.hibernate.validator
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import org.komapper.extension.validator.Validation
-import org.komapper.extension.validator.eqValue
-import org.komapper.extension.validator.maxLength
-import org.komapper.extension.validator.minLength
-import org.komapper.extension.validator.minValue
-import org.komapper.extension.validator.notNull
+import org.komapper.extension.validator.ensureEquals
+import org.komapper.extension.validator.ensureMaxLength
+import org.komapper.extension.validator.ensureMin
+import org.komapper.extension.validator.ensureMinLength
+import org.komapper.extension.validator.ensureNotNull
 import org.komapper.extension.validator.tryValidate
 import java.util.Locale
 
@@ -52,7 +52,7 @@ class GroupTest :
                 checks: Set<Check> = setOf(Check.DEFAULT),
             ) = person.schema {
                 if (Check.DEFAULT in checks) {
-                    person::name { notNull(it) }
+                    person::name { ensureNotNull(it) }
                 }
             }
 
@@ -63,10 +63,10 @@ class GroupTest :
                 validate(driver as Person, checks)
                 if (Check.DRIVER in checks) {
                     driver::age {
-                        minValue(it, 18) { text("You have to be 18 to drive a car") }
+                        ensureMin(it, 18) { text("You have to be 18 to drive a car") }
                     }
                     driver::hasDriverLicense {
-                        eqValue(it, true) {
+                        ensureEquals(it, true) {
                             text("You first have to pass the driving test")
                         }
                     }
@@ -79,24 +79,24 @@ class GroupTest :
             ) = car.schema {
                 if (Check.DEFAULT in checks) {
                     car::manufacturer {
-                        notNull(it)
+                        ensureNotNull(it)
                     }
                     car::licencePlate {
-                        notNull(it)
-                        minLength(it, 2)
-                        maxLength(it, 14)
+                        ensureNotNull(it)
+                        ensureMinLength(it, 2)
+                        ensureMaxLength(it, 14)
                     }
                     car::seatCount {
-                        minValue(it, 2)
+                        ensureMin(it, 2)
                     }
                 }
 
                 if (Check.CAR in checks) {
                     car::passedVehicleInspection {
-                        eqValue(
+                        ensureEquals(
                             it,
                             true,
-                        ) { text("The car has to pass the vehicle inspection first") }
+                        ) { text("The car ensureHas to pass the vehicle inspection first") }
                     }
                 }
 
@@ -111,18 +111,18 @@ class GroupTest :
                 var result = tryValidate { validate(car) }
                 result.shouldBeSuccess()
 
-                // but has it passed the vehicle inspection?
+                // but ensureHas it passed the vehicle inspection?
                 result = tryValidate { validate(car, setOf(Check.CAR)) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
-                result.messages[0].text shouldBe "The car has to pass the vehicle inspection first"
+                result.messages[0].text shouldBe "The car ensureHas to pass the vehicle inspection first"
 
                 // let's go to the vehicle inspection
                 car.passedVehicleInspection = true
                 result = tryValidate { validate(car, setOf(Check.CAR)) }
                 result.shouldBeSuccess()
 
-                // now let's add a driver. He is 18, but has not passed the driving test yet
+                // now let's add a driver. He is 18, but ensureHas not passed the driving test yet
                 val john = Driver("John Doe")
                 john.age = 18
                 car.driver = john

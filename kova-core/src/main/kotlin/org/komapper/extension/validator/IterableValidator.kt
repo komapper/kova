@@ -3,55 +3,55 @@ package org.komapper.extension.validator
 typealias CountMessageProvider = (actualCount: Int) -> Message
 
 /**
- * Validates that the iterable is not empty.
+ * Validates that the iterable is not ensureEmpty.
  *
  * Example:
  * ```kotlin
- * tryValidate { notEmpty(listOf("a")) } // Success
- * tryValidate { notEmpty(listOf()) }    // Failure
+ * tryValidate { ensureNotEmpty(listOf("a")) } // Success
+ * tryValidate { ensureNotEmpty(listOf()) }    // Failure
  * ```
  *
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun Validation.notEmpty(
+fun Validation.ensureNotEmpty(
     input: Iterable<*>,
     message: MessageProvider = { "kova.iterable.notEmpty".resource },
 ) = input.constrain("kova.iterable.notEmpty") { satisfies(it.iterator().hasNext(), message) }
 
 /**
- * Validates that the iterable contains the specified element.
+ * Validates that the iterable ensureContains the specified element.
  *
  * Example:
  * ```kotlin
- * tryValidate { has(listOf("foo", "bar"), "foo") }  // Success
- * tryValidate { has(listOf("bar", "baz"), "foo") }  // Failure
+ * tryValidate { ensureHas(listOf("foo", "bar"), "foo") }  // Success
+ * tryValidate { ensureHas(listOf("bar", "baz"), "foo") }  // Failure
  * ```
  *
  * @param element The element that must be present in the iterable
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <E> Validation.has(
+fun <E> Validation.ensureHas(
     input: Iterable<E>,
     element: E,
     message: MessageProvider = { "kova.iterable.contains".resource(element) },
-) = contains(input, element, message)
+) = ensureContains(input, element, message)
 
 /**
- * Validates that the iterable contains the specified element.
+ * Validates that the iterable ensureContains the specified element.
  *
  * Example:
  * ```kotlin
- * tryValidate { contains(listOf("foo", "bar"), "foo") }  // Success
- * tryValidate { contains(listOf("bar", "baz"), "foo") }  // Failure
+ * tryValidate { ensureContains(listOf("foo", "bar"), "foo") }  // Success
+ * tryValidate { ensureContains(listOf("bar", "baz"), "foo") }  // Failure
  * ```
  *
  * @param element The element that must be present in the iterable
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <E> Validation.contains(
+fun <E> Validation.ensureContains(
     input: Iterable<E>,
     element: E,
     message: MessageProvider = { "kova.iterable.contains".resource(element) },
@@ -62,15 +62,15 @@ fun <E> Validation.contains(
  *
  * Example:
  * ```kotlin
- * tryValidate { notContains(listOf("bar", "baz"), "foo") }  // Success
- * tryValidate { notContains(listOf("foo", "bar"), "foo") }  // Failure
+ * tryValidate { ensureNotContains(listOf("bar", "baz"), "foo") }  // Success
+ * tryValidate { ensureNotContains(listOf("foo", "bar"), "foo") }  // Failure
  * ```
  *
  * @param element The element that must not be present in the iterable
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <E> Validation.notContains(
+fun <E> Validation.ensureNotContains(
     input: Iterable<E>,
     element: E,
     message: MessageProvider = { "kova.iterable.notContains".resource(element) },
@@ -85,23 +85,23 @@ fun <E> Validation.notContains(
  * Example:
  * ```kotlin
  * tryValidate {
- *     onEach(listOf("abc", "def")) { min(it, 2); max(it, 10) }
+ *     ensureEach(listOf("abc", "def")) { min(it, 2); max(it, 10) }
  * } // Success
  *
  * tryValidate {
- *     onEach(listOf("a", "b")) { min(it, 2); max(it, 10) }
+ *     ensureEach(listOf("a", "b")) { min(it, 2); max(it, 10) }
  * } // Failure: elements too short
  * ```
  *
  * @param validate The validator to apply to each element
  */
 @IgnorableReturnValue
-fun <E> Validation.onEach(
+fun <E> Validation.ensureEach(
     input: Iterable<E>,
     validate: Validation.(E) -> Unit,
-) = input.constrain("kova.iterable.onEach") {
+) = input.constrain("kova.iterable.each") {
     with(validation) {
-        withMessage({ "kova.iterable.onEach".resource(it) }) {
+        withMessage({ "kova.iterable.each".resource(it) }) {
             for ((i, element) in input.withIndex()) {
                 accumulating {
                     appendPath("[$i]<iterable element>") {

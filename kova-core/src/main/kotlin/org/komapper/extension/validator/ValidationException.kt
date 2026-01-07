@@ -3,7 +3,7 @@ package org.komapper.extension.validator
 /**
  * Exception thrown when validation fails using the [validate] function.
  *
- * This exception contains detailed information about all validation failures,
+ * This exception ensureContains detailed information about all validation failures,
  * including the constraint ID, validation path, and formatted error message for each failure.
  * Use [tryValidate] instead if you want to handle validation failures
  * programmatically without exceptions.

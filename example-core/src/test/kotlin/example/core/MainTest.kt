@@ -41,7 +41,7 @@ class MainTest :
                 result.shouldBeSuccess()
             }
 
-            test("failure - invalid user with empty name and negative age") {
+            test("failure - invalid user with ensureEmpty name and ensureNegative age") {
                 val user = User("", -1)
                 val result = tryValidate { validate(user) }
 

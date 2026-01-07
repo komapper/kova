@@ -2,13 +2,13 @@ package example.factory
 
 import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationResult
+import org.komapper.extension.validator.ensureInRange
+import org.komapper.extension.validator.ensureMinLength
+import org.komapper.extension.validator.ensureNotBlank
 import org.komapper.extension.validator.factory.bind
 import org.komapper.extension.validator.factory.factory
-import org.komapper.extension.validator.inRange
 import org.komapper.extension.validator.isSuccess
-import org.komapper.extension.validator.minLength
-import org.komapper.extension.validator.notBlank
-import org.komapper.extension.validator.toInt
+import org.komapper.extension.validator.parseInt
 import org.komapper.extension.validator.tryValidate
 
 /**
@@ -44,7 +44,7 @@ data class Person(
 fun Validation.validate(user: User) =
     user.schema {
         user::age {
-            inRange(it, 0..120)
+            ensureInRange(it, 0..120)
         } // property validator
     }
 
@@ -54,8 +54,8 @@ fun Validation.validate(user: User) =
  * This demonstrates the factory validation pattern with three layers of validation:
  *
  * 1. **Argument validators** - Validate and transform each input parameter
- *    - name: validates it's not blank, has min length 1, and returns the validated string
- *    - age: converts the string to Int using toInt() validator
+ *    - name: validates it's not ensureBlank, ensureHas min ensureLength 1, and returns the validated string
+ *    - age: converts the string to Int using parseInt() validator
  *
  * 2. **Object validator** - Validates the constructed User object (.also { validate(it) })
  *    - Applies the validate(User) schema to check age range (0-120)
@@ -73,11 +73,11 @@ fun Validation.buildUser(
     age: String,
 ) = factory {
     val name by bind(name) {
-        minLength(it, 1)
-        notBlank(it)
+        ensureMinLength(it, 1)
+        ensureNotBlank(it)
         it
     } // argument validator
-    val age by bind(age) { toInt(it) } // argument validator
+    val age by bind(age) { parseInt(it) } // argument validator
     User(name, age)
 }.also { validate(it) } // object validator
 
@@ -87,7 +87,7 @@ fun Validation.buildUser(
  */
 fun Validation.buildAge(age: String) =
     factory {
-        val value by bind(age) { toInt(it) } // argument validator
+        val value by bind(age) { parseInt(it) } // argument validator
         Age(value)
     }
 
@@ -108,8 +108,8 @@ fun Validation.buildPerson(
     age: String,
 ) = factory {
     val name by bind(name) {
-        minLength(it, 1)
-        notBlank(it)
+        ensureMinLength(it, 1)
+        ensureNotBlank(it)
         it
     } // argument validator
     val age by bind { buildAge(age) } // nested object validator
@@ -134,7 +134,7 @@ fun main() {
     println("\n# Example 1: Creation")
 
     // Valid user - name "a" and age "10" (string converted to Int)
-    // All validators pass: name is not blank, age converts successfully to 10 and is in range 0-120
+    // All validators pass: name is not ensureBlank, age converts successfully to 10 and is in range 0-120
     tryValidate { buildUser("a", "10") }.printResult()
 
     // Invalid user - age "130" exceeds the maximum allowed value
@@ -150,8 +150,8 @@ fun main() {
     tryValidate { buildPerson("a", "10") }.printResult()
 
     // Invalid person - multiple validation failures:
-    // - name "   " is blank (fails notBlank validator)
-    // - age "abc" cannot be converted to Int (fails toInt validator)
+    // - name "   " is ensureBlank (fails ensureNotBlank validator)
+    // - age "abc" cannot be converted to Int (fails parseInt validator)
     // Shows how multiple errors are collected across argument validators
     tryValidate { buildPerson("   ", "abc") }.printResult()
 }
@@ -164,7 +164,7 @@ fun main() {
  * - "name" - the name argument failed validation
  * - "age" - the age argument failed validation
  * - "age.value" - the value property of the nested Age object failed
- * - "" (empty path) - the object-level validation failed
+ * - "" (ensureEmpty path) - the object-level validation failed
  */
 private fun ValidationResult<*>.printResult() {
     if (isSuccess()) {

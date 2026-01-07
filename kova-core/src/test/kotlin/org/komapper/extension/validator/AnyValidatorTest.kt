@@ -10,54 +10,54 @@ class AnyValidatorTest :
             Locale.setDefault(Locale.US)
         }
 
-        context("eqValue (equal)") {
+        context("ensureEquals (equal)") {
             test("success with equal value") {
-                val result = tryValidate { eqValue(5u, 5u) }
+                val result = tryValidate { ensureEquals(5u, 5u) }
                 result.shouldBeSuccess()
             }
 
             test("failure with value greater than threshold") {
-                val result = tryValidate { eqValue(6u, 5u) }
+                val result = tryValidate { ensureEquals(6u, 5u) }
                 result.shouldBeFailure()
-                result.messages[0].constraintId shouldBe "kova.any.eqValue"
+                result.messages[0].constraintId shouldBe "kova.any.equals"
             }
 
             test("failure with value less than threshold") {
-                val result = tryValidate { eqValue(4u, 5u) }
+                val result = tryValidate { ensureEquals(4u, 5u) }
                 result.shouldBeFailure()
-                result.messages[0].constraintId shouldBe "kova.any.eqValue"
+                result.messages[0].constraintId shouldBe "kova.any.equals"
             }
         }
 
-        context("notEqValue (not equal)") {
+        context("ensureNotEquals (not equal)") {
             test("success with value greater than threshold") {
-                val result = tryValidate { notEqValue(6u, 5u) }
+                val result = tryValidate { ensureNotEquals(6u, 5u) }
                 result.shouldBeSuccess()
             }
 
             test("success with value less than threshold") {
-                val result = tryValidate { notEqValue(4u, 5u) }
+                val result = tryValidate { ensureNotEquals(4u, 5u) }
                 result.shouldBeSuccess()
             }
 
             test("failure with equal value") {
-                val result = tryValidate { notEqValue(5u, 5u) }
+                val result = tryValidate { ensureNotEquals(5u, 5u) }
                 result.shouldBeFailure()
-                result.messages[0].constraintId shouldBe "kova.any.notEqValue"
+                result.messages[0].constraintId shouldBe "kova.any.notEquals"
             }
         }
 
-        context("inIterable") {
+        context("ensureIn") {
             test("success") {
-                val result = tryValidate { inIterable("bbb", listOf("aaa", "bbb", "ccc")) }
+                val result = tryValidate { ensureIn("bbb", listOf("aaa", "bbb", "ccc")) }
                 result.shouldBeSuccess()
             }
 
             test("failure") {
-                val result = tryValidate { inIterable("ddd", listOf("aaa", "bbb", "ccc")) }
+                val result = tryValidate { ensureIn("ddd", listOf("aaa", "bbb", "ccc")) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
-                result.messages[0].constraintId shouldBe "kova.any.inIterable"
+                result.messages[0].constraintId shouldBe "kova.any.in"
             }
         }
     })
