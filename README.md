@@ -88,8 +88,8 @@ import org.komapper.extension.validator.*
 
 // Define validator function
 fun Validation.validateProductName(name: String): String {
-    notBlank(name)
-    inRange(name.length, 1 .. 100)
+    ensureNotBlank(name)
+    ensureInRange(name.length, 1 .. 100)
     return name
 }
 
@@ -120,13 +120,13 @@ You can execute multiple validators together by calling them sequentially within
 
 ```kotlin
 fun Validation.validateProductName(name: String): String {
-    notBlank(name)
-    inRange(name.length, 1..100)
+    ensureNotBlank(name)
+    ensureInRange(name.length, 1..100)
     return name
 }
 
 fun Validation.validatePrice(price: Double): Double {
-    inClosedRange(price, 0.0..1000.0)
+    ensureInClosedRange(price, 0.0..1000.0)
     return price
 }
 
@@ -151,9 +151,9 @@ Validate class properties using the `schema` function.
 data class Product(val id: Int, val name: String, val price: Double)
 
 fun Validation.validate(product: Product) = product.schema {
-    product::id { minValue(it, 1) }
-    product::name { notBlank(it); minLength(it, 1); maxLength(it, 100) }
-    product::price { minValue(it, 0.0) }
+    product::id { ensureMin(it, 1) }
+    product::name { ensureNotBlank(it); ensureMinLength(it, 1); ensureMaxLength(it, 100) }
+    product::price { ensureMin(it, 0.0) }
 }
 
 val result = tryValidate { validate(Product(1, "Mouse", 29.99)) }
@@ -165,12 +165,12 @@ Extract common validation logic into reusable validator functions:
 
 ```kotlin
 fun Validation.validateName(name: String, maxLength: Int = 100): String {
-    notBlank(name); minLength(name, 1); maxLength(name, maxLength)
+    ensureNotBlank(name); ensureMinLength(name, 1); ensureMaxLength(name, maxLength)
     return name
 }
 
 fun Validation.validatePrice(price: Double): Double {
-    minValue(price, 0.0); maxValue(price, 1000000.0)
+    ensureMin(price, 0.0); ensureMax(price, 1000000.0)
     return price
 }
 
@@ -201,14 +201,14 @@ data class Address(val street: String, val city: String, val zipCode: String)
 data class Customer(val name: String, val email: String, val address: Address)
 
 fun Validation.validate(address: Address) = address.schema {
-    address::street { notBlank(it); minLength(it, 1) }
-    address::city { notBlank(it); minLength(it, 1) }
-    address::zipCode { matches(it, Regex("^\\d{5}(-\\d{4})?$")) }
+    address::street { ensureNotBlank(it); ensureMinLength(it, 1) }
+    address::city { ensureNotBlank(it); ensureMinLength(it, 1) }
+    address::zipCode { ensureMatches(it, Regex("^\\d{5}(-\\d{4})?$")) }
 }
 
 fun Validation.validate(customer: Customer) = customer.schema {
-    customer::name { notBlank(it); minLength(it, 1); maxLength(it, 100) }
-    customer::email { notBlank(it); contains(it, "@") }
+    customer::name { ensureNotBlank(it); ensureMinLength(it, 1); ensureMaxLength(it, 100) }
+    customer::email { ensureNotBlank(it); ensureContains(it, "@") }
     customer::address { validate(it) }  // Nested validation
 }
 
@@ -231,8 +231,8 @@ Validates relationships between multiple properties using `constrain` within a `
 data class PriceRange(val minPrice: Double, val maxPrice: Double)
 
 fun Validation.validate(range: PriceRange) = range.schema {
-    range::minPrice { notNegative(it) }
-    range::maxPrice { notNegative(it) }
+    range::minPrice { ensureNotNegative(it) }
+    range::maxPrice { ensureNotNegative(it) }
 
     // Validate relationship
     range.constrain("priceRange") {
@@ -255,8 +255,8 @@ import org.komapper.extension.validator.factory.*
 data class User(val name: String, val age: Int)
 
 fun Validation.buildUser(name: String, age: String) = factory {
-    val name by bind(name) { notBlank(it); minLength(it, 1); it }
-    val age by bind(age) { toInt(it) }
+    val name by bind(name) { ensureNotBlank(it); ensureMinLength(it, 1); it }
+    val age by bind(age) { parseInt(it) }
     User(name, age)
 }
 
@@ -276,8 +276,8 @@ data class Customer(val id: Int, val name: String) : Validated {
 }
 
 fun Validation.validate(customer: Customer) = customer.schema {
-    customer::id { positive(it) }
-    customer::name { notBlank(it); minLength(it, 1); maxLength(it, 50) }
+    customer::id { ensurePositive(it) }
+    customer::name { ensureNotBlank(it); ensureMinLength(it, 1); ensureMaxLength(it, 50) }
 }
 
 fun Application.module() {
@@ -308,59 +308,59 @@ Supported types: `String`, `CharSequence`
 
 ```kotlin
 // Length validation
-minLength(input, 1)                 // Minimum length
-maxLength(input, 100)               // Maximum length
-length(input, 10)                   // Exact length
+ensureMinLength(input, 1)                 // Minimum length
+ensureMaxLength(input, 100)               // Maximum length
+ensureLength(input, 10)                   // Exact length
 
 // Content validation
-blank(input)                        // Must be blank (empty or whitespace only)
-notBlank(input)                     // Must not be blank
-empty(input)                        // Must be empty
-notEmpty(input)                     // Must not be empty
-startsWith(input, "prefix")         // Must start with prefix
-notStartsWith(input, "prefix")      // Must not start with prefix
-endsWith(input, "suffix")           // Must end with suffix
-notEndsWith(input, "suffix")        // Must not end with suffix
-contains(input, "substring")        // Must contain substring
-notContains(input, "substring")     // Must not contain substring
-matches(input, Regex("\\d+"))       // Must match regex
-notMatches(input, Regex("\\d+"))    // Must not match regex
-uppercase(input)                    // Must be uppercase
-lowercase(input)                    // Must be lowercase
+ensureBlank(input)                        // Must be blank (empty or whitespace only)
+ensureNotBlank(input)                     // Must not be blank
+ensureEmpty(input)                        // Must be empty
+ensureNotEmpty(input)                     // Must not be empty
+ensureStartsWith(input, "prefix")         // Must start with prefix
+ensureNotStartsWith(input, "prefix")      // Must not start with prefix
+ensureEndsWith(input, "suffix")           // Must end with suffix
+ensureNotEndsWith(input, "suffix")        // Must not end with suffix
+ensureContains(input, "substring")        // Must contain substring
+ensureNotContains(input, "substring")     // Must not contain substring
+ensureMatches(input, Regex("\\d+"))       // Must match regex
+ensureNotMatches(input, Regex("\\d+"))    // Must not match regex
+ensureUppercase(input)                    // Must be uppercase
+ensureLowercase(input)                    // Must be lowercase
 
 // Comparable validation
-minValue(input, "a")                // Minimum value (>= "a")
-maxValue(input, "z")                // Maximum value (<= "z")
-gtValue(input, "a")                 // Greater than (> "a")
-gtEqValue(input, "a")               // Greater than or equal (>= "a")
-ltValue(input, "z")                 // Less than (< "z")
-ltEqValue(input, "z")               // Less than or equal (<= "z")
-eqValue(input, "value")             // Equal to (== "value")
-notEqValue(input, "value")          // Not equal to (!= "value")
+ensureMin(input, "a")                // Minimum value (>= "a")
+ensureMax(input, "z")                // Maximum value (<= "z")
+ensureGreaterThan(input, "a")                 // Greater than (> "a")
+ensureGreaterThanOrEquals(input, "a")               // Greater than or equal (>= "a")
+ensureLessThan(input, "z")                 // Less than (< "z")
+ensureLessThanOrEquals(input, "z")               // Less than or equal (<= "z")
+ensureEquals(input, "value")             // Equal to (== "value")
+ensureNotEquals(input, "value")          // Not equal to (!= "value")
 
 // String-specific validation
-isInt(input)                        // Validates string is valid Int
-isLong(input)                       // Validates string is valid Long
-isShort(input)                      // Validates string is valid Short
-isByte(input)                       // Validates string is valid Byte
-isDouble(input)                     // Validates string is valid Double
-isFloat(input)                      // Validates string is valid Float
-isBigDecimal(input)                 // Validates string is valid BigDecimal
-isBigInteger(input)                 // Validates string is valid BigInteger
-isBoolean(input)                    // Validates string is valid Boolean
-isEnum<Status>(input)               // Validates string is valid enum value
+canParseInt(input)                        // Validates string is valid Int
+canParseLong(input)                       // Validates string is valid Long
+canParseShort(input)                      // Validates string is valid Short
+canParseByte(input)                       // Validates string is valid Byte
+canParseDouble(input)                     // Validates string is valid Double
+canParseFloat(input)                      // Validates string is valid Float
+canParseBigDecimal(input)                 // Validates string is valid BigDecimal
+canParseBigInteger(input)                 // Validates string is valid BigInteger
+canParseBoolean(input)                    // Validates string is valid Boolean
+canParseEnum<Status>(input)               // Validates string is valid enum value
 
 // Conversions
-toInt(input)                        // Validate and convert to Int
-toLong(input)                       // Validate and convert to Long
-toShort(input)                      // Validate and convert to Short
-toByte(input)                       // Validate and convert to Byte
-toDouble(input)                     // Validate and convert to Double
-toFloat(input)                      // Validate and convert to Float
-toBigDecimal(input)                 // Validate and convert to BigDecimal
-toBigInteger(input)                 // Validate and convert to BigInteger
-toBoolean(input)                    // Validate and convert to Boolean
-toEnum<Status>(input)               // Validate and convert to enum
+parseInt(input)                        // Validate and convert to Int
+parseLong(input)                       // Validate and convert to Long
+parseShort(input)                      // Validate and convert to Short
+parseByte(input)                       // Validate and convert to Byte
+parseDouble(input)                     // Validate and convert to Double
+parseFloat(input)                      // Validate and convert to Float
+parseBigDecimal(input)                 // Validate and convert to BigDecimal
+parseBigInteger(input)                 // Validate and convert to BigInteger
+parseBoolean(input)                    // Validate and convert to Boolean
+parseEnum<Status>(input)               // Validate and convert to enum
 ```
 
 ### Numbers
@@ -368,18 +368,18 @@ toEnum<Status>(input)               // Validate and convert to enum
 Supported types: `Int`, `Long`, `Double`, `Float`, `Byte`, `Short`, `BigDecimal`, `BigInteger`
 
 ```kotlin
-minValue(input, 0)                  // Minimum value (>= 0)
-maxValue(input, 100)                // Maximum value (<= 100)
-gtValue(input, 0)                   // Greater than (> 0)
-gtEqValue(input, 0)                 // Greater than or equal (>= 0)
-ltValue(input, 100)                 // Less than (< 100)
-ltEqValue(input, 100)               // Less than or equal (<= 100)
-eqValue(input, 42)                  // Equal to (== 42)
-notEqValue(input, 0)                // Not equal to (!= 0)
-positive(input)                     // Must be positive (> 0)
-negative(input)                     // Must be negative (< 0)
-notPositive(input)                  // Must not be positive (<= 0)
-notNegative(input)                  // Must not be negative (>= 0)
+ensureMin(input, 0)                  // Minimum value (>= 0)
+ensureMax(input, 100)                // Maximum value (<= 100)
+ensureGreaterThan(input, 0)                   // Greater than (> 0)
+ensureGreaterThanOrEquals(input, 0)                 // Greater than or equal (>= 0)
+ensureLessThan(input, 100)                 // Less than (< 100)
+ensureLessThanOrEquals(input, 100)               // Less than or equal (<= 100)
+ensureEquals(input, 42)                  // Equal to (== 42)
+ensureNotEquals(input, 0)                // Not equal to (!= 0)
+ensurePositive(input)                     // Must be positive (> 0)
+ensureNegative(input)                     // Must be negative (< 0)
+ensureNotPositive(input)                  // Must not be positive (<= 0)
+ensureNotNegative(input)                  // Must not be negative (>= 0)
 ```
 
 ### Temporal Types
@@ -387,18 +387,18 @@ notNegative(input)                  // Must not be negative (>= 0)
 Supported types: `LocalDate`, `LocalTime`, `LocalDateTime`, `Instant`, `OffsetDateTime`, `OffsetTime`, `ZonedDateTime`, `Year`, `YearMonth`, `MonthDay`
 
 ```kotlin
-minValue(input, LocalDate.of(2024, 1, 1))     // Minimum date/time (>=)
-maxValue(input, LocalDate.of(2024, 12, 31))   // Maximum date/time (<=)
-gtValue(input, LocalDate.of(2024, 6, 1))      // Greater than (>)
-gtEqValue(input, LocalDate.of(2024, 1, 1))    // Greater than or equal (>=)
-ltValue(input, LocalDate.of(2025, 1, 1))      // Less than (<)
-ltEqValue(input, LocalDate.of(2024, 12, 31))  // Less than or equal (<=)
-eqValue(input, LocalDate.of(2024, 6, 15))     // Equal to (==)
-notEqValue(input, LocalDate.of(2024, 1, 1))   // Not equal to (!=)
-future(input)                             // Must be in the future
-futureOrPresent(input)                    // Must be in the future or present
-past(input)                               // Must be in the past
-pastOrPresent(input)                      // Must be in the past or present
+ensureMin(input, LocalDate.of(2024, 1, 1))     // Minimum date/time (>=)
+ensureMax(input, LocalDate.of(2024, 12, 31))   // Maximum date/time (<=)
+ensureGreaterThan(input, LocalDate.of(2024, 6, 1))      // Greater than (>)
+ensureGreaterThanOrEquals(input, LocalDate.of(2024, 1, 1))    // Greater than or equal (>=)
+ensureLessThan(input, LocalDate.of(2025, 1, 1))      // Less than (<)
+ensureLessThanOrEquals(input, LocalDate.of(2024, 12, 31))  // Less than or equal (<=)
+ensureEquals(input, LocalDate.of(2024, 6, 15))     // Equal to (==)
+ensureNotEquals(input, LocalDate.of(2024, 1, 1))   // Not equal to (!=)
+ensureFuture(input)                             // Must be in the future
+ensureFutureOrPresent(input)                    // Must be in the future or present
+ensurePast(input)                               // Must be in the past
+ensurePastOrPresent(input)                      // Must be in the past or present
 ```
 
 ### Iterables
@@ -406,11 +406,11 @@ pastOrPresent(input)                      // Must be in the past or present
 Supported types: Any `Iterable` (including `List`, `Set`, `Collection`)
 
 ```kotlin
-notEmpty(input)                     // Must not be empty
-contains(input, "foo")              // Must contain element (alias: has)
-notContains(input, "bar")           // Must not contain element
-onEach(input) { element ->          // Validate each element
-    minValue(element, 1)
+ensureNotEmpty(input)                     // Must not be empty
+ensureContains(input, "foo")              // Must contain element (alias: ensureHas)
+ensureNotContains(input, "bar")           // Must not contain element
+ensureEach(input) { element ->          // Validate each element
+    ensureMin(element, 1)
 }
 ```
 
@@ -419,43 +419,43 @@ onEach(input) { element ->          // Validate each element
 Supported types: `List`, `Set`, `Collection`
 
 ```kotlin
-minSize(input, 1)                   // Minimum size
-maxSize(input, 10)                  // Maximum size
-size(input, 5)                      // Exact size
+ensureMinSize(input, 1)                   // Minimum size
+ensureMaxSize(input, 10)                  // Maximum size
+ensureSize(input, 5)                      // Exact size
 ```
 
 ### Maps
 
 ```kotlin
-minSize(input, 1)                   // Minimum size
-maxSize(input, 10)                  // Maximum size
-size(input, 5)                      // Exact size
-notEmpty(input)                     // Must not be empty
-containsKey(input, "foo")           // Must contain key (alias: hasKey)
-notContainsKey(input, "bar")        // Must not contain key
-containsValue(input, 42)            // Must contain value (alias: hasValue)
-notContainsValue(input, 0)          // Must not contain value
-onEachKey(input) { key ->           // Validate each key
-    minValue(key, 1)
+ensureMinSize(input, 1)                   // Minimum size
+ensureMaxSize(input, 10)                  // Maximum size
+ensureSize(input, 5)                      // Exact size
+ensureNotEmpty(input)                     // Must not be empty
+ensureContainsKey(input, "foo")           // Must contain key (alias: ensureHasKey)
+ensureNotContainsKey(input, "bar")        // Must not contain key
+ensureContainsValue(input, 42)            // Must contain value (alias: ensureHasValue)
+ensureNotContainsValue(input, 0)          // Must not contain value
+ensureEachKey(input) { key ->           // Validate each key
+    ensureMin(key, 1)
 }
-onEachValue(input) { value ->       // Validate each value
-    minValue(value, 0)
+ensureEachValue(input) { value ->       // Validate each value
+    ensureMin(value, 0)
 }
 ```
 
 ### Nullable
 
 ```kotlin
-isNull(input)                       // Must be null
-notNull(input)                      // Must not be null (enables smart casting, stops on failure)
-isNullOr(input) { block }           // Accept null or validate non-null
+ensureNull(input)                       // Must be null
+ensureNotNull(input)                      // Must not be null (enables smart casting, stops on failure)
+ensureNullOr(input) { block }           // Accept null or validate non-null
 ```
 
 ### Boolean
 
 ```kotlin
-isTrue(input)                       // Must be true
-isFalse(input)                      // Must be false
+ensureTrue(input)                       // Must be true
+ensureFalse(input)                      // Must be false
 ```
 
 ### Comparable Types
@@ -463,20 +463,20 @@ isFalse(input)                      // Must be false
 Supports all `Comparable` types, such as `UInt`, `ULong`, `UByte`, and `UShort`.
 
 ```kotlin
-minValue(input, 0u)                 // Minimum value (>= 0u)
-maxValue(input, 100u)               // Maximum value (<= 100u)
-gtValue(input, 0u)                  // Greater than (> 0u)
-gtEqValue(input, 0u)                // Greater than or equal (>= 0u)
-ltValue(input, 100u)                // Less than (< 100u)
-ltEqValue(input, 100u)              // Less than or equal (<= 100u)
-eqValue(input, 42u)                 // Equal to (== 42u)
-notEqValue(input, 0u)               // Not equal to (!= 0u)
+ensureMin(input, 0u)                 // Minimum value (>= 0u)
+ensureMax(input, 100u)               // Maximum value (<= 100u)
+ensureGreaterThan(input, 0u)                  // Greater than (> 0u)
+ensureGreaterThanOrEquals(input, 0u)                // Greater than or equal (>= 0u)
+ensureLessThan(input, 100u)                // Less than (< 100u)
+ensureLessThanOrEquals(input, 100u)              // Less than or equal (<= 100u)
+ensureEquals(input, 42u)                 // Equal to (== 42u)
+ensureNotEquals(input, 0u)               // Not equal to (!= 0u)
 
 // Range validation
-inRange(input, 1..10)               // Within range (supports both 1..10 and 1..<10 syntax)
-inRange(input, 1..<10)              // Within range with open-ended syntax (exclusive end)
-inClosedRange(input, 1.0..10.0)     // Within closed range (inclusive start and end)
-inOpenEndRange(input, 1..<10)       // Within open-ended range (inclusive start, exclusive end)
+ensureInRange(input, 1..10)               // Within range (supports both 1..10 and 1..<10 syntax)
+ensureInRange(input, 1..<10)              // Within range with open-ended syntax (exclusive end)
+ensureInClosedRange(input, 1.0..10.0)     // Within closed range (inclusive start and end)
+ensureInOpenEndRange(input, 1..<10)       // Within open-ended range (inclusive start, exclusive end)
 ```
 
 ### Any Type Validators
@@ -484,9 +484,9 @@ inOpenEndRange(input, 1..<10)       // Within open-ended range (inclusive start,
 Works with any type:
 
 ```kotlin
-eqValue(input, "completed")            // Must equal specific value
-notEqValue(input, "rejected")          // Must not equal specific value
-inIterable(input, listOf("a", "b", "c"))  // Must be one of allowed values
+ensureEquals(input, "completed")            // Must equal specific value
+ensureNotEquals(input, "rejected")          // Must not equal specific value
+ensureInIterable(input, listOf("a", "b", "c"))  // Must be one of allowed values
 ```
 
 ## Error Handling
@@ -496,7 +496,7 @@ inIterable(input, listOf("a", "b", "c"))  // Must be one of allowed values
 ```kotlin
 val result = tryValidate {
     val username = "joe"
-    minLength(username, 5)
+    ensureMinLength(username, 5)
 }
 
 if (!result.isSuccess()) {
@@ -533,13 +533,13 @@ data class Product(val id: Int, val name: String, val price: Double)
 
 // Schema validation function
 fun Validation.validate(product: Product) = product.schema {
-    product::id { minValue(it, 1) }
+    product::id { ensureMin(it, 1) }
     product::name {
-        notBlank(it)
-        minLength(it, 3)
-        maxLength(it, 100)
+        ensureNotBlank(it)
+        ensureMinLength(it, 3)
+        ensureMaxLength(it, 100)
     }
-    product::price { minValue(it, 0.0) }
+    product::price { ensureMin(it, 0.0) }
 }
 
 // Usage
@@ -568,10 +568,10 @@ All validators accept an optional `message` parameter for custom error messages.
 ```kotlin
 val result = tryValidate {
     // Custom text message
-    minLength(username, 3, message = { text("Username must be at least 3 characters") })
+    ensureMinLength(username, 3, message = { text("Username must be at least 3 characters") })
 
     // Internationalized message with parameters
-    maxLength(bio, 500, message = { "custom.bio.tooLong".resource(500) })
+    ensureMaxLength(bio, 500, message = { "custom.bio.tooLong".resource(500) })
 }
 ```
 
@@ -585,8 +585,8 @@ Stop at the first error instead of collecting all errors:
 
 ```kotlin
 fun Validation.validateProductName(name: String) {
-    notBlank(name)
-    inRange(name.length, 1..100)
+    ensureNotBlank(name)
+    ensureInRange(name.length, 1..100)
 }
 
 // Stops at first error
@@ -605,14 +605,14 @@ import java.time.Instant
 import java.time.ZoneId
 
 fun Validation.validateDate(date: LocalDate) {
-    future(date)
+    ensureFuture(date)
 }
 
 val fixedClock = Clock.fixed(Instant.parse("2024-06-15T10:00:00Z"), ZoneId.of("UTC"))
 
 val result = tryValidate(config = ValidationConfig(clock = fixedClock)) {
     val date = LocalDate.of(2024, 6, 20)
-    future(date)  // Uses the fixed clock for comparison
+    ensureFuture(date)  // Uses the fixed clock for comparison
 }
 ```
 
@@ -624,8 +624,8 @@ Enable logging to debug validation flow:
 val result = tryValidate(config = ValidationConfig(
     logger = { logEntry -> println("[Validation] $logEntry") }
 )) {
-    minLength(username, 3)
-    maxLength(username, 20)
+    ensureMinLength(username, 3)
+    ensureMaxLength(username, 20)
 }
 ```
 
@@ -680,17 +680,17 @@ fun Validation.alphanumeric(
 
 ```kotlin
 // Accept or reject null
-isNull(value)
-notNull(value)
+ensureNull(value)
+ensureNotNull(value)
 
 // Validate only if non-null
-isNullOr(email) { contains(it, "@") }
+ensureNullOr(email) { ensureContains(it, "@") }
 
-// notNull enables smart casting - subsequent validators work on non-null type
+// ensureNotNull enables smart casting - subsequent validators work on non-null type
 fun Validation.validateName(name: String?): String {
-    notNull(name)           // Validates and enables smart cast
-    minLength(name, 1)      // Compiler knows name is non-null
-    maxLength(name, 100)
+    ensureNotNull(name)           // Validates and enables smart cast
+    ensureMinLength(name, 1)      // Compiler knows name is non-null
+    ensureMaxLength(name, 100)
     return name             // Return type is String (non-nullable)
 }
 ```
@@ -702,8 +702,8 @@ Try the first validation; if it fails, try the next. Useful for alternative vali
 ```kotlin
 // Accept either domestic or international phone format
 fun Validation.validatePhone(phone: String) =
-    or { matches(phone, Regex("^\\d{3}-\\d{4}$")) }      // Domestic format: 123-4567
-        .orElse { matches(phone, Regex("^\\+\\d{1,3}-\\d+$")) }  // International format: +1-1234567
+    or { ensureMatches(phone, Regex("^\\d{3}-\\d{4}$")) }      // Domestic format: 123-4567
+        .orElse { ensureMatches(phone, Regex("^\\+\\d{1,3}-\\d+$")) }  // International format: +1-1234567
 
 val result = tryValidate { validatePhone("123-abc-456") }
 if (!result.isSuccess()) {
@@ -712,9 +712,9 @@ if (!result.isSuccess()) {
 }
 
 // Chain multiple alternatives
-or { matches(id, Regex("^[a-z]+$")) }    // Lowercase letters only
-    .or { matches(id, Regex("^\\d+$")) }  // Digits only
-    .orElse { matches(id, Regex("^[A-Z]+$")) }  // Uppercase letters only
+or { ensureMatches(id, Regex("^[a-z]+$")) }    // Lowercase letters only
+    .or { ensureMatches(id, Regex("^\\d+$")) }  // Digits only
+    .orElse { ensureMatches(id, Regex("^[A-Z]+$")) }  // Uppercase letters only
 ```
 
 ### Wrapping Errors with `withMessage`
@@ -727,8 +727,8 @@ data class Address(val street: String, val city: String, val zipCode: String)
 fun Validation.validate(address: Address) = address.schema {
     address::zipCode {
         withMessage("Invalid ZIP code format") {
-            matches(it, Regex("^\\d{5}(-\\d{4})?$"))
-            minLength(it, 5)
+            ensureMatches(it, Regex("^\\d{5}(-\\d{4})?$"))
+            ensureMinLength(it, 5)
         }
     }
 }
@@ -747,9 +747,9 @@ fun Validation.validatePassword(password: String) =
     withMessage({ messages ->
         text("Password validation failed: ${messages.size} errors found")
     }) {
-        minLength(password, 8)
-        matches(password, Regex(".*[A-Z].*"))
-        matches(password, Regex(".*[0-9].*"))
+        ensureMinLength(password, 8)
+        ensureMatches(password, Regex(".*[A-Z].*"))
+        ensureMatches(password, Regex(".*[0-9].*"))
     }
 ```
 
@@ -763,7 +763,7 @@ Error messages use resource bundles from `kova.properties`. The `resource()` fun
 
 ```kotlin
 // Using resource keys from kova.properties
-minLength(str, 5, message = { "custom.message.key".resource(5) })
+ensureMinLength(str, 5, message = { "custom.message.key".resource(5) })
 
 // Multiple parameters
 fun Validation.range(

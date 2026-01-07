@@ -34,11 +34,11 @@ val result = validateUser(userProfile)
 ```kotlin
 fun Validation.validate(userProfile: UserProfile) = userProfile.schema {
     userProfile::fullName {
-        minLength(it, 2)
-        maxLength(it, 100)
+        ensureMinLength(it, 2)
+        ensureMaxLength(it, 100)
     }
     userProfile::age {
-        if (it != null) inRange(it, 0..150)
+        if (it != null) ensureInRange(it, 0..150)
     }
 }
 
@@ -77,9 +77,9 @@ val validateUser = Validation {
 ```kotlin
 fun Validation.validate(userProfile: UserProfile) = userProfile.schema {
     userProfile::fullName {
-        notContains(it, "\t") { text("Name cannot contain a tab") }
-        notBlank(it) { text("Name must have a non-whitespace character") }
-        minLength(it, 5) { text("Must have 5 characters") }
+        ensureNotContains(it, "\t") { text("Name cannot contain a tab") }
+        ensureNotBlank(it) { text("Name must have a non-whitespace character") }
+        ensureMinLength(it, 5) { text("Must have 5 characters") }
     }
 }
 ```
@@ -132,18 +132,18 @@ val validateEvent = Validation {
 ```kotlin
 fun Validation.validateOrganizer(person: Person) = person.schema {
     person::email {
-        notNull(it) { text("Email address must be given") }
-        matches(it, Regex(".+@bigcorp.com")) {
+        ensureNotNull(it) { text("Email address must be given") }
+        ensureMatches(it, Regex(".+@bigcorp.com")) {
             text("Organizers must have a BigCorp email address")
         }
     }
 }
 
 fun Validation.validateAttendee(person: Person) = person.schema {
-    person::name { minLength(it, 2) }
-    person::age { minValue(it, 18) { text("Attendees must be 18 years or older") } }
+    person::name { ensureMinLength(it, 2) }
+    person::age { ensureMin(it, 18) { text("Attendees must be 18 years or older") } }
     person::email {
-        if (it != null) matches(it, Regex(".+@.+\\..+")) {
+        if (it != null) ensureMatches(it, Regex(".+@.+\\..+")) {
             text("Please provide a valid email address (optional)")
         }
     }
@@ -152,13 +152,13 @@ fun Validation.validateAttendee(person: Person) = person.schema {
 fun Validation.validate(event: Event) = event.schema {
     event::organizer { validateOrganizer(it) }
     event::attendees {
-        maxSize(it, 100)
-        onEach(it) { validateAttendee(it) }
+        ensureMaxSize(it, 100)
+        ensureEach(it) { validateAttendee(it) }
     }
     event::ticketPrices {
-        minSize(it, 1) { text("Provide at least one ticket price") }
-        onEachValue(it) { price ->
-            if (price != null) minValue(price, 0.01)
+        ensureMinSize(it, 1) { text("Provide at least one ticket price") }
+        ensureEachValue(it) { price ->
+            if (price != null) ensureMin(price, 0.01)
         }
     }
 }
@@ -167,8 +167,8 @@ fun Validation.validate(event: Event) = event.schema {
 **Key Differences:**
 - Konform validates nested properties inline using property references
 - Kova uses explicit validation functions for nested objects (`validateOrganizer`, `validateAttendee`)
-- Konform's `onEach` operates directly on property references; Kova's `onEach` takes the collection as input
-- Kova provides `onEachValue` for map values; Konform uses `onEach` with `Map.Entry::value`
+- Konform's `onEach` operates directly on property references; Kova's `ensureEach` takes the collection as input
+- Kova provides `ensureEachValue` for map values; Konform uses `onEach` with `Map.Entry::value`
 - Kova allows easy extraction of reusable validation logic as extension functions
 - **Error Structure**: Konform returns flat error list with indexed paths (e.g., `.attendees[0].email`); Kova groups collection element errors under a parent message with `descendants` property, showing detailed paths like `attendees[0]<iterable element>.email`
 
@@ -198,8 +198,8 @@ val validateUser = Validation {
 **Kova:**
 ```kotlin
 fun Validation.checkAge(age: Int?) {
-    notNull(age)
-    minValue(age, 21)
+    ensureNotNull(age)
+    ensureMin(age, 21)
 }
 
 fun Validation.validate(userProfile: UserProfile) = userProfile.schema {
@@ -216,7 +216,7 @@ fun Validation.validate(userProfile: UserProfile) = userProfile.schema {
 - Konform uses `run()` to execute a separate validation object
 - Kova simply calls extension functions like any other Kotlin function
 - Konform requires `validate(name, selector)` to validate computed values; Kova uses `name()` block
-- Kova's `notNull()` uses Kotlin contracts for smart casting, allowing subsequent validators to work with non-nullable types
+- Kova's `ensureNotNull()` uses Kotlin contracts for smart casting, allowing subsequent validators to work with non-nullable types
 - Kova's approach is more natural to Kotlin - no special `run()` function needed
 
 ### Recursive Structures ([RecursiveTest.kt](src/test/kotlin/example/konform/RecursiveTest.kt))
@@ -243,8 +243,8 @@ private val validationRef get(): Validation<Node> = validationNode
 fun Validation.validate(node: Node) {
     node.schema {
         node::children { children ->
-            maxSize(children, 2)
-            onEach(children) { validate(it) }  // Recursive call
+            ensureMaxSize(children, 2)
+            ensureEach(children) { validate(it) }  // Recursive call
         }
     }
 }
@@ -281,8 +281,8 @@ val validateAddress = Validation {
 fun Validation.validate(address: Address) = address.schema {
     address::postalCode {
         when (address.countryCode) {
-            "US" -> matches(it, Regex("[0-9]{5}"))
-            else -> matches(it, Regex("[A-Z]+"))
+            "US" -> ensureMatches(it, Regex("[0-9]{5}"))
+            else -> ensureMatches(it, Regex("[A-Z]+"))
         }
     }
 }

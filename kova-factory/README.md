@@ -23,8 +23,8 @@ import org.komapper.extension.validator.factory.*
 data class User(val name: String, val age: Int)
 
 fun Validation.buildUser(name: String, age: String) = factory {
-    val name by bind(name) { notBlank(it); minLength(it, 1); it }
-    val age by bind(age) { toInt(it) }
+    val name by bind(name) { ensureNotBlank(it); ensureMinLength(it, 1); it }
+    val age by bind(age) { parseInt(it) }
     User(name, age)
 }
 
@@ -50,7 +50,7 @@ Binds and validates a field. Returns the validated/transformed value:
 
 ```kotlin
 val name by bind(rawName) {
-    notBlank(it); minLength(it, 1)
+    ensureNotBlank(it); ensureMinLength(it, 1)
     it  // Return validated value
 }
 ```
@@ -74,8 +74,8 @@ data class Age(val value: Int)
 
 fun Validation.buildAge(ageString: String) = factory {
     val value by bind(ageString) {
-        val age = toInt(it)  // String -> Int
-        minValue(age, 0); maxValue(age, 120)
+        val age = parseInt(it)  // String -> Int
+        ensureMin(age, 0); ensureMax(age, 120)
         age
     }
     Age(value)
@@ -92,7 +92,7 @@ data class FullName(val first: Name, val last: Name)
 data class User(val id: Int, val fullName: FullName)
 
 fun Validation.buildName(value: String) = factory {
-    val value by bind(value) { notBlank(it); it }
+    val value by bind(value) { ensureNotBlank(it); it }
     Name(value)
 }
 
@@ -103,7 +103,7 @@ fun Validation.buildFullName(first: String, last: String) = factory {
 }
 
 fun Validation.buildUser(id: String, firstName: String, lastName: String) = factory {
-    val id by bind(id) { toInt(it) }
+    val id by bind(id) { parseInt(it) }
     val fullName by bind { buildFullName(firstName, lastName) }
     User(id, fullName)
 }
@@ -118,17 +118,17 @@ data class User(val username: String, val email: String, val age: Int)
 
 fun Validation.buildUser(username: String, email: String, age: String) = factory {
     val username by bind(username) {
-        notBlank(it); minLength(it, 3); maxLength(it, 20)
-        matches(it, Regex("^[a-zA-Z0-9_]+$"))
+        ensureNotBlank(it); ensureMinLength(it, 3); ensureMaxLength(it, 20)
+        ensureMatches(it, Regex("^[a-zA-Z0-9_]+$"))
         it
     }
     val email by bind(email) {
-        notBlank(it); contains(it, "@"); minLength(it, 5)
+        ensureNotBlank(it); ensureContains(it, "@"); ensureMinLength(it, 5)
         it
     }
     val age by bind(age) {
-        val ageInt = toInt(it)
-        minValue(ageInt, 0); maxValue(ageInt, 120)
+        val ageInt = parseInt(it)
+        ensureMin(ageInt, 0); ensureMax(ageInt, 120)
         ageInt
     }
     User(username, email, age)

@@ -39,13 +39,13 @@ class Car(
 )
 
 fun Validation.validate(car: Car) = car.schema {
-    car::manufacturer { notNull(it) }
+    car::manufacturer { ensureNotNull(it) }
     car::licensePlate {
-        notNull(it)
-        minLength(it, 2)
-        maxLength(it, 14)
+        ensureNotNull(it)
+        ensureMinLength(it, 2)
+        ensureMaxLength(it, 14)
     }
-    car::seatCount { minValue(it, 2) }
+    car::seatCount { ensureMin(it, 2) }
 }
 
 val result = tryValidate { validate(car) }
@@ -73,7 +73,7 @@ class Car(
 ```kotlin
 fun Validation.validate(car: Car) = car.schema {
     car::driver {
-        notNull(it)
+        ensureNotNull(it)
         validate(it)  // Explicit nested validation
     }
 }
@@ -90,13 +90,13 @@ fun Validation.validate(
     checks: Set<Check> = setOf(Check.DEFAULT)
 ) = car.schema {
     if (Check.DEFAULT in checks) {
-        car::manufacturer { notNull(it) }
+        car::manufacturer { ensureNotNull(it) }
         // ... other default checks
     }
 
     if (Check.CAR in checks) {
         car::passedVehicleInspection {
-            eqValue(it, true) { text("The car has to pass the vehicle inspection first") }
+            ensureEquals(it, true) { text("The car has to pass the vehicle inspection first") }
         }
     }
 }
@@ -133,10 +133,10 @@ class Car(
 **Kova:**
 ```kotlin
 fun Validation.validateLicensePlate(licensePlate: String?) {
-    notNull(licensePlate)
-    minLength(licensePlate, 2)
-    maxLength(licensePlate, 14)
-    uppercase(licensePlate)
+    ensureNotNull(licensePlate)
+    ensureMinLength(licensePlate, 2)
+    ensureMaxLength(licensePlate, 14)
+    ensureUppercase(licensePlate)
 }
 
 fun Validation.validate(car: Car) = car.schema {

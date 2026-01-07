@@ -29,11 +29,11 @@ data class Customer(val id: Int, val name: String) : Validated {
 }
 
 fun Validation.validate(customer: Customer) = customer.schema {
-    customer::id { positive(it) }
+    customer::id { ensurePositive(it) }
     customer::name {
-        notBlank(it)
-        minLength(it, 1)
-        maxLength(it, 50)
+        ensureNotBlank(it)
+        ensureMinLength(it, 1)
+        ensureMaxLength(it, 50)
     }
 }
 ```
@@ -90,7 +90,7 @@ data class Customer(val id: Int) : Validated {
 }
 
 fun Validation.validate(customer: Customer) = customer.schema {
-    customer::id { positive(it) }
+    customer::id { ensurePositive(it) }
 }
 ```
 
@@ -137,8 +137,8 @@ data class Address(val street: String, val city: String) : Validated {
 }
 
 fun Validation.validate(address: Address) = address.schema {
-    address::street { notBlank(it); minLength(it, 1) }
-    address::city { notBlank(it); minLength(it, 1) }
+    address::street { ensureNotBlank(it); ensureMinLength(it, 1) }
+    address::city { ensureNotBlank(it); ensureMinLength(it, 1) }
 }
 
 @Serializable
@@ -147,7 +147,7 @@ data class User(val name: String, val address: Address) : Validated {
 }
 
 fun Validation.validate(user: User) = user.schema {
-    user::name { notBlank(it); minLength(it, 1) }
+    user::name { ensureNotBlank(it); ensureMinLength(it, 1) }
     user::address { validate(it) }  // Reuse validation
 }
 ```
@@ -174,8 +174,8 @@ data class Customer(val id: Int, val name: String) : Validated {
 }
 
 fun Validation.validate(customer: Customer) = customer.schema {
-    customer::id { positive(it) }
-    customer::name { notBlank(it); minLength(it, 1); maxLength(it, 50) }
+    customer::id { ensurePositive(it) }
+    customer::name { ensureNotBlank(it); ensureMinLength(it, 1); ensureMaxLength(it, 50) }
 }
 
 fun Application.module() {
