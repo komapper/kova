@@ -55,6 +55,80 @@ class MapValidatorTest :
             }
         }
 
+        context("ensureSizeInRange") {
+            test("success with closed range") {
+                val result = tryValidate { ensureSizeInRange(mapOf("a" to "1", "b" to "2", "c" to "3"), 2..5) }
+                result.shouldBeSuccess()
+            }
+
+            test("success at lower bound of closed range") {
+                val result = tryValidate { ensureSizeInRange(mapOf("a" to "1", "b" to "2"), 2..5) }
+                result.shouldBeSuccess()
+            }
+
+            test("success at upper bound of closed range") {
+                val result = tryValidate { ensureSizeInRange(mapOf("a" to "1", "b" to "2", "c" to "3", "d" to "4", "e" to "5"), 2..5) }
+                result.shouldBeSuccess()
+            }
+
+            test("success with open-ended range") {
+                val result = tryValidate { ensureSizeInRange(mapOf("a" to "1", "b" to "2", "c" to "3"), 2..<5) }
+                result.shouldBeSuccess()
+            }
+
+            test("success at lower bound of open-ended range") {
+                val result = tryValidate { ensureSizeInRange(mapOf("a" to "1", "b" to "2"), 2..<5) }
+                result.shouldBeSuccess()
+            }
+
+            test("failure below range") {
+                val result = tryValidate { ensureSizeInRange(mapOf("a" to "1"), 2..5) }
+                result.shouldBeFailure()
+                result.messages.single().constraintId shouldBe "kova.map.sizeInRange"
+            }
+
+            test("failure above closed range") {
+                val result =
+                    tryValidate {
+                        ensureSizeInRange(
+                            mapOf("a" to "1", "b" to "2", "c" to "3", "d" to "4", "e" to "5", "f" to "6"),
+                            2..5,
+                        )
+                    }
+                result.shouldBeFailure()
+                result.messages.single().constraintId shouldBe "kova.map.sizeInRange"
+            }
+
+            test("failure at upper bound of open-ended range") {
+                val result = tryValidate { ensureSizeInRange(mapOf("a" to "1", "b" to "2", "c" to "3", "d" to "4", "e" to "5"), 2..<5) }
+                result.shouldBeFailure()
+                result.messages.single().constraintId shouldBe "kova.map.sizeInRange"
+            }
+
+            test("success with custom message") {
+                val result =
+                    tryValidate {
+                        ensureSizeInRange(
+                            mapOf("a" to "1", "b" to "2", "c" to "3"),
+                            2..5,
+                        ) { text("Custom message") }
+                    }
+                result.shouldBeSuccess()
+            }
+
+            test("failure with custom message") {
+                val result =
+                    tryValidate {
+                        ensureSizeInRange(
+                            mapOf("a" to "1"),
+                            2..5,
+                        ) { text("Custom message") }
+                    }
+                result.shouldBeFailure()
+                result.messages.single().text shouldBe "Custom message"
+            }
+        }
+
         context("constrain") {
             @IgnorableReturnValue
             fun Validation.validate(map: Map<*, *>) = map.constrain("test") { satisfies(it.size == 1) { text("Constraint failed") } }

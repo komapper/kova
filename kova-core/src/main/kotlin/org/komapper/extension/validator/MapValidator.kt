@@ -79,6 +79,26 @@ fun Validation.ensureSize(
 ) = input.constrain("kova.map.size") { satisfies(it.size == size) { message(it.size) } }
 
 /**
+ * Validates that the map size is within the specified range.
+ *
+ * Example:
+ * ```kotlin
+ * tryValidate { ensureSizeInRange(mapOf("a" to 1, "b" to 2, "c" to 3), 2..5) } // Success
+ * tryValidate { ensureSizeInRange(mapOf("a" to 1), 2..5) }                     // Failure
+ * tryValidate { ensureSizeInRange(mapOf("a" to 1, "b" to 2, "c" to 3), 1..<3) } // Failure (open-ended range)
+ * ```
+ *
+ * @param range The allowed size range (supports both ClosedRange and OpenEndRange)
+ * @param message Custom error message provider
+ */
+@IgnorableReturnValue
+fun <R> Validation.ensureSizeInRange(
+    input: Map<*, *>,
+    range: R,
+    message: MessageProvider = { "kova.map.sizeInRange".resource(range) },
+) where R : ClosedRange<Int>, R : OpenEndRange<Int> = input.constrain("kova.map.sizeInRange") { satisfies(it.size in range, message) }
+
+/**
  * Validates that the map ensureContains the specified key.
  *
  * Example:

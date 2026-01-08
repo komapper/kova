@@ -423,6 +423,7 @@ Supported types: `List`, `Set`, `Collection`
 ensureMinSize(input, 1)                    // Minimum size
 ensureMaxSize(input, 10)                   // Maximum size
 ensureSize(input, 5)                       // Exact size
+ensureSizeInRange(input, 1..10)            // Size within range (supports both 1..10 and 1..<10)
 ```
 
 ### Maps
@@ -431,6 +432,7 @@ ensureSize(input, 5)                       // Exact size
 ensureMinSize(input, 1)                    // Minimum size
 ensureMaxSize(input, 10)                   // Maximum size
 ensureSize(input, 5)                       // Exact size
+ensureSizeInRange(input, 1..10)            // Size within range (supports both 1..10 and 1..<10)
 ensureNotEmpty(input)                      // Must not be empty
 ensureContainsKey(input, "foo")            // Must contain key (alias: ensureHasKey)
 ensureNotContainsKey(input, "bar")         // Must not contain key

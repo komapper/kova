@@ -351,6 +351,20 @@ class MessagePropertiesTest :
                 val message = result.messages.single()
                 message.text shouldBe "Collection (size 2) must have exactly 3 elements"
             }
+
+            test("ensureSizeInRange") {
+                val result = tryValidate { ensureSizeInRange(listOf("a", "b"), 3..5) }
+                result.shouldBeFailure()
+                val message = result.messages.single()
+                message.text shouldBe "Collection size must be within range 3..5"
+            }
+
+            test("ensureSizeInRange with message") {
+                val result = tryValidate { ensureSizeInRange(listOf("a", "b"), 3..5) { text("Collection size must be within range 3..5") } }
+                result.shouldBeFailure()
+                val message = result.messages.single()
+                message.text shouldBe "Collection size must be within range 3..5"
+            }
         }
 
         context("kova.comparable") {
@@ -589,6 +603,21 @@ class MessagePropertiesTest :
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "Map (size 2) must have exactly 3 entries"
+            }
+
+            test("ensureSizeInRange") {
+                val result = tryValidate { ensureSizeInRange(mapOf("a" to 1, "b" to 2), 3..5) }
+                result.shouldBeFailure()
+                val message = result.messages.single()
+                message.text shouldBe "Map size must be within range 3..5"
+            }
+
+            test("ensureSizeInRange with message") {
+                val result =
+                    tryValidate { ensureSizeInRange(mapOf("a" to 1, "b" to 2), 3..5) { text("Map size must be within range 3..5") } }
+                result.shouldBeFailure()
+                val message = result.messages.single()
+                message.text shouldBe "Map size must be within range 3..5"
             }
 
             test("ensureEachKey") {

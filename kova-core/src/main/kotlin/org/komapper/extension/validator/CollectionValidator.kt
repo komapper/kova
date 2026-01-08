@@ -58,3 +58,24 @@ fun Validation.ensureSize(
     size: Int,
     message: SizeMessageProvider = { "kova.collection.size".resource(it, size) },
 ) = input.constrain("kova.collection.size") { satisfies(it.size == size) { message(it.size) } }
+
+/**
+ * Validates that the collection size is within the specified range.
+ *
+ * Example:
+ * ```kotlin
+ * tryValidate { ensureSizeInRange(listOf("a", "b", "c"), 2..5) }   // Success
+ * tryValidate { ensureSizeInRange(listOf("a"), 2..5) }             // Failure
+ * tryValidate { ensureSizeInRange(listOf("a", "b", "c"), 1..<3) }  // Failure (open-ended range)
+ * ```
+ *
+ * @param range The allowed size range (supports both ClosedRange and OpenEndRange)
+ * @param message Custom error message provider
+ */
+@IgnorableReturnValue
+fun <R> Validation.ensureSizeInRange(
+    input: Collection<*>,
+    range: R,
+    message: MessageProvider = { "kova.collection.sizeInRange".resource(range) },
+) where R : ClosedRange<Int>, R : OpenEndRange<Int> =
+    input.constrain("kova.collection.sizeInRange") { satisfies(it.size in range, message) }

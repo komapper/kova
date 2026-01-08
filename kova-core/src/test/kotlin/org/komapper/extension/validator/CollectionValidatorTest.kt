@@ -68,4 +68,76 @@ class CollectionValidatorTest :
                 result.messages[1].constraintId shouldBe "kova.collection.minSize"
             }
         }
+
+        context("ensureSizeInRange") {
+            test("success with closed range") {
+                val result = tryValidate { ensureSizeInRange(listOf("1", "2", "3"), 2..5) }
+                result.shouldBeSuccess()
+            }
+
+            test("success at lower bound of closed range") {
+                val result = tryValidate { ensureSizeInRange(listOf("1", "2"), 2..5) }
+                result.shouldBeSuccess()
+            }
+
+            test("success at upper bound of closed range") {
+                val result = tryValidate { ensureSizeInRange(listOf("1", "2", "3", "4", "5"), 2..5) }
+                result.shouldBeSuccess()
+            }
+
+            test("success with open-ended range") {
+                val result = tryValidate { ensureSizeInRange(listOf("1", "2", "3"), 2..<5) }
+                result.shouldBeSuccess()
+            }
+
+            test("success at lower bound of open-ended range") {
+                val result = tryValidate { ensureSizeInRange(listOf("1", "2"), 2..<5) }
+                result.shouldBeSuccess()
+            }
+
+            test("failure below range") {
+                val result = tryValidate { ensureSizeInRange(listOf("1"), 2..5) }
+                result.shouldBeFailure()
+                result.messages.size shouldBe 1
+                result.messages[0].constraintId shouldBe "kova.collection.sizeInRange"
+            }
+
+            test("failure above closed range") {
+                val result = tryValidate { ensureSizeInRange(listOf("1", "2", "3", "4", "5", "6"), 2..5) }
+                result.shouldBeFailure()
+                result.messages.size shouldBe 1
+                result.messages[0].constraintId shouldBe "kova.collection.sizeInRange"
+            }
+
+            test("failure at upper bound of open-ended range") {
+                val result = tryValidate { ensureSizeInRange(listOf("1", "2", "3", "4", "5"), 2..<5) }
+                result.shouldBeFailure()
+                result.messages.size shouldBe 1
+                result.messages[0].constraintId shouldBe "kova.collection.sizeInRange"
+            }
+
+            test("success with custom message") {
+                val result =
+                    tryValidate {
+                        ensureSizeInRange(
+                            listOf("1", "2", "3"),
+                            2..5,
+                        ) { text("Custom message") }
+                    }
+                result.shouldBeSuccess()
+            }
+
+            test("failure with custom message") {
+                val result =
+                    tryValidate {
+                        ensureSizeInRange(
+                            listOf("1"),
+                            2..5,
+                        ) { text("Custom message") }
+                    }
+                result.shouldBeFailure()
+                result.messages.size shouldBe 1
+                result.messages[0].text shouldBe "Custom message"
+            }
+        }
     })
