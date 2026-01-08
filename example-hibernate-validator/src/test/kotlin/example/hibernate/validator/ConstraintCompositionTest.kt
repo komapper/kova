@@ -3,8 +3,7 @@ package example.hibernate.validator
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import org.komapper.extension.validator.Validation
-import org.komapper.extension.validator.ensureMaxLength
-import org.komapper.extension.validator.ensureMinLength
+import org.komapper.extension.validator.ensureLengthInRange
 import org.komapper.extension.validator.ensureNotNull
 import org.komapper.extension.validator.ensureUppercase
 import org.komapper.extension.validator.tryValidate
@@ -28,8 +27,7 @@ class ConstraintCompositionTest :
 
             fun Validation.validateLicensePlate(s: String?) {
                 ensureNotNull(s)
-                ensureMinLength(s, 2)
-                ensureMaxLength(s, 14)
+                ensureLengthInRange(s, 2..14)
                 ensureUppercase(s)
             }
 

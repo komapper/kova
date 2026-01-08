@@ -175,7 +175,7 @@ data class Customer(val id: Int, val name: String) : Validated {
 
 fun Validation.validate(customer: Customer) = customer.schema {
     customer::id { ensurePositive(it) }
-    customer::name { ensureNotBlank(it); ensureMinLength(it, 1); ensureMaxLength(it, 50) }
+    customer::name { ensureNotBlank(it); ensureLengthInRange(it, 1..50) }
 }
 
 fun Application.module() {

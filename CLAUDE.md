@@ -40,7 +40,7 @@ tryValidate {
 ### Schema Validation
 ```kotlin
 fun Validation.validate(user: User) = user.schema {
-    user::name { ensureMinLength(it, 1); ensureMaxLength(it, 100) }
+    user::name { ensureLengthInRange(it, 1..100) }
     user::age { ensureMin(it, 0); ensureMax(it, 120) }
 }
 ```

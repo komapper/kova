@@ -7,9 +7,8 @@ import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
 import org.komapper.extension.validator.Validation
-import org.komapper.extension.validator.ensureMaxLength
+import org.komapper.extension.validator.ensureLengthInRange
 import org.komapper.extension.validator.ensureMin
-import org.komapper.extension.validator.ensureMinLength
 import org.komapper.extension.validator.ensureNotNull
 import org.komapper.extension.validator.tryValidate
 import java.util.Locale
@@ -86,8 +85,7 @@ class SimpleTest :
                     car::manufacturer { ensureNotNull(it) }
                     car::licensePlate {
                         ensureNotNull(it)
-                        ensureMinLength(it, 2)
-                        ensureMaxLength(it, 14)
+                        ensureLengthInRange(it, 2..14)
                     }
                     car::seatCount { ensureMin(it, 2) }
                 }
@@ -109,7 +107,7 @@ class SimpleTest :
 
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
-                result.messages[0].text shouldBe "must be at least 2 characters"
+                result.messages[0].text shouldBe "must have length within range 2..14"
             }
 
             test("seatCountTooLow") {
