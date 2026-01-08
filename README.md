@@ -329,38 +329,38 @@ ensureUppercase(input)                    // Must be uppercase
 ensureLowercase(input)                    // Must be lowercase
 
 // Comparable validation
-ensureMin(input, "a")                // Minimum value (>= "a")
-ensureMax(input, "z")                // Maximum value (<= "z")
-ensureGreaterThan(input, "a")                 // Greater than (> "a")
-ensureGreaterThanOrEquals(input, "a")               // Greater than or equal (>= "a")
+ensureMin(input, "a")                      // Minimum value (>= "a")
+ensureMax(input, "z")                      // Maximum value (<= "z")
+ensureGreaterThan(input, "a")              // Greater than (> "a")
+ensureGreaterThanOrEqual(input, "a")       // Greater than or equal (>= "a")
 ensureLessThan(input, "z")                 // Less than (< "z")
-ensureLessThanOrEquals(input, "z")               // Less than or equal (<= "z")
-ensureEquals(input, "value")             // Equal to (== "value")
-ensureNotEquals(input, "value")          // Not equal to (!= "value")
+ensureLessThanOrEqual(input, "z")          // Less than or equal (<= "z")
+ensureEquals(input, "value")               // Equal to (== "value")
+ensureNotEquals(input, "value")            // Not equal to (!= "value")
 
 // String-specific validation
-canParseInt(input)                        // Validates string is valid Int
-canParseLong(input)                       // Validates string is valid Long
-canParseShort(input)                      // Validates string is valid Short
-canParseByte(input)                       // Validates string is valid Byte
-canParseDouble(input)                     // Validates string is valid Double
-canParseFloat(input)                      // Validates string is valid Float
-canParseBigDecimal(input)                 // Validates string is valid BigDecimal
-canParseBigInteger(input)                 // Validates string is valid BigInteger
-canParseBoolean(input)                    // Validates string is valid Boolean
-canParseEnum<Status>(input)               // Validates string is valid enum value
+ensureInt(input)                           // Validates string is valid Int
+ensureLong(input)                          // Validates string is valid Long
+ensureShort(input)                         // Validates string is valid Short
+ensureByte(input)                          // Validates string is valid Byte
+ensureDouble(input)                        // Validates string is valid Double
+ensureFloat(input)                         // Validates string is valid Float
+ensureBigDecimal(input)                    // Validates string is valid BigDecimal
+ensureBigInteger(input)                    // Validates string is valid BigInteger
+ensureBoolean(input)                       // Validates string is valid Boolean
+ensureEnum<Status>(input)                  // Validates string is valid enum value
 
 // Conversions
-parseInt(input)                        // Validate and convert to Int
-parseLong(input)                       // Validate and convert to Long
-parseShort(input)                      // Validate and convert to Short
-parseByte(input)                       // Validate and convert to Byte
-parseDouble(input)                     // Validate and convert to Double
-parseFloat(input)                      // Validate and convert to Float
-parseBigDecimal(input)                 // Validate and convert to BigDecimal
-parseBigInteger(input)                 // Validate and convert to BigInteger
-parseBoolean(input)                    // Validate and convert to Boolean
-parseEnum<Status>(input)               // Validate and convert to enum
+parseInt(input)                            // Validate and convert to Int
+parseLong(input)                           // Validate and convert to Long
+parseShort(input)                          // Validate and convert to Short
+parseByte(input)                           // Validate and convert to Byte
+parseDouble(input)                         // Validate and convert to Double
+parseFloat(input)                          // Validate and convert to Float
+parseBigDecimal(input)                     // Validate and convert to BigDecimal
+parseBigInteger(input)                     // Validate and convert to BigInteger
+parseBoolean(input)                        // Validate and convert to Boolean
+parseEnum<Status>(input)                   // Validate and convert to enum
 ```
 
 ### Numbers
@@ -368,18 +368,18 @@ parseEnum<Status>(input)               // Validate and convert to enum
 Supported types: `Int`, `Long`, `Double`, `Float`, `Byte`, `Short`, `BigDecimal`, `BigInteger`
 
 ```kotlin
-ensureMin(input, 0)                  // Minimum value (>= 0)
-ensureMax(input, 100)                // Maximum value (<= 100)
-ensureGreaterThan(input, 0)                   // Greater than (> 0)
-ensureGreaterThanOrEquals(input, 0)                 // Greater than or equal (>= 0)
-ensureLessThan(input, 100)                 // Less than (< 100)
-ensureLessThanOrEquals(input, 100)               // Less than or equal (<= 100)
-ensureEquals(input, 42)                  // Equal to (== 42)
-ensureNotEquals(input, 0)                // Not equal to (!= 0)
-ensurePositive(input)                     // Must be positive (> 0)
-ensureNegative(input)                     // Must be negative (< 0)
-ensureNotPositive(input)                  // Must not be positive (<= 0)
-ensureNotNegative(input)                  // Must not be negative (>= 0)
+ensureMin(input, 0)                    // Minimum value (>= 0)
+ensureMax(input, 100)                  // Maximum value (<= 100)
+ensureGreaterThan(input, 0)            // Greater than (> 0)
+ensureGreaterThanOrEqual(input, 0)     // Greater than or equal (>= 0)
+ensureLessThan(input, 100)             // Less than (< 100)
+ensureLessThanOrEqual(input, 100)      // Less than or equal (<= 100)
+ensureEquals(input, 42)                // Equal to (== 42)
+ensureNotEquals(input, 0)              // Not equal to (!= 0)
+ensurePositive(input)                  // Must be positive (> 0)
+ensureNegative(input)                  // Must be negative (< 0)
+ensureNotPositive(input)               // Must not be positive (<= 0)
+ensureNotNegative(input)               // Must not be negative (>= 0)
 ```
 
 ### Temporal Types
@@ -387,18 +387,18 @@ ensureNotNegative(input)                  // Must not be negative (>= 0)
 Supported types: `LocalDate`, `LocalTime`, `LocalDateTime`, `Instant`, `OffsetDateTime`, `OffsetTime`, `ZonedDateTime`, `Year`, `YearMonth`, `MonthDay`
 
 ```kotlin
-ensureMin(input, LocalDate.of(2024, 1, 1))     // Minimum date/time (>=)
-ensureMax(input, LocalDate.of(2024, 12, 31))   // Maximum date/time (<=)
-ensureGreaterThan(input, LocalDate.of(2024, 6, 1))      // Greater than (>)
-ensureGreaterThanOrEquals(input, LocalDate.of(2024, 1, 1))    // Greater than or equal (>=)
-ensureLessThan(input, LocalDate.of(2025, 1, 1))      // Less than (<)
-ensureLessThanOrEquals(input, LocalDate.of(2024, 12, 31))  // Less than or equal (<=)
-ensureEquals(input, LocalDate.of(2024, 6, 15))     // Equal to (==)
-ensureNotEquals(input, LocalDate.of(2024, 1, 1))   // Not equal to (!=)
-ensureFuture(input)                             // Must be in the future
-ensureFutureOrPresent(input)                    // Must be in the future or present
-ensurePast(input)                               // Must be in the past
-ensurePastOrPresent(input)                      // Must be in the past or present
+ensureMin(input, LocalDate.of(2024, 1, 1))                 // Minimum date/time (>=)
+ensureMax(input, LocalDate.of(2024, 12, 31))               // Maximum date/time (<=)
+ensureGreaterThan(input, LocalDate.of(2024, 6, 1))         // Greater than (>)
+ensureGreaterThanOrEqual(input, LocalDate.of(2024, 1, 1))  // Greater than or equal (>=)
+ensureLessThan(input, LocalDate.of(2025, 1, 1))            // Less than (<)
+ensureLessThanOrEqual(input, LocalDate.of(2024, 12, 31))   // Less than or equal (<=)
+ensureEquals(input, LocalDate.of(2024, 6, 15))             // Equal to (==)
+ensureNotEquals(input, LocalDate.of(2024, 1, 1))           // Not equal to (!=)
+ensureFuture(input)                                        // Must be in the future
+ensureFutureOrPresent(input)                               // Must be in the future or present
+ensurePast(input)                                          // Must be in the past
+ensurePastOrPresent(input)                                 // Must be in the past or present
 ```
 
 ### Iterables
@@ -406,10 +406,10 @@ ensurePastOrPresent(input)                      // Must be in the past or presen
 Supported types: Any `Iterable` (including `List`, `Set`, `Collection`)
 
 ```kotlin
-ensureNotEmpty(input)                     // Must not be empty
-ensureContains(input, "foo")              // Must contain element (alias: ensureHas)
-ensureNotContains(input, "bar")           // Must not contain element
-ensureEach(input) { element ->          // Validate each element
+ensureNotEmpty(input)                      // Must not be empty
+ensureContains(input, "foo")               // Must contain element (alias: ensureHas)
+ensureNotContains(input, "bar")            // Must not contain element
+ensureEach(input) { element ->             // Validate each element
     ensureMin(element, 1)
 }
 ```
@@ -419,26 +419,26 @@ ensureEach(input) { element ->          // Validate each element
 Supported types: `List`, `Set`, `Collection`
 
 ```kotlin
-ensureMinSize(input, 1)                   // Minimum size
-ensureMaxSize(input, 10)                  // Maximum size
-ensureSize(input, 5)                      // Exact size
+ensureMinSize(input, 1)                    // Minimum size
+ensureMaxSize(input, 10)                   // Maximum size
+ensureSize(input, 5)                       // Exact size
 ```
 
 ### Maps
 
 ```kotlin
-ensureMinSize(input, 1)                   // Minimum size
-ensureMaxSize(input, 10)                  // Maximum size
-ensureSize(input, 5)                      // Exact size
-ensureNotEmpty(input)                     // Must not be empty
-ensureContainsKey(input, "foo")           // Must contain key (alias: ensureHasKey)
-ensureNotContainsKey(input, "bar")        // Must not contain key
-ensureContainsValue(input, 42)            // Must contain value (alias: ensureHasValue)
-ensureNotContainsValue(input, 0)          // Must not contain value
-ensureEachKey(input) { key ->           // Validate each key
+ensureMinSize(input, 1)                    // Minimum size
+ensureMaxSize(input, 10)                   // Maximum size
+ensureSize(input, 5)                       // Exact size
+ensureNotEmpty(input)                      // Must not be empty
+ensureContainsKey(input, "foo")            // Must contain key (alias: ensureHasKey)
+ensureNotContainsKey(input, "bar")         // Must not contain key
+ensureContainsValue(input, 42)             // Must contain value (alias: ensureHasValue)
+ensureNotContainsValue(input, 0)           // Must not contain value
+ensureEachKey(input) { key ->              // Validate each key
     ensureMin(key, 1)
 }
-ensureEachValue(input) { value ->       // Validate each value
+ensureEachValue(input) { value ->          // Validate each value
     ensureMin(value, 0)
 }
 ```
@@ -446,16 +446,16 @@ ensureEachValue(input) { value ->       // Validate each value
 ### Nullable
 
 ```kotlin
-ensureNull(input)                       // Must be null
-ensureNotNull(input)                      // Must not be null (enables smart casting, stops on failure)
-ensureNullOr(input) { block }           // Accept null or validate non-null
+ensureNull(input)                          // Must be null
+ensureNotNull(input)                       // Must not be null (enables smart casting, stops on failure)
+ensureNullOr(input) { block }              // Accept null or validate non-null
 ```
 
 ### Boolean
 
 ```kotlin
-ensureTrue(input)                       // Must be true
-ensureFalse(input)                      // Must be false
+ensureTrue(input)                          // Must be true
+ensureFalse(input)                         // Must be false
 ```
 
 ### Comparable Types
@@ -463,20 +463,20 @@ ensureFalse(input)                      // Must be false
 Supports all `Comparable` types, such as `UInt`, `ULong`, `UByte`, and `UShort`.
 
 ```kotlin
-ensureMin(input, 0u)                 // Minimum value (>= 0u)
-ensureMax(input, 100u)               // Maximum value (<= 100u)
-ensureGreaterThan(input, 0u)                  // Greater than (> 0u)
-ensureGreaterThanOrEquals(input, 0u)                // Greater than or equal (>= 0u)
+ensureMin(input, 0u)                       // Minimum value (>= 0u)
+ensureMax(input, 100u)                     // Maximum value (<= 100u)
+ensureGreaterThan(input, 0u)               // Greater than (> 0u)
+ensureGreaterThanOrEqual(input, 0u)        // Greater than or equal (>= 0u)
 ensureLessThan(input, 100u)                // Less than (< 100u)
-ensureLessThanOrEquals(input, 100u)              // Less than or equal (<= 100u)
-ensureEquals(input, 42u)                 // Equal to (== 42u)
-ensureNotEquals(input, 0u)               // Not equal to (!= 0u)
+ensureLessThanOrEqual(input, 100u)         // Less than or equal (<= 100u)
+ensureEquals(input, 42u)                   // Equal to (== 42u)
+ensureNotEquals(input, 0u)                 // Not equal to (!= 0u)
 
 // Range validation
-ensureInRange(input, 1..10)               // Within range (supports both 1..10 and 1..<10 syntax)
-ensureInRange(input, 1..<10)              // Within range with open-ended syntax (exclusive end)
-ensureInClosedRange(input, 1.0..10.0)     // Within closed range (inclusive start and end)
-ensureInOpenEndRange(input, 1..<10)       // Within open-ended range (inclusive start, exclusive end)
+ensureInRange(input, 1..10)                // Within range (supports both 1..10 and 1..<10 syntax)
+ensureInRange(input, 1..<10)               // Within range with open-ended syntax (exclusive end)
+ensureInClosedRange(input, 1.0..10.0)      // Within closed range (inclusive start and end)
+ensureInOpenEndRange(input, 1..<10)        // Within open-ended range (inclusive start, exclusive end)
 ```
 
 ### Any Type Validators
@@ -484,9 +484,9 @@ ensureInOpenEndRange(input, 1..<10)       // Within open-ended range (inclusive 
 Works with any type:
 
 ```kotlin
-ensureEquals(input, "completed")            // Must equal specific value
-ensureNotEquals(input, "rejected")          // Must not equal specific value
-ensureInIterable(input, listOf("a", "b", "c"))  // Must be one of allowed values
+ensureEquals(input, "completed")                   // Must equal specific value
+ensureNotEquals(input, "rejected")                 // Must not equal specific value
+ensureInIterable(input, listOf("a", "b", "c"))     // Must be one of allowed values
 ```
 
 ## Error Handling
