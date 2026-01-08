@@ -70,6 +70,43 @@ class CharSequenceValidatorTest :
             }
         }
 
+        context("ensureLengthInRange") {
+            test("success with closed range") {
+                val result = tryValidate { ensureLengthInRange("hello", 1..10) }
+                result.shouldBeSuccess()
+            }
+
+            test("success with range boundaries") {
+                val result = tryValidate { ensureLengthInRange("a", 1..10) }
+                result.shouldBeSuccess()
+                val result2 = tryValidate { ensureLengthInRange("1234567890", 1..10) }
+                result2.shouldBeSuccess()
+            }
+
+            test("success with open-ended range") {
+                val result = tryValidate { ensureLengthInRange("hello", 1..<10) }
+                result.shouldBeSuccess()
+            }
+
+            test("failure - too short") {
+                val result = tryValidate { ensureLengthInRange("", 1..10) }
+                result.shouldBeFailure()
+                result.messages.single().constraintId shouldBe "kova.charSequence.lengthInRange"
+            }
+
+            test("failure - too long") {
+                val result = tryValidate { ensureLengthInRange("this is too long", 1..10) }
+                result.shouldBeFailure()
+                result.messages.single().constraintId shouldBe "kova.charSequence.lengthInRange"
+            }
+
+            test("failure - open-ended range exclusive end") {
+                val result = tryValidate { ensureLengthInRange("12345", 1..<5) }
+                result.shouldBeFailure()
+                result.messages.single().constraintId shouldBe "kova.charSequence.lengthInRange"
+            }
+        }
+
         context("ensureNotBlank") {
             test("success") {
                 val result = tryValidate { ensureNotBlank("ab") }

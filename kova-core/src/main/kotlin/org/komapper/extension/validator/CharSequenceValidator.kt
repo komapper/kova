@@ -130,6 +130,31 @@ fun Validation.ensureLength(
 ) = input.constrain("kova.charSequence.length") { satisfies(it.length == length, message) }
 
 /**
+ * Validates that the character sequence length is within the specified range.
+ *
+ * Supports ranges that implement both ClosedRange and OpenEndRange interfaces,
+ * such as IntRange, allowing both closed (1..100) and open-ended (1..<100) syntax.
+ *
+ * Example:
+ * ```kotlin
+ * tryValidate { ensureLengthInRange("hello", 1..10) }      // Success
+ * tryValidate { ensureLengthInRange("hi", 1..10) }         // Success
+ * tryValidate { ensureLengthInRange("", 1..10) }           // Failure (too short)
+ * tryValidate { ensureLengthInRange("very long text", 1..<5) }  // Failure (too long)
+ * ```
+ *
+ * @param range The range for valid lengths (must implement both ClosedRange and OpenEndRange)
+ * @param message Custom error message provider
+ */
+@IgnorableReturnValue
+fun <R> Validation.ensureLengthInRange(
+    input: CharSequence,
+    range: R,
+    message: MessageProvider = { "kova.charSequence.lengthInRange".resource(range) },
+) where R : ClosedRange<Int>, R : OpenEndRange<Int> =
+    input.constrain("kova.charSequence.lengthInRange") { satisfies(it.length in range, message) }
+
+/**
  * Validates that the character sequence starts with the specified prefix.
  *
  * Example:

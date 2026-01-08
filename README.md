@@ -89,7 +89,7 @@ import org.komapper.extension.validator.*
 // Define validator function
 fun Validation.validateProductName(name: String): String {
     ensureNotBlank(name)
-    ensureInRange(name.length, 1 .. 100)
+    ensureLengthInRange(name, 1..100)
     return name
 }
 
@@ -121,7 +121,7 @@ You can execute multiple validators together by calling them sequentially within
 ```kotlin
 fun Validation.validateProductName(name: String): String {
     ensureNotBlank(name)
-    ensureInRange(name.length, 1..100)
+    ensureLengthInRange(name, 1..100)
     return name
 }
 
@@ -311,6 +311,7 @@ Supported types: `String`, `CharSequence`
 ensureMinLength(input, 1)                 // Minimum length
 ensureMaxLength(input, 100)               // Maximum length
 ensureLength(input, 10)                   // Exact length
+ensureLengthInRange(input, 1..100)        // Length within range (supports both 1..100 and 1..<100)
 
 // Content validation
 ensureBlank(input)                        // Must be blank (empty or whitespace only)
@@ -474,7 +475,6 @@ ensureNotEquals(input, 0u)                 // Not equal to (!= 0u)
 
 // Range validation
 ensureInRange(input, 1..10)                // Within range (supports both 1..10 and 1..<10 syntax)
-ensureInRange(input, 1..<10)               // Within range with open-ended syntax (exclusive end)
 ensureInClosedRange(input, 1.0..10.0)      // Within closed range (inclusive start and end)
 ensureInOpenEndRange(input, 1..<10)        // Within open-ended range (inclusive start, exclusive end)
 ```
@@ -586,7 +586,7 @@ Stop at the first error instead of collecting all errors:
 ```kotlin
 fun Validation.validateProductName(name: String) {
     ensureNotBlank(name)
-    ensureInRange(name.length, 1..100)
+    ensureLengthInRange(name, 1..100)
 }
 
 // Stops at first error

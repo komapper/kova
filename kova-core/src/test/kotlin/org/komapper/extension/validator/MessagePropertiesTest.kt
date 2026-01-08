@@ -129,6 +129,20 @@ class MessagePropertiesTest :
                 message.text shouldBe "must be exactly 5 characters"
             }
 
+            test("ensureLengthInRange") {
+                val result = tryValidate { ensureLengthInRange("", 1..10) }
+                result.shouldBeFailure()
+                val message = result.messages.single()
+                message.text shouldBe "must have length within range 1..10"
+            }
+
+            test("ensureLengthInRange with message") {
+                val result = tryValidate { ensureLengthInRange("", 1..10) { text("must have length within range 1..10") } }
+                result.shouldBeFailure()
+                val message = result.messages.single()
+                message.text shouldBe "must have length within range 1..10"
+            }
+
             test("ensureNotBlank") {
                 val result = tryValidate { ensureNotBlank("  ") }
                 result.shouldBeFailure()

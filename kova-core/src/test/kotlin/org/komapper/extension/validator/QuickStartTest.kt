@@ -18,7 +18,7 @@ class QuickStartTest :
         context("basic") {
             fun Validation.validateProductName(name: String): String {
                 ensureNotBlank(name)
-                ensureInRange(name.length, 1..100)
+                ensureLengthInRange(name, 1..100)
                 return name
             }
 
@@ -48,7 +48,7 @@ class QuickStartTest :
         context("multiple") {
             fun Validation.validateProductName(name: String): String {
                 ensureNotBlank(name)
-                ensureInRange(name.length, 1..100)
+                ensureLengthInRange(name, 1..100)
                 return name
             }
 
@@ -210,7 +210,7 @@ class QuickStartTest :
         context("fail fast") {
             fun Validation.validateProductName(name: String) {
                 ensureNotBlank(name)
-                ensureInRange(name.length, 1..100)
+                ensureLengthInRange(name, 1..100)
             }
 
             test("test") {
