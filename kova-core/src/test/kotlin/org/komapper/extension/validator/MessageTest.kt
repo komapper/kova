@@ -12,7 +12,7 @@ class MessageTest :
         }
 
         test("getPattern") {
-            val pattern = getPattern("kova.comparable.minValue")
+            val pattern = getPattern("kova.comparable.min")
             val formatted = MessageFormat.format(pattern, 0)
             formatted shouldBe "must be greater than or equal to 0"
         }
@@ -32,7 +32,7 @@ class MessageTest :
         }
 
         test("toString: string") {
-            val result = tryValidate { minLength("abc", 5) }
+            val result = tryValidate { ensureMinLength("abc", 5) }
             result.shouldBeFailure()
             result.messages.size shouldBe 1
             result.messages[0].toString() shouldBe
@@ -44,7 +44,7 @@ class MessageTest :
                 val name: String,
             )
 
-            fun Validation.validate(person: Person) = person.schema { person::name { minLength(it, 5) } }
+            fun Validation.validate(person: Person) = person.schema { person::name { ensureMinLength(it, 5) } }
 
             val result = tryValidate { validate(Person("abc")) }
             result.shouldBeFailure()

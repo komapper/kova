@@ -11,32 +11,32 @@ class IterableValidatorTest :
             Locale.setDefault(Locale.US)
         }
 
-        context("notEmpty") {
+        context("ensureNotEmpty") {
             test("success") {
-                val result = tryValidate { notEmpty(listOf("1")) }
+                val result = tryValidate { ensureNotEmpty(listOf("1")) }
                 result.shouldBeSuccess()
             }
 
             test("failure") {
-                val result = tryValidate { notEmpty(emptyList<Nothing>()) }
+                val result = tryValidate { ensureNotEmpty(emptyList<Nothing>()) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.iterable.notEmpty"
             }
         }
 
-        context("onEach") {
+        context("ensureEach") {
             test("success") {
-                val result = tryValidate { onEach(listOf("123", "456")) { length(it, 3) } }
+                val result = tryValidate { ensureEach(listOf("123", "456")) { ensureLength(it, 3) } }
                 result.shouldBeSuccess()
             }
 
             test("failure") {
                 val input = listOf("123", "4567", "8910")
-                val result = tryValidate { onEach(input) { length(it, 3) } }
+                val result = tryValidate { ensureEach(input) { ensureLength(it, 3) } }
                 result.shouldBeFailure()
                 result.messages.single().let {
-                    it.constraintId shouldBe "kova.iterable.onEach"
+                    it.constraintId shouldBe "kova.iterable.each"
                     it.text shouldBe
                         "Some elements do not satisfy the constraint: [must be exactly 3 characters, must be exactly 3 characters]"
                     it.input shouldBe input
@@ -53,8 +53,8 @@ class IterableValidatorTest :
             test("failure when failFast is true") {
                 val result =
                     tryValidate(ValidationConfig(failFast = true)) {
-                        onEach(listOf("123", "4567", "8910")) {
-                            length(
+                        ensureEach(listOf("123", "4567", "8910")) {
+                            ensureLength(
                                 it,
                                 3,
                             )
@@ -62,7 +62,7 @@ class IterableValidatorTest :
                     }
                 result.shouldBeFailure()
                 result.messages[0].let {
-                    it.constraintId shouldBe "kova.iterable.onEach"
+                    it.constraintId shouldBe "kova.iterable.each"
                     it.text shouldBe
                         "Some elements do not satisfy the constraint: [must be exactly 3 characters]"
                     it.input shouldBe listOf("123", "4567", "8910")
@@ -75,59 +75,59 @@ class IterableValidatorTest :
             }
         }
 
-        context("has") {
+        context("ensureHas") {
             test("success") {
-                val result = tryValidate { has(listOf("foo", "bar"), "foo") }
+                val result = tryValidate { ensureHas(listOf("foo", "bar"), "foo") }
                 result.shouldBeSuccess()
             }
 
             test("failure") {
-                val result = tryValidate { has(listOf("bar", "baz"), "foo") }
+                val result = tryValidate { ensureHas(listOf("bar", "baz"), "foo") }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.iterable.contains"
             }
 
-            test("failure with empty list") {
-                val result = tryValidate { has(emptyList<Nothing>(), "foo") }
+            test("failure with ensureEmpty list") {
+                val result = tryValidate { ensureHas(emptyList<Nothing>(), "foo") }
                 result.shouldBeFailure()
             }
         }
 
-        context("contains") {
+        context("ensureContains") {
             test("success") {
-                val result = tryValidate { contains(listOf("foo", "bar"), "foo") }
+                val result = tryValidate { ensureContains(listOf("foo", "bar"), "foo") }
                 result.shouldBeSuccess()
             }
 
             test("failure") {
-                val result = tryValidate { contains(listOf("bar", "baz"), "foo") }
+                val result = tryValidate { ensureContains(listOf("bar", "baz"), "foo") }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.iterable.contains"
             }
 
-            test("failure with empty list") {
-                val result = tryValidate { contains(emptyList<Nothing>(), "foo") }
+            test("failure with ensureEmpty list") {
+                val result = tryValidate { ensureContains(emptyList<Nothing>(), "foo") }
                 result.shouldBeFailure()
             }
         }
 
-        context("notContains") {
+        context("ensureNotContains") {
             test("success") {
-                val result = tryValidate { notContains(listOf("bar", "baz"), "foo") }
+                val result = tryValidate { ensureNotContains(listOf("bar", "baz"), "foo") }
                 result.shouldBeSuccess()
             }
 
             test("failure") {
-                val result = tryValidate { notContains(listOf("foo", "bar"), "foo") }
+                val result = tryValidate { ensureNotContains(listOf("foo", "bar"), "foo") }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.iterable.notContains"
             }
 
-            test("success with empty list") {
-                val result = tryValidate { notContains(emptyList<Nothing>(), "foo") }
+            test("success with ensureEmpty list") {
+                val result = tryValidate { ensureNotContains(emptyList<Nothing>(), "foo") }
                 result.shouldBeSuccess()
             }
         }
@@ -137,7 +137,7 @@ class IterableValidatorTest :
                 val list: List<String>,
             )
 
-            fun Validation.validate(holder: ListHolder) = holder.schema { holder::list { e -> onEach(e) { length(it, 3) } } }
+            fun Validation.validate(holder: ListHolder) = holder.schema { holder::list { e -> ensureEach(e) { ensureLength(it, 3) } } }
 
             test("success") {
                 val result = tryValidate { validate(ListHolder(listOf("123", "456"))) }

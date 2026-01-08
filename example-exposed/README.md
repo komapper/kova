@@ -22,12 +22,12 @@ Define validation schemas for your entities:
 
 ```kotlin
 fun Validation.validate(city: City) = city.schema {
-    city::name { notEmpty(it) }
+    city::name { ensureNotEmpty(it) }
 }
 
 fun Validation.validate(user: User) = user.schema {
-    user::name { minLength(it, 1); notBlank(it) }
-    user::age { minValue(it, 0); maxValue(it, 120) }
+    user::name { ensureMinLength(it, 1); ensureNotBlank(it) }
+    user::age { ensureMin(it, 0); ensureMax(it, 120) }
 }
 ```
 

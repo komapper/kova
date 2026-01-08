@@ -7,10 +7,10 @@ import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
 import org.komapper.extension.validator.Validation
-import org.komapper.extension.validator.maxLength
-import org.komapper.extension.validator.minLength
-import org.komapper.extension.validator.minValue
-import org.komapper.extension.validator.notNull
+import org.komapper.extension.validator.ensureMaxLength
+import org.komapper.extension.validator.ensureMin
+import org.komapper.extension.validator.ensureMinLength
+import org.komapper.extension.validator.ensureNotNull
 import org.komapper.extension.validator.tryValidate
 import java.util.Locale
 import jakarta.validation.Validation as HibernateValidation
@@ -83,13 +83,13 @@ class SimpleTest :
 
             fun Validation.validate(car: Car) =
                 car.schema {
-                    car::manufacturer { notNull(it) }
+                    car::manufacturer { ensureNotNull(it) }
                     car::licensePlate {
-                        notNull(it)
-                        minLength(it, 2)
-                        maxLength(it, 14)
+                        ensureNotNull(it)
+                        ensureMinLength(it, 2)
+                        ensureMaxLength(it, 14)
                     }
-                    car::seatCount { minValue(it, 2) }
+                    car::seatCount { ensureMin(it, 2) }
                 }
 
             test("manufacturerIsNull") {

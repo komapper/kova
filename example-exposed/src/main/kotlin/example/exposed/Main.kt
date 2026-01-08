@@ -16,16 +16,16 @@ import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationException
-import org.komapper.extension.validator.maxValue
-import org.komapper.extension.validator.minLength
-import org.komapper.extension.validator.minValue
-import org.komapper.extension.validator.notBlank
-import org.komapper.extension.validator.notEmpty
+import org.komapper.extension.validator.ensureMax
+import org.komapper.extension.validator.ensureMin
+import org.komapper.extension.validator.ensureMinLength
+import org.komapper.extension.validator.ensureNotBlank
+import org.komapper.extension.validator.ensureNotEmpty
 import org.komapper.extension.validator.validate
 
 /**
  * Database table definition for Cities using Exposed's DSL.
- * Each city has an auto-incrementing ID and a name.
+ * Each city ensureHas an auto-incrementing ID and a name.
  */
 object Cities : IntIdTable() {
     val name = varchar("name", 50)
@@ -33,7 +33,7 @@ object Cities : IntIdTable() {
 
 /**
  * Database table definition for Users using Exposed's DSL.
- * Each user has:
+ * Each user ensureHas:
  * - An auto-incrementing ID
  * - A name (indexed for faster lookups)
  * - A foreign key reference to Cities
@@ -94,28 +94,28 @@ class User(
 
 /**
  * Validation schema for City entities.
- * Validates that the city name is not empty.
+ * Validates that the city name is not ensureEmpty.
  */
 fun Validation.validate(city: City) =
     city.schema {
-        city::name { notEmpty(it) }
+        city::name { ensureNotEmpty(it) }
     }
 
 /**
  * Validation schema for User entities.
  * Validates that:
- * - name is not blank and has minimum length of 1
+ * - name is not ensureBlank and ensureHas minimum ensureLength of 1
  * - age is between 0 and 120
  */
 fun Validation.validate(user: User) =
     user.schema {
         user::name {
-            minLength(it, 1)
-            notBlank(it)
+            ensureMinLength(it, 1)
+            ensureNotBlank(it)
         }
         user::age {
-            minValue(it, 0)
-            maxValue(it, 120)
+            ensureMin(it, 0)
+            ensureMax(it, 120)
         }
     }
 
@@ -184,9 +184,9 @@ fun main() {
         assert(false) { "Validation should not fail" }
     }
 
-    // Example 2: Validation failure - invalid city name (empty string)
+    // Example 2: Validation failure - invalid city name (ensureEmpty string)
     // The ValidationException is thrown when creating the City entity
-    println("\n# Example 2: Validation failure - invalid city name (empty string)")
+    println("\n# Example 2: Validation failure - invalid city name (ensureEmpty string)")
     try {
         failWithInvalidCity()
         assert(false) { "Validation should fail" }
@@ -195,9 +195,9 @@ fun main() {
         e.messages.joinToString("\n").let { println(it) }
     }
 
-    // Example 3: Validation failure - invalid user (empty name and negative age)
+    // Example 3: Validation failure - invalid user (ensureEmpty name and ensureNegative age)
     // The ValidationException is thrown when creating the User entity
-    println("\n# Example 3: Validation failure - invalid user (empty name and negative age)")
+    println("\n# Example 3: Validation failure - invalid user (ensureEmpty name and ensureNegative age)")
     try {
         failWithInvalidUser()
         assert(false) { "Validation should fail" }
@@ -243,7 +243,7 @@ private fun success() {
  * Test function demonstrating validation failure when creating a City with invalid data.
  *
  * Creates:
- * - A city with an INVALID name (empty string) - violates notEmpty constraint
+ * - A city with an INVALID name (ensureEmpty string) - violates ensureNotEmpty constraint
  *
  * When City.new is called, the entity hook triggers validation, which fails
  * and throws ValidationException before the city is persisted to the database.
@@ -277,7 +277,7 @@ private fun failWithInvalidCity() {
  * Creates:
  * - A city with valid data
  * - A user with INVALID data:
- *   * Empty name (violates notBlank and min length constraints)
+ *   * Empty name (violates ensureNotBlank and min ensureLength constraints)
  *   * Negative age -1 (violates min constraint of 0)
  *
  * When User.new is called, the entity hook triggers validation, which fails

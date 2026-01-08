@@ -8,14 +8,14 @@ import io.konform.validation.constraints.pattern
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import org.komapper.extension.validator.Validation
-import org.komapper.extension.validator.matches
-import org.komapper.extension.validator.maxSize
-import org.komapper.extension.validator.minLength
-import org.komapper.extension.validator.minSize
-import org.komapper.extension.validator.minValue
-import org.komapper.extension.validator.notNull
-import org.komapper.extension.validator.onEach
-import org.komapper.extension.validator.onEachValue
+import org.komapper.extension.validator.ensureEach
+import org.komapper.extension.validator.ensureEachValue
+import org.komapper.extension.validator.ensureMatches
+import org.komapper.extension.validator.ensureMaxSize
+import org.komapper.extension.validator.ensureMin
+import org.komapper.extension.validator.ensureMinLength
+import org.komapper.extension.validator.ensureMinSize
+import org.komapper.extension.validator.ensureNotNull
 import org.komapper.extension.validator.tryValidate
 import java.util.Locale
 import io.konform.validation.Validation as KonformValidation
@@ -120,18 +120,18 @@ class CollectionTest :
             fun Validation.validateOrganizer(person: Person) =
                 person.schema {
                     person::email {
-                        notNull(it) { text("Email address must be given") }
-                        matches(it, Regex(".+@bigcorp.com")) { text("Organizers must have a BigCorp email address") }
+                        ensureNotNull(it) { text("Email address must be given") }
+                        ensureMatches(it, Regex(".+@bigcorp.com")) { text("Organizers must have a BigCorp email address") }
                     }
                 }
 
             fun Validation.validateAttendee(person: Person) =
                 person.schema {
-                    person::name { minLength(it, 2) }
-                    person::age { minValue(it, 18) { text("Attendees must be 18 years or older") } }
+                    person::name { ensureMinLength(it, 2) }
+                    person::age { ensureMin(it, 18) { text("Attendees must be 18 years or older") } }
                     person::email {
                         if (it != null) {
-                            matches(
+                            ensureMatches(
                                 it,
                                 Regex(".+@.+\\..+"),
                             ) { text("Please provide a valid email address (optional)") }
@@ -143,13 +143,13 @@ class CollectionTest :
                 event.schema {
                     event::organizer { validateOrganizer(it) }
                     event::attendees {
-                        maxSize(it, 100)
-                        onEach(it) { validateAttendee(it) }
+                        ensureMaxSize(it, 100)
+                        ensureEach(it) { validateAttendee(it) }
                     }
                     event::ticketPrices {
-                        minSize(it, 1) { text("Provide at least one ticket price") }
-                        onEachValue(it) { price ->
-                            if (price != null) minValue(price, 0.01)
+                        ensureMinSize(it, 1) { text("Provide at least one ticket price") }
+                        ensureEachValue(it) { price ->
+                            if (price != null) ensureMin(price, 0.01)
                         }
                     }
                 }

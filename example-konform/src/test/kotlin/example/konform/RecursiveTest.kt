@@ -4,8 +4,8 @@ import io.konform.validation.constraints.maxItems
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import org.komapper.extension.validator.Validation
-import org.komapper.extension.validator.maxSize
-import org.komapper.extension.validator.onEach
+import org.komapper.extension.validator.ensureEach
+import org.komapper.extension.validator.ensureMaxSize
 import org.komapper.extension.validator.tryValidate
 import java.util.Locale
 import io.konform.validation.Validation as KonformValidation
@@ -86,8 +86,8 @@ class RecursiveTest :
             fun Validation.validate(node: Node) {
                 node.schema {
                     node::children { children ->
-                        maxSize(children, 2)
-                        onEach(children) { validate(it) }
+                        ensureMaxSize(children, 2)
+                        ensureEach(children) { validate(it) }
                     }
                 }
             }

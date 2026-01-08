@@ -14,90 +14,90 @@ import java.time.temporal.Temporal
 import kotlin.reflect.KClass
 
 /**
- * Validates that the temporal value is in the future (strictly greater than now).
+ * Validates that the temporal value is in the ensureFuture (strictly greater than now).
  *
  * The current time is determined by the clock in [ValidationConfig] at validation time.
  *
  * Example:
  * ```kotlin
  * // Assuming today is 2025-01-15
- * tryValidate { future(LocalDate.of(2025, 1, 16)) }  // Success
- * tryValidate { future(LocalDate.of(2025, 1, 15)) }  // Failure (present)
- * tryValidate { future(LocalDate.of(2025, 1, 14)) }  // Failure (past)
+ * tryValidate { ensureFuture(LocalDate.of(2025, 1, 16)) }  // Success
+ * tryValidate { ensureFuture(LocalDate.of(2025, 1, 15)) }  // Failure (present)
+ * tryValidate { ensureFuture(LocalDate.of(2025, 1, 14)) }  // Failure (ensurePast)
  * ```
  *
  * @param S The temporal type (LocalDate, LocalTime, LocalDateTime, Instant, etc.)
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-inline fun <reified S> Validation.future(
+inline fun <reified S> Validation.ensureFuture(
     input: S,
     noinline message: MessageProvider = { "kova.temporal.future".resource },
 ) where S : Temporal, S : Comparable<S> = input.constrain("kova.temporal.future") { satisfies(it > now(clock), message) }
 
 /**
- * Validates that the temporal value is in the future or present (greater than or equal to now).
+ * Validates that the temporal value is in the ensureFuture or present (greater than or equal to now).
  *
  * The current time is determined by the clock in [ValidationConfig] at validation time.
  *
  * Example:
  * ```kotlin
  * // Assuming today is 2025-01-15
- * tryValidate { futureOrPresent(LocalDate.of(2025, 1, 16)) }  // Success (future)
- * tryValidate { futureOrPresent(LocalDate.of(2025, 1, 15)) }  // Success (present)
- * tryValidate { futureOrPresent(LocalDate.of(2025, 1, 14)) }  // Failure (past)
+ * tryValidate { ensureFutureOrPresent(LocalDate.of(2025, 1, 16)) }  // Success (ensureFuture)
+ * tryValidate { ensureFutureOrPresent(LocalDate.of(2025, 1, 15)) }  // Success (present)
+ * tryValidate { ensureFutureOrPresent(LocalDate.of(2025, 1, 14)) }  // Failure (ensurePast)
  * ```
  *
  * @param S The temporal type (LocalDate, LocalTime, LocalDateTime, Instant, etc.)
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-inline fun <reified S> Validation.futureOrPresent(
+inline fun <reified S> Validation.ensureFutureOrPresent(
     input: S,
     noinline message: MessageProvider = { "kova.temporal.futureOrPresent".resource },
 ) where S : Temporal, S : Comparable<S> = input.constrain("kova.temporal.futureOrPresent") { satisfies(it >= now(clock), message) }
 
 /**
- * Validates that the temporal value is in the past (strictly less than now).
+ * Validates that the temporal value is in the ensurePast (strictly less than now).
  *
  * The current time is determined by the clock in [ValidationConfig] at validation time.
  *
  * Example:
  * ```kotlin
  * // Assuming today is 2025-01-15
- * tryValidate { past(LocalDate.of(2025, 1, 14)) }  // Success
- * tryValidate { past(LocalDate.of(2025, 1, 15)) }  // Failure (present)
- * tryValidate { past(LocalDate.of(2025, 1, 16)) }  // Failure (future)
+ * tryValidate { ensurePast(LocalDate.of(2025, 1, 14)) }  // Success
+ * tryValidate { ensurePast(LocalDate.of(2025, 1, 15)) }  // Failure (present)
+ * tryValidate { ensurePast(LocalDate.of(2025, 1, 16)) }  // Failure (ensureFuture)
  * ```
  *
  * @param S The temporal type (LocalDate, LocalTime, LocalDateTime, Instant, etc.)
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-inline fun <reified S> Validation.past(
+inline fun <reified S> Validation.ensurePast(
     input: S,
     noinline message: MessageProvider = { "kova.temporal.past".resource },
 )where S : Temporal, S : Comparable<S> = input.constrain("kova.temporal.past") { satisfies(it < now(clock), message) }
 
 /**
- * Validates that the temporal value is in the past or present (less than or equal to now).
+ * Validates that the temporal value is in the ensurePast or present (less than or equal to now).
  *
  * The current time is determined by the clock in [ValidationConfig] at validation time.
  *
  * Example:
  * ```kotlin
  * // Assuming today is 2025-01-15
- * tryValidate { pastOrPresent(LocalDate.of(2025, 1, 14)) }  // Success (past)
- * tryValidate { pastOrPresent(LocalDate.of(2025, 1, 15)) }  // Success (present)
- * tryValidate { pastOrPresent(LocalDate.of(2025, 1, 16)) }  // Failure (future)
+ * tryValidate { ensurePastOrPresent(LocalDate.of(2025, 1, 14)) }  // Success (ensurePast)
+ * tryValidate { ensurePastOrPresent(LocalDate.of(2025, 1, 15)) }  // Success (present)
+ * tryValidate { ensurePastOrPresent(LocalDate.of(2025, 1, 16)) }  // Failure (ensureFuture)
  * ```
  *
  * @param S The temporal type (LocalDate, LocalTime, LocalDateTime, Instant, etc.)
  * @param message Custom error message provider
- * @return A new validator with the past-or-present constraint
+ * @return A new validator with the ensurePast-or-present constraint
  */
 @IgnorableReturnValue
-inline fun <reified S> Validation.pastOrPresent(
+inline fun <reified S> Validation.ensurePastOrPresent(
     input: S,
     noinline message: MessageProvider = { "kova.temporal.pastOrPresent".resource },
 ) where S : Temporal, S : Comparable<S> = input.constrain("kova.temporal.pastOrPresent") { satisfies(it <= now(clock), message) }
@@ -107,11 +107,11 @@ inline fun <reified S> Validation.pastOrPresent(
  *
  * This internal function maps from a [KClass] to the appropriate static `now(Clock)` method
  * for each supported temporal type. It is used by the temporal constraint extension functions
- * (future, past, etc.) to obtain the current time at validation time.
+ * (ensureFuture, ensurePast, etc.) to obtain the current time at validation time.
  *
  * The function uses reified type parameters at the call site to ensure type safety, and
  * the unchecked cast here is safe because the when expression guarantees that the returned
- * value's type matches the requested [KClass].
+ * value's type ensureMatches the requested [KClass].
  *
  * @param T The temporal type to obtain the current value for
  * @param clock The clock to use for determining the current time

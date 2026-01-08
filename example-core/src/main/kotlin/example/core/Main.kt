@@ -2,11 +2,11 @@ package example.core
 
 import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationResult
-import org.komapper.extension.validator.inRange
+import org.komapper.extension.validator.ensureInRange
+import org.komapper.extension.validator.ensureMinLength
+import org.komapper.extension.validator.ensureNotBlank
+import org.komapper.extension.validator.ensureNotNegative
 import org.komapper.extension.validator.isSuccess
-import org.komapper.extension.validator.minLength
-import org.komapper.extension.validator.notBlank
-import org.komapper.extension.validator.notNegative
 import org.komapper.extension.validator.tryValidate
 
 /**
@@ -46,17 +46,17 @@ data class PriceRange(
 /**
  * Schema validation for User.
  * Validates that:
- * - name is not blank and has minimum length of 1
+ * - name is not ensureBlank and ensureHas minimum ensureLength of 1
  * - age is between 0 and 120
  */
 fun Validation.validate(user: User) =
     user.schema {
         user::name {
-            minLength(it, 1)
-            notBlank(it)
+            ensureMinLength(it, 1)
+            ensureNotBlank(it)
         }
         user::age {
-            inRange(it, 0..120)
+            ensureInRange(it, 0..120)
         }
     }
 
@@ -67,7 +67,7 @@ fun Validation.validate(user: User) =
 fun Validation.validate(age: Age) =
     age.schema {
         age::value {
-            inRange(it, 0..120)
+            ensureInRange(it, 0..120)
         }
     }
 
@@ -79,8 +79,8 @@ fun Validation.validate(age: Age) =
 fun Validation.validate(person: Person) =
     person.schema {
         person::name {
-            minLength(it, 1)
-            notBlank(it)
+            ensureMinLength(it, 1)
+            ensureNotBlank(it)
         }
         person::age { validate(it) }
     }
@@ -92,8 +92,8 @@ fun Validation.validate(person: Person) =
  */
 fun Validation.validate(range: PriceRange) =
     range.schema {
-        range::minPrice { notNegative(it) }
-        range::maxPrice { notNegative(it) }
+        range::minPrice { ensureNotNegative(it) }
+        range::maxPrice { ensureNotNegative(it) }
         // Validate relationship: minPrice must be less than or equal to maxPrice
         range.constrain("priceRange") {
             satisfies(it.minPrice <= it.maxPrice) {
@@ -116,10 +116,10 @@ fun Validation.validate(range: PriceRange) =
 fun main() {
     println("\n# Example 1: Basic schema validation")
 
-    // Valid user - name is not blank and age is within range
+    // Valid user - name is not ensureBlank and age is within range
     tryValidate { validate(User("a", 10)) }.printResult()
 
-    // Invalid user - name is blank and age is negative
+    // Invalid user - name is ensureBlank and age is ensureNegative
     // Shows how multiple validation errors are collected
     tryValidate { validate(User("  ", -1)) }.printResult()
 

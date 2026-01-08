@@ -18,10 +18,10 @@ import org.komapper.extension.validator.bindObject
  * fun Validation.buildUser(name: String, age: String) =
  *     factory {
  *         val name by bind(name) {
- *             notBlank(it)
+ *             ensureNotBlank(it)
  *             it
  *         }
- *         val age by bind(age) { toInt(it) }
+ *         val age by bind(age) { parseInt(it) }
  *         User(name, age)
  *     }
  * ```
@@ -44,12 +44,12 @@ inline fun <R> Validation.factory(
  * Example:
  * ```kotlin
  * val name by bind(rawName) {
- *     notBlank(it)
+ *     ensureNotBlank(it)
  *     min(it, 1)
  *     max(it, 50)
  *     it
  * }
- * val id by bind(rawId) { toInt(it) }
+ * val id by bind(rawId) { parseInt(it) }
  * ```
  *
  * @param T The type of the input value

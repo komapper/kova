@@ -30,9 +30,9 @@
 All validators are extension functions on `Validation` with **input-first parameters**:
 ```kotlin
 tryValidate {
-    notBlank(name)
-    minLength(name, 1)
-    maxLength(name, 100)
+    ensureNotBlank(name)
+    ensureMinLength(name, 1)
+    ensureMaxLength(name, 100)
     name
 }
 ```
@@ -40,16 +40,16 @@ tryValidate {
 ### Schema Validation
 ```kotlin
 fun Validation.validate(user: User) = user.schema {
-    user::name { minLength(it, 1); maxLength(it, 100) }
-    user::age { minValue(it, 0); maxValue(it, 120) }
+    user::name { ensureMinLength(it, 1); ensureMaxLength(it, 100) }
+    user::age { ensureMin(it, 0); ensureMax(it, 120) }
 }
 ```
 
 ### Factory Validation
 ```kotlin
 fun Validation.buildUser(rawName: String, rawAge: String) = factory {
-    val name by bind(rawName) { notBlank(it); it }
-    val age by bind(rawAge) { toInt(it) }
+    val name by bind(rawName) { ensureNotBlank(it); it }
+    val age by bind(rawAge) { parseInt(it) }
     User(name, age)
 }
 ```
@@ -58,8 +58,8 @@ fun Validation.buildUser(rawName: String, rawAge: String) = factory {
 ```kotlin
 data class Customer(...) : Validated {
     override fun Validation.validate() = this@Customer.schema {
-        this@Customer::id { positive(it) }
-        this@Customer::name { notBlank(it); minLength(it, 1) }
+        this@Customer::id { ensurePositive(it) }
+        this@Customer::name { ensureNotBlank(it); ensureMinLength(it, 1) }
     }
 }
 ```
@@ -84,15 +84,15 @@ fun Validation.alphanumeric(input: String) = input.constrain("custom.alphanumeri
 - Returns `null` when circular reference detected (schema skips property)
 
 ### Nullable Handling
-- `isNull(input)`, `notNull(input)`, `isNullOr(input) { block }`
-- `notNull(input)` uses Kotlin contract for smart casting and raises immediately on null (stops subsequent validation)
+- `ensureNull(input)`, `ensureNotNull(input)`, `ensureNullOr(input) { block }`
+- `ensureNotNull(input)` uses Kotlin contract for smart casting and raises immediately on null (stops subsequent validation)
 
 ### Conditional Validation
 - `or { ... } orElse { ... }` - try first, fallback to second
 - `withMessage(transform) { ... }` - wrap errors with custom message
 
 ### Collections
-- `onEach(collection) { constraint }` - validates each element
+- `ensureEach(collection) { constraint }` - validates each element
 - Automatic index tracking: `items[0]<collection element>`
 
 ### Temporal Validators

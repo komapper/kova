@@ -5,8 +5,8 @@ import io.kotest.core.spec.style.FunSpec
 import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationConfig
 import org.komapper.extension.validator.ValidationException
-import org.komapper.extension.validator.notBlank
-import org.komapper.extension.validator.toInt
+import org.komapper.extension.validator.ensureNotBlank
+import org.komapper.extension.validator.parseInt
 import org.komapper.extension.validator.tryValidate
 import org.komapper.extension.validator.validate
 
@@ -21,7 +21,7 @@ class FactoryTest :
             fun Validation.buildUser(name: String) =
                 factory {
                     val name by bind(name) {
-                        notBlank(it)
+                        ensureNotBlank(it)
                         it
                     }
                     User(name)
@@ -81,7 +81,7 @@ class FactoryTest :
             fun Validation.buildName(value: String) =
                 factory {
                     val value by bind(value) {
-                        notBlank(it)
+                        ensureNotBlank(it)
                         it
                     }
                     Name(value)
@@ -98,7 +98,7 @@ class FactoryTest :
 
             fun Validation.buildAge(value: String) =
                 factory {
-                    val value by bind(value) { toInt(it) }
+                    val value by bind(value) { parseInt(it) }
                     Age(value)
                 }
 
@@ -108,7 +108,7 @@ class FactoryTest :
                 lastName: String,
                 age: String,
             ) = factory {
-                val id by bind(id) { toInt(it) }
+                val id by bind(id) { parseInt(it) }
                 val fullName by bind { buildFullName(firstName, lastName) }
                 val age by bind { buildAge(age) }
                 User(id, fullName, age)
@@ -127,7 +127,7 @@ class FactoryTest :
                 result.messages[0].path.fullName shouldBe "fullName.first.value"
                 result.messages[1].constraintId shouldBe "kova.charSequence.notBlank"
                 result.messages[1].path.fullName shouldBe "fullName.last.value"
-                result.messages[2].constraintId shouldBe "kova.string.isInt"
+                result.messages[2].constraintId shouldBe "kova.string.int"
                 result.messages[2].path.fullName shouldBe "age.value"
             }
             test("failure - fail fast") {

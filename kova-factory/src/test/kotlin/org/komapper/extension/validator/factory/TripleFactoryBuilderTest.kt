@@ -5,13 +5,13 @@ import io.kotest.core.spec.style.FunSpec
 import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationConfig
 import org.komapper.extension.validator.ValidationException
-import org.komapper.extension.validator.maxLength
-import org.komapper.extension.validator.maxValue
-import org.komapper.extension.validator.minLength
-import org.komapper.extension.validator.minValue
-import org.komapper.extension.validator.notBlank
-import org.komapper.extension.validator.positive
-import org.komapper.extension.validator.toInt
+import org.komapper.extension.validator.ensureMax
+import org.komapper.extension.validator.ensureMaxLength
+import org.komapper.extension.validator.ensureMin
+import org.komapper.extension.validator.ensureMinLength
+import org.komapper.extension.validator.ensureNotBlank
+import org.komapper.extension.validator.ensurePositive
+import org.komapper.extension.validator.parseInt
 import org.komapper.extension.validator.tryValidate
 import org.komapper.extension.validator.validate
 
@@ -25,17 +25,17 @@ class TripleFactoryBuilderTest :
                 third: String,
             ) = buildTriple(
                 bind(first) {
-                    notBlank(it)
-                    maxLength(it, 10)
+                    ensureNotBlank(it)
+                    ensureMaxLength(it, 10)
                     it
                 },
                 bind(second) {
-                    positive(it)
+                    ensurePositive(it)
                     it
                 },
                 bind(third) {
-                    notBlank(it)
-                    maxLength(it, 20)
+                    ensureNotBlank(it)
+                    ensureMaxLength(it, 20)
                     it
                 },
             )
@@ -130,19 +130,19 @@ class TripleFactoryBuilderTest :
                 email: String,
             ) = buildTriple(
                 bind(name) {
-                    notBlank(it)
-                    minLength(it, 1)
-                    maxLength(it, 50)
+                    ensureNotBlank(it)
+                    ensureMinLength(it, 1)
+                    ensureMaxLength(it, 50)
                     it
                 },
                 bind(age) {
-                    minValue(it, 0)
-                    maxValue(it, 120)
+                    ensureMin(it, 0)
+                    ensureMax(it, 120)
                     it
                 },
                 bind(email) {
-                    notBlank(it)
-                    maxLength(it, 100)
+                    ensureNotBlank(it)
+                    ensureMaxLength(it, 100)
                     it
                 },
             )
@@ -163,7 +163,7 @@ class TripleFactoryBuilderTest :
             test("failure - age out of range") {
                 val result = tryValidate { build("Alice", 150, "alice@example.com") }
                 result.shouldBeFailure()
-                result.messages.single().constraintId shouldBe "kova.comparable.maxValue"
+                result.messages.single().constraintId shouldBe "kova.comparable.max"
             }
 
             test("failure - email too long") {
@@ -198,9 +198,9 @@ class TripleFactoryBuilderTest :
                 second: String,
                 third: String,
             ) = buildTriple(
-                bind(first) { toInt(it) },
-                bind(second) { toInt(it) },
-                bind(third) { toInt(it) },
+                bind(first) { parseInt(it) },
+                bind(second) { parseInt(it) },
+                bind(third) { parseInt(it) },
             )
 
             test("success - all elements transformed") {
@@ -212,7 +212,7 @@ class TripleFactoryBuilderTest :
             test("failure - first element not a number") {
                 val result = tryValidate { build("abc", "20", "30") }
                 result.shouldBeFailure()
-                result.messages.single().constraintId shouldBe "kova.string.isInt"
+                result.messages.single().constraintId shouldBe "kova.string.int"
                 result.messages
                     .single()
                     .path.fullName shouldBe "first"
@@ -221,7 +221,7 @@ class TripleFactoryBuilderTest :
             test("failure - second element not a number") {
                 val result = tryValidate { build("10", "xyz", "30") }
                 result.shouldBeFailure()
-                result.messages.single().constraintId shouldBe "kova.string.isInt"
+                result.messages.single().constraintId shouldBe "kova.string.int"
                 result.messages
                     .single()
                     .path.fullName shouldBe "second"
@@ -230,7 +230,7 @@ class TripleFactoryBuilderTest :
             test("failure - third element not a number") {
                 val result = tryValidate { build("10", "20", "xyz") }
                 result.shouldBeFailure()
-                result.messages.single().constraintId shouldBe "kova.string.isInt"
+                result.messages.single().constraintId shouldBe "kova.string.int"
                 result.messages
                     .single()
                     .path.fullName shouldBe "third"

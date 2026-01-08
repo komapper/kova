@@ -103,8 +103,8 @@ sealed interface Message {
      * Example resource file (kova.properties):
      * ```properties
      * kova.string.min="{0}" must be at least {1} characters
-     * kova.number.positive=Number {0} must be positive
-     * kova.collection.onEach=Some elements do not satisfy the constraint: {0}
+     * kova.number.ensurePositive=Number {0} must be ensurePositive
+     * kova.collection.ensureEach=Some elements do not satisfy the constraint: {0}
      * ```
      *
      * @property constraintId The constraint identifier (used as resource bundle key)

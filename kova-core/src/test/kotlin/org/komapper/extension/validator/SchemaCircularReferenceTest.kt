@@ -24,7 +24,7 @@ class City(
     val users: List<User>,
 )
 
-fun Validation.validate(city: City) = city.schema { city::users { users -> onEach(users) { validate(it) } } }
+fun Validation.validate(city: City) = city.schema { city::users { users -> ensureEach(users) { validate(it) } } }
 
 class User(
     val city: City,

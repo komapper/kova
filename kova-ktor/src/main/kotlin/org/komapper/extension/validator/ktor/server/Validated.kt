@@ -14,9 +14,9 @@ import org.komapper.extension.validator.Validation
  * @Serializable
  * data class Customer(val id: Int, val name: String) : Validated {
  *     override fun Validation.validate() = this@Customer.schema {
- *         ::id { positive(it) }
+ *         ::id { ensurePositive(it) }
  *         ::name {
- *             notBlank(it)
+ *             ensureNotBlank(it)
  *             min(it, 1)
  *             max(it, 100)
  *         }

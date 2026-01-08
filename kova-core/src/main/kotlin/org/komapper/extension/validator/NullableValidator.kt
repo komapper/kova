@@ -5,28 +5,28 @@ import kotlin.contracts.contract
 /**
  * Validates that the input is null.
  *
- * This constraint fails if the input is non-null. Uses the "kova.nullable.isNull"
+ * This constraint fails if the input is non-null. Uses the "kova.nullable.ensureNull"
  * constraint ID.
  *
  * Example:
  * ```kotlin
- * tryValidate { isNull(null) }    // Success
- * tryValidate { isNull("hello") } // Failure
+ * tryValidate { ensureNull(null) }    // Success
+ * tryValidate { ensureNull("hello") } // Failure
  * ```
  *
  * @param input The nullable input value to validate
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <T> Validation.isNull(
+fun <T> Validation.ensureNull(
     input: T,
-    message: MessageProvider = { "kova.nullable.isNull".resource },
-) = input.constrain("kova.nullable.isNull") { satisfies(it == null, message) }
+    message: MessageProvider = { "kova.nullable.null".resource },
+) = input.constrain("kova.nullable.null") { satisfies(it == null, message) }
 
 /**
  * Validates that the input is null OR satisfies the given constraints.
  *
- * This function attempts to validate that the input is null first using [isNull].
+ * This function attempts to validate that the input is null first using [ensureNull].
  * If that validation fails (input is not null), it executes the provided validation
  * block with the non-null input value. This is useful for optional fields that must
  * satisfy certain constraints when present.
@@ -35,9 +35,9 @@ fun <T> Validation.isNull(
  *
  * Example:
  * ```kotlin
- * tryValidate { isNullOr(null) { min(it, 3) } }      // Success (is null)
- * tryValidate { isNullOr("hello") { min(it, 3) } }  // Success (satisfies min)
- * tryValidate { isNullOr("hi") { min(it, 3) } }     // Failure (too short)
+ * tryValidate { ensureNullOr(null) { min(it, 3) } }      // Success (is null)
+ * tryValidate { ensureNullOr("hello") { min(it, 3) } }  // Success (satisfies min)
+ * tryValidate { ensureNullOr("hi") { min(it, 3) } }     // Failure (too short)
  * ```
  *
  * @param input The nullable input value to validate
@@ -45,29 +45,29 @@ fun <T> Validation.isNull(
  * @param block Validation block to execute if input is not null
  */
 @IgnorableReturnValue
-inline fun <T> Validation.isNullOr(
+inline fun <T> Validation.ensureNullOr(
     input: T,
-    noinline message: MessageProvider = { "kova.nullable.isNull".resource },
+    noinline message: MessageProvider = { "kova.nullable.null".resource },
     block: Validation.(T & Any) -> Unit,
-) = or<Unit> { isNull(input, message) } orElse { block(input!!) }
+) = or<Unit> { ensureNull(input, message) } orElse { block(input!!) }
 
 /**
  * Validates that the input is not null.
  *
- * This constraint fails if the input is null. Uses the "kova.nullable.notNull"
+ * This constraint fails if the input is null. Uses the "kova.nullable.ensureNotNull"
  * constraint ID.
  *
  * Example:
  * ```kotlin
- * tryValidate { notNull("hello") } // Success
- * tryValidate { notNull(null) }    // Failure
+ * tryValidate { ensureNotNull("hello") } // Success
+ * tryValidate { ensureNotNull(null) }    // Failure
  * ```
  *
  * @param input The nullable input value to validate
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <T> Validation.notNull(
+fun <T> Validation.ensureNotNull(
     input: T,
     message: MessageProvider = { "kova.nullable.notNull".resource },
 ): Accumulate.Value<Unit> {
@@ -82,16 +82,16 @@ fun <T> Validation.notNull(
  * null check validation. It validates that the input is not null and converts the output
  * type from `T?` to `T & Any`.
  *
- * This function is primarily used internally by type conversion validators (e.g., [toInt],
- * [toLong], [toEnum]) that need to report errors with their specific constraint IDs
- * (e.g., "kova.string.isInt", "kova.string.isEnum") rather than the generic
- * "kova.nullable.notNull".
+ * This function is primarily used internally by type conversion validators (e.g., [parseInt],
+ * [parseLong], [parseEnum]) that need to report errors with their specific constraint IDs
+ * (e.g., "kova.string.ensureInt", "kova.string.ensureEnum") rather than the generic
+ * "kova.nullable.ensureNotNull".
  *
  * The function uses [constrain] to properly track the validation path context and returns
  * the accumulated value, ensuring proper error reporting in nested validation scenarios.
  *
  * @param input The nullable input value to validate and convert
- * @param constraintId Custom constraint ID for the validation error (e.g., "kova.string.isInt")
+ * @param constraintId Custom constraint ID for the validation error (e.g., "kova.string.ensureInt")
  * @param message Custom error message provider for the validation error
  * @return The non-null input value with type `T & Any`
  */

@@ -7,9 +7,9 @@ import io.konform.validation.constraints.minimum
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import org.komapper.extension.validator.Validation
-import org.komapper.extension.validator.inRange
-import org.komapper.extension.validator.maxLength
-import org.komapper.extension.validator.minLength
+import org.komapper.extension.validator.ensureInRange
+import org.komapper.extension.validator.ensureMaxLength
+import org.komapper.extension.validator.ensureMinLength
 import org.komapper.extension.validator.tryValidate
 import java.util.Locale
 import io.konform.validation.Validation as KonformValidation
@@ -67,11 +67,11 @@ class SimpleTest :
             fun Validation.validate(userProfile: UserProfile) =
                 userProfile.schema {
                     userProfile::fullName {
-                        minLength(it, 2)
-                        maxLength(it, 100)
+                        ensureMinLength(it, 2)
+                        ensureMaxLength(it, 100)
                     }
                     userProfile::age {
-                        if (it != null) inRange(it, 0..150)
+                        if (it != null) ensureInRange(it, 0..150)
                     }
                 }
 

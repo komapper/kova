@@ -29,184 +29,184 @@ class TemporalValidatorTest :
             val clock = Clock.fixed(instant, zone)
             val config = ValidationConfig(clock = clock)
 
-            context("future") {
+            context("ensureFuture") {
                 test("success") {
-                    val result = tryValidate(config) { future(date.plusDays(1)) }
+                    val result = tryValidate(config) { ensureFuture(date.plusDays(1)) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure with present value") {
-                    val result = tryValidate(config) { future(date) }
+                    val result = tryValidate(config) { ensureFuture(date) }
                     result.shouldBeFailure()
                 }
 
-                test("failure with past value") {
-                    val result = tryValidate(config) { future(date.minusDays(1)) }
+                test("failure with ensurePast value") {
+                    val result = tryValidate(config) { ensureFuture(date.minusDays(1)) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("futureOrPresent") {
-                test("success with future value") {
-                    val result = tryValidate(config) { futureOrPresent(date.plusDays(1)) }
+            context("ensureFutureOrPresent") {
+                test("success with ensureFuture value") {
+                    val result = tryValidate(config) { ensureFutureOrPresent(date.plusDays(1)) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with present value") {
-                    val result = tryValidate(config) { futureOrPresent(date) }
+                    val result = tryValidate(config) { ensureFutureOrPresent(date) }
                     result.shouldBeSuccess()
                 }
 
-                test("failure with past value") {
-                    val result = tryValidate(config) { futureOrPresent(date.minusDays(1)) }
+                test("failure with ensurePast value") {
+                    val result = tryValidate(config) { ensureFutureOrPresent(date.minusDays(1)) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("past") {
+            context("ensurePast") {
                 test("success") {
-                    val result = tryValidate(config) { past(date.minusDays(1)) }
+                    val result = tryValidate(config) { ensurePast(date.minusDays(1)) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure with present value") {
-                    val result = tryValidate(config) { past(date) }
+                    val result = tryValidate(config) { ensurePast(date) }
                     result.shouldBeFailure()
                 }
 
-                test("failure with future value") {
-                    val result = tryValidate(config) { past(date.plusDays(1)) }
+                test("failure with ensureFuture value") {
+                    val result = tryValidate(config) { ensurePast(date.plusDays(1)) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("pastOrPresent") {
-                test("success with past value") {
-                    val result = tryValidate(config) { pastOrPresent(date.minusDays(1)) }
+            context("ensurePastOrPresent") {
+                test("success with ensurePast value") {
+                    val result = tryValidate(config) { ensurePastOrPresent(date.minusDays(1)) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with present value") {
-                    val result = tryValidate(config) { pastOrPresent(date) }
+                    val result = tryValidate(config) { ensurePastOrPresent(date) }
                     result.shouldBeSuccess()
                 }
 
-                test("failure with future value") {
-                    val result = tryValidate(config) { pastOrPresent(date.plusDays(1)) }
+                test("failure with ensureFuture value") {
+                    val result = tryValidate(config) { ensurePastOrPresent(date.plusDays(1)) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("minValue") {
+            context("ensureMin") {
                 val minDate = LocalDate.of(2025, 1, 1)
 
                 test("success with equal value") {
-                    val result = tryValidate { minValue(minDate, minDate) }
+                    val result = tryValidate { ensureMin(minDate, minDate) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with greater value") {
-                    val result = tryValidate { minValue(minDate.plusDays(1), minDate) }
+                    val result = tryValidate { ensureMin(minDate.plusDays(1), minDate) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { minValue(minDate.minusDays(1), minDate) }
+                    val result = tryValidate { ensureMin(minDate.minusDays(1), minDate) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("maxValue") {
+            context("ensureMax") {
                 val maxDate = LocalDate.of(2025, 12, 31)
 
                 test("success with equal value") {
-                    val result = tryValidate { maxValue(maxDate, maxDate) }
+                    val result = tryValidate { ensureMax(maxDate, maxDate) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with smaller value") {
-                    val result = tryValidate { maxValue(maxDate.minusDays(1), maxDate) }
+                    val result = tryValidate { ensureMax(maxDate.minusDays(1), maxDate) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { maxValue(maxDate.plusDays(1), maxDate) }
+                    val result = tryValidate { ensureMax(maxDate.plusDays(1), maxDate) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("gtValue") {
+            context("ensureGreaterThan") {
                 val date = LocalDate.of(2025, 6, 15)
 
                 test("success") {
-                    val result = tryValidate { gtValue(date.plusDays(1), date) }
+                    val result = tryValidate { ensureGreaterThan(date.plusDays(1), date) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure with equal value") {
-                    val result = tryValidate { gtValue(date, date) }
+                    val result = tryValidate { ensureGreaterThan(date, date) }
                     result.shouldBeFailure()
                 }
 
                 test("failure with smaller value") {
-                    val result = tryValidate { gtValue(date.minusDays(1), date) }
+                    val result = tryValidate { ensureGreaterThan(date.minusDays(1), date) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("gtEqValue") {
+            context("ensureGreaterThanOrEqual") {
                 val date = LocalDate.of(2025, 6, 15)
 
                 test("success with greater value") {
-                    val result = tryValidate { gtEqValue(date.plusDays(1), date) }
+                    val result = tryValidate { ensureGreaterThanOrEqual(date.plusDays(1), date) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with equal value") {
-                    val result = tryValidate { gtEqValue(date, date) }
+                    val result = tryValidate { ensureGreaterThanOrEqual(date, date) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { gtEqValue(date.minusDays(1), date) }
+                    val result = tryValidate { ensureGreaterThanOrEqual(date.minusDays(1), date) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("ltValue") {
+            context("ensureLessThan") {
                 val date = LocalDate.of(2025, 6, 15)
 
                 test("success") {
-                    val result = tryValidate { ltValue(date.minusDays(1), date) }
+                    val result = tryValidate { ensureLessThan(date.minusDays(1), date) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure with equal value") {
-                    val result = tryValidate { ltValue(date, date) }
+                    val result = tryValidate { ensureLessThan(date, date) }
                     result.shouldBeFailure()
                 }
 
                 test("failure with greater value") {
-                    val result = tryValidate { ltValue(date.plusDays(1), date) }
+                    val result = tryValidate { ensureLessThan(date.plusDays(1), date) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("ltEqValue") {
+            context("ensureLessThanOrEqual") {
                 val date = LocalDate.of(2025, 6, 15)
 
                 test("success with smaller value") {
-                    val result = tryValidate { ltEqValue(date.minusDays(1), date) }
+                    val result = tryValidate { ensureLessThanOrEqual(date.minusDays(1), date) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with equal value") {
-                    val result = tryValidate { ltEqValue(date, date) }
+                    val result = tryValidate { ensureLessThanOrEqual(date, date) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { ltEqValue(date.plusDays(1), date) }
+                    val result = tryValidate { ensureLessThanOrEqual(date.plusDays(1), date) }
                     result.shouldBeFailure()
                 }
             }
@@ -220,184 +220,184 @@ class TemporalValidatorTest :
             val clock = Clock.fixed(instant, zone)
             val config = ValidationConfig(clock = clock)
 
-            context("future") {
+            context("ensureFuture") {
                 test("success") {
-                    val result = tryValidate(config) { future(time.plusHours(1)) }
+                    val result = tryValidate(config) { ensureFuture(time.plusHours(1)) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure with present value") {
-                    val result = tryValidate(config) { future(time) }
+                    val result = tryValidate(config) { ensureFuture(time) }
                     result.shouldBeFailure()
                 }
 
-                test("failure with past value") {
-                    val result = tryValidate(config) { future(time.minusHours(1)) }
+                test("failure with ensurePast value") {
+                    val result = tryValidate(config) { ensureFuture(time.minusHours(1)) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("futureOrPresent") {
-                test("success with future value") {
-                    val result = tryValidate(config) { futureOrPresent(time.plusHours(1)) }
+            context("ensureFutureOrPresent") {
+                test("success with ensureFuture value") {
+                    val result = tryValidate(config) { ensureFutureOrPresent(time.plusHours(1)) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with present value") {
-                    val result = tryValidate(config) { futureOrPresent(time) }
+                    val result = tryValidate(config) { ensureFutureOrPresent(time) }
                     result.shouldBeSuccess()
                 }
 
-                test("failure with past value") {
-                    val result = tryValidate(config) { futureOrPresent(time.minusHours(1)) }
+                test("failure with ensurePast value") {
+                    val result = tryValidate(config) { ensureFutureOrPresent(time.minusHours(1)) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("past") {
+            context("ensurePast") {
                 test("success") {
-                    val result = tryValidate(config) { past(time.minusHours(1)) }
+                    val result = tryValidate(config) { ensurePast(time.minusHours(1)) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure with present value") {
-                    val result = tryValidate(config) { past(time) }
+                    val result = tryValidate(config) { ensurePast(time) }
                     result.shouldBeFailure()
                 }
 
-                test("failure with future value") {
-                    val result = tryValidate(config) { past(time.plusHours(1)) }
+                test("failure with ensureFuture value") {
+                    val result = tryValidate(config) { ensurePast(time.plusHours(1)) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("pastOrPresent") {
-                test("success with past value") {
-                    val result = tryValidate(config) { pastOrPresent(time.minusHours(1)) }
+            context("ensurePastOrPresent") {
+                test("success with ensurePast value") {
+                    val result = tryValidate(config) { ensurePastOrPresent(time.minusHours(1)) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with present value") {
-                    val result = tryValidate(config) { pastOrPresent(time) }
+                    val result = tryValidate(config) { ensurePastOrPresent(time) }
                     result.shouldBeSuccess()
                 }
 
-                test("failure with future value") {
-                    val result = tryValidate(config) { pastOrPresent(time.plusHours(1)) }
+                test("failure with ensureFuture value") {
+                    val result = tryValidate(config) { ensurePastOrPresent(time.plusHours(1)) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("minValue") {
+            context("ensureMin") {
                 val minTime = LocalTime.of(9, 0, 0)
 
                 test("success with equal value") {
-                    val result = tryValidate { minValue(minTime, minTime) }
+                    val result = tryValidate { ensureMin(minTime, minTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with greater value") {
-                    val result = tryValidate { minValue(minTime.plusHours(1), minTime) }
+                    val result = tryValidate { ensureMin(minTime.plusHours(1), minTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { minValue(minTime.minusHours(1), minTime) }
+                    val result = tryValidate { ensureMin(minTime.minusHours(1), minTime) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("maxValue") {
+            context("ensureMax") {
                 val maxTime = LocalTime.of(17, 0, 0)
 
                 test("success with equal value") {
-                    val result = tryValidate { maxValue(maxTime, maxTime) }
+                    val result = tryValidate { ensureMax(maxTime, maxTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with smaller value") {
-                    val result = tryValidate { maxValue(maxTime.minusHours(1), maxTime) }
+                    val result = tryValidate { ensureMax(maxTime.minusHours(1), maxTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { maxValue(maxTime.plusHours(1), maxTime) }
+                    val result = tryValidate { ensureMax(maxTime.plusHours(1), maxTime) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("gtValue") {
+            context("ensureGreaterThan") {
                 val time = LocalTime.of(12, 0, 0)
 
                 test("success") {
-                    val result = tryValidate { gtValue(time.plusHours(1), time) }
+                    val result = tryValidate { ensureGreaterThan(time.plusHours(1), time) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure with equal value") {
-                    val result = tryValidate { gtValue(time, time) }
+                    val result = tryValidate { ensureGreaterThan(time, time) }
                     result.shouldBeFailure()
                 }
 
                 test("failure with smaller value") {
-                    val result = tryValidate { gtValue(time.minusHours(1), time) }
+                    val result = tryValidate { ensureGreaterThan(time.minusHours(1), time) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("gtEqValue") {
+            context("ensureGreaterThanOrEqual") {
                 val time = LocalTime.of(12, 0, 0)
 
                 test("success with greater value") {
-                    val result = tryValidate { gtEqValue(time.plusHours(1), time) }
+                    val result = tryValidate { ensureGreaterThanOrEqual(time.plusHours(1), time) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with equal value") {
-                    val result = tryValidate { gtEqValue(time, time) }
+                    val result = tryValidate { ensureGreaterThanOrEqual(time, time) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { gtEqValue(time.minusHours(1), time) }
+                    val result = tryValidate { ensureGreaterThanOrEqual(time.minusHours(1), time) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("ltValue") {
+            context("ensureLessThan") {
                 val time = LocalTime.of(12, 0, 0)
 
                 test("success") {
-                    val result = tryValidate { ltValue(time.minusHours(1), time) }
+                    val result = tryValidate { ensureLessThan(time.minusHours(1), time) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure with equal value") {
-                    val result = tryValidate { ltValue(time, time) }
+                    val result = tryValidate { ensureLessThan(time, time) }
                     result.shouldBeFailure()
                 }
 
                 test("failure with greater value") {
-                    val result = tryValidate { ltValue(time.plusHours(1), time) }
+                    val result = tryValidate { ensureLessThan(time.plusHours(1), time) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("ltEqValue") {
+            context("ensureLessThanOrEqual") {
                 val time = LocalTime.of(12, 0, 0)
 
                 test("success with smaller value") {
-                    val result = tryValidate { ltEqValue(time.minusHours(1), time) }
+                    val result = tryValidate { ensureLessThanOrEqual(time.minusHours(1), time) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with equal value") {
-                    val result = tryValidate { ltEqValue(time, time) }
+                    val result = tryValidate { ensureLessThanOrEqual(time, time) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { ltEqValue(time.plusHours(1), time) }
+                    val result = tryValidate { ensureLessThanOrEqual(time.plusHours(1), time) }
                     result.shouldBeFailure()
                 }
             }
@@ -410,184 +410,184 @@ class TemporalValidatorTest :
             val clock = Clock.fixed(instant, zone)
             val config = ValidationConfig(clock = clock)
 
-            context("future") {
+            context("ensureFuture") {
                 test("success") {
-                    val result = tryValidate(config) { future(dateTime.plusHours(1)) }
+                    val result = tryValidate(config) { ensureFuture(dateTime.plusHours(1)) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure with present value") {
-                    val result = tryValidate(config) { future(dateTime) }
+                    val result = tryValidate(config) { ensureFuture(dateTime) }
                     result.shouldBeFailure()
                 }
 
-                test("failure with past value") {
-                    val result = tryValidate(config) { future(dateTime.minusHours(1)) }
+                test("failure with ensurePast value") {
+                    val result = tryValidate(config) { ensureFuture(dateTime.minusHours(1)) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("futureOrPresent") {
-                test("success with future value") {
-                    val result = tryValidate(config) { futureOrPresent(dateTime.plusHours(1)) }
+            context("ensureFutureOrPresent") {
+                test("success with ensureFuture value") {
+                    val result = tryValidate(config) { ensureFutureOrPresent(dateTime.plusHours(1)) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with present value") {
-                    val result = tryValidate(config) { futureOrPresent(dateTime) }
+                    val result = tryValidate(config) { ensureFutureOrPresent(dateTime) }
                     result.shouldBeSuccess()
                 }
 
-                test("failure with past value") {
-                    val result = tryValidate(config) { futureOrPresent(dateTime.minusHours(1)) }
+                test("failure with ensurePast value") {
+                    val result = tryValidate(config) { ensureFutureOrPresent(dateTime.minusHours(1)) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("past") {
+            context("ensurePast") {
                 test("success") {
-                    val result = tryValidate(config) { past(dateTime.minusHours(1)) }
+                    val result = tryValidate(config) { ensurePast(dateTime.minusHours(1)) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure with present value") {
-                    val result = tryValidate(config) { past(dateTime) }
+                    val result = tryValidate(config) { ensurePast(dateTime) }
                     result.shouldBeFailure()
                 }
 
-                test("failure with future value") {
-                    val result = tryValidate(config) { past(dateTime.plusHours(1)) }
+                test("failure with ensureFuture value") {
+                    val result = tryValidate(config) { ensurePast(dateTime.plusHours(1)) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("pastOrPresent") {
-                test("success with past value") {
-                    val result = tryValidate(config) { pastOrPresent(dateTime.minusHours(1)) }
+            context("ensurePastOrPresent") {
+                test("success with ensurePast value") {
+                    val result = tryValidate(config) { ensurePastOrPresent(dateTime.minusHours(1)) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with present value") {
-                    val result = tryValidate(config) { pastOrPresent(dateTime) }
+                    val result = tryValidate(config) { ensurePastOrPresent(dateTime) }
                     result.shouldBeSuccess()
                 }
 
-                test("failure with future value") {
-                    val result = tryValidate(config) { pastOrPresent(dateTime.plusHours(1)) }
+                test("failure with ensureFuture value") {
+                    val result = tryValidate(config) { ensurePastOrPresent(dateTime.plusHours(1)) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("minValue") {
+            context("ensureMin") {
                 val minDateTime = LocalDateTime.of(2025, 1, 1, 12, 0, 0)
 
                 test("success with equal value") {
-                    val result = tryValidate { minValue(minDateTime, minDateTime) }
+                    val result = tryValidate { ensureMin(minDateTime, minDateTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with greater value") {
-                    val result = tryValidate { minValue(minDateTime.plusHours(1), minDateTime) }
+                    val result = tryValidate { ensureMin(minDateTime.plusHours(1), minDateTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { minValue(minDateTime.minusHours(1), minDateTime) }
+                    val result = tryValidate { ensureMin(minDateTime.minusHours(1), minDateTime) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("maxValue") {
+            context("ensureMax") {
                 val maxDateTime = LocalDateTime.of(2025, 12, 31, 23, 59, 59)
 
                 test("success with equal value") {
-                    val result = tryValidate { maxValue(maxDateTime, maxDateTime) }
+                    val result = tryValidate { ensureMax(maxDateTime, maxDateTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with smaller value") {
-                    val result = tryValidate { maxValue(maxDateTime.minusHours(1), maxDateTime) }
+                    val result = tryValidate { ensureMax(maxDateTime.minusHours(1), maxDateTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { maxValue(maxDateTime.plusHours(1), maxDateTime) }
+                    val result = tryValidate { ensureMax(maxDateTime.plusHours(1), maxDateTime) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("gtValue") {
+            context("ensureGreaterThan") {
                 val dateTime = LocalDateTime.of(2025, 6, 15, 12, 0, 0)
 
                 test("success") {
-                    val result = tryValidate { gtValue(dateTime.plusHours(1), dateTime) }
+                    val result = tryValidate { ensureGreaterThan(dateTime.plusHours(1), dateTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure with equal value") {
-                    val result = tryValidate { gtValue(dateTime, dateTime) }
+                    val result = tryValidate { ensureGreaterThan(dateTime, dateTime) }
                     result.shouldBeFailure()
                 }
 
                 test("failure with smaller value") {
-                    val result = tryValidate { gtValue(dateTime.minusHours(1), dateTime) }
+                    val result = tryValidate { ensureGreaterThan(dateTime.minusHours(1), dateTime) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("gtEqValue") {
+            context("ensureGreaterThanOrEqual") {
                 val dateTime = LocalDateTime.of(2025, 6, 15, 12, 0, 0)
 
                 test("success with greater value") {
-                    val result = tryValidate { gtEqValue(dateTime.plusHours(1), dateTime) }
+                    val result = tryValidate { ensureGreaterThanOrEqual(dateTime.plusHours(1), dateTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with equal value") {
-                    val result = tryValidate { gtEqValue(dateTime, dateTime) }
+                    val result = tryValidate { ensureGreaterThanOrEqual(dateTime, dateTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { gtEqValue(dateTime.minusHours(1), dateTime) }
+                    val result = tryValidate { ensureGreaterThanOrEqual(dateTime.minusHours(1), dateTime) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("ltValue") {
+            context("ensureLessThan") {
                 val dateTime = LocalDateTime.of(2025, 6, 15, 12, 0, 0)
 
                 test("success") {
-                    val result = tryValidate { ltValue(dateTime.minusHours(1), dateTime) }
+                    val result = tryValidate { ensureLessThan(dateTime.minusHours(1), dateTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure with equal value") {
-                    val result = tryValidate { ltValue(dateTime, dateTime) }
+                    val result = tryValidate { ensureLessThan(dateTime, dateTime) }
                     result.shouldBeFailure()
                 }
 
                 test("failure with greater value") {
-                    val result = tryValidate { ltValue(dateTime.plusHours(1), dateTime) }
+                    val result = tryValidate { ensureLessThan(dateTime.plusHours(1), dateTime) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("ltEqValue") {
+            context("ensureLessThanOrEqual") {
                 val dateTime = LocalDateTime.of(2025, 6, 15, 12, 0, 0)
 
                 test("success with smaller value") {
-                    val result = tryValidate { ltEqValue(dateTime.minusHours(1), dateTime) }
+                    val result = tryValidate { ensureLessThanOrEqual(dateTime.minusHours(1), dateTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with equal value") {
-                    val result = tryValidate { ltEqValue(dateTime, dateTime) }
+                    val result = tryValidate { ensureLessThanOrEqual(dateTime, dateTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { ltEqValue(dateTime.plusHours(1), dateTime) }
+                    val result = tryValidate { ensureLessThanOrEqual(dateTime.plusHours(1), dateTime) }
                     result.shouldBeFailure()
                 }
             }
@@ -598,180 +598,180 @@ class TemporalValidatorTest :
             val clock = Clock.fixed(instant, ZoneOffset.UTC)
             val config = ValidationConfig(clock = clock)
 
-            context("future") {
+            context("ensureFuture") {
                 test("success") {
-                    val result = tryValidate(config) { future(instant.plusSeconds(3600)) }
+                    val result = tryValidate(config) { ensureFuture(instant.plusSeconds(3600)) }
                     result.shouldBeSuccess()
                 }
 
-                test("failure with past value") {
-                    val result = tryValidate(config) { future(instant.minusSeconds(3600)) }
+                test("failure with ensurePast value") {
+                    val result = tryValidate(config) { ensureFuture(instant.minusSeconds(3600)) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("past") {
+            context("ensurePast") {
                 test("success") {
-                    val result = tryValidate(config) { past(instant.minusSeconds(3600)) }
+                    val result = tryValidate(config) { ensurePast(instant.minusSeconds(3600)) }
                     result.shouldBeSuccess()
                 }
 
-                test("failure with future value") {
-                    val result = tryValidate(config) { past(instant.plusSeconds(3600)) }
+                test("failure with ensureFuture value") {
+                    val result = tryValidate(config) { ensurePast(instant.plusSeconds(3600)) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("minValue") {
+            context("ensureMin") {
                 val minInstant = Instant.parse("2025-01-01T00:00:00Z")
 
                 test("success with equal value") {
-                    val result = tryValidate { minValue(minInstant, minInstant) }
+                    val result = tryValidate { ensureMin(minInstant, minInstant) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with greater value") {
-                    val result = tryValidate { minValue(minInstant.plusSeconds(3600), minInstant) }
+                    val result = tryValidate { ensureMin(minInstant.plusSeconds(3600), minInstant) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { minValue(minInstant.minusSeconds(3600), minInstant) }
+                    val result = tryValidate { ensureMin(minInstant.minusSeconds(3600), minInstant) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("maxValue") {
+            context("ensureMax") {
                 val maxInstant = Instant.parse("2025-12-31T23:59:59Z")
 
                 test("success with equal value") {
-                    val result = tryValidate { maxValue(maxInstant, maxInstant) }
+                    val result = tryValidate { ensureMax(maxInstant, maxInstant) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with smaller value") {
-                    val result = tryValidate { maxValue(maxInstant.minusSeconds(3600), maxInstant) }
+                    val result = tryValidate { ensureMax(maxInstant.minusSeconds(3600), maxInstant) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { maxValue(maxInstant.plusSeconds(3600), maxInstant) }
+                    val result = tryValidate { ensureMax(maxInstant.plusSeconds(3600), maxInstant) }
                     result.shouldBeFailure()
                 }
             }
         }
 
         context("MonthDay") {
-            context("minValue") {
+            context("ensureMin") {
                 val minMonthDay = MonthDay.of(3, 1)
 
                 test("success with equal value") {
-                    val result = tryValidate { minValue(minMonthDay, minMonthDay) }
+                    val result = tryValidate { ensureMin(minMonthDay, minMonthDay) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with greater value") {
-                    val result = tryValidate { minValue(MonthDay.of(3, 2), minMonthDay) }
+                    val result = tryValidate { ensureMin(MonthDay.of(3, 2), minMonthDay) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { minValue(MonthDay.of(2, 28), minMonthDay) }
+                    val result = tryValidate { ensureMin(MonthDay.of(2, 28), minMonthDay) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("maxValue") {
+            context("ensureMax") {
                 val maxMonthDay = MonthDay.of(10, 31)
 
                 test("success with equal value") {
-                    val result = tryValidate { maxValue(maxMonthDay, maxMonthDay) }
+                    val result = tryValidate { ensureMax(maxMonthDay, maxMonthDay) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with smaller value") {
-                    val result = tryValidate { maxValue(MonthDay.of(10, 30), maxMonthDay) }
+                    val result = tryValidate { ensureMax(MonthDay.of(10, 30), maxMonthDay) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { maxValue(MonthDay.of(11, 1), maxMonthDay) }
+                    val result = tryValidate { ensureMax(MonthDay.of(11, 1), maxMonthDay) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("gtValue") {
+            context("ensureGreaterThan") {
                 val monthDay = MonthDay.of(6, 15)
 
                 test("success") {
-                    val result = tryValidate { gtValue(MonthDay.of(6, 16), monthDay) }
+                    val result = tryValidate { ensureGreaterThan(MonthDay.of(6, 16), monthDay) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure with equal value") {
-                    val result = tryValidate { gtValue(monthDay, monthDay) }
+                    val result = tryValidate { ensureGreaterThan(monthDay, monthDay) }
                     result.shouldBeFailure()
                 }
 
                 test("failure with smaller value") {
-                    val result = tryValidate { gtValue(MonthDay.of(6, 14), monthDay) }
+                    val result = tryValidate { ensureGreaterThan(MonthDay.of(6, 14), monthDay) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("gtEqValue") {
+            context("ensureGreaterThanOrEqual") {
                 val monthDay = MonthDay.of(6, 15)
 
                 test("success with greater value") {
-                    val result = tryValidate { gtEqValue(MonthDay.of(6, 16), monthDay) }
+                    val result = tryValidate { ensureGreaterThanOrEqual(MonthDay.of(6, 16), monthDay) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with equal value") {
-                    val result = tryValidate { gtEqValue(monthDay, monthDay) }
+                    val result = tryValidate { ensureGreaterThanOrEqual(monthDay, monthDay) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { gtEqValue(MonthDay.of(6, 14), monthDay) }
+                    val result = tryValidate { ensureGreaterThanOrEqual(MonthDay.of(6, 14), monthDay) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("ltValue") {
+            context("ensureLessThan") {
                 val monthDay = MonthDay.of(6, 15)
 
                 test("success") {
-                    val result = tryValidate { ltValue(MonthDay.of(6, 14), monthDay) }
+                    val result = tryValidate { ensureLessThan(MonthDay.of(6, 14), monthDay) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure with equal value") {
-                    val result = tryValidate { ltValue(monthDay, monthDay) }
+                    val result = tryValidate { ensureLessThan(monthDay, monthDay) }
                     result.shouldBeFailure()
                 }
 
                 test("failure with greater value") {
-                    val result = tryValidate { ltValue(MonthDay.of(6, 16), monthDay) }
+                    val result = tryValidate { ensureLessThan(MonthDay.of(6, 16), monthDay) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("ltEqValue") {
+            context("ensureLessThanOrEqual") {
                 val monthDay = MonthDay.of(6, 15)
 
                 test("success with smaller value") {
-                    val result = tryValidate { ltEqValue(MonthDay.of(6, 14), monthDay) }
+                    val result = tryValidate { ensureLessThanOrEqual(MonthDay.of(6, 14), monthDay) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with equal value") {
-                    val result = tryValidate { ltEqValue(monthDay, monthDay) }
+                    val result = tryValidate { ensureLessThanOrEqual(monthDay, monthDay) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { ltEqValue(MonthDay.of(6, 16), monthDay) }
+                    val result = tryValidate { ensureLessThanOrEqual(MonthDay.of(6, 16), monthDay) }
                     result.shouldBeFailure()
                 }
             }
@@ -782,64 +782,64 @@ class TemporalValidatorTest :
             val clock = Clock.fixed(offsetDateTime.toInstant(), ZoneOffset.UTC)
             val config = ValidationConfig(clock = clock)
 
-            context("future") {
+            context("ensureFuture") {
                 test("success") {
-                    val result = tryValidate(config) { future(offsetDateTime.plusHours(1)) }
+                    val result = tryValidate(config) { ensureFuture(offsetDateTime.plusHours(1)) }
                     result.shouldBeSuccess()
                 }
 
-                test("failure with past value") {
-                    val result = tryValidate(config) { future(offsetDateTime.minusHours(1)) }
+                test("failure with ensurePast value") {
+                    val result = tryValidate(config) { ensureFuture(offsetDateTime.minusHours(1)) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("past") {
+            context("ensurePast") {
                 test("success") {
-                    val result = tryValidate(config) { past(offsetDateTime.minusHours(1)) }
+                    val result = tryValidate(config) { ensurePast(offsetDateTime.minusHours(1)) }
                     result.shouldBeSuccess()
                 }
 
-                test("failure with future value") {
-                    val result = tryValidate(config) { past(offsetDateTime.plusHours(1)) }
+                test("failure with ensureFuture value") {
+                    val result = tryValidate(config) { ensurePast(offsetDateTime.plusHours(1)) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("minValue") {
+            context("ensureMin") {
                 val minOffsetDateTime = OffsetDateTime.of(2025, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
 
                 test("success with equal value") {
-                    val result = tryValidate { minValue(minOffsetDateTime, minOffsetDateTime) }
+                    val result = tryValidate { ensureMin(minOffsetDateTime, minOffsetDateTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with greater value") {
-                    val result = tryValidate { minValue(minOffsetDateTime.plusHours(1), minOffsetDateTime) }
+                    val result = tryValidate { ensureMin(minOffsetDateTime.plusHours(1), minOffsetDateTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { minValue(minOffsetDateTime.minusHours(1), minOffsetDateTime) }
+                    val result = tryValidate { ensureMin(minOffsetDateTime.minusHours(1), minOffsetDateTime) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("maxValue") {
+            context("ensureMax") {
                 val maxOffsetDateTime = OffsetDateTime.of(2025, 12, 31, 23, 59, 59, 0, ZoneOffset.UTC)
 
                 test("success with equal value") {
-                    val result = tryValidate { maxValue(maxOffsetDateTime, maxOffsetDateTime) }
+                    val result = tryValidate { ensureMax(maxOffsetDateTime, maxOffsetDateTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with smaller value") {
-                    val result = tryValidate { maxValue(maxOffsetDateTime.minusHours(1), maxOffsetDateTime) }
+                    val result = tryValidate { ensureMax(maxOffsetDateTime.minusHours(1), maxOffsetDateTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { maxValue(maxOffsetDateTime.plusHours(1), maxOffsetDateTime) }
+                    val result = tryValidate { ensureMax(maxOffsetDateTime.plusHours(1), maxOffsetDateTime) }
                     result.shouldBeFailure()
                 }
             }
@@ -852,64 +852,64 @@ class TemporalValidatorTest :
             val clock = Clock.fixed(instant, ZoneOffset.UTC)
             val config = ValidationConfig(clock = clock)
 
-            context("future") {
+            context("ensureFuture") {
                 test("success") {
-                    val result = tryValidate(config) { future(offsetTime.plusHours(1)) }
+                    val result = tryValidate(config) { ensureFuture(offsetTime.plusHours(1)) }
                     result.shouldBeSuccess()
                 }
 
-                test("failure with past value") {
-                    val result = tryValidate(config) { future(offsetTime.minusHours(1)) }
+                test("failure with ensurePast value") {
+                    val result = tryValidate(config) { ensureFuture(offsetTime.minusHours(1)) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("past") {
+            context("ensurePast") {
                 test("success") {
-                    val result = tryValidate(config) { past(offsetTime.minusHours(1)) }
+                    val result = tryValidate(config) { ensurePast(offsetTime.minusHours(1)) }
                     result.shouldBeSuccess()
                 }
 
-                test("failure with future value") {
-                    val result = tryValidate(config) { past(offsetTime.plusHours(1)) }
+                test("failure with ensureFuture value") {
+                    val result = tryValidate(config) { ensurePast(offsetTime.plusHours(1)) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("minValue") {
+            context("ensureMin") {
                 val minOffsetTime = OffsetTime.of(9, 0, 0, 0, ZoneOffset.UTC)
 
                 test("success with equal value") {
-                    val result = tryValidate { minValue(minOffsetTime, minOffsetTime) }
+                    val result = tryValidate { ensureMin(minOffsetTime, minOffsetTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with greater value") {
-                    val result = tryValidate { minValue(minOffsetTime.plusHours(1), minOffsetTime) }
+                    val result = tryValidate { ensureMin(minOffsetTime.plusHours(1), minOffsetTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { minValue(minOffsetTime.minusHours(1), minOffsetTime) }
+                    val result = tryValidate { ensureMin(minOffsetTime.minusHours(1), minOffsetTime) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("maxValue") {
+            context("ensureMax") {
                 val maxOffsetTime = OffsetTime.of(17, 0, 0, 0, ZoneOffset.UTC)
 
                 test("success with equal value") {
-                    val result = tryValidate { maxValue(maxOffsetTime, maxOffsetTime) }
+                    val result = tryValidate { ensureMax(maxOffsetTime, maxOffsetTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with smaller value") {
-                    val result = tryValidate { maxValue(maxOffsetTime.minusHours(1), maxOffsetTime) }
+                    val result = tryValidate { ensureMax(maxOffsetTime.minusHours(1), maxOffsetTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { maxValue(maxOffsetTime.plusHours(1), maxOffsetTime) }
+                    val result = tryValidate { ensureMax(maxOffsetTime.plusHours(1), maxOffsetTime) }
                     result.shouldBeFailure()
                 }
             }
@@ -922,64 +922,64 @@ class TemporalValidatorTest :
             val clock = Clock.fixed(instant, zone)
             val config = ValidationConfig(clock = clock)
 
-            context("future") {
+            context("ensureFuture") {
                 test("success") {
-                    val result = tryValidate(config) { future(Year.of(2026)) }
+                    val result = tryValidate(config) { ensureFuture(Year.of(2026)) }
                     result.shouldBeSuccess()
                 }
 
-                test("failure with past value") {
-                    val result = tryValidate(config) { future(Year.of(2024)) }
+                test("failure with ensurePast value") {
+                    val result = tryValidate(config) { ensureFuture(Year.of(2024)) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("past") {
+            context("ensurePast") {
                 test("success") {
-                    val result = tryValidate(config) { past(Year.of(2024)) }
+                    val result = tryValidate(config) { ensurePast(Year.of(2024)) }
                     result.shouldBeSuccess()
                 }
 
-                test("failure with future value") {
-                    val result = tryValidate(config) { past(Year.of(2026)) }
+                test("failure with ensureFuture value") {
+                    val result = tryValidate(config) { ensurePast(Year.of(2026)) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("minValue") {
+            context("ensureMin") {
                 val minYear = Year.of(2020)
 
                 test("success with equal value") {
-                    val result = tryValidate { minValue(minYear, minYear) }
+                    val result = tryValidate { ensureMin(minYear, minYear) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with greater value") {
-                    val result = tryValidate { minValue(Year.of(2021), minYear) }
+                    val result = tryValidate { ensureMin(Year.of(2021), minYear) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { minValue(Year.of(2019), minYear) }
+                    val result = tryValidate { ensureMin(Year.of(2019), minYear) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("maxValue") {
+            context("ensureMax") {
                 val maxYear = Year.of(2030)
 
                 test("success with equal value") {
-                    val result = tryValidate { maxValue(maxYear, maxYear) }
+                    val result = tryValidate { ensureMax(maxYear, maxYear) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with smaller value") {
-                    val result = tryValidate { maxValue(Year.of(2029), maxYear) }
+                    val result = tryValidate { ensureMax(Year.of(2029), maxYear) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { maxValue(Year.of(2031), maxYear) }
+                    val result = tryValidate { ensureMax(Year.of(2031), maxYear) }
                     result.shouldBeFailure()
                 }
             }
@@ -992,64 +992,64 @@ class TemporalValidatorTest :
             val clock = Clock.fixed(instant, zone)
             val config = ValidationConfig(clock = clock)
 
-            context("future") {
+            context("ensureFuture") {
                 test("success") {
-                    val result = tryValidate(config) { future(YearMonth.of(2025, 2)) }
+                    val result = tryValidate(config) { ensureFuture(YearMonth.of(2025, 2)) }
                     result.shouldBeSuccess()
                 }
 
-                test("failure with past value") {
-                    val result = tryValidate(config) { future(YearMonth.of(2024, 12)) }
+                test("failure with ensurePast value") {
+                    val result = tryValidate(config) { ensureFuture(YearMonth.of(2024, 12)) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("past") {
+            context("ensurePast") {
                 test("success") {
-                    val result = tryValidate(config) { past(YearMonth.of(2024, 12)) }
+                    val result = tryValidate(config) { ensurePast(YearMonth.of(2024, 12)) }
                     result.shouldBeSuccess()
                 }
 
-                test("failure with future value") {
-                    val result = tryValidate(config) { past(YearMonth.of(2025, 2)) }
+                test("failure with ensureFuture value") {
+                    val result = tryValidate(config) { ensurePast(YearMonth.of(2025, 2)) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("minValue") {
+            context("ensureMin") {
                 val minYearMonth = YearMonth.of(2024, 1)
 
                 test("success with equal value") {
-                    val result = tryValidate { minValue(minYearMonth, minYearMonth) }
+                    val result = tryValidate { ensureMin(minYearMonth, minYearMonth) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with greater value") {
-                    val result = tryValidate { minValue(YearMonth.of(2024, 2), minYearMonth) }
+                    val result = tryValidate { ensureMin(YearMonth.of(2024, 2), minYearMonth) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { minValue(YearMonth.of(2023, 12), minYearMonth) }
+                    val result = tryValidate { ensureMin(YearMonth.of(2023, 12), minYearMonth) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("maxValue") {
+            context("ensureMax") {
                 val maxYearMonth = YearMonth.of(2025, 12)
 
                 test("success with equal value") {
-                    val result = tryValidate { maxValue(maxYearMonth, maxYearMonth) }
+                    val result = tryValidate { ensureMax(maxYearMonth, maxYearMonth) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with smaller value") {
-                    val result = tryValidate { maxValue(YearMonth.of(2025, 11), maxYearMonth) }
+                    val result = tryValidate { ensureMax(YearMonth.of(2025, 11), maxYearMonth) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { maxValue(YearMonth.of(2026, 1), maxYearMonth) }
+                    val result = tryValidate { ensureMax(YearMonth.of(2026, 1), maxYearMonth) }
                     result.shouldBeFailure()
                 }
             }
@@ -1060,64 +1060,64 @@ class TemporalValidatorTest :
             val clock = Clock.fixed(zonedDateTime.toInstant(), ZoneOffset.UTC)
             val config = ValidationConfig(clock = clock)
 
-            context("future") {
+            context("ensureFuture") {
                 test("success") {
-                    val result = tryValidate(config) { future(zonedDateTime.plusHours(1)) }
+                    val result = tryValidate(config) { ensureFuture(zonedDateTime.plusHours(1)) }
                     result.shouldBeSuccess()
                 }
 
-                test("failure with past value") {
-                    val result = tryValidate(config) { future(zonedDateTime.minusHours(1)) }
+                test("failure with ensurePast value") {
+                    val result = tryValidate(config) { ensureFuture(zonedDateTime.minusHours(1)) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("past") {
+            context("ensurePast") {
                 test("success") {
-                    val result = tryValidate(config) { past(zonedDateTime.minusHours(1)) }
+                    val result = tryValidate(config) { ensurePast(zonedDateTime.minusHours(1)) }
                     result.shouldBeSuccess()
                 }
 
-                test("failure with future value") {
-                    val result = tryValidate(config) { past(zonedDateTime.plusHours(1)) }
+                test("failure with ensureFuture value") {
+                    val result = tryValidate(config) { ensurePast(zonedDateTime.plusHours(1)) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("minValue") {
+            context("ensureMin") {
                 val minZonedDateTime = ZonedDateTime.of(2025, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
 
                 test("success with equal value") {
-                    val result = tryValidate { minValue(minZonedDateTime, minZonedDateTime) }
+                    val result = tryValidate { ensureMin(minZonedDateTime, minZonedDateTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with greater value") {
-                    val result = tryValidate { minValue(minZonedDateTime.plusHours(1), minZonedDateTime) }
+                    val result = tryValidate { ensureMin(minZonedDateTime.plusHours(1), minZonedDateTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { minValue(minZonedDateTime.minusHours(1), minZonedDateTime) }
+                    val result = tryValidate { ensureMin(minZonedDateTime.minusHours(1), minZonedDateTime) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("maxValue") {
+            context("ensureMax") {
                 val maxZonedDateTime = ZonedDateTime.of(2025, 12, 31, 23, 59, 59, 0, ZoneOffset.UTC)
 
                 test("success with equal value") {
-                    val result = tryValidate { maxValue(maxZonedDateTime, maxZonedDateTime) }
+                    val result = tryValidate { ensureMax(maxZonedDateTime, maxZonedDateTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with smaller value") {
-                    val result = tryValidate { maxValue(maxZonedDateTime.minusHours(1), maxZonedDateTime) }
+                    val result = tryValidate { ensureMax(maxZonedDateTime.minusHours(1), maxZonedDateTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { maxValue(maxZonedDateTime.plusHours(1), maxZonedDateTime) }
+                    val result = tryValidate { ensureMax(maxZonedDateTime.plusHours(1), maxZonedDateTime) }
                     result.shouldBeFailure()
                 }
             }

@@ -3,11 +3,11 @@ package example.hibernate.validator
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import org.komapper.extension.validator.Validation
-import org.komapper.extension.validator.maxLength
-import org.komapper.extension.validator.minLength
-import org.komapper.extension.validator.notNull
+import org.komapper.extension.validator.ensureMaxLength
+import org.komapper.extension.validator.ensureMinLength
+import org.komapper.extension.validator.ensureNotNull
+import org.komapper.extension.validator.ensureUppercase
 import org.komapper.extension.validator.tryValidate
-import org.komapper.extension.validator.uppercase
 import java.util.Locale
 
 class ConstraintCompositionTest :
@@ -27,10 +27,10 @@ class ConstraintCompositionTest :
             )
 
             fun Validation.validateLicensePlate(s: String?) {
-                notNull(s)
-                minLength(s, 2)
-                maxLength(s, 14)
-                uppercase(s)
+                ensureNotNull(s)
+                ensureMinLength(s, 2)
+                ensureMaxLength(s, 14)
+                ensureUppercase(s)
             }
 
             fun Validation.validate(car: Car) =

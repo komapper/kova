@@ -5,8 +5,8 @@ import io.konform.validation.required
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import org.komapper.extension.validator.Validation
-import org.komapper.extension.validator.minValue
-import org.komapper.extension.validator.notNull
+import org.komapper.extension.validator.ensureMin
+import org.komapper.extension.validator.ensureNotNull
 import org.komapper.extension.validator.tryValidate
 import java.util.Locale
 import io.konform.validation.Validation as KonformValidation
@@ -69,8 +69,8 @@ class SplitTest :
         context("kova") {
 
             fun Validation.checkAge(age: Int?) {
-                notNull(age)
-                minValue(age, 21)
+                ensureNotNull(age)
+                ensureMin(age, 21)
             }
 
             fun Validation.validate(userProfile: UserProfile) =

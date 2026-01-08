@@ -14,7 +14,7 @@ import kotlin.contracts.contract
  */
 sealed interface ValidationIor<out T> {
     /**
-     * Represents a validation result that contains error messages.
+     * Represents a validation result that ensureContains error messages.
      *
      * This can be either a [Failure] (only errors, no value) or [Both] (value with errors).
      */
