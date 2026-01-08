@@ -118,7 +118,7 @@ data class User(val username: String, val email: String, val age: Int)
 
 fun Validation.buildUser(username: String, email: String, age: String) = factory {
     val username by bind(username) {
-        ensureNotBlank(it); ensureMinLength(it, 3); ensureMaxLength(it, 20)
+        ensureNotBlank(it); ensureLengthInRange(it, 3..20)
         ensureMatches(it, Regex("^[a-zA-Z0-9_]+$"))
         it
     }

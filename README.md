@@ -152,7 +152,7 @@ data class Product(val id: Int, val name: String, val price: Double)
 
 fun Validation.validate(product: Product) = product.schema {
     product::id { ensureMin(it, 1) }
-    product::name { ensureNotBlank(it); ensureMinLength(it, 1); ensureMaxLength(it, 100) }
+    product::name { ensureNotBlank(it); ensureLengthInRange(it, 1..100) }
     product::price { ensureMin(it, 0.0) }
 }
 
@@ -165,7 +165,7 @@ Extract common validation logic into reusable validator functions:
 
 ```kotlin
 fun Validation.validateName(name: String, maxLength: Int = 100): String {
-    ensureNotBlank(name); ensureMinLength(name, 1); ensureMaxLength(name, maxLength)
+    ensureNotBlank(name); ensureLengthInRange(name, 1..maxLength)
     return name
 }
 
@@ -207,7 +207,7 @@ fun Validation.validate(address: Address) = address.schema {
 }
 
 fun Validation.validate(customer: Customer) = customer.schema {
-    customer::name { ensureNotBlank(it); ensureMinLength(it, 1); ensureMaxLength(it, 100) }
+    customer::name { ensureNotBlank(it); ensureLengthInRange(it, 1..100) }
     customer::email { ensureNotBlank(it); ensureContains(it, "@") }
     customer::address { validate(it) }  // Nested validation
 }
@@ -277,7 +277,7 @@ data class Customer(val id: Int, val name: String) : Validated {
 
 fun Validation.validate(customer: Customer) = customer.schema {
     customer::id { ensurePositive(it) }
-    customer::name { ensureNotBlank(it); ensureMinLength(it, 1); ensureMaxLength(it, 50) }
+    customer::name { ensureNotBlank(it); ensureLengthInRange(it, 1..50) }
 }
 
 fun Application.module() {

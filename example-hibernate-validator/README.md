@@ -42,8 +42,7 @@ fun Validation.validate(car: Car) = car.schema {
     car::manufacturer { ensureNotNull(it) }
     car::licensePlate {
         ensureNotNull(it)
-        ensureMinLength(it, 2)
-        ensureMaxLength(it, 14)
+        ensureLengthInRange(it, 2..14)
     }
     car::seatCount { ensureMin(it, 2) }
 }
