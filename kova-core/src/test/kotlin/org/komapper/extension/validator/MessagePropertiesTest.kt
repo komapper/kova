@@ -661,17 +661,17 @@ class MessagePropertiesTest :
                 message.text shouldBe "must contain key foo"
             }
 
-            test("notContainsKey") {
-                val result = tryValidate { notContainsKey(mapOf("foo" to 1, "bar" to 2), "foo") }
+            test("ensureNotContainsKey") {
+                val result = tryValidate { ensureNotContainsKey(mapOf("foo" to 1, "bar" to 2), "foo") }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must not contain key foo"
             }
 
-            test("notContainsKey with message") {
+            test("ensureNotContainsKey with message") {
                 val result =
                     tryValidate {
-                        notContainsKey(
+                        ensureNotContainsKey(
                             mapOf("foo" to 1, "bar" to 2),
                             "foo",
                         ) { text("must not contain key foo") }
@@ -681,14 +681,14 @@ class MessagePropertiesTest :
                 message.text shouldBe "must not contain key foo"
             }
 
-            test("ensureCcontainsValue") {
+            test("ensureContainsValue") {
                 val result = tryValidate { ensureHasValue(mapOf("foo" to 1, "bar" to 2), 42) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must contain value 42"
             }
 
-            test("ensureCcontainsValue with message") {
+            test("ensureContainsValue with message") {
                 val result = tryValidate { ensureHasValue(mapOf("foo" to 1, "bar" to 2), 42) { text("must contain value 42") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()

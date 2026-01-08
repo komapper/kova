@@ -238,21 +238,21 @@ class MapValidatorTest :
             }
         }
 
-        context("notContainsKey") {
+        context("ensureNotContainsKey") {
             test("success") {
-                val result = tryValidate { notContainsKey(mapOf("bar" to 2, "baz" to 3), "foo") }
+                val result = tryValidate { ensureNotContainsKey(mapOf("bar" to 2, "baz" to 3), "foo") }
                 result.shouldBeSuccess()
             }
 
             test("failure") {
-                val result = tryValidate { notContainsKey(mapOf("foo" to 1, "bar" to 2), "foo") }
+                val result = tryValidate { ensureNotContainsKey(mapOf("foo" to 1, "bar" to 2), "foo") }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.map.notContainsKey"
             }
 
             test("success with ensureEmpty map") {
-                val result = tryValidate { notContainsKey(emptyMap<String, Nothing>(), "foo") }
+                val result = tryValidate { ensureNotContainsKey(emptyMap<String, Nothing>(), "foo") }
                 result.shouldBeSuccess()
             }
         }
@@ -276,21 +276,21 @@ class MapValidatorTest :
             }
         }
 
-        context("ensureCcontainsValue") {
+        context("ensureContainsValue") {
             test("success") {
-                val result = tryValidate { ensureCcontainsValue(mapOf("foo" to 42, "bar" to 2), 42) }
+                val result = tryValidate { ensureContainsValue(mapOf("foo" to 42, "bar" to 2), 42) }
                 result.shouldBeSuccess()
             }
 
             test("failure") {
-                val result = tryValidate { ensureCcontainsValue(mapOf("foo" to 1, "bar" to 2), 42) }
+                val result = tryValidate { ensureContainsValue(mapOf("foo" to 1, "bar" to 2), 42) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.map.containsValue"
             }
 
             test("failure with ensureEmpty map") {
-                val result = tryValidate { ensureCcontainsValue(emptyMap<Nothing, Int>(), 42) }
+                val result = tryValidate { ensureContainsValue(emptyMap<Nothing, Int>(), 42) }
                 result.shouldBeFailure()
             }
         }
