@@ -188,8 +188,8 @@ data class Validation(
      * data class User(val name: String, val age: Int)
      *
      * fun Validation.validate(user: User) = user.schema {
-     *     user::name { ensureNotBlank(it); ensureMinLength(it, 1); ensureMaxLength(it, 100) }
-     *     user::age { min(it, 0); max(it, 120) }
+     *     user::name { ensureNotBlank(it); ensureLengthInRange(it, 1..100) }
+     *     user::age { ensureMin(it, 0); ensureMax(it, 120) }
      * }
      *
      * tryValidate { validate(User("Alice", 30)) }
@@ -222,7 +222,7 @@ data class Validation(
      *
      * fun Validation.validate(user: User) = user.schema {
      *     user::name { ensureNotBlank(it); ensureMinLength(it, 1) }
-     *     user::age { min(it, 0); max(it, 120) }
+     *     user::age { ensureMin(it, 0); ensureMax(it, 120) }
      *     user::email { ensureNullOr(it) { ensureMatches(it, emailRegex) } }
      * }
      * ```

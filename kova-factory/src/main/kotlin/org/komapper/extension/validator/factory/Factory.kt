@@ -45,8 +45,7 @@ inline fun <R> Validation.factory(
  * ```kotlin
  * val name by bind(rawName) {
  *     ensureNotBlank(it)
- *     min(it, 1)
- *     max(it, 50)
+ *     ensureLengthInRange(it, 1..50)
  *     it
  * }
  * val id by bind(rawId) { parseInt(it) }
