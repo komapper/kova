@@ -17,8 +17,7 @@ import org.komapper.extension.validator.Validation
  *         ::id { ensurePositive(it) }
  *         ::name {
  *             ensureNotBlank(it)
- *             min(it, 1)
- *             max(it, 100)
+ *             ensureLengthInRange(it, 1..100)
  *         }
  *     }
  * }
