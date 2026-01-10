@@ -25,7 +25,7 @@ import kotlin.reflect.KProperty
  *             ensureNotBlank(it)
  *             it
  *         }
- *         val age by bind(age) { parseInt(it) }
+ *         val age by bind(age) { transformToInt(it) }
  *         User(name, age)
  *     }
  * ```
@@ -53,7 +53,7 @@ inline fun <R> factory(
  *     ensureLengthInRange(it, 1..50)
  *     it
  * }
- * val id by bind(rawId) { parseInt(it) }
+ * val id by bind(rawId) { transformToInt(it) }
  * ```
  *
  * @param T The type of the input value

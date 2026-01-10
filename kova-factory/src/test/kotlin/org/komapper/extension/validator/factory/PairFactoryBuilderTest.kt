@@ -11,7 +11,7 @@ import org.komapper.extension.validator.ensureMin
 import org.komapper.extension.validator.ensureMinLength
 import org.komapper.extension.validator.ensureNotBlank
 import org.komapper.extension.validator.ensurePositive
-import org.komapper.extension.validator.parseInt
+import org.komapper.extension.validator.transformToInt
 import org.komapper.extension.validator.tryValidate
 import org.komapper.extension.validator.validate
 
@@ -164,8 +164,8 @@ class PairFactoryBuilderTest :
                 first: String,
                 second: String,
             ) = buildPair(
-                bind(first) { parseInt(it) },
-                bind(second) { parseInt(it) },
+                bind(first) { transformToInt(it) },
+                bind(second) { transformToInt(it) },
             )
 
             test("success - both elements transformed") {

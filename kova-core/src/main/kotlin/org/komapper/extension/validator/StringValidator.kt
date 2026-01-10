@@ -19,7 +19,7 @@ import kotlin.reflect.KClass
 context(_: Validation)
 fun String.ensureInt(
     message: MessageProvider = { "kova.string.int".resource },
-) = this.constrain("kova.string.int") { val _ = parseInt(it, message) }
+) = this.constrain("kova.string.int") { val _ = transformToInt(it, message) }
 
 /**
  * Validates that the string can be parsed as a Long.
@@ -36,7 +36,7 @@ fun String.ensureInt(
 context(_: Validation)
 fun String.ensureLong(
     message: MessageProvider = { "kova.string.long".resource },
-) = this.constrain("kova.string.long") { val _ = parseLong(it, message) }
+) = this.constrain("kova.string.long") { val _ = transformToLong(it, message) }
 
 /**
  * Validates that the string can be parsed as a Short.
@@ -53,7 +53,7 @@ fun String.ensureLong(
 context(_: Validation)
 fun String.ensureShort(
     message: MessageProvider = { "kova.string.short".resource },
-) = this.constrain("kova.string.short") { val _ = parseShort(it, message) }
+) = this.constrain("kova.string.short") { val _ = transformToShort(it, message) }
 
 /**
  * Validates that the string can be parsed as a Byte.
@@ -70,7 +70,7 @@ fun String.ensureShort(
 context(_: Validation)
 fun String.ensureByte(
     message: MessageProvider = { "kova.string.byte".resource },
-) = this.constrain("kova.string.byte") { val _ = parseByte(it, message) }
+) = this.constrain("kova.string.byte") { val _ = transformToByte(it, message) }
 
 /**
  * Validates that the string can be parsed as a Double.
@@ -87,7 +87,7 @@ fun String.ensureByte(
 context(_: Validation)
 fun String.ensureDouble(
     message: MessageProvider = { "kova.string.double".resource },
-) = this.constrain("kova.string.double") { val _ = parseDouble(it, message) }
+) = this.constrain("kova.string.double") { val _ = transformToDouble(it, message) }
 
 /**
  * Validates that the string can be parsed as a Float.
@@ -104,7 +104,7 @@ fun String.ensureDouble(
 context(_: Validation)
 fun String.ensureFloat(
     message: MessageProvider = { "kova.string.float".resource },
-) = this.constrain("kova.string.float") { val _ = parseFloat(it, message) }
+) = this.constrain("kova.string.float") { val _ = transformToFloat(it, message) }
 
 /**
  * Validates that the string can be parsed as a BigDecimal.
@@ -121,7 +121,7 @@ fun String.ensureFloat(
 context(_: Validation)
 fun String.ensureBigDecimal(
     message: MessageProvider = { "kova.string.bigDecimal".resource },
-) = this.constrain("kova.string.bigDecimal") { val _ = parseBigDecimal(it, message) }
+) = this.constrain("kova.string.bigDecimal") { val _ = transformToBigDecimal(it, message) }
 
 /**
  * Validates that the string can be parsed as a BigInteger.
@@ -138,7 +138,7 @@ fun String.ensureBigDecimal(
 context(_: Validation)
 fun String.ensureBigInteger(
     message: MessageProvider = { "kova.string.bigInteger".resource },
-) = this.constrain("kova.string.bigInteger") { val _ = parseBigInteger(it, message) }
+) = this.constrain("kova.string.bigInteger") { val _ = transformToBigInteger(it, message) }
 
 /**
  * Validates that the string can be parsed as a Boolean.
@@ -158,7 +158,7 @@ fun String.ensureBigInteger(
 context(_: Validation)
 fun String.ensureBoolean(
     message: MessageProvider = { "kova.string.boolean".resource },
-) = this.constrain("kova.string.boolean") { val _ = parseBoolean(it, message) }
+) = this.constrain("kova.string.boolean") { val _ = transformToBoolean(it, message) }
 
 /**
  * Validates that the string is a valid name for the specified enum type.
@@ -178,7 +178,7 @@ context(_: Validation)
 fun <E : Enum<E>> String.ensureEnum(
     klass: KClass<E>,
     message: (validNames: List<String>) -> Message = { "kova.string.enum".resource(it) },
-) = this.constrain("kova.string.enum") { val _ = parseEnum(it, klass, message) }
+) = this.constrain("kova.string.enum") { val _ = transformToEnum(it, klass, message) }
 
 /**
  * Validates that the string is a valid name for the specified enum type (reified version).
@@ -206,18 +206,18 @@ inline fun <reified E : Enum<E>> String.ensureEnum(
  * Example:
  * ```kotlin
  * enum class Role { ADMIN, USER, GUEST }
- * tryValidate { parseEnum<Role>("ADMIN") } // Success: Role.ADMIN
- * tryValidate { parseEnum<Role>("OTHER") } // Failure
+ * tryValidate { transformToEnum<Role>("ADMIN") } // Success: Role.ADMIN
+ * tryValidate { transformToEnum<Role>("OTHER") } // Failure
  * ```
  */
 context(_: Validation)
-inline fun <reified E : Enum<E>> parseEnum(
+inline fun <reified E : Enum<E>> transformToEnum(
     input: String,
     noinline message: (validNames: List<String>) -> Message = { "kova.string.enum".resource(it) },
-) = parseEnum(input, E::class, message)
+) = transformToEnum(input, E::class, message)
 
 context(_: Validation)
-fun <E : Enum<E>> parseEnum(
+fun <E : Enum<E>> transformToEnum(
     input: String,
     klass: KClass<E>,
     message: (validNames: List<String>) -> Message = { "kova.string.enum".resource(it) },
@@ -270,12 +270,12 @@ fun String.ensureLowercase(
  *
  * Example:
  * ```kotlin
- * tryValidate { parseInt("123") } // Success: 123
- * tryValidate { parseInt("abc") } // Failure
+ * tryValidate { transformToInt("123") } // Success: 123
+ * tryValidate { transformToInt("abc") } // Failure
  * ```
  */
 context(_: Validation)
-fun parseInt(
+fun transformToInt(
     input: String,
     message: MessageProvider = { "kova.string.int".resource },
 ) = toNonNullable(input.toIntOrNull(), "kova.string.int", message)
@@ -287,12 +287,12 @@ fun parseInt(
  *
  * Example:
  * ```kotlin
- * tryValidate { parseLong("123456789") } // Success: 123456789L
- * tryValidate { parseLong("abc") }       // Failure
+ * tryValidate { transformToLong("123456789") } // Success: 123456789L
+ * tryValidate { transformToLong("abc") }       // Failure
  * ```
  */
 context(_: Validation)
-fun parseLong(
+fun transformToLong(
     input: String,
     message: MessageProvider = { "kova.string.long".resource },
 ) = toNonNullable(input.toLongOrNull(), "kova.string.long", message)
@@ -304,12 +304,12 @@ fun parseLong(
  *
  * Example:
  * ```kotlin
- * tryValidate { parseShort("123") } // Success: 123.parseShort()
- * tryValidate { parseShort("abc") } // Failure
+ * tryValidate { transformToShort("123") } // Success: 123.toShort()
+ * tryValidate { transformToShort("abc") } // Failure
  * ```
  */
 context(_: Validation)
-fun parseShort(
+fun transformToShort(
     input: String,
     message: MessageProvider = { "kova.string.short".resource },
 ) = toNonNullable(input.toShortOrNull(), "kova.string.short", message)
@@ -321,12 +321,12 @@ fun parseShort(
  *
  * Example:
  * ```kotlin
- * tryValidate { parseByte("12") }  // Success: 12.parseByte()
- * tryValidate { parseByte("abc") } // Failure
+ * tryValidate { transformToByte("12") }  // Success: 12.toByte()
+ * tryValidate { transformToByte("abc") } // Failure
  * ```
  */
 context(_: Validation)
-fun parseByte(
+fun transformToByte(
     input: String,
     message: MessageProvider = { "kova.string.byte".resource },
 ) = toNonNullable(input.toByteOrNull(), "kova.string.byte", message)
@@ -338,12 +338,12 @@ fun parseByte(
  *
  * Example:
  * ```kotlin
- * tryValidate { parseDouble("12.5") } // Success: 12.5
- * tryValidate { parseDouble("abc") }  // Failure
+ * tryValidate { transformToDouble("12.5") } // Success: 12.5
+ * tryValidate { transformToDouble("abc") }  // Failure
  * ```
  */
 context(_: Validation)
-fun parseDouble(
+fun transformToDouble(
     input: String,
     message: MessageProvider = { "kova.string.double".resource },
 ) = toNonNullable(input.toDoubleOrNull(), "kova.string.double", message)
@@ -355,12 +355,12 @@ fun parseDouble(
  *
  * Example:
  * ```kotlin
- * tryValidate { parseFloat("12.5") } // Success: 12.5f
- * tryValidate { parseFloat("abc") }  // Failure
+ * tryValidate { transformToFloat("12.5") } // Success: 12.5f
+ * tryValidate { transformToFloat("abc") }  // Failure
  * ```
  */
 context(_: Validation)
-fun parseFloat(
+fun transformToFloat(
     input: String,
     message: MessageProvider = { "kova.string.float".resource },
 ) = toNonNullable(input.toFloatOrNull(), "kova.string.float", message)
@@ -372,12 +372,12 @@ fun parseFloat(
  *
  * Example:
  * ```kotlin
- * tryValidate { parseBigDecimal("123.456789") } // Success: BigDecimal("123.456789")
- * tryValidate { parseBigDecimal("abc") }        // Failure
+ * tryValidate { transformToBigDecimal("123.456789") } // Success: BigDecimal("123.456789")
+ * tryValidate { transformToBigDecimal("abc") }        // Failure
  * ```
  */
 context(_: Validation)
-fun parseBigDecimal(
+fun transformToBigDecimal(
     input: String,
     message: MessageProvider = { "kova.string.bigDecimal".resource },
 ) = toNonNullable(input.toBigDecimalOrNull(), "kova.string.bigDecimal", message)
@@ -389,12 +389,12 @@ fun parseBigDecimal(
  *
  * Example:
  * ```kotlin
- * tryValidate { parseBigInteger("123456789012345") } // Success: BigInteger("123456789012345")
- * tryValidate { parseBigInteger("abc") }             // Failure
+ * tryValidate { transformToBigInteger("123456789012345") } // Success: BigInteger("123456789012345")
+ * tryValidate { transformToBigInteger("abc") }             // Failure
  * ```
  */
 context(_: Validation)
-fun parseBigInteger(
+fun transformToBigInteger(
     input: String,
     message: MessageProvider = { "kova.string.bigInteger".resource },
 ) = toNonNullable(input.toBigIntegerOrNull(), "kova.string.bigInteger", message)
@@ -406,13 +406,13 @@ fun parseBigInteger(
  *
  * Example:
  * ```kotlin
- * tryValidate { parseBoolean("true") }  // Success: true
- * tryValidate { parseBoolean("false") } // Success: false
- * tryValidate { parseBoolean("yes") }   // Failure
+ * tryValidate { transformToBoolean("true") }  // Success: true
+ * tryValidate { transformToBoolean("false") } // Success: false
+ * tryValidate { transformToBoolean("yes") }   // Failure
  * ```
  */
 context(_: Validation)
-fun parseBoolean(
+fun transformToBoolean(
     input: String,
     message: MessageProvider = { "kova.string.boolean".resource },
 ) = toNonNullable(input.toBooleanStrictOrNull(), "kova.string.boolean", message)

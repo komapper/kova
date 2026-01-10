@@ -6,7 +6,7 @@ import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationConfig
 import org.komapper.extension.validator.ValidationException
 import org.komapper.extension.validator.ensureNotBlank
-import org.komapper.extension.validator.parseInt
+import org.komapper.extension.validator.transformToInt
 import org.komapper.extension.validator.tryValidate
 import org.komapper.extension.validator.validate
 
@@ -102,7 +102,7 @@ class FactoryTest :
             context(_: Validation)
             fun buildAge(value: String) =
                 factory {
-                    val value by bind(value) { parseInt(it) }
+                    val value by bind(value) { transformToInt(it) }
                     Age(value)
                 }
 
@@ -113,7 +113,7 @@ class FactoryTest :
                 lastName: String,
                 age: String,
             ) = factory {
-                val id by bind(id) { parseInt(it) }
+                val id by bind(id) { transformToInt(it) }
                 val fullName by bind { buildFullName(firstName, lastName) }
                 val age by bind { buildAge(age) }
                 User(id, fullName, age)

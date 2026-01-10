@@ -8,8 +8,8 @@ import org.komapper.extension.validator.ensureNotBlank
 import org.komapper.extension.validator.factory.bind
 import org.komapper.extension.validator.factory.factory
 import org.komapper.extension.validator.isSuccess
-import org.komapper.extension.validator.parseInt
 import org.komapper.extension.validator.schema
+import org.komapper.extension.validator.transformToInt
 import org.komapper.extension.validator.tryValidate
 
 /**
@@ -57,7 +57,7 @@ fun validate(user: User) =
  *
  * 1. **Argument validators** - Validate and transform each input parameter
  *    - name: validates it's not ensureBlank, ensureHas min ensureLength 1, and returns the validated string
- *    - age: converts the string to Int using parseInt() validator
+ *    - age: converts the string to Int using transformToInt() validator
  *
  * 2. **Object validator** - Validates the constructed User object (.also { validate(it) })
  *    - Applies the validate(User) schema to check age range (0-120)
@@ -80,7 +80,7 @@ fun buildUser(
         it.ensureNotBlank()
         it
     } // argument validator
-    val age by bind(age) { parseInt(it) } // argument validator
+    val age by bind(age) { transformToInt(it) } // argument validator
     User(name, age)
 }.also { validate(it) } // object validator
 
@@ -91,7 +91,7 @@ fun buildUser(
 context(_: Validation)
 fun buildAge(age: String) =
     factory {
-        val value by bind(age) { parseInt(it) } // argument validator
+        val value by bind(age) { transformToInt(it) } // argument validator
         Age(value)
     }
 

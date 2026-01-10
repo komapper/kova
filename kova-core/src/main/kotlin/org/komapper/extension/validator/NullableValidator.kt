@@ -76,9 +76,9 @@ fun <T> T.ensureNotNull(message: MessageProvider = { "kova.nullable.notNull".res
  * null check validation. It validates that the input is not null and converts the output
  * type from `T?` to `T & Any`.
  *
- * This function is primarily used internally by type conversion validators (e.g., [parseInt],
- * [parseLong], [parseEnum]) that need to report errors with their specific constraint IDs
- * (e.g., "kova.string.ensureInt", "kova.string.ensureEnum") rather than the generic
+ * This function is primarily used internally by type conversion validators (e.g., [transformToInt],
+ * [transformToLong], [transformToEnum]) that need to report errors with their specific constraint IDs
+ * (e.g., "kova.string.int", "kova.string.enum") rather than the generic
  * "kova.nullable.notNull".
  *
  * The function uses [constrain] to properly track the validation path context and returns

@@ -139,110 +139,110 @@ class StringValidatorTest :
             }
         }
 
-        context("parseBoolean") {
+        context("transformToBoolean") {
             test("success with true") {
-                val result = tryValidate { parseBoolean("true") }
+                val result = tryValidate { transformToBoolean("true") }
                 result.shouldBeSuccess()
                 result.value shouldBe true
             }
             test("success with false") {
-                val result = tryValidate { parseBoolean("false") }
+                val result = tryValidate { transformToBoolean("false") }
                 result.shouldBeSuccess()
                 result.value shouldBe false
             }
             test("failure") {
-                val result = tryValidate { parseBoolean("yes") }
+                val result = tryValidate { transformToBoolean("yes") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.boolean"
             }
         }
 
-        context("parseLong") {
+        context("transformToLong") {
             test("success") {
-                val result = tryValidate { parseLong("9223372036854775807") }
+                val result = tryValidate { transformToLong("9223372036854775807") }
                 result.shouldBeSuccess()
                 result.value shouldBe 9223372036854775807L
             }
             test("failure") {
-                val result = tryValidate { parseLong("abc") }
+                val result = tryValidate { transformToLong("abc") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.long"
             }
         }
 
-        context("parseShort") {
+        context("transformToShort") {
             test("success") {
-                val result = tryValidate { parseShort("32767") }
+                val result = tryValidate { transformToShort("32767") }
                 result.shouldBeSuccess()
                 result.value shouldBe 32767.toShort()
             }
             test("failure") {
-                val result = tryValidate { parseShort("99999") }
+                val result = tryValidate { transformToShort("99999") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.short"
             }
         }
 
-        context("parseByte") {
+        context("transformToByte") {
             test("success") {
-                val result = tryValidate { parseByte("127") }
+                val result = tryValidate { transformToByte("127") }
                 result.shouldBeSuccess()
                 result.value shouldBe 127.toByte()
             }
             test("failure") {
-                val result = tryValidate { parseByte("256") }
+                val result = tryValidate { transformToByte("256") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.byte"
             }
         }
 
-        context("parseDouble") {
+        context("transformToDouble") {
             test("success") {
-                val result = tryValidate { parseDouble("123.45") }
+                val result = tryValidate { transformToDouble("123.45") }
                 result.shouldBeSuccess()
                 result.value shouldBe 123.45
             }
             test("failure") {
-                val result = tryValidate { parseDouble("abc") }
+                val result = tryValidate { transformToDouble("abc") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.double"
             }
         }
 
-        context("parseFloat") {
+        context("transformToFloat") {
             test("success") {
-                val result = tryValidate { parseFloat("123.45") }
+                val result = tryValidate { transformToFloat("123.45") }
                 result.shouldBeSuccess()
                 result.value shouldBe 123.45f
             }
             test("failure") {
-                val result = tryValidate { parseFloat("abc") }
+                val result = tryValidate { transformToFloat("abc") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.float"
             }
         }
 
-        context("parseBigDecimal") {
+        context("transformToBigDecimal") {
             test("success") {
-                val result = tryValidate { parseBigDecimal("123.456789012345678901234567890") }
+                val result = tryValidate { transformToBigDecimal("123.456789012345678901234567890") }
                 result.shouldBeSuccess()
                 result.value shouldBe "123.456789012345678901234567890".toBigDecimal()
             }
             test("failure") {
-                val result = tryValidate { parseBigDecimal("abc") }
+                val result = tryValidate { transformToBigDecimal("abc") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.bigDecimal"
             }
         }
 
-        context("parseBigInteger") {
+        context("transformToBigInteger") {
             test("success") {
-                val result = tryValidate { parseBigInteger("12345678901234567890") }
+                val result = tryValidate { transformToBigInteger("12345678901234567890") }
                 result.shouldBeSuccess()
                 result.value shouldBe "12345678901234567890".toBigInteger()
             }
             test("failure") {
-                val result = tryValidate { parseBigInteger("123.45") }
+                val result = tryValidate { transformToBigInteger("123.45") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.bigInteger"
             }
@@ -280,14 +280,17 @@ class StringValidatorTest :
             }
         }
 
-        context("parseInt") {
+        context("transformToInt") {
             test("success") {
-                val result = tryValidate { parseInt("123") }
+                val result =
+                    tryValidate {
+                        transformToInt("123")
+                    }
                 result.shouldBeSuccess()
                 result.value shouldBe 123
             }
             test("failure") {
-                val result = tryValidate { parseInt("123a") }
+                val result = tryValidate { transformToInt("123a") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.int"
             }
@@ -373,29 +376,29 @@ class StringValidatorTest :
             }
         }
 
-        context("parseEnum") {
+        context("transformToEnum") {
             test("success with ACTIVE") {
-                val result = tryValidate { parseEnum<Status>("ACTIVE") }
+                val result = tryValidate { transformToEnum<Status>("ACTIVE") }
                 result.shouldBeSuccess()
                 result.value shouldBe Status.ACTIVE
             }
             test("success with INACTIVE") {
-                val result = tryValidate { parseEnum<Status>("INACTIVE") }
+                val result = tryValidate { transformToEnum<Status>("INACTIVE") }
                 result.shouldBeSuccess()
                 result.value shouldBe Status.INACTIVE
             }
             test("success with PENDING") {
-                val result = tryValidate { parseEnum<Status>("PENDING") }
+                val result = tryValidate { transformToEnum<Status>("PENDING") }
                 result.shouldBeSuccess()
                 result.value shouldBe Status.PENDING
             }
             test("failure with invalid value") {
-                val result = tryValidate { parseEnum<Status>("INVALID") }
+                val result = tryValidate { transformToEnum<Status>("INVALID") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.enum"
             }
             test("failure with ensureLowercase") {
-                val result = tryValidate { parseEnum<Status>("active") }
+                val result = tryValidate { transformToEnum<Status>("active") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.enum"
             }
