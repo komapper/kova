@@ -25,15 +25,14 @@ import org.komapper.extension.validator.ktor.server.Validated
 
 @Serializable
 data class Customer(val id: Int, val name: String) : Validated {
-    override fun Validation.validate() = validate(this@Customer)
-}
-
-fun Validation.validate(customer: Customer) = customer.schema {
-    customer::id { ensurePositive(it) }
-    customer::name {
-        ensureNotBlank(it)
-        ensureMinLength(it, 1)
-        ensureMaxLength(it, 50)
+    context(_: Validation)
+    override fun validate() = schema {
+        ::id { it.ensurePositive() }
+        ::name {
+            it.ensureNotBlank()
+            it.ensureLengthAtLeast(1)
+            it.ensureLengthAtMost(50)
+        }
     }
 }
 ```
@@ -82,15 +81,14 @@ interface Validated {
 }
 ```
 
-Implementation delegates to a separate validation function:
+The `validate()` method is defined with a context receiver:
 
 ```kotlin
 data class Customer(val id: Int) : Validated {
-    override fun Validation.validate() = validate(this@Customer)
-}
-
-fun Validation.validate(customer: Customer) = customer.schema {
-    customer::id { ensurePositive(it) }
+    context(_: Validation)
+    override fun validate() = schema {
+        ::id { it.ensurePositive() }
+    }
 }
 ```
 
@@ -133,22 +131,29 @@ install(StatusPages) {
 ```kotlin
 @Serializable
 data class Address(val street: String, val city: String) : Validated {
-    override fun Validation.validate() = validate(this@Address)
-}
-
-fun Validation.validate(address: Address) = address.schema {
-    address::street { ensureNotBlank(it); ensureMinLength(it, 1) }
-    address::city { ensureNotBlank(it); ensureMinLength(it, 1) }
+    context(_: Validation)
+    override fun validate() = schema {
+        ::street {
+            it.ensureNotBlank()
+            it.ensureLengthAtLeast(1)
+        }
+        ::city {
+            it.ensureNotBlank()
+            it.ensureLengthAtLeast(1)
+        }
+    }
 }
 
 @Serializable
 data class User(val name: String, val address: Address) : Validated {
-    override fun Validation.validate() = validate(this@User)
-}
-
-fun Validation.validate(user: User) = user.schema {
-    user::name { ensureNotBlank(it); ensureMinLength(it, 1) }
-    user::address { validate(it) }  // Reuse validation
+    context(_: Validation)
+    override fun validate() = schema {
+        ::name {
+            it.ensureNotBlank()
+            it.ensureLengthAtLeast(1)
+        }
+        ::address { it.validate() }  // Reuse validation
+    }
 }
 ```
 
@@ -170,12 +175,14 @@ import org.komapper.extension.validator.ktor.server.*
 
 @Serializable
 data class Customer(val id: Int, val name: String) : Validated {
-    override fun Validation.validate() = validate(this@Customer)
-}
-
-fun Validation.validate(customer: Customer) = customer.schema {
-    customer::id { ensurePositive(it) }
-    customer::name { ensureNotBlank(it); ensureLengthInRange(it, 1..50) }
+    context(_: Validation)
+    override fun validate() = schema {
+        ::id { it.ensurePositive() }
+        ::name {
+            it.ensureNotBlank()
+            it.ensureLengthInRange(1..50)
+        }
+    }
 }
 
 fun Application.module() {

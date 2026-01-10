@@ -22,9 +22,14 @@ import org.komapper.extension.validator.factory.*
 
 data class User(val name: String, val age: Int)
 
-fun Validation.buildUser(name: String, age: String) = factory {
-    val name by bind(name) { ensureNotBlank(it); ensureMinLength(it, 1); it }
-    val age by bind(age) { parseInt(it) }
+context(_: Validation)
+fun buildUser(name: String, age: String) = factory {
+    val name by bind(name) {
+        it.ensureNotBlank()
+        it.ensureLengthAtLeast(1)
+        it
+    }
+    val age by bind(age) { it.transformToInt() }
     User(name, age)
 }
 
@@ -38,7 +43,8 @@ val result = tryValidate { buildUser("Alice", "25") }
 Creates a factory context for building validated objects:
 
 ```kotlin
-fun Validation.buildUser(...) = factory {
+context(_: Validation)
+fun buildUser(...) = factory {
     val field by bind(...) { /* validation */ }
     User(field)
 }
@@ -50,7 +56,8 @@ Binds and validates a field. Returns the validated/transformed value:
 
 ```kotlin
 val name by bind(rawName) {
-    ensureNotBlank(it); ensureMinLength(it, 1)
+    it.ensureNotBlank()
+    it.ensureLengthAtLeast(1)
     it  // Return validated value
 }
 ```
@@ -72,10 +79,12 @@ Convert and validate raw strings into typed values:
 ```kotlin
 data class Age(val value: Int)
 
-fun Validation.buildAge(ageString: String) = factory {
+context(_: Validation)
+fun buildAge(ageString: String) = factory {
     val value by bind(ageString) {
-        val age = parseInt(it)  // String -> Int
-        ensureMin(age, 0); ensureMax(age, 120)
+        val age = it.transformToInt()  // String -> Int
+        age.ensureAtLeast(0)
+        age.ensureAtMost(120)
         age
     }
     Age(value)
@@ -91,19 +100,25 @@ data class Name(val value: String)
 data class FullName(val first: Name, val last: Name)
 data class User(val id: Int, val fullName: FullName)
 
-fun Validation.buildName(value: String) = factory {
-    val value by bind(value) { ensureNotBlank(it); it }
+context(_: Validation)
+fun buildName(value: String) = factory {
+    val value by bind(value) {
+        it.ensureNotBlank()
+        it
+    }
     Name(value)
 }
 
-fun Validation.buildFullName(first: String, last: String) = factory {
+context(_: Validation)
+fun buildFullName(first: String, last: String) = factory {
     val first by bind { buildName(first) }
     val last by bind { buildName(last) }
     FullName(first, last)
 }
 
-fun Validation.buildUser(id: String, firstName: String, lastName: String) = factory {
-    val id by bind(id) { parseInt(it) }
+context(_: Validation)
+fun buildUser(id: String, firstName: String, lastName: String) = factory {
+    val id by bind(id) { it.transformToInt() }
     val fullName by bind { buildFullName(firstName, lastName) }
     User(id, fullName)
 }
@@ -116,19 +131,24 @@ fun Validation.buildUser(id: String, firstName: String, lastName: String) = fact
 ```kotlin
 data class User(val username: String, val email: String, val age: Int)
 
-fun Validation.buildUser(username: String, email: String, age: String) = factory {
+context(_: Validation)
+fun buildUser(username: String, email: String, age: String) = factory {
     val username by bind(username) {
-        ensureNotBlank(it); ensureLengthInRange(it, 3..20)
-        ensureMatches(it, Regex("^[a-zA-Z0-9_]+$"))
+        it.ensureNotBlank()
+        it.ensureLengthInRange(3..20)
+        it.ensureMatches(Regex("^[a-zA-Z0-9_]+$"))
         it
     }
     val email by bind(email) {
-        ensureNotBlank(it); ensureContains(it, "@"); ensureMinLength(it, 5)
+        it.ensureNotBlank()
+        it.ensureContains("@")
+        it.ensureLengthAtLeast(5)
         it
     }
     val age by bind(age) {
-        val ageInt = parseInt(it)
-        ensureMin(ageInt, 0); ensureMax(ageInt, 120)
+        val ageInt = it.transformToInt()
+        ageInt.ensureAtLeast(0)
+        ageInt.ensureAtMost(120)
         ageInt
     }
     User(username, email, age)

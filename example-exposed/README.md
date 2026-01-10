@@ -21,13 +21,21 @@ See the [main README](../README.md) for core validation concepts.
 Define validation schemas for your entities:
 
 ```kotlin
-fun Validation.validate(city: City) = city.schema {
-    city::name { ensureNotEmpty(it) }
+context(_: Validation)
+fun City.validate() = schema {
+    ::name { it.ensureNotEmpty() }
 }
 
-fun Validation.validate(user: User) = user.schema {
-    user::name { ensureMinLength(it, 1); ensureNotBlank(it) }
-    user::age { ensureMin(it, 0); ensureMax(it, 120) }
+context(_: Validation)
+fun User.validate() = schema {
+    ::name {
+        it.ensureLengthAtLeast(1)
+        it.ensureNotBlank()
+    }
+    ::age {
+        it.ensureAtLeast(0)
+        it.ensureAtMost(120)
+    }
 }
 ```
 
@@ -53,7 +61,7 @@ The `subscribe()` extension function integrates Kova with Exposed's EntityHook:
 
 ```kotlin
 fun <ID : Any, T : Entity<ID>> EntityClass<ID, T>.subscribe(
-    validate: context(Validation)(T) -> Unit
+    validate: context(Validation) (T) -> Unit
 ): (EntityChange) -> Unit
 ```
 

@@ -103,19 +103,19 @@ class QuickStartTest :
             )
 
             context(_: Validation)
-            fun validate(product: Product) =
-                product.schema {
-                    product::id { it.ensureAtLeast(1) }
-                    product::name {
+            fun Product.validate() =
+                schema {
+                    ::id { it.ensureAtLeast(1) }
+                    ::name {
                         it.ensureNotBlank()
                         it.ensureLengthAtLeast(1)
                         it.ensureLengthAtMost(100)
                     }
-                    product::price { it.ensureAtLeast(0.0) }
+                    ::price { it.ensureAtLeast(0.0) }
                 }
 
             test("test") {
-                val result = tryValidate { validate(Product(1, "Mouse", 29.99)) }
+                val result = tryValidate { Product(1, "Mouse", 29.99).validate() }
                 result.shouldBeSuccess()
             }
         }
@@ -134,32 +134,32 @@ class QuickStartTest :
             )
 
             context(_: Validation)
-            fun validate(address: Address) =
-                address.schema {
-                    address::street {
+            fun Address.validate() =
+                schema {
+                    ::street {
                         it.ensureNotBlank()
                         it.ensureLengthAtLeast(1)
                     }
-                    address::city {
+                    ::city {
                         it.ensureNotBlank()
                         it.ensureLengthAtLeast(1)
                     }
-                    address::zipCode { it.ensureMatches(Regex("^\\d{5}(-\\d{4})?$")) }
+                    ::zipCode { it.ensureMatches(Regex("^\\d{5}(-\\d{4})?$")) }
                 }
 
             context(_: Validation)
-            fun validate(customer: Customer) =
-                customer.schema {
-                    customer::name {
+            fun Customer.validate() =
+                schema {
+                    ::name {
                         it.ensureNotBlank()
                         it.ensureLengthAtLeast(1)
                         it.ensureLengthAtMost(100)
                     }
-                    customer::email {
+                    ::email {
                         it.ensureNotBlank()
                         it.ensureContains("@")
                     }
-                    customer::address { validate(it) } // Nested validation
+                    ::address { it.validate() } // Nested validation
                 }
 
             test("test") {
@@ -170,7 +170,7 @@ class QuickStartTest :
                         address = Address(street = "", city = "Tokyo", zipCode = "123"),
                     )
 
-                val result = tryValidate { validate(customer) }
+                val result = tryValidate { customer.validate() }
 
                 if (result.isSuccess()) {
                     println("Valid")
@@ -194,13 +194,13 @@ class QuickStartTest :
             )
 
             context(_: Validation)
-            fun validate(range: PriceRange) =
-                range.schema {
-                    range::minPrice { it.ensureNotNegative() }
-                    range::maxPrice { it.ensureNotNegative() }
+            fun PriceRange.validate() =
+                schema {
+                    ::minPrice { it.ensureNotNegative() }
+                    ::maxPrice { it.ensureNotNegative() }
 
                     // Validate relationship
-                    range.constrain("priceRange") {
+                    constrain("priceRange") {
                         satisfies(it.minPrice <= it.maxPrice) {
                             text("minPrice must be less than or equal to maxPrice")
                         }
@@ -208,7 +208,7 @@ class QuickStartTest :
                 }
 
             test("test") {
-                val result = tryValidate { validate(PriceRange(10.0, 100.0)) }
+                val result = tryValidate { PriceRange(10.0, 100.0).validate() }
 
                 result.shouldBeSuccess()
             }
