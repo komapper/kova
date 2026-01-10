@@ -164,8 +164,8 @@ class PairFactoryBuilderTest :
                 first: String,
                 second: String,
             ) = buildPair(
-                bind(first) { transformToInt(it) },
-                bind(second) { transformToInt(it) },
+                bind(first) { it.transformToInt() },
+                bind(second) { it.transformToInt() },
             )
 
             test("success - both elements transformed") {

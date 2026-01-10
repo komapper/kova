@@ -102,7 +102,7 @@ class FactoryTest :
             context(_: Validation)
             fun buildAge(value: String) =
                 factory {
-                    val value by bind(value) { transformToInt(it) }
+                    val value by bind(value) { it.transformToInt() }
                     Age(value)
                 }
 
@@ -113,7 +113,7 @@ class FactoryTest :
                 lastName: String,
                 age: String,
             ) = factory {
-                val id by bind(id) { transformToInt(it) }
+                val id by bind(id) { it.transformToInt() }
                 val fullName by bind { buildFullName(firstName, lastName) }
                 val age by bind { buildAge(age) }
                 User(id, fullName, age)

@@ -80,7 +80,7 @@ fun buildUser(
         it.ensureNotBlank()
         it
     } // argument validator
-    val age by bind(age) { transformToInt(it) } // argument validator
+    val age by bind(age) { it.transformToInt() } // argument validator
     User(name, age)
 }.also { validate(it) } // object validator
 
@@ -91,7 +91,7 @@ fun buildUser(
 context(_: Validation)
 fun buildAge(age: String) =
     factory {
-        val value by bind(age) { transformToInt(it) } // argument validator
+        val value by bind(age) { it.transformToInt() } // argument validator
         Age(value)
     }
 

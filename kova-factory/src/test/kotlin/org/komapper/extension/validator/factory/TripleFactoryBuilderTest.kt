@@ -202,9 +202,9 @@ class TripleFactoryBuilderTest :
                 second: String,
                 third: String,
             ) = buildTriple(
-                bind(first) { transformToInt(it) },
-                bind(second) { transformToInt(it) },
-                bind(third) { transformToInt(it) },
+                bind(first) { it.transformToInt() },
+                bind(second) { it.transformToInt() },
+                bind(third) { it.transformToInt() },
             )
 
             test("success - all elements transformed") {
