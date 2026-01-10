@@ -11,37 +11,37 @@ class ComparableValidatorTest :
         }
 
         context("uInt") {
-            context("ensureMin") {
+            context("ensureAtLeast") {
                 test("success with value greater than threshold") {
-                    val result = tryValidate { 6u.ensureMin(5u) }
+                    val result = tryValidate { 6u.ensureAtLeast(5u) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with equal value") {
-                    val result = tryValidate { 5u.ensureMin(5u) }
+                    val result = tryValidate { 5u.ensureAtLeast(5u) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure with value less than threshold") {
-                    val result = tryValidate { 4u.ensureMin(5u) }
+                    val result = tryValidate { 4u.ensureAtLeast(5u) }
                     result.shouldBeFailure()
                     result.messages[0].constraintId shouldBe "kova.comparable.min"
                 }
             }
 
-            context("ensureMax") {
+            context("ensureAtMost") {
                 test("success with value less than threshold") {
-                    val result = tryValidate { 9u.ensureMax(10u) }
+                    val result = tryValidate { 9u.ensureAtMost(10u) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with equal value") {
-                    val result = tryValidate { 10u.ensureMax(10u) }
+                    val result = tryValidate { 10u.ensureAtMost(10u) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure with value greater than threshold") {
-                    val result = tryValidate { 11u.ensureMax(10u) }
+                    val result = tryValidate { 11u.ensureAtMost(10u) }
                     result.shouldBeFailure()
                     result.messages[0].constraintId shouldBe "kova.comparable.max"
                 }
@@ -259,27 +259,27 @@ class ComparableValidatorTest :
         }
 
         context("uLong") {
-            context("ensureMin") {
+            context("ensureAtLeast") {
                 test("success") {
-                    val result = tryValidate { 6uL.ensureMin(5uL) }
+                    val result = tryValidate { 6uL.ensureAtLeast(5uL) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { 4uL.ensureMin(5uL) }
+                    val result = tryValidate { 4uL.ensureAtLeast(5uL) }
                     result.shouldBeFailure()
                     result.messages[0].constraintId shouldBe "kova.comparable.min"
                 }
             }
 
-            context("ensureMax") {
+            context("ensureAtMost") {
                 test("success") {
-                    val result = tryValidate { 9uL.ensureMax(10uL) }
+                    val result = tryValidate { 9uL.ensureAtMost(10uL) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { 11uL.ensureMax(10uL) }
+                    val result = tryValidate { 11uL.ensureAtMost(10uL) }
                     result.shouldBeFailure()
                     result.messages[0].constraintId shouldBe "kova.comparable.max"
                 }
@@ -287,27 +287,27 @@ class ComparableValidatorTest :
         }
 
         context("uByte") {
-            context("ensureMin") {
+            context("ensureAtLeast") {
                 test("success") {
-                    val result = tryValidate { 6u.ensureMin(5u) }
+                    val result = tryValidate { 6u.ensureAtLeast(5u) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { 4u.ensureMin(5u) }
+                    val result = tryValidate { 4u.ensureAtLeast(5u) }
                     result.shouldBeFailure()
                     result.messages[0].constraintId shouldBe "kova.comparable.min"
                 }
             }
 
-            context("ensureMax") {
+            context("ensureAtMost") {
                 test("success") {
-                    val result = tryValidate { 9u.ensureMax(10u) }
+                    val result = tryValidate { 9u.ensureAtMost(10u) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { 11u.ensureMax(10u) }
+                    val result = tryValidate { 11u.ensureAtMost(10u) }
                     result.shouldBeFailure()
                     result.messages[0].constraintId shouldBe "kova.comparable.max"
                 }
@@ -315,27 +315,27 @@ class ComparableValidatorTest :
         }
 
         context("uShort") {
-            context("ensureMin") {
+            context("ensureAtLeast") {
                 test("success") {
-                    val result = tryValidate { 6u.ensureMin(5u) }
+                    val result = tryValidate { 6u.ensureAtLeast(5u) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { 4u.ensureMin(5u) }
+                    val result = tryValidate { 4u.ensureAtLeast(5u) }
                     result.shouldBeFailure()
                     result.messages[0].constraintId shouldBe "kova.comparable.min"
                 }
             }
 
-            context("ensureMax") {
+            context("ensureAtMost") {
                 test("success") {
-                    val result = tryValidate { 9u.ensureMax(10u) }
+                    val result = tryValidate { 9u.ensureAtMost(10u) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { 11u.ensureMax(10u) }
+                    val result = tryValidate { 11u.ensureAtMost(10u) }
                     result.shouldBeFailure()
                     result.messages[0].constraintId shouldBe "kova.comparable.max"
                 }

@@ -84,11 +84,11 @@ fun <E> Iterable<E>.ensureNotContains(
  * Example:
  * ```kotlin
  * tryValidate {
- *     listOf("abc", "def").ensureEach { it.ensureMinLength(2); it.ensureMaxLength(10) }
+ *     listOf("abc", "def").ensureEach { it.ensureLengthAtLeast(2); it.ensureLengthAtMost(10) }
  * } // Success
  *
  * tryValidate {
- *     listOf("a", "b").ensureEach { it.ensureMinLength(2); it.ensureMaxLength(10) }
+ *     listOf("a", "b").ensureEach { it.ensureLengthAtLeast(2); it.ensureLengthAtMost(10) }
  * } // Failure: elements too short
  * ```
  *

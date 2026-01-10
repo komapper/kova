@@ -27,7 +27,7 @@ class NullableValidatorTest :
         context("nullable with constraint") {
             context(_: Validation)
             fun nullableMin3(i: Int?) {
-                if (i != null) i.ensureMin(3)
+                if (i != null) i.ensureAtLeast(3)
             }
 
             test("success with non-null value") {
@@ -51,7 +51,7 @@ class NullableValidatorTest :
         context("nullable with constraint - for each List element") {
             context(_: Validation)
             fun nullableMin3(i: Int?) {
-                if (i != null) i.ensureMin(3)
+                if (i != null) i.ensureAtLeast(3)
             }
 
             test("success with non-null value") {
@@ -91,8 +91,8 @@ class NullableValidatorTest :
             fun isNullOrMin3Max3(i: Int?) =
                 or { i.ensureNull() } orElse {
                     if (i == null) return@orElse
-                    i.ensureMin(3)
-                    i.ensureMax(3)
+                    i.ensureAtLeast(3)
+                    i.ensureAtMost(3)
                 }
 
             test("success with null value") {
@@ -121,8 +121,8 @@ class NullableValidatorTest :
             context(_: Validation)
             fun isNullOrMin3Max3(i: Int?) =
                 i.ensureNullOr {
-                    it.ensureMin(3)
-                    it.ensureMax(3)
+                    it.ensureAtLeast(3)
+                    it.ensureAtMost(3)
                 }
 
             test("success with null value") {
@@ -161,8 +161,8 @@ class NullableValidatorTest :
             context(_: Validation)
             fun notNullAndMin3AndMax3(i: Int?): Int {
                 i.ensureNotNull()
-                i.ensureMax(5)
-                i.ensureMin(3)
+                i.ensureAtMost(5)
+                i.ensureAtLeast(3)
                 return i
             }
 
@@ -197,7 +197,7 @@ class NullableValidatorTest :
             test("success: 3") {
                 val logs = mutableListOf<LogEntry>()
                 val config = ValidationConfig(logger = { logs.add(it) })
-                val result = tryValidate(config) { 3.ensureNullOr { it.ensureMin(3) } }
+                val result = tryValidate(config) { 3.ensureNullOr { it.ensureAtLeast(3) } }
                 result.shouldBeSuccess()
                 logs shouldBe
                     listOf(
@@ -209,7 +209,7 @@ class NullableValidatorTest :
             test("success: null") {
                 buildList {
                     val config = ValidationConfig(logger = { add(it) })
-                    val result = tryValidate(config) { null.ensureNullOr<Int?> { it.ensureMin(3) } }
+                    val result = tryValidate(config) { null.ensureNullOr<Int?> { it.ensureAtLeast(3) } }
                     result.shouldBeSuccess()
                 } shouldBe
                     listOf(

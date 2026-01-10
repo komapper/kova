@@ -4,9 +4,9 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ensureEquals
-import org.komapper.extension.validator.ensureMaxLength
-import org.komapper.extension.validator.ensureMin
-import org.komapper.extension.validator.ensureMinLength
+import org.komapper.extension.validator.ensureLengthAtLeast
+import org.komapper.extension.validator.ensureLengthAtMost
+import org.komapper.extension.validator.ensureAtLeast
 import org.komapper.extension.validator.ensureNotNull
 import org.komapper.extension.validator.schema
 import org.komapper.extension.validator.text
@@ -67,7 +67,7 @@ class GroupTest :
                 validate(driver as Person, checks)
                 if (Check.DRIVER in checks) {
                     driver::age {
-                        it.ensureMin(18) { text("You have to be 18 to drive a car") }
+                        it.ensureAtLeast(18) { text("You have to be 18 to drive a car") }
                     }
                     driver::hasDriverLicense {
                         it.ensureEquals(true) {
@@ -88,11 +88,11 @@ class GroupTest :
                     }
                     car::licencePlate {
                         it.ensureNotNull()
-                        it.ensureMinLength(2)
-                        it.ensureMaxLength(14)
+                        it.ensureLengthAtLeast(2)
+                        it.ensureLengthAtMost(14)
                     }
                     car::seatCount {
-                        it.ensureMin(2)
+                        it.ensureAtLeast(2)
                     }
                 }
 

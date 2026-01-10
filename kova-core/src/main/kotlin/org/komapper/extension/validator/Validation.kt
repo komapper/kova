@@ -207,7 +207,7 @@ inline fun <T, R> T.name(
  *
  * fun Validation.validate(user: User) = user.schema {
  *     user::name { ensureNotBlank(it); ensureLengthInRange(it, 1..100) }
- *     user::age { ensureMin(it, 0); ensureMax(it, 120) }
+ *     user::age { ensureAtLeast(it, 0); ensureAtMost(it, 120) }
  * }
  *
  * tryValidate { validate(User("Alice", 30)) }
@@ -275,10 +275,10 @@ fun text(content: String): Message = Message.Text("", v.root, v.path, content, n
  * ```kotlin
  * fun Validation.min(
  *     input: Int,
- *     ensureMin: Int,
- *     message: MessageProvider = { "kova.number.min".resource(ensureMin) }
+ *     ensureAtLeast: Int,
+ *     message: MessageProvider = { "kova.number.min".resource(ensureAtLeast) }
  * ) = input.constrain("kova.number.min") {
- *     satisfies(it >= ensureMin, message)
+ *     satisfies(it >= ensureAtLeast, message)
  * }
  *
  * tryValidate { min(5, 0) } // Success
@@ -293,11 +293,11 @@ fun text(content: String): Message = Message.Text("", v.root, v.path, content, n
  * ```kotlin
  * fun Validation.range(
  *     input: Int,
- *     ensureMin: Int,
- *     ensureMax: Int,
- *     message: MessageProvider = { "kova.number.range".resource(ensureMin, ensureMax) }
+ *     ensureAtLeast: Int,
+ *     ensureAtMost: Int,
+ *     message: MessageProvider = { "kova.number.range".resource(ensureAtLeast, ensureAtMost) }
  * ) = input.constrain("kova.number.range") {
- *     satisfies(it in ensureMin..ensureMax, message)
+ *     satisfies(it in ensureAtLeast..ensureAtMost, message)
  * }
  * ```
  *
@@ -717,8 +717,8 @@ object Schema {
      * data class User(val name: String, val age: Int, val email: String?)
      *
      * fun Validation.validate(user: User) = user.schema {
-     *     user::name { ensureNotBlank(it); ensureMinLength(it, 1) }
-     *     user::age { ensureMin(it, 0); ensureMax(it, 120) }
+     *     user::name { ensureNotBlank(it); ensureLengthAtLeast(it, 1) }
+     *     user::age { ensureAtLeast(it, 0); ensureAtMost(it, 120) }
      *     user::email { ensureNullOr(it) { ensureMatches(it, emailRegex) } }
      * }
      * ```

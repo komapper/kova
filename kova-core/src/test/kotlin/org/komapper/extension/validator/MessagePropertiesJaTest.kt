@@ -11,8 +11,8 @@ class MessagePropertiesJaTest :
         }
 
         context("kova.charSequence") {
-            test("ensureMinLength") {
-                val result = tryValidate { "abc".ensureMinLength(5) }
+            test("ensureLengthAtLeast") {
+                val result = tryValidate { "abc".ensureLengthAtLeast(5) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "5文字以上である必要があります"
@@ -20,8 +20,8 @@ class MessagePropertiesJaTest :
         }
 
         context("kova.collection") {
-            test("ensureMinSize") {
-                val result = tryValidate { listOf("a", "b").ensureMinSize(3) }
+            test("ensureSizeAtLeast") {
+                val result = tryValidate { listOf("a", "b").ensureSizeAtLeast(3) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "コレクション(サイズ2)は少なくとも3個の要素を持つ必要があります"

@@ -5,10 +5,10 @@ import io.kotest.core.spec.style.FunSpec
 import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationConfig
 import org.komapper.extension.validator.ValidationException
-import org.komapper.extension.validator.ensureMax
-import org.komapper.extension.validator.ensureMaxLength
-import org.komapper.extension.validator.ensureMin
-import org.komapper.extension.validator.ensureMinLength
+import org.komapper.extension.validator.ensureAtMost
+import org.komapper.extension.validator.ensureLengthAtMost
+import org.komapper.extension.validator.ensureAtLeast
+import org.komapper.extension.validator.ensureLengthAtLeast
 import org.komapper.extension.validator.ensureNotBlank
 import org.komapper.extension.validator.ensurePositive
 import org.komapper.extension.validator.transformToInt
@@ -26,7 +26,7 @@ class PairFactoryBuilderTest :
             ) = buildPair(
                 bind(first) {
                     it.ensureNotBlank()
-                    it.ensureMaxLength(10)
+                    it.ensureLengthAtMost(10)
                     it
                 },
                 bind(second) {
@@ -110,13 +110,13 @@ class PairFactoryBuilderTest :
             ) = buildPair(
                 bind(name) {
                     it.ensureNotBlank()
-                    it.ensureMinLength(1)
-                    it.ensureMaxLength(50)
+                    it.ensureLengthAtLeast(1)
+                    it.ensureLengthAtMost(50)
                     it
                 },
                 bind(age) {
-                    it.ensureMin(0)
-                    it.ensureMax(120)
+                    it.ensureAtLeast(0)
+                    it.ensureAtMost(120)
                     it
                 },
             )

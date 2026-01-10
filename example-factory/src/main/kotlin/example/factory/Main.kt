@@ -3,7 +3,7 @@ package example.factory
 import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationResult
 import org.komapper.extension.validator.ensureInRange
-import org.komapper.extension.validator.ensureMinLength
+import org.komapper.extension.validator.ensureLengthAtLeast
 import org.komapper.extension.validator.ensureNotBlank
 import org.komapper.extension.validator.factory.bind
 import org.komapper.extension.validator.factory.factory
@@ -76,7 +76,7 @@ fun buildUser(
     age: String,
 ) = factory {
     val name by bind(name) {
-        it.ensureMinLength(1)
+        it.ensureLengthAtLeast(1)
         it.ensureNotBlank()
         it
     } // argument validator
@@ -113,7 +113,7 @@ fun buildPerson(
     age: String,
 ) = factory {
     val name by bind(name) {
-        it.ensureMinLength(1)
+        it.ensureLengthAtLeast(1)
         it.ensureNotBlank()
         it
     } // argument validator

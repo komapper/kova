@@ -33,9 +33,9 @@ fun <T> T.ensureNull(message: MessageProvider = { "kova.nullable.null".resource 
  *
  * Example:
  * ```kotlin
- * tryValidate { null.ensureNullOr { it.ensureMinLength(3) } }      // Success (is null)
- * tryValidate { "hello".ensureNullOr { it.ensureMinLength(3) } }  // Success (satisfies min)
- * tryValidate { "hi".ensureNullOr { it.ensureMinLength(3) } }     // Failure (too short)
+ * tryValidate { null.ensureNullOr { it.ensureLengthAtLeast(3) } }      // Success (is null)
+ * tryValidate { "hello".ensureNullOr { it.ensureLengthAtLeast(3) } }  // Success (satisfies min)
+ * tryValidate { "hi".ensureNullOr { it.ensureLengthAtLeast(3) } }     // Failure (too short)
  * ```
  *
  * @param message Custom error message provider for the null check

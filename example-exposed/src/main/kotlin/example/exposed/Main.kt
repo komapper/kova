@@ -16,9 +16,9 @@ import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationException
-import org.komapper.extension.validator.ensureMax
-import org.komapper.extension.validator.ensureMin
-import org.komapper.extension.validator.ensureMinLength
+import org.komapper.extension.validator.ensureAtLeast
+import org.komapper.extension.validator.ensureLengthAtLeast
+import org.komapper.extension.validator.ensureAtMost
 import org.komapper.extension.validator.ensureNotBlank
 import org.komapper.extension.validator.ensureNotEmpty
 import org.komapper.extension.validator.schema
@@ -113,12 +113,12 @@ context(_: Validation)
 fun validate(user: User) =
     user.schema {
         user::name {
-            it.ensureMinLength(1)
+            it.ensureLengthAtLeast(1)
             it.ensureNotBlank()
         }
         user::age {
-            it.ensureMin(0)
-            it.ensureMax(120)
+            it.ensureAtLeast(0)
+            it.ensureAtMost(120)
         }
     }
 

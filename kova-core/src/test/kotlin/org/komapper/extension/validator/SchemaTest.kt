@@ -48,10 +48,10 @@ class SchemaTest :
             fun validate(user: User) =
                 user.schema {
                     user::name {
-                        it.ensureMinLength(1)
-                        it.ensureMaxLength(10)
+                        it.ensureLengthAtLeast(1)
+                        it.ensureLengthAtMost(10)
                     }
-                    user::id { it.ensureMin(1) }
+                    user::id { it.ensureAtLeast(1) }
                 }
 
             test("success") {
@@ -97,10 +97,10 @@ class SchemaTest :
                 user.schema {
                     or<Unit> {
                         user::name {
-                            it.ensureMinLength(1)
-                            it.ensureMaxLength(10)
+                            it.ensureLengthAtLeast(1)
+                            it.ensureLengthAtMost(10)
                         }
-                    } orElse { user::id { it.ensureMin(1) } }
+                    } orElse { user::id { it.ensureAtLeast(1) } }
                 }
 
             test("success when both schemas are satisfied") {
@@ -172,10 +172,10 @@ class SchemaTest :
             context(_: Validation)
             fun validate(user: User?) =
                 user?.schema {
-                    user::id { it.ensureMin(1) }
+                    user::id { it.ensureAtLeast(1) }
                     user::name {
-                        it.ensureMinLength(1)
-                        it.ensureMaxLength(10)
+                        it.ensureLengthAtLeast(1)
+                        it.ensureLengthAtMost(10)
                     }
                 }
 
@@ -195,10 +195,10 @@ class SchemaTest :
             context(_: Validation)
             fun validate(user: User) =
                 user.schema {
-                    user::id { it.ensureMin(1) }
+                    user::id { it.ensureAtLeast(1) }
                     user::name {
-                        it.ensureMinLength(1)
-                        it.ensureMaxLength(10)
+                        it.ensureLengthAtLeast(1)
+                        it.ensureLengthAtMost(10)
                     }
                 }
 
@@ -243,10 +243,10 @@ class SchemaTest :
             context(_: Validation)
             fun validate(street: Street) =
                 street.schema {
-                    street::id { it.ensureMin(1) }
+                    street::id { it.ensureAtLeast(1) }
                     street::name {
-                        it.ensureMinLength(3)
-                        it.ensureMaxLength(5)
+                        it.ensureLengthAtLeast(3)
+                        it.ensureLengthAtMost(5)
                     }
                 }
 
@@ -279,10 +279,10 @@ class SchemaTest :
             context(_: Validation)
             fun validate(street: Street) =
                 street.schema {
-                    street::id { it.ensureMin(1) }
+                    street::id { it.ensureAtLeast(1) }
                     street::name {
-                        it.ensureMinLength(3)
-                        it.ensureMaxLength(5)
+                        it.ensureLengthAtLeast(3)
+                        it.ensureLengthAtMost(5)
                     }
                 }
 
@@ -344,10 +344,10 @@ class SchemaTest :
             context(_: Validation)
             fun validate(street: Street) =
                 street.schema {
-                    street::id { it.ensureMin(1) }
+                    street::id { it.ensureAtLeast(1) }
                     street::name {
-                        it.ensureMinLength(3)
-                        it.ensureMaxLength(5)
+                        it.ensureLengthAtLeast(3)
+                        it.ensureLengthAtMost(5)
                     }
                 }
 
@@ -409,7 +409,7 @@ class SchemaTest :
             fun validate(node: Node) {
                 node.schema {
                     node::children {
-                        it.ensureMaxSize(3)
+                        it.ensureSizeAtMost(3)
                         it.ensureEach { child -> validate(child) }
                     }
                 }
@@ -450,8 +450,8 @@ class SchemaTest :
             fun validate(node: NodeWithValue) {
                 node.schema {
                     node::value {
-                        it.ensureMin(0)
-                        it.ensureMax(100)
+                        it.ensureAtLeast(0)
+                        it.ensureAtMost(100)
                     }
                     node::next { if (it != null) validate(it) }
                 }

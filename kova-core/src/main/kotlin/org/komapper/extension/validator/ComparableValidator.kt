@@ -5,8 +5,8 @@ package org.komapper.extension.validator
  *
  * Example:
  * ```kotlin
- * tryValidate { 10.ensureMin(0) }  // Success
- * tryValidate { (-1).ensureMin(0) }  // Failure
+ * tryValidate { 10.ensureAtLeast(0) }  // Success
+ * tryValidate { (-1).ensureAtLeast(0) }  // Failure
  * ```
  *
  * @param value Minimum value (inclusive)
@@ -14,7 +14,7 @@ package org.komapper.extension.validator
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun <S : Comparable<S>> S.ensureMin(
+fun <S : Comparable<S>> S.ensureAtLeast(
     value: S,
     message: MessageProvider = { "kova.comparable.min".resource(value) },
 ) = this.constrain("kova.comparable.min") { satisfies(it >= value, message) }
@@ -24,8 +24,8 @@ fun <S : Comparable<S>> S.ensureMin(
  *
  * Example:
  * ```kotlin
- * tryValidate { 50.ensureMax(100) }   // Success
- * tryValidate { 150.ensureMax(100) }  // Failure
+ * tryValidate { 50.ensureAtMost(100) }   // Success
+ * tryValidate { 150.ensureAtMost(100) }  // Failure
  * ```
  *
  * @param value Maximum value (inclusive)
@@ -33,7 +33,7 @@ fun <S : Comparable<S>> S.ensureMin(
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun <S : Comparable<S>> S.ensureMax(
+fun <S : Comparable<S>> S.ensureAtMost(
     value: S,
     message: MessageProvider = { "kova.comparable.max".resource(value) },
 ) = this.constrain("kova.comparable.max") { satisfies(it <= value, message) }

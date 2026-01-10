@@ -4,7 +4,7 @@ import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationResult
 import org.komapper.extension.validator.constrain
 import org.komapper.extension.validator.ensureInRange
-import org.komapper.extension.validator.ensureMinLength
+import org.komapper.extension.validator.ensureLengthAtLeast
 import org.komapper.extension.validator.ensureNotBlank
 import org.komapper.extension.validator.ensureNotNegative
 import org.komapper.extension.validator.isSuccess
@@ -56,7 +56,7 @@ context(_: Validation)
 fun validate(user: User) =
     user.schema {
         user::name {
-            it.ensureMinLength(1)
+            it.ensureLengthAtLeast(1)
             it.ensureNotBlank()
         }
         user::age {
@@ -85,7 +85,7 @@ context(_: Validation)
 fun validate(person: Person) =
     person.schema {
         person::name {
-            it.ensureMinLength(1)
+            it.ensureLengthAtLeast(1)
             it.ensureNotBlank()
         }
         person::age { validate(it) }

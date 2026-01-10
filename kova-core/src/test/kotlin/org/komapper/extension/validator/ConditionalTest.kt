@@ -14,7 +14,7 @@ class ConditionalTest :
         context("if expression") {
             context(_: Validation)
             fun validate(i: Int) {
-                if (i % 2 == 0) i.ensureMin(3)
+                if (i % 2 == 0) i.ensureAtLeast(3)
             }
             test("success when condition not met") {
                 val result = tryValidate { validate(1) }
@@ -31,8 +31,8 @@ class ConditionalTest :
             context("and") {
                 context(_: Validation)
                 fun validateAndMin1(i: Int) {
-                    if (i % 2 == 0) i.ensureMin(3)
-                    i.ensureMin(1)
+                    if (i % 2 == 0) i.ensureAtLeast(3)
+                    i.ensureAtLeast(1)
                 }
 
                 test("success") {
@@ -54,7 +54,7 @@ class ConditionalTest :
             context(_: Validation)
             fun nullableMin3(i: Int?): Int {
                 if (i == null) return 0
-                i.ensureMin(3)
+                i.ensureAtLeast(3)
                 return i
             }
 
@@ -83,8 +83,8 @@ class ConditionalTest :
             context(_: Validation)
             fun nullableThenMin3AndMax3(i: Int?) =
                 (i ?: 4).also {
-                    it.ensureMin(3)
-                    it.ensureMax(5)
+                    it.ensureAtLeast(3)
+                    it.ensureAtMost(5)
                 }
 
             test("success") {
@@ -116,8 +116,8 @@ class ConditionalTest :
         context("and") {
             context(_: Validation)
             fun validate(i: Int) {
-                i.ensureMax(2)
-                i.ensureMax(3)
+                i.ensureAtMost(2)
+                i.ensureAtMost(3)
                 i.ensureNegative()
             }
 
@@ -139,8 +139,8 @@ class ConditionalTest :
         context("or") {
             context(_: Validation)
             fun validate(i: UInt) {
-                val _ = or { i.ensureMax(10u) } orElse { i.ensureMax(20u) }
-                i.ensureMin(5u)
+                val _ = or { i.ensureAtMost(10u) } orElse { i.ensureAtMost(20u) }
+                i.ensureAtLeast(5u)
             }
 
             test("success : 10") {
@@ -166,7 +166,7 @@ class ConditionalTest :
             fun nullableMax5OrMin3(i: Int?): Int {
                 if (i == null) return 0
                 return i.let {
-                    val _ = or { it.ensureMax(5) } orElse { it.ensureMin(3) }
+                    val _ = or { it.ensureAtMost(5) } orElse { it.ensureAtLeast(3) }
                     it
                 }
             }

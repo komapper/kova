@@ -10,14 +10,14 @@ class MapValidatorTest :
             Locale.setDefault(Locale.US)
         }
 
-        context("ensureMaxSize") {
+        context("ensureSizeAtMost") {
             test("success") {
-                val result = tryValidate { mapOf("a" to "1", "b" to "2").ensureMaxSize(2) }
+                val result = tryValidate { mapOf("a" to "1", "b" to "2").ensureSizeAtMost(2) }
                 result.shouldBeSuccess()
             }
 
             test("failure") {
-                val result = tryValidate { mapOf("a" to "1", "b" to "2", "c" to "3").ensureMaxSize(2) }
+                val result = tryValidate { mapOf("a" to "1", "b" to "2", "c" to "3").ensureSizeAtMost(2) }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.map.maxSize"
             }

@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
 import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ensureLengthInRange
-import org.komapper.extension.validator.ensureMin
+import org.komapper.extension.validator.ensureAtLeast
 import org.komapper.extension.validator.ensureNotNull
 import org.komapper.extension.validator.schema
 import org.komapper.extension.validator.tryValidate
@@ -89,7 +89,7 @@ class SimpleTest :
                         it.ensureNotNull()
                         it.ensureLengthInRange(2..14)
                     }
-                    car::seatCount { it.ensureMin(2) }
+                    car::seatCount { it.ensureAtLeast(2) }
                 }
 
             test("manufacturerIsNull") {

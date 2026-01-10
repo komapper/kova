@@ -97,40 +97,40 @@ class TemporalValidatorTest :
                 }
             }
 
-            context("ensureMin") {
+            context("ensureAtLeast") {
                 val minDate = LocalDate.of(2025, 1, 1)
 
                 test("success with equal value") {
-                    val result = tryValidate { minDate.ensureMin(minDate) }
+                    val result = tryValidate { minDate.ensureAtLeast(minDate) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with greater value") {
-                    val result = tryValidate { minDate.plusDays(1).ensureMin(minDate) }
+                    val result = tryValidate { minDate.plusDays(1).ensureAtLeast(minDate) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { minDate.minusDays(1).ensureMin(minDate) }
+                    val result = tryValidate { minDate.minusDays(1).ensureAtLeast(minDate) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("ensureMax") {
+            context("ensureAtMost") {
                 val maxDate = LocalDate.of(2025, 12, 31)
 
                 test("success with equal value") {
-                    val result = tryValidate { maxDate.ensureMax(maxDate) }
+                    val result = tryValidate { maxDate.ensureAtMost(maxDate) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with smaller value") {
-                    val result = tryValidate { maxDate.minusDays(1).ensureMax(maxDate) }
+                    val result = tryValidate { maxDate.minusDays(1).ensureAtMost(maxDate) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { maxDate.plusDays(1).ensureMax(maxDate) }
+                    val result = tryValidate { maxDate.plusDays(1).ensureAtMost(maxDate) }
                     result.shouldBeFailure()
                 }
             }
@@ -288,40 +288,40 @@ class TemporalValidatorTest :
                 }
             }
 
-            context("ensureMin") {
+            context("ensureAtLeast") {
                 val minTime = LocalTime.of(9, 0, 0)
 
                 test("success with equal value") {
-                    val result = tryValidate { minTime.ensureMin(minTime) }
+                    val result = tryValidate { minTime.ensureAtLeast(minTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with greater value") {
-                    val result = tryValidate { minTime.plusHours(1).ensureMin(minTime) }
+                    val result = tryValidate { minTime.plusHours(1).ensureAtLeast(minTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { minTime.minusHours(1).ensureMin(minTime) }
+                    val result = tryValidate { minTime.minusHours(1).ensureAtLeast(minTime) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("ensureMax") {
+            context("ensureAtMost") {
                 val maxTime = LocalTime.of(17, 0, 0)
 
                 test("success with equal value") {
-                    val result = tryValidate { maxTime.ensureMax(maxTime) }
+                    val result = tryValidate { maxTime.ensureAtMost(maxTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with smaller value") {
-                    val result = tryValidate { maxTime.minusHours(1).ensureMax(maxTime) }
+                    val result = tryValidate { maxTime.minusHours(1).ensureAtMost(maxTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { maxTime.plusHours(1).ensureMax(maxTime) }
+                    val result = tryValidate { maxTime.plusHours(1).ensureAtMost(maxTime) }
                     result.shouldBeFailure()
                 }
             }
@@ -478,40 +478,40 @@ class TemporalValidatorTest :
                 }
             }
 
-            context("ensureMin") {
+            context("ensureAtLeast") {
                 val minDateTime = LocalDateTime.of(2025, 1, 1, 12, 0, 0)
 
                 test("success with equal value") {
-                    val result = tryValidate { minDateTime.ensureMin(minDateTime) }
+                    val result = tryValidate { minDateTime.ensureAtLeast(minDateTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with greater value") {
-                    val result = tryValidate { minDateTime.plusHours(1).ensureMin(minDateTime) }
+                    val result = tryValidate { minDateTime.plusHours(1).ensureAtLeast(minDateTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { minDateTime.minusHours(1).ensureMin(minDateTime) }
+                    val result = tryValidate { minDateTime.minusHours(1).ensureAtLeast(minDateTime) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("ensureMax") {
+            context("ensureAtMost") {
                 val maxDateTime = LocalDateTime.of(2025, 12, 31, 23, 59, 59)
 
                 test("success with equal value") {
-                    val result = tryValidate { maxDateTime.ensureMax(maxDateTime) }
+                    val result = tryValidate { maxDateTime.ensureAtMost(maxDateTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with smaller value") {
-                    val result = tryValidate { maxDateTime.minusHours(1).ensureMax(maxDateTime) }
+                    val result = tryValidate { maxDateTime.minusHours(1).ensureAtMost(maxDateTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { maxDateTime.plusHours(1).ensureMax(maxDateTime) }
+                    val result = tryValidate { maxDateTime.plusHours(1).ensureAtMost(maxDateTime) }
                     result.shouldBeFailure()
                 }
             }
@@ -622,80 +622,80 @@ class TemporalValidatorTest :
                 }
             }
 
-            context("ensureMin") {
+            context("ensureAtLeast") {
                 val minInstant = Instant.parse("2025-01-01T00:00:00Z")
 
                 test("success with equal value") {
-                    val result = tryValidate { minInstant.ensureMin(minInstant) }
+                    val result = tryValidate { minInstant.ensureAtLeast(minInstant) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with greater value") {
-                    val result = tryValidate { minInstant.plusSeconds(3600).ensureMin(minInstant) }
+                    val result = tryValidate { minInstant.plusSeconds(3600).ensureAtLeast(minInstant) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { minInstant.minusSeconds(3600).ensureMin(minInstant) }
+                    val result = tryValidate { minInstant.minusSeconds(3600).ensureAtLeast(minInstant) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("ensureMax") {
+            context("ensureAtMost") {
                 val maxInstant = Instant.parse("2025-12-31T23:59:59Z")
 
                 test("success with equal value") {
-                    val result = tryValidate { maxInstant.ensureMax(maxInstant) }
+                    val result = tryValidate { maxInstant.ensureAtMost(maxInstant) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with smaller value") {
-                    val result = tryValidate { maxInstant.minusSeconds(3600).ensureMax(maxInstant) }
+                    val result = tryValidate { maxInstant.minusSeconds(3600).ensureAtMost(maxInstant) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { maxInstant.plusSeconds(3600).ensureMax(maxInstant) }
+                    val result = tryValidate { maxInstant.plusSeconds(3600).ensureAtMost(maxInstant) }
                     result.shouldBeFailure()
                 }
             }
         }
 
         context("MonthDay") {
-            context("ensureMin") {
+            context("ensureAtLeast") {
                 val minMonthDay = MonthDay.of(3, 1)
 
                 test("success with equal value") {
-                    val result = tryValidate { minMonthDay.ensureMin(minMonthDay) }
+                    val result = tryValidate { minMonthDay.ensureAtLeast(minMonthDay) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with greater value") {
-                    val result = tryValidate { MonthDay.of(3, 2).ensureMin(minMonthDay) }
+                    val result = tryValidate { MonthDay.of(3, 2).ensureAtLeast(minMonthDay) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { MonthDay.of(2, 28).ensureMin(minMonthDay) }
+                    val result = tryValidate { MonthDay.of(2, 28).ensureAtLeast(minMonthDay) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("ensureMax") {
+            context("ensureAtMost") {
                 val maxMonthDay = MonthDay.of(10, 31)
 
                 test("success with equal value") {
-                    val result = tryValidate { maxMonthDay.ensureMax(maxMonthDay) }
+                    val result = tryValidate { maxMonthDay.ensureAtMost(maxMonthDay) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with smaller value") {
-                    val result = tryValidate { MonthDay.of(10, 30).ensureMax(maxMonthDay) }
+                    val result = tryValidate { MonthDay.of(10, 30).ensureAtMost(maxMonthDay) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { MonthDay.of(11, 1).ensureMax(maxMonthDay) }
+                    val result = tryValidate { MonthDay.of(11, 1).ensureAtMost(maxMonthDay) }
                     result.shouldBeFailure()
                 }
             }
@@ -806,40 +806,40 @@ class TemporalValidatorTest :
                 }
             }
 
-            context("ensureMin") {
+            context("ensureAtLeast") {
                 val minOffsetDateTime = OffsetDateTime.of(2025, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
 
                 test("success with equal value") {
-                    val result = tryValidate { minOffsetDateTime.ensureMin(minOffsetDateTime) }
+                    val result = tryValidate { minOffsetDateTime.ensureAtLeast(minOffsetDateTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with greater value") {
-                    val result = tryValidate { minOffsetDateTime.plusHours(1).ensureMin(minOffsetDateTime) }
+                    val result = tryValidate { minOffsetDateTime.plusHours(1).ensureAtLeast(minOffsetDateTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { minOffsetDateTime.minusHours(1).ensureMin(minOffsetDateTime) }
+                    val result = tryValidate { minOffsetDateTime.minusHours(1).ensureAtLeast(minOffsetDateTime) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("ensureMax") {
+            context("ensureAtMost") {
                 val maxOffsetDateTime = OffsetDateTime.of(2025, 12, 31, 23, 59, 59, 0, ZoneOffset.UTC)
 
                 test("success with equal value") {
-                    val result = tryValidate { maxOffsetDateTime.ensureMax(maxOffsetDateTime) }
+                    val result = tryValidate { maxOffsetDateTime.ensureAtMost(maxOffsetDateTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with smaller value") {
-                    val result = tryValidate { maxOffsetDateTime.minusHours(1).ensureMax(maxOffsetDateTime) }
+                    val result = tryValidate { maxOffsetDateTime.minusHours(1).ensureAtMost(maxOffsetDateTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { maxOffsetDateTime.plusHours(1).ensureMax(maxOffsetDateTime) }
+                    val result = tryValidate { maxOffsetDateTime.plusHours(1).ensureAtMost(maxOffsetDateTime) }
                     result.shouldBeFailure()
                 }
             }
@@ -876,40 +876,40 @@ class TemporalValidatorTest :
                 }
             }
 
-            context("ensureMin") {
+            context("ensureAtLeast") {
                 val minOffsetTime = OffsetTime.of(9, 0, 0, 0, ZoneOffset.UTC)
 
                 test("success with equal value") {
-                    val result = tryValidate { minOffsetTime.ensureMin(minOffsetTime) }
+                    val result = tryValidate { minOffsetTime.ensureAtLeast(minOffsetTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with greater value") {
-                    val result = tryValidate { minOffsetTime.plusHours(1).ensureMin(minOffsetTime) }
+                    val result = tryValidate { minOffsetTime.plusHours(1).ensureAtLeast(minOffsetTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { minOffsetTime.minusHours(1).ensureMin(minOffsetTime) }
+                    val result = tryValidate { minOffsetTime.minusHours(1).ensureAtLeast(minOffsetTime) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("ensureMax") {
+            context("ensureAtMost") {
                 val maxOffsetTime = OffsetTime.of(17, 0, 0, 0, ZoneOffset.UTC)
 
                 test("success with equal value") {
-                    val result = tryValidate { maxOffsetTime.ensureMax(maxOffsetTime) }
+                    val result = tryValidate { maxOffsetTime.ensureAtMost(maxOffsetTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with smaller value") {
-                    val result = tryValidate { maxOffsetTime.minusHours(1).ensureMax(maxOffsetTime) }
+                    val result = tryValidate { maxOffsetTime.minusHours(1).ensureAtMost(maxOffsetTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { maxOffsetTime.plusHours(1).ensureMax(maxOffsetTime) }
+                    val result = tryValidate { maxOffsetTime.plusHours(1).ensureAtMost(maxOffsetTime) }
                     result.shouldBeFailure()
                 }
             }
@@ -946,40 +946,40 @@ class TemporalValidatorTest :
                 }
             }
 
-            context("ensureMin") {
+            context("ensureAtLeast") {
                 val minYear = Year.of(2020)
 
                 test("success with equal value") {
-                    val result = tryValidate { minYear.ensureMin(minYear) }
+                    val result = tryValidate { minYear.ensureAtLeast(minYear) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with greater value") {
-                    val result = tryValidate { Year.of(2021).ensureMin(minYear) }
+                    val result = tryValidate { Year.of(2021).ensureAtLeast(minYear) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { Year.of(2019).ensureMin(minYear) }
+                    val result = tryValidate { Year.of(2019).ensureAtLeast(minYear) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("ensureMax") {
+            context("ensureAtMost") {
                 val maxYear = Year.of(2030)
 
                 test("success with equal value") {
-                    val result = tryValidate { maxYear.ensureMax(maxYear) }
+                    val result = tryValidate { maxYear.ensureAtMost(maxYear) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with smaller value") {
-                    val result = tryValidate { Year.of(2029).ensureMax(maxYear) }
+                    val result = tryValidate { Year.of(2029).ensureAtMost(maxYear) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { Year.of(2031).ensureMax(maxYear) }
+                    val result = tryValidate { Year.of(2031).ensureAtMost(maxYear) }
                     result.shouldBeFailure()
                 }
             }
@@ -1016,40 +1016,40 @@ class TemporalValidatorTest :
                 }
             }
 
-            context("ensureMin") {
+            context("ensureAtLeast") {
                 val minYearMonth = YearMonth.of(2024, 1)
 
                 test("success with equal value") {
-                    val result = tryValidate { minYearMonth.ensureMin(minYearMonth) }
+                    val result = tryValidate { minYearMonth.ensureAtLeast(minYearMonth) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with greater value") {
-                    val result = tryValidate { YearMonth.of(2024, 2).ensureMin(minYearMonth) }
+                    val result = tryValidate { YearMonth.of(2024, 2).ensureAtLeast(minYearMonth) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { YearMonth.of(2023, 12).ensureMin(minYearMonth) }
+                    val result = tryValidate { YearMonth.of(2023, 12).ensureAtLeast(minYearMonth) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("ensureMax") {
+            context("ensureAtMost") {
                 val maxYearMonth = YearMonth.of(2025, 12)
 
                 test("success with equal value") {
-                    val result = tryValidate { maxYearMonth.ensureMax(maxYearMonth) }
+                    val result = tryValidate { maxYearMonth.ensureAtMost(maxYearMonth) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with smaller value") {
-                    val result = tryValidate { YearMonth.of(2025, 11).ensureMax(maxYearMonth) }
+                    val result = tryValidate { YearMonth.of(2025, 11).ensureAtMost(maxYearMonth) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { YearMonth.of(2026, 1).ensureMax(maxYearMonth) }
+                    val result = tryValidate { YearMonth.of(2026, 1).ensureAtMost(maxYearMonth) }
                     result.shouldBeFailure()
                 }
             }
@@ -1084,40 +1084,40 @@ class TemporalValidatorTest :
                 }
             }
 
-            context("ensureMin") {
+            context("ensureAtLeast") {
                 val minZonedDateTime = ZonedDateTime.of(2025, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
 
                 test("success with equal value") {
-                    val result = tryValidate { minZonedDateTime.ensureMin(minZonedDateTime) }
+                    val result = tryValidate { minZonedDateTime.ensureAtLeast(minZonedDateTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with greater value") {
-                    val result = tryValidate { minZonedDateTime.plusHours(1).ensureMin(minZonedDateTime) }
+                    val result = tryValidate { minZonedDateTime.plusHours(1).ensureAtLeast(minZonedDateTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { minZonedDateTime.minusHours(1).ensureMin(minZonedDateTime) }
+                    val result = tryValidate { minZonedDateTime.minusHours(1).ensureAtLeast(minZonedDateTime) }
                     result.shouldBeFailure()
                 }
             }
 
-            context("ensureMax") {
+            context("ensureAtMost") {
                 val maxZonedDateTime = ZonedDateTime.of(2025, 12, 31, 23, 59, 59, 0, ZoneOffset.UTC)
 
                 test("success with equal value") {
-                    val result = tryValidate { maxZonedDateTime.ensureMax(maxZonedDateTime) }
+                    val result = tryValidate { maxZonedDateTime.ensureAtMost(maxZonedDateTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("success with smaller value") {
-                    val result = tryValidate { maxZonedDateTime.minusHours(1).ensureMax(maxZonedDateTime) }
+                    val result = tryValidate { maxZonedDateTime.minusHours(1).ensureAtMost(maxZonedDateTime) }
                     result.shouldBeSuccess()
                 }
 
                 test("failure") {
-                    val result = tryValidate { maxZonedDateTime.plusHours(1).ensureMax(maxZonedDateTime) }
+                    val result = tryValidate { maxZonedDateTime.plusHours(1).ensureAtMost(maxZonedDateTime) }
                     result.shouldBeFailure()
                 }
             }

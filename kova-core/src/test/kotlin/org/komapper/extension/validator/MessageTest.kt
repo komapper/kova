@@ -32,7 +32,7 @@ class MessageTest :
         }
 
         test("toString: string") {
-            val result = tryValidate { "abc".ensureMinLength(5) }
+            val result = tryValidate { "abc".ensureLengthAtLeast(5) }
             result.shouldBeFailure()
             result.messages.size shouldBe 1
             result.messages[0].toString() shouldBe
@@ -45,7 +45,7 @@ class MessageTest :
             )
 
             context(_: Validation)
-            fun validate(person: Person) = person.schema { person::name { it.ensureMinLength(5) } }
+            fun validate(person: Person) = person.schema { person::name { it.ensureLengthAtLeast(5) } }
 
             val result = tryValidate { validate(Person("abc")) }
             result.shouldBeFailure()

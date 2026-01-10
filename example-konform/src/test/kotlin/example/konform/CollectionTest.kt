@@ -11,11 +11,11 @@ import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ensureEach
 import org.komapper.extension.validator.ensureEachValue
 import org.komapper.extension.validator.ensureMatches
-import org.komapper.extension.validator.ensureMaxSize
-import org.komapper.extension.validator.ensureMin
-import org.komapper.extension.validator.ensureMinLength
-import org.komapper.extension.validator.ensureMinSize
+import org.komapper.extension.validator.ensureSizeAtMost
+import org.komapper.extension.validator.ensureAtLeast
+import org.komapper.extension.validator.ensureLengthAtLeast
 import org.komapper.extension.validator.ensureNotNull
+import org.komapper.extension.validator.ensureSizeAtLeast
 import org.komapper.extension.validator.schema
 import org.komapper.extension.validator.text
 import org.komapper.extension.validator.tryValidate
@@ -131,8 +131,8 @@ class CollectionTest :
             context(_: Validation)
             fun validateAttendee(person: Person) =
                 person.schema {
-                    person::name { it.ensureMinLength(2) }
-                    person::age { it.ensureMin(18) { text("Attendees must be 18 years or older") } }
+                    person::name { it.ensureLengthAtLeast(2) }
+                    person::age { it.ensureAtLeast(18) { text("Attendees must be 18 years or older") } }
                     person::email {
                         if (it != null) {
                             it.ensureMatches(
@@ -147,13 +147,13 @@ class CollectionTest :
                 event.schema {
                     event::organizer { validateOrganizer(it) }
                     event::attendees {
-                        it.ensureMaxSize(100)
+                        it.ensureSizeAtMost(100)
                         it.ensureEach { validateAttendee(it) }
                     }
                     event::ticketPrices {
-                        it.ensureMinSize(1) { text("Provide at least one ticket price") }
+                        it.ensureSizeAtLeast(1) { text("Provide at least one ticket price") }
                         it.ensureEachValue { price ->
-                            if (price != null) price.ensureMin(0.01)
+                            if (price != null) price.ensureAtLeast(0.01)
                         }
                     }
                 }

@@ -31,26 +31,26 @@ class CollectionValidatorTest :
             }
         }
 
-        context("ensureMinSize and ensureMaxSize") {
-            test("ensureMinSize success") {
-                val result = tryValidate { listOf("1", "2", "3").ensureMinSize(2) }
+        context("ensureSizeAtLeast and ensureSizeAtMost") {
+            test("ensureSizeAtLeast success") {
+                val result = tryValidate { listOf("1", "2", "3").ensureSizeAtLeast(2) }
                 result.shouldBeSuccess()
             }
 
-            test("ensureMinSize failure") {
-                val result = tryValidate { listOf("1").ensureMinSize(2) }
+            test("ensureSizeAtLeast failure") {
+                val result = tryValidate { listOf("1").ensureSizeAtLeast(2) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.collection.minSize"
             }
 
-            test("ensureMaxSize success") {
-                val result = tryValidate { listOf("1", "2").ensureMaxSize(3) }
+            test("ensureSizeAtMost success") {
+                val result = tryValidate { listOf("1", "2").ensureSizeAtMost(3) }
                 result.shouldBeSuccess()
             }
 
-            test("ensureMaxSize failure") {
-                val result = tryValidate { listOf("1", "2", "3", "4").ensureMaxSize(3) }
+            test("ensureSizeAtMost failure") {
+                val result = tryValidate { listOf("1", "2", "3", "4").ensureSizeAtMost(3) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.collection.maxSize"
@@ -59,8 +59,8 @@ class CollectionValidatorTest :
             test("multiple constraints") {
                 val result =
                     tryValidate {
-                        listOf("1").ensureMinSize(2)
-                        listOf("1").ensureMinSize(3)
+                        listOf("1").ensureSizeAtLeast(2)
+                        listOf("1").ensureSizeAtLeast(3)
                     }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 2

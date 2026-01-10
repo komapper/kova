@@ -32,27 +32,27 @@ class CharSequenceValidatorTest :
             }
         }
 
-        context("ensureMinLength") {
+        context("ensureLengthAtLeast") {
             test("success") {
-                val result = tryValidate { "abc".ensureMinLength(3) }
+                val result = tryValidate { "abc".ensureLengthAtLeast(3) }
                 result.shouldBeSuccess()
             }
 
             test("failure") {
-                val result = tryValidate { "ab".ensureMinLength(3) }
+                val result = tryValidate { "ab".ensureLengthAtLeast(3) }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.charSequence.minLength"
             }
         }
 
-        context("ensureMaxLength") {
+        context("ensureLengthAtMost") {
             test("success") {
-                val result = tryValidate { "a".ensureMaxLength(1) }
+                val result = tryValidate { "a".ensureLengthAtMost(1) }
                 result.shouldBeSuccess()
             }
 
             test("failure") {
-                val result = tryValidate { "ab".ensureMaxLength(1) }
+                val result = tryValidate { "ab".ensureLengthAtMost(1) }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.charSequence.maxLength"
             }
@@ -270,7 +270,7 @@ class CharSequenceValidatorTest :
             context(_: Validation)
             fun max1(string: String?) {
                 string.ensureNotNull()
-                string.ensureMaxLength(1)
+                string.ensureLengthAtMost(1)
             }
 
             test("success") {

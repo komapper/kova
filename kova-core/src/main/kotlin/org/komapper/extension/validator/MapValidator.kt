@@ -1,63 +1,6 @@
 package org.komapper.extension.validator
 
 /**
- * Validates that the map ensureSize is at least the specified minimum.
- *
- * Example:
- * ```kotlin
- * tryValidate { mapOf("a" to 1, "b" to 2, "c" to 3).ensureMinSize(2) } // Success
- * tryValidate { mapOf("a" to 1).ensureMinSize(2) }                     // Failure
- * ```
- *
- * @param size Minimum map ensureSize (inclusive)
- * @param message Custom error message provider
- * @return A new validator with the minimum ensureSize constraint
- */
-@IgnorableReturnValue
-context(_: Validation)
-fun Map<*, *>.ensureMinSize(
-    size: Int,
-    message: SizeMessageProvider = { "kova.map.minSize".resource(it, size) },
-) = this.constrain("kova.map.minSize") { satisfies(it.size >= size) { message(it.size) } }
-
-/**
- * Validates that the map ensureSize does not exceed the specified maximum.
- *
- * Example:
- * ```kotlin
- * tryValidate { mapOf("a" to 1, "b" to 2).ensureMaxSize(3) }                   // Success
- * tryValidate { mapOf("a" to 1, "b" to 2, "c" to 3, "d" to 4).ensureMaxSize(3) } // Failure
- * ```
- *
- * @param size Maximum map ensureSize (inclusive)
- * @param message Custom error message provider
- * @return A new validator with the maximum ensureSize constraint
- */
-@IgnorableReturnValue
-context(_: Validation)
-fun Map<*, *>.ensureMaxSize(
-    size: Int,
-    message: SizeMessageProvider = { "kova.map.maxSize".resource(it, size) },
-) = this.constrain("kova.map.maxSize") { satisfies(it.size <= size) { message(it.size) } }
-
-/**
- * Validates that the map is not ensureEmpty.
- *
- * Example:
- * ```kotlin
- * tryValidate { mapOf("a" to 1).ensureNotEmpty() } // Success
- * tryValidate { mapOf<String, Int>().ensureNotEmpty() }         // Failure
- * ```
- *
- * @param message Custom error message provider
- * @return A new validator with the not-ensureEmpty constraint
- */
-@IgnorableReturnValue
-context(_: Validation)
-fun Map<*, *>.ensureNotEmpty(message: MessageProvider = { "kova.map.notEmpty".resource }) =
-    this.constrain("kova.map.notEmpty") { satisfies(it.isNotEmpty(), message) }
-
-/**
  * Validates that the map ensureSize equals exactly the specified value.
  *
  * Example:
@@ -96,6 +39,63 @@ fun <R> Map<*, *>.ensureSizeInRange(
     range: R,
     message: MessageProvider = { "kova.map.sizeInRange".resource(range) },
 ) where R : ClosedRange<Int>, R : OpenEndRange<Int> = this.constrain("kova.map.sizeInRange") { satisfies(it.size in range, message) }
+
+/**
+ * Validates that the map ensureSize is at least the specified minimum.
+ *
+ * Example:
+ * ```kotlin
+ * tryValidate { mapOf("a" to 1, "b" to 2, "c" to 3).ensureSizeAtLeast(2) } // Success
+ * tryValidate { mapOf("a" to 1).ensureSizeAtLeast(2) }                     // Failure
+ * ```
+ *
+ * @param size Minimum map ensureSize (inclusive)
+ * @param message Custom error message provider
+ * @return A new validator with the minimum ensureSize constraint
+ */
+@IgnorableReturnValue
+context(_: Validation)
+fun Map<*, *>.ensureSizeAtLeast(
+    size: Int,
+    message: SizeMessageProvider = { "kova.map.minSize".resource(it, size) },
+) = this.constrain("kova.map.minSize") { satisfies(it.size >= size) { message(it.size) } }
+
+/**
+ * Validates that the map ensureSize does not exceed the specified maximum.
+ *
+ * Example:
+ * ```kotlin
+ * tryValidate { mapOf("a" to 1, "b" to 2).ensureSizeAtMost(3) }                   // Success
+ * tryValidate { mapOf("a" to 1, "b" to 2, "c" to 3, "d" to 4).ensureSizeAtMost(3) } // Failure
+ * ```
+ *
+ * @param size Maximum map ensureSize (inclusive)
+ * @param message Custom error message provider
+ * @return A new validator with the maximum ensureSize constraint
+ */
+@IgnorableReturnValue
+context(_: Validation)
+fun Map<*, *>.ensureSizeAtMost(
+    size: Int,
+    message: SizeMessageProvider = { "kova.map.maxSize".resource(it, size) },
+) = this.constrain("kova.map.maxSize") { satisfies(it.size <= size) { message(it.size) } }
+
+/**
+ * Validates that the map is not ensureEmpty.
+ *
+ * Example:
+ * ```kotlin
+ * tryValidate { mapOf("a" to 1).ensureNotEmpty() } // Success
+ * tryValidate { mapOf<String, Int>().ensureNotEmpty() }         // Failure
+ * ```
+ *
+ * @param message Custom error message provider
+ * @return A new validator with the not-ensureEmpty constraint
+ */
+@IgnorableReturnValue
+context(_: Validation)
+fun Map<*, *>.ensureNotEmpty(message: MessageProvider = { "kova.map.notEmpty".resource }) =
+    this.constrain("kova.map.notEmpty") { satisfies(it.isNotEmpty(), message) }
 
 /**
  * Validates that the map ensureContains the specified key.
@@ -299,11 +299,11 @@ fun <K, V> Map<K, V>.ensureEach(validator: context(Validation)(Map.Entry<K, V>) 
  * Example:
  * ```kotlin
  * tryValidate {
- *     mapOf("abc" to 1, "def" to 2).ensureEachKey { it.ensureMinLength(2); it.ensureMaxLength(10) }
+ *     mapOf("abc" to 1, "def" to 2).ensureEachKey { it.ensureLengthAtLeast(2); it.ensureLengthAtMost(10) }
  * } // Success
  *
  * tryValidate {
- *     mapOf("a" to 1, "b" to 2).ensureEachKey { it.ensureMinLength(2); it.ensureMaxLength(10) }
+ *     mapOf("a" to 1, "b" to 2).ensureEachKey { it.ensureLengthAtLeast(2); it.ensureLengthAtMost(10) }
  * } // Failure: keys too short
  * ```
  *
@@ -330,11 +330,11 @@ fun <K> Map<K, *>.ensureEachKey(validator: context(Validation)(K) -> Unit) =
  * Example:
  * ```kotlin
  * tryValidate {
- *     mapOf("a" to 10, "b" to 20).ensureEachValue { it.ensureMin(0); it.ensureMax(100) }
+ *     mapOf("a" to 10, "b" to 20).ensureEachValue { it.ensureAtLeast(0); it.ensureAtMost(100) }
  * } // Success
  *
  * tryValidate {
- *     mapOf("a" to -1, "b" to 150).ensureEachValue { it.ensureMin(0); it.ensureMax(100) }
+ *     mapOf("a" to -1, "b" to 150).ensureEachValue { it.ensureAtLeast(0); it.ensureAtMost(100) }
  * } // Failure: values out of range
  * ```
  *

@@ -105,13 +105,13 @@ class QuickStartTest :
             context(_: Validation)
             fun validate(product: Product) =
                 product.schema {
-                    product::id { it.ensureMin(1) }
+                    product::id { it.ensureAtLeast(1) }
                     product::name {
                         it.ensureNotBlank()
-                        it.ensureMinLength(1)
-                        it.ensureMaxLength(100)
+                        it.ensureLengthAtLeast(1)
+                        it.ensureLengthAtMost(100)
                     }
-                    product::price { it.ensureMin(0.0) }
+                    product::price { it.ensureAtLeast(0.0) }
                 }
 
             test("test") {
@@ -138,11 +138,11 @@ class QuickStartTest :
                 address.schema {
                     address::street {
                         it.ensureNotBlank()
-                        it.ensureMinLength(1)
+                        it.ensureLengthAtLeast(1)
                     }
                     address::city {
                         it.ensureNotBlank()
-                        it.ensureMinLength(1)
+                        it.ensureLengthAtLeast(1)
                     }
                     address::zipCode { it.ensureMatches(Regex("^\\d{5}(-\\d{4})?$")) }
                 }
@@ -152,8 +152,8 @@ class QuickStartTest :
                 customer.schema {
                     customer::name {
                         it.ensureNotBlank()
-                        it.ensureMinLength(1)
-                        it.ensureMaxLength(100)
+                        it.ensureLengthAtLeast(1)
+                        it.ensureLengthAtMost(100)
                     }
                     customer::email {
                         it.ensureNotBlank()
@@ -252,8 +252,8 @@ class QuickStartTest :
         context("debug logging") {
             context(_: Validation)
             fun validateUsername(username: String) {
-                username.ensureMinLength(3)
-                username.ensureMaxLength(20)
+                username.ensureLengthAtLeast(3)
+                username.ensureLengthAtMost(20)
             }
 
             test("test") {

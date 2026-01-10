@@ -1,12 +1,56 @@
 package org.komapper.extension.validator
 
 /**
+ * Validates that the character sequence length equals exactly the specified value.
+ *
+ * Example:
+ * ```kotlin
+ * tryValidate { "hello".ensureLength(5) } // Success
+ * tryValidate { "hi".ensureLength(5) }    // Failure
+ * ```
+ *
+ * @param length Exact length required
+ * @param message Custom error message provider
+ */
+@IgnorableReturnValue
+context(_: Validation)
+fun CharSequence.ensureLength(
+    length: Int,
+    message: MessageProvider = { "kova.charSequence.length".resource(length) },
+) = this.constrain("kova.charSequence.length") { satisfies(it.length == length, message) }
+
+/**
+ * Validates that the character sequence length is within the specified range.
+ *
+ * Supports ranges that implement both ClosedRange and OpenEndRange interfaces,
+ * such as IntRange, allowing both closed (1..100) and open-ended (1..<100) syntax.
+ *
+ * Example:
+ * ```kotlin
+ * tryValidate { "hello".ensureLengthInRange(1..10) }      // Success
+ * tryValidate { "hi".ensureLengthInRange(1..10) }         // Success
+ * tryValidate { "".ensureLengthInRange(1..10) }           // Failure (too short)
+ * tryValidate { "very long text".ensureLengthInRange(1..<5) }  // Failure (too long)
+ * ```
+ *
+ * @param range The range for valid lengths (must implement both ClosedRange and OpenEndRange)
+ * @param message Custom error message provider
+ */
+@IgnorableReturnValue
+context(_: Validation)
+fun <R> CharSequence.ensureLengthInRange(
+    range: R,
+    message: MessageProvider = { "kova.charSequence.lengthInRange".resource(range) },
+) where R : ClosedRange<Int>, R : OpenEndRange<Int> =
+    this.constrain("kova.charSequence.lengthInRange") { satisfies(it.length in range, message) }
+
+/**
  * Validates that the character sequence length is at least the specified minimum.
  *
  * Example:
  * ```kotlin
- * tryValidate { "hello".ensureMinLength(3) } // Success
- * tryValidate { "hi".ensureMinLength(3) }    // Failure
+ * tryValidate { "hello".ensureLengthAtLeast(3) } // Success
+ * tryValidate { "hi".ensureLengthAtLeast(3) }    // Failure
  * ```
  *
  * @param length Minimum length (inclusive)
@@ -14,7 +58,7 @@ package org.komapper.extension.validator
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun CharSequence.ensureMinLength(
+fun CharSequence.ensureLengthAtLeast(
     length: Int,
     message: MessageProvider = { "kova.charSequence.minLength".resource(length) },
 ) = this.constrain("kova.charSequence.minLength") { satisfies(it.length >= length, message) }
@@ -24,8 +68,8 @@ fun CharSequence.ensureMinLength(
  *
  * Example:
  * ```kotlin
- * tryValidate { "hello".ensureMaxLength(10) }           // Success
- * tryValidate { "very long string".ensureMaxLength(10) } // Failure
+ * tryValidate { "hello".ensureLengthAtMost(10) }           // Success
+ * tryValidate { "very long string".ensureLengthAtMost(10) } // Failure
  * ```
  *
  * @param length Maximum length (inclusive)
@@ -33,7 +77,7 @@ fun CharSequence.ensureMinLength(
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun CharSequence.ensureMaxLength(
+fun CharSequence.ensureLengthAtMost(
     length: Int,
     message: MessageProvider = { "kova.charSequence.maxLength".resource(length) },
 ) = this.constrain("kova.charSequence.maxLength") { satisfies(it.length <= length, message) }
@@ -105,50 +149,6 @@ fun CharSequence.ensureNotEmpty(message: MessageProvider = { "kova.charSequence.
 context(_: Validation)
 fun CharSequence.ensureEmpty(message: MessageProvider = { "kova.charSequence.empty".resource }) =
     this.constrain("kova.charSequence.empty") { satisfies(it.isEmpty(), message) }
-
-/**
- * Validates that the character sequence length equals exactly the specified value.
- *
- * Example:
- * ```kotlin
- * tryValidate { "hello".ensureLength(5) } // Success
- * tryValidate { "hi".ensureLength(5) }    // Failure
- * ```
- *
- * @param length Exact length required
- * @param message Custom error message provider
- */
-@IgnorableReturnValue
-context(_: Validation)
-fun CharSequence.ensureLength(
-    length: Int,
-    message: MessageProvider = { "kova.charSequence.length".resource(length) },
-) = this.constrain("kova.charSequence.length") { satisfies(it.length == length, message) }
-
-/**
- * Validates that the character sequence length is within the specified range.
- *
- * Supports ranges that implement both ClosedRange and OpenEndRange interfaces,
- * such as IntRange, allowing both closed (1..100) and open-ended (1..<100) syntax.
- *
- * Example:
- * ```kotlin
- * tryValidate { "hello".ensureLengthInRange(1..10) }      // Success
- * tryValidate { "hi".ensureLengthInRange(1..10) }         // Success
- * tryValidate { "".ensureLengthInRange(1..10) }           // Failure (too short)
- * tryValidate { "very long text".ensureLengthInRange(1..<5) }  // Failure (too long)
- * ```
- *
- * @param range The range for valid lengths (must implement both ClosedRange and OpenEndRange)
- * @param message Custom error message provider
- */
-@IgnorableReturnValue
-context(_: Validation)
-fun <R> CharSequence.ensureLengthInRange(
-    range: R,
-    message: MessageProvider = { "kova.charSequence.lengthInRange".resource(range) },
-) where R : ClosedRange<Int>, R : OpenEndRange<Int> =
-    this.constrain("kova.charSequence.lengthInRange") { satisfies(it.length in range, message) }
 
 /**
  * Validates that the character sequence starts with the specified prefix.
