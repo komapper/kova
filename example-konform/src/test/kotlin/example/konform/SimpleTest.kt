@@ -8,8 +8,9 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ensureInRange
-import org.komapper.extension.validator.ensureMaxLength
-import org.komapper.extension.validator.ensureMinLength
+import org.komapper.extension.validator.ensureLengthAtLeast
+import org.komapper.extension.validator.ensureLengthAtMost
+import org.komapper.extension.validator.schema
 import org.komapper.extension.validator.tryValidate
 import java.util.Locale
 import io.konform.validation.Validation as KonformValidation
@@ -64,24 +65,25 @@ class SimpleTest :
         }
 
         context("kova") {
-            fun Validation.validate(userProfile: UserProfile) =
-                userProfile.schema {
-                    userProfile::fullName {
-                        ensureMinLength(it, 2)
-                        ensureMaxLength(it, 100)
+            context(_: Validation)
+            fun UserProfile.validate() =
+                schema {
+                    ::fullName {
+                        it.ensureLengthAtLeast(2)
+                        it.ensureLengthAtMost(100)
                     }
-                    userProfile::age {
-                        if (it != null) ensureInRange(it, 0..150)
+                    ::age {
+                        if (it != null) it.ensureInRange(0..150)
                     }
                 }
 
             test("valid") {
-                val result = tryValidate { validate(validUserProfile) }
+                val result = tryValidate { validUserProfile.validate() }
                 result.shouldBeSuccess()
             }
 
             test("invalid") {
-                val result = tryValidate { validate(invalidUserProfile) }
+                val result = tryValidate { invalidUserProfile.validate() }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 2
                 result.messages[0].let {

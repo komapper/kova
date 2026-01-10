@@ -3,12 +3,13 @@ package example.factory
 import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationResult
 import org.komapper.extension.validator.ensureInRange
-import org.komapper.extension.validator.ensureMinLength
+import org.komapper.extension.validator.ensureLengthAtLeast
 import org.komapper.extension.validator.ensureNotBlank
 import org.komapper.extension.validator.factory.bind
 import org.komapper.extension.validator.factory.factory
 import org.komapper.extension.validator.isSuccess
-import org.komapper.extension.validator.parseInt
+import org.komapper.extension.validator.schema
+import org.komapper.extension.validator.transformToInt
 import org.komapper.extension.validator.tryValidate
 
 /**
@@ -41,10 +42,11 @@ data class Person(
  * Schema validation for User objects.
  * Validates that the age property is between 0 and 120.
  */
-fun Validation.validate(user: User) =
-    user.schema {
-        user::age {
-            ensureInRange(it, 0..120)
+context(_: Validation)
+fun User.validate() =
+    schema {
+        ::age {
+            it.ensureInRange(0..120)
         } // property validator
     }
 
@@ -55,7 +57,7 @@ fun Validation.validate(user: User) =
  *
  * 1. **Argument validators** - Validate and transform each input parameter
  *    - name: validates it's not ensureBlank, ensureHas min ensureLength 1, and returns the validated string
- *    - age: converts the string to Int using parseInt() validator
+ *    - age: converts the string to Int using transformToInt() validator
  *
  * 2. **Object validator** - Validates the constructed User object (.also { validate(it) })
  *    - Applies the validate(User) schema to check age range (0-120)
@@ -68,26 +70,28 @@ fun Validation.validate(user: User) =
  * Property delegation (by bind) enables clean syntax while tracking validation errors
  * with proper paths for each parameter.
  */
-fun Validation.buildUser(
+context(_: Validation)
+fun buildUser(
     name: String,
     age: String,
 ) = factory {
     val name by bind(name) {
-        ensureMinLength(it, 1)
-        ensureNotBlank(it)
+        it.ensureLengthAtLeast(1)
+        it.ensureNotBlank()
         it
     } // argument validator
-    val age by bind(age) { parseInt(it) } // argument validator
+    val age by bind(age) { it.transformToInt() } // argument validator
     User(name, age)
-}.also { validate(it) } // object validator
+}.also { it.validate() } // object validator
 
 /**
  * Factory function to build an Age object from a string.
  * Converts the string to Int and wraps it in an Age object.
  */
-fun Validation.buildAge(age: String) =
+context(_: Validation)
+fun buildAge(age: String) =
     factory {
-        val value by bind(age) { parseInt(it) } // argument validator
+        val value by bind(age) { it.transformToInt() } // argument validator
         Age(value)
     }
 
@@ -103,13 +107,14 @@ fun Validation.buildAge(age: String) =
  * This pattern allows you to compose complex object graphs while maintaining
  * proper validation error paths (e.g., "age.value" for nested properties).
  */
-fun Validation.buildPerson(
+context(_: Validation)
+fun buildPerson(
     name: String,
     age: String,
 ) = factory {
     val name by bind(name) {
-        ensureMinLength(it, 1)
-        ensureNotBlank(it)
+        it.ensureLengthAtLeast(1)
+        it.ensureNotBlank()
         it
     } // argument validator
     val age by bind { buildAge(age) } // nested object validator

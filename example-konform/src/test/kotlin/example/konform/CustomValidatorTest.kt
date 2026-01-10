@@ -4,9 +4,11 @@ import io.konform.validation.path.ValidationPath
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import org.komapper.extension.validator.Validation
-import org.komapper.extension.validator.ensureMinLength
+import org.komapper.extension.validator.ensureLengthAtLeast
 import org.komapper.extension.validator.ensureNotBlank
 import org.komapper.extension.validator.ensureNotContains
+import org.komapper.extension.validator.schema
+import org.komapper.extension.validator.text
 import org.komapper.extension.validator.tryValidate
 import java.util.Locale
 import io.konform.validation.Validation as KonformValidation
@@ -61,17 +63,18 @@ class CustomValidatorTest :
         }
 
         context("kova") {
-            fun Validation.validate(userProfile: UserProfile) =
-                userProfile.schema {
-                    userProfile::fullName {
-                        ensureNotContains(it, "\t") { text("Name cannot contain a tab") }
-                        ensureNotBlank(it) { text("Name must have a non-whitespace character") }
-                        ensureMinLength(it, 5) { text("Must have 5 characters") }
+            context(_: Validation)
+            fun UserProfile.validate() =
+                schema {
+                    ::fullName {
+                        it.ensureNotContains("\t") { text("Name cannot contain a tab") }
+                        it.ensureNotBlank { text("Name must have a non-whitespace character") }
+                        it.ensureLengthAtLeast(5) { text("Must have 5 characters") }
                     }
                 }
 
             test("invalid") {
-                val result = tryValidate { validate(invalidUserProfile) }
+                val result = tryValidate { invalidUserProfile.validate() }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 3
                 result.messages[0].let {

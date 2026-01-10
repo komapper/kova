@@ -1,122 +1,122 @@
 package org.komapper.extension.validator
 
 /**
- * Validates that the number is greater than or equal to the specified minimum value.
+ * Validates that the value is greater than or equal to the specified minimum value.
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureMin(10, 0) }  // Success
- * tryValidate { ensureMin(-1, 0) }  // Failure
+ * tryValidate { 10.ensureAtLeast(0) }  // Success
+ * tryValidate { (-1).ensureAtLeast(0) }  // Failure
  * ```
  *
  * @param value Minimum value (inclusive)
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <S : Comparable<S>> Validation.ensureMin(
-    input: S,
+context(_: Validation)
+fun <S : Comparable<S>> S.ensureAtLeast(
     value: S,
-    message: MessageProvider = { "kova.comparable.min".resource(value) },
-) = input.constrain("kova.comparable.min") { satisfies(it >= value, message) }
+    message: MessageProvider = { "kova.comparable.atLeast".resource(value) },
+) = this.constrain("kova.comparable.atLeast") { satisfies(it >= value, message) }
 
 /**
- * Validates that the number is less than or equal to the specified maximum value.
+ * Validates that the value is less than or equal to the specified maximum value.
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureMax(50, 100) }   // Success
- * tryValidate { ensureMax(150, 100) }  // Failure
+ * tryValidate { 50.ensureAtMost(100) }   // Success
+ * tryValidate { 150.ensureAtMost(100) }  // Failure
  * ```
  *
  * @param value Maximum value (inclusive)
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <S : Comparable<S>> Validation.ensureMax(
-    input: S,
+context(_: Validation)
+fun <S : Comparable<S>> S.ensureAtMost(
     value: S,
-    message: MessageProvider = { "kova.comparable.max".resource(value) },
-) = input.constrain("kova.comparable.max") { satisfies(it <= value, message) }
+    message: MessageProvider = { "kova.comparable.atMost".resource(value) },
+) = this.constrain("kova.comparable.atMost") { satisfies(it <= value, message) }
 
 /**
- * Validates that the number is strictly greater than the specified value.
+ * Validates that the value is strictly greater than the specified value.
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureGreaterThan(1, 0) }   // Success
- * tryValidate { ensureGreaterThan(0, 0) }   // Failure
- * tryValidate { ensureGreaterThan(-1, 0) }  // Failure
+ * tryValidate { 1.ensureGreaterThan(0) }   // Success
+ * tryValidate { 0.ensureGreaterThan(0) }   // Failure
+ * tryValidate { (-1).ensureGreaterThan(0) }  // Failure
  * ```
  *
  * @param value The value to compare against (exclusive)
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <S : Comparable<S>> Validation.ensureGreaterThan(
-    input: S,
+context(_: Validation)
+fun <S : Comparable<S>> S.ensureGreaterThan(
     value: S,
     message: MessageProvider = { "kova.comparable.greaterThan".resource(value) },
-) = input.constrain("kova.comparable.greaterThan") { satisfies(it > value, message) }
+) = this.constrain("kova.comparable.greaterThan") { satisfies(it > value, message) }
 
 /**
- * Validates that the number is greater than or equal to the specified value.
+ * Validates that the value is greater than or equal to the specified value.
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureGreaterThanOrEqual(1, 0) }   // Success
- * tryValidate { ensureGreaterThanOrEqual(0, 0) }   // Success
- * tryValidate { ensureGreaterThanOrEqual(-1, 0) }  // Failure
+ * tryValidate { 1.ensureGreaterThanOrEqual(0) }   // Success
+ * tryValidate { 0.ensureGreaterThanOrEqual(0) }   // Success
+ * tryValidate { (-1).ensureGreaterThanOrEqual(0) }  // Failure
  * ```
  *
  * @param value The value to compare against (inclusive)
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <S : Comparable<S>> Validation.ensureGreaterThanOrEqual(
-    input: S,
+context(_: Validation)
+fun <S : Comparable<S>> S.ensureGreaterThanOrEqual(
     value: S,
     message: MessageProvider = { "kova.comparable.greaterThanOrEqual".resource(value) },
-) = input.constrain("kova.comparable.greaterThanOrEqual") { satisfies(it >= value, message) }
+) = this.constrain("kova.comparable.greaterThanOrEqual") { satisfies(it >= value, message) }
 
 /**
- * Validates that the number is strictly less than the specified value.
+ * Validates that the value is strictly less than the specified value.
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureLessThan(50, 100) }   // Success
- * tryValidate { ensureLessThan(100, 100) }  // Failure
- * tryValidate { ensureLessThan(150, 100) }  // Failure
+ * tryValidate { 50.ensureLessThan(100) }   // Success
+ * tryValidate { 100.ensureLessThan(100) }  // Failure
+ * tryValidate { 150.ensureLessThan(100) }  // Failure
  * ```
  *
  * @param value The value to compare against (exclusive)
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <S : Comparable<S>> Validation.ensureLessThan(
-    input: S,
+context(_: Validation)
+fun <S : Comparable<S>> S.ensureLessThan(
     value: S,
     message: MessageProvider = { "kova.comparable.lessThan".resource(value) },
-) = input.constrain("kova.comparable.lessThan") { satisfies(it < value, message) }
+) = this.constrain("kova.comparable.lessThan") { satisfies(it < value, message) }
 
 /**
- * Validates that the number is less than or equal to the specified value.
+ * Validates that the value is less than or equal to the specified value.
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureLessThanOrEqual(50, 100) }   // Success
- * tryValidate { ensureLessThanOrEqual(100, 100) }  // Success
- * tryValidate { ensureLessThanOrEqual(150, 100) }  // Failure
+ * tryValidate { 50.ensureLessThanOrEqual(100) }   // Success
+ * tryValidate { 100.ensureLessThanOrEqual(100) }  // Success
+ * tryValidate { 150.ensureLessThanOrEqual(100) }  // Failure
  * ```
  *
  * @param value The value to compare against (inclusive)
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <S : Comparable<S>> Validation.ensureLessThanOrEqual(
-    input: S,
+context(_: Validation)
+fun <S : Comparable<S>> S.ensureLessThanOrEqual(
     value: S,
     message: MessageProvider = { "kova.comparable.lessThanOrEqual".resource(value) },
-) = input.constrain("kova.comparable.lessThanOrEqual") { satisfies(it <= value, message) }
+) = this.constrain("kova.comparable.lessThanOrEqual") { satisfies(it <= value, message) }
 
 /**
  * Validates that the value is within the specified range.
@@ -127,31 +127,31 @@ fun <S : Comparable<S>> Validation.ensureLessThanOrEqual(
  *
  * Example with closed range syntax (1..10):
  * ```kotlin
- * tryValidate { ensureInRange(5, 1..10) }    // Success
- * tryValidate { ensureInRange(1, 1..10) }    // Success (inclusive start)
- * tryValidate { ensureInRange(10, 1..10) }   // Success (inclusive end)
- * tryValidate { ensureInRange(0, 1..10) }    // Failure
- * tryValidate { ensureInRange(11, 1..10) }   // Failure
+ * tryValidate { 5.ensureInRange(1..10) }    // Success
+ * tryValidate { 1.ensureInRange(1..10) }    // Success (inclusive start)
+ * tryValidate { 10.ensureInRange(1..10) }   // Success (inclusive end)
+ * tryValidate { 0.ensureInRange(1..10) }    // Failure
+ * tryValidate { 11.ensureInRange(1..10) }   // Failure
  * ```
  *
  * Example with open-ended range syntax (1..<10):
  * ```kotlin
- * tryValidate { ensureInRange(5, 1..<10) }   // Success
- * tryValidate { ensureInRange(1, 1..<10) }   // Success (inclusive start)
- * tryValidate { ensureInRange(9, 1..<10) }   // Success
- * tryValidate { ensureInRange(10, 1..<10) }  // Failure (exclusive end)
- * tryValidate { ensureInRange(0, 1..<10) }   // Failure
+ * tryValidate { 5.ensureInRange(1..<10) }   // Success
+ * tryValidate { 1.ensureInRange(1..<10) }   // Success (inclusive start)
+ * tryValidate { 9.ensureInRange(1..<10) }   // Success
+ * tryValidate { 10.ensureInRange(1..<10) }  // Failure (exclusive end)
+ * tryValidate { 0.ensureInRange(1..<10) }   // Failure
  * ```
  *
  * @param range The range to check against (must implement both ClosedRange and OpenEndRange)
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <S : Comparable<S>, R> Validation.ensureInRange(
-    input: S,
+context(_: Validation)
+fun <S : Comparable<S>, R> S.ensureInRange(
     range: R,
     message: MessageProvider = { "kova.comparable.inRange".resource(range) },
-) where R : ClosedRange<S>, R : OpenEndRange<S> = input.constrain("kova.comparable.inRange") { satisfies(it in range, message) }
+) where R : ClosedRange<S>, R : OpenEndRange<S> = this.constrain("kova.comparable.inRange") { satisfies(it in range, message) }
 
 /**
  * Validates that the value is within the specified closed range.
@@ -160,22 +160,22 @@ fun <S : Comparable<S>, R> Validation.ensureInRange(
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureInClosedRange(5, 1.0..10.0) }    // Success
- * tryValidate { ensureInClosedRange(1, 1.0..10.0) }    // Success (inclusive start)
- * tryValidate { ensureInClosedRange(10, 1.0..10.0) }   // Success (inclusive end)
- * tryValidate { ensureInClosedRange(0, 1.0..10.0) }    // Failure
- * tryValidate { ensureInClosedRange(11, 1.0..10.0) }   // Failure
+ * tryValidate { 5.ensureInClosedRange(1.0..10.0) }    // Success
+ * tryValidate { 1.ensureInClosedRange(1.0..10.0) }    // Success (inclusive start)
+ * tryValidate { 10.ensureInClosedRange(1.0..10.0) }   // Success (inclusive end)
+ * tryValidate { 0.ensureInClosedRange(1.0..10.0) }    // Failure
+ * tryValidate { 11.ensureInClosedRange(1.0..10.0) }   // Failure
  * ```
  *
  * @param range The closed range to check against
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <S : Comparable<S>> Validation.ensureInClosedRange(
-    input: S,
+context(_: Validation)
+fun <S : Comparable<S>> S.ensureInClosedRange(
     range: ClosedRange<S>,
     message: MessageProvider = { "kova.comparable.inClosedRange".resource(range) },
-) = input.constrain("kova.comparable.inClosedRange") { satisfies(it in range, message) }
+) = this.constrain("kova.comparable.inClosedRange") { satisfies(it in range, message) }
 
 /**
  * Validates that the value is within the specified open-ended range.
@@ -184,19 +184,19 @@ fun <S : Comparable<S>> Validation.ensureInClosedRange(
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureInOpenEndRange(5, 1..<10) }    // Success
- * tryValidate { ensureInOpenEndRange(1, 1..<10) }    // Success (inclusive start)
- * tryValidate { ensureInOpenEndRange(9, 1..<10) }    // Success
- * tryValidate { ensureInOpenEndRange(10, 1..<10) }   // Failure (exclusive end)
- * tryValidate { ensureInOpenEndRange(0, 1..<10) }    // Failure
+ * tryValidate { 5.ensureInOpenEndRange(1..<10) }    // Success
+ * tryValidate { 1.ensureInOpenEndRange(1..<10) }    // Success (inclusive start)
+ * tryValidate { 9.ensureInOpenEndRange(1..<10) }    // Success
+ * tryValidate { 10.ensureInOpenEndRange(1..<10) }   // Failure (exclusive end)
+ * tryValidate { 0.ensureInOpenEndRange(1..<10) }    // Failure
  * ```
  *
  * @param range The open-ended range to check against
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <S : Comparable<S>> Validation.ensureInOpenEndRange(
-    input: S,
+context(_: Validation)
+fun <S : Comparable<S>> S.ensureInOpenEndRange(
     range: OpenEndRange<S>,
     message: MessageProvider = { "kova.comparable.inOpenEndRange".resource(range) },
-) = input.constrain("kova.comparable.inOpenEndRange") { satisfies(it in range, message) }
+) = this.constrain("kova.comparable.inOpenEndRange") { satisfies(it in range, message) }

@@ -14,42 +14,42 @@ class MessagePropertiesTest :
         context("kova.any") {
 
             test("ensureEquals") {
-                val result = tryValidate { ensureEquals(10, 42) }
+                val result = tryValidate { 10.ensureEquals(42) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be equal to 42"
             }
 
             test("ensureEquals with message") {
-                val result = tryValidate { ensureEquals(10, 42) { text("must be equal to 42") } }
+                val result = tryValidate { 10.ensureEquals(42) { text("must be equal to 42") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be equal to 42"
             }
 
             test("ensureNotEquals") {
-                val result = tryValidate { ensureNotEquals(0, 0) }
+                val result = tryValidate { 0.ensureNotEquals(0) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must not be equal to 0"
             }
 
             test("ensureNotEquals with message") {
-                val result = tryValidate { ensureNotEquals(0, 0) { text("must not be equal to 0") } }
+                val result = tryValidate { 0.ensureNotEquals(0) { text("must not be equal to 0") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must not be equal to 0"
             }
 
             test("ensureIn") {
-                val result = tryValidate { ensureIn(5, listOf(1, 2, 3)) }
+                val result = tryValidate { 5.ensureIn(listOf(1, 2, 3)) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be one of: [1, 2, 3]"
             }
 
             test("ensureIn with message") {
-                val result = tryValidate { ensureIn(5, listOf(1, 2, 3)) { text("must be one of: ${listOf(1, 2, 3)}") } }
+                val result = tryValidate { 5.ensureIn(listOf(1, 2, 3)) { text("must be one of: ${listOf(1, 2, 3)}") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be one of: [1, 2, 3]"
@@ -58,28 +58,28 @@ class MessagePropertiesTest :
 
         context("kova.boolean") {
             test("ensureTrue") {
-                val result = tryValidate { ensureTrue(false) }
+                val result = tryValidate { false.ensureTrue() }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be true"
             }
 
             test("ensureTrue with message") {
-                val result = tryValidate { ensureTrue(false) { text("must be true") } }
+                val result = tryValidate { false.ensureTrue { text("must be true") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be true"
             }
 
             test("ensureFalse") {
-                val result = tryValidate { ensureFalse(true) }
+                val result = tryValidate { true.ensureFalse() }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be false"
             }
 
             test("ensureFalse with message") {
-                val result = tryValidate { ensureFalse(true) { text("must be false") } }
+                val result = tryValidate { true.ensureFalse { text("must be false") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be false"
@@ -87,106 +87,106 @@ class MessagePropertiesTest :
         }
 
         context("kova.charSequence") {
-            test("ensureMinLength") {
-                val result = tryValidate { ensureMinLength("abc", 5) }
+            test("ensureLengthAtLeast") {
+                val result = tryValidate { "abc".ensureLengthAtLeast(5) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be at least 5 characters"
             }
 
-            test("ensureMinLength with message") {
-                val result = tryValidate { ensureMinLength("abc", 5) { text("must be at least 5 characters") } }
+            test("ensureLengthAtLeast with message") {
+                val result = tryValidate { "abc".ensureLengthAtLeast(5) { text("must be at least 5 characters") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be at least 5 characters"
             }
 
-            test("ensureMaxLength") {
-                val result = tryValidate { ensureMaxLength("abcdef", 5) }
+            test("ensureLengthAtMost") {
+                val result = tryValidate { "abcdef".ensureLengthAtMost(5) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be at most 5 characters"
             }
 
-            test("ensureMaxLength with message") {
-                val result = tryValidate { ensureMaxLength("abcdef", 5) { text("must be at most 5 characters") } }
+            test("ensureLengthAtMost with message") {
+                val result = tryValidate { "abcdef".ensureLengthAtMost(5) { text("must be at most 5 characters") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be at most 5 characters"
             }
 
             test("length") {
-                val result = tryValidate { ensureLength("abc", 5) }
+                val result = tryValidate { "abc".ensureLength(5) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be exactly 5 characters"
             }
 
             test("ensureLength with message") {
-                val result = tryValidate { ensureLength("abc", 5) { text("must be exactly 5 characters") } }
+                val result = tryValidate { "abc".ensureLength(5) { text("must be exactly 5 characters") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be exactly 5 characters"
             }
 
             test("ensureLengthInRange") {
-                val result = tryValidate { ensureLengthInRange("", 1..10) }
+                val result = tryValidate { "".ensureLengthInRange(1..10) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must have length within range 1..10"
             }
 
             test("ensureLengthInRange with message") {
-                val result = tryValidate { ensureLengthInRange("", 1..10) { text("must have length within range 1..10") } }
+                val result = tryValidate { "".ensureLengthInRange(1..10) { text("must have length within range 1..10") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must have length within range 1..10"
             }
 
             test("ensureNotBlank") {
-                val result = tryValidate { ensureNotBlank("  ") }
+                val result = tryValidate { "  ".ensureNotBlank() }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must not be blank"
             }
 
             test("ensureBlank") {
-                val result = tryValidate { ensureBlank("abc") }
+                val result = tryValidate { "abc".ensureBlank() }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be blank"
             }
 
             test("ensureNotEmpty") {
-                val result = tryValidate { ensureNotEmpty("") }
+                val result = tryValidate { "".ensureNotEmpty() }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must not be empty"
             }
 
             test("empty") {
-                val result = tryValidate { ensureEmpty("abc") }
+                val result = tryValidate { "abc".ensureEmpty() }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be empty"
             }
 
             test("ensureStartsWith") {
-                val result = tryValidate { ensureStartsWith("world", "hello") }
+                val result = tryValidate { "world".ensureStartsWith("hello") }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must start with \"hello\""
             }
 
             test("ensureStartsWith with message") {
-                val result = tryValidate { ensureStartsWith("world", "hello") { text("must start with \"hello\"") } }
+                val result = tryValidate { "world".ensureStartsWith("hello") { text("must start with \"hello\"") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must start with \"hello\""
             }
 
             test("ensureNotStartsWith") {
-                val result = tryValidate { ensureNotStartsWith("hello world", "hello") }
+                val result = tryValidate { "hello world".ensureNotStartsWith("hello") }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must not start with \"hello\""
@@ -195,8 +195,7 @@ class MessagePropertiesTest :
             test("ensureNotStartsWith with message") {
                 val result =
                     tryValidate {
-                        ensureNotStartsWith(
-                            "hello world",
+                        "hello world".ensureNotStartsWith(
                             "hello",
                         ) { text("must not start with \"hello\"") }
                     }
@@ -206,56 +205,56 @@ class MessagePropertiesTest :
             }
 
             test("ensureEndsWith") {
-                val result = tryValidate { ensureEndsWith("hello", "world") }
+                val result = tryValidate { "hello".ensureEndsWith("world") }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must end with \"world\""
             }
 
             test("ensureEndsWith with message") {
-                val result = tryValidate { ensureEndsWith("hello", "world") { text("must end with \"world\"") } }
+                val result = tryValidate { "hello".ensureEndsWith("world") { text("must end with \"world\"") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must end with \"world\""
             }
 
             test("ensureNotEndsWith") {
-                val result = tryValidate { ensureNotEndsWith("hello world", "world") }
+                val result = tryValidate { "hello world".ensureNotEndsWith("world") }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must not end with \"world\""
             }
 
             test("ensureNotEndsWith with message") {
-                val result = tryValidate { ensureNotEndsWith("hello world", "world") { text("must not end with \"world\"") } }
+                val result = tryValidate { "hello world".ensureNotEndsWith("world") { text("must not end with \"world\"") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must not end with \"world\""
             }
 
             test("ensureContains") {
-                val result = tryValidate { ensureContains("hello", "test") }
+                val result = tryValidate { "hello".ensureContains("test") }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must contain \"test\""
             }
 
             test("ensureContains with message") {
-                val result = tryValidate { ensureContains("hello", "test") { text("must contain \"test\"") } }
+                val result = tryValidate { "hello".ensureContains("test") { text("must contain \"test\"") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must contain \"test\""
             }
 
             test("ensureNotContains") {
-                val result = tryValidate { ensureNotContains("test value", "test") }
+                val result = tryValidate { "test value".ensureNotContains("test") }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must not contain \"test\""
             }
 
             test("ensureNotContains with message") {
-                val result = tryValidate { ensureNotContains("test value", "test") { text("must not contain \"test\"") } }
+                val result = tryValidate { "test value".ensureNotContains("test") { text("must not contain \"test\"") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must not contain \"test\""
@@ -263,28 +262,28 @@ class MessagePropertiesTest :
 
             val regex = Regex("[0-9]+")
             test("ensureMatches") {
-                val result = tryValidate { ensureMatches("abc", regex) }
+                val result = tryValidate { "abc".ensureMatches(regex) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must match pattern: [0-9]+"
             }
 
             test("ensureMatches with message") {
-                val result = tryValidate { ensureMatches("abc", regex) { text("must match pattern: $regex") } }
+                val result = tryValidate { "abc".ensureMatches(regex) { text("must match pattern: $regex") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must match pattern: [0-9]+"
             }
 
             test("ensureNotMatches") {
-                val result = tryValidate { ensureNotMatches("123", regex) }
+                val result = tryValidate { "123".ensureNotMatches(regex) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must not match pattern: [0-9]+"
             }
 
             test("ensureNotMatches with message") {
-                val result = tryValidate { ensureNotMatches("123", regex) { text("must not match pattern: $regex") } }
+                val result = tryValidate { "123".ensureNotMatches(regex) { text("must not match pattern: $regex") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must not match pattern: [0-9]+"
@@ -292,18 +291,17 @@ class MessagePropertiesTest :
         }
 
         context("kova.collection") {
-            test("ensureMinSize") {
-                val result = tryValidate { ensureMinSize(listOf("a", "b"), 3) }
+            test("ensureSizeAtLeast") {
+                val result = tryValidate { listOf("a", "b").ensureSizeAtLeast(3) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "Collection (size 2) must have at least 3 elements"
             }
 
-            test("ensureMinSize with message") {
+            test("ensureSizeAtLeast with message") {
                 val result =
                     tryValidate {
-                        ensureMinSize(
-                            listOf("a", "b"),
+                        listOf("a", "b").ensureSizeAtLeast(
                             3,
                         ) { text("Collection (size $it) must have at least 3 elements") }
                     }
@@ -312,18 +310,17 @@ class MessagePropertiesTest :
                 message.text shouldBe "Collection (size 2) must have at least 3 elements"
             }
 
-            test("ensureMaxSize") {
-                val result = tryValidate { ensureMaxSize(listOf("a", "b", "c", "d"), 3) }
+            test("ensureSizeAtMost") {
+                val result = tryValidate { listOf("a", "b", "c", "d").ensureSizeAtMost(3) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "Collection (size 4) must have at most 3 elements"
             }
 
-            test("ensureMaxSize with message") {
+            test("ensureSizeAtMost with message") {
                 val result =
                     tryValidate {
-                        ensureMaxSize(
-                            listOf("a", "b", "c", "d"),
+                        listOf("a", "b", "c", "d").ensureSizeAtMost(
                             3,
                         ) { text("Collection (size $it) must have at most 3 elements") }
                     }
@@ -333,7 +330,7 @@ class MessagePropertiesTest :
             }
 
             test("ensureSize") {
-                val result = tryValidate { ensureSize(listOf("a", "b"), 3) }
+                val result = tryValidate { listOf("a", "b").ensureSize(3) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "Collection (size 2) must have exactly 3 elements"
@@ -342,8 +339,7 @@ class MessagePropertiesTest :
             test("ensureSize with message") {
                 val result =
                     tryValidate {
-                        ensureSize(
-                            listOf("a", "b"),
+                        listOf("a", "b").ensureSize(
                             3,
                         ) { text("Collection (size $it) must have exactly 3 elements") }
                     }
@@ -353,14 +349,14 @@ class MessagePropertiesTest :
             }
 
             test("ensureSizeInRange") {
-                val result = tryValidate { ensureSizeInRange(listOf("a", "b"), 3..5) }
+                val result = tryValidate { listOf("a", "b").ensureSizeInRange(3..5) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "Collection size must be within range 3..5"
             }
 
             test("ensureSizeInRange with message") {
-                val result = tryValidate { ensureSizeInRange(listOf("a", "b"), 3..5) { text("Collection size must be within range 3..5") } }
+                val result = tryValidate { listOf("a", "b").ensureSizeInRange(3..5) { text("Collection size must be within range 3..5") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "Collection size must be within range 3..5"
@@ -369,35 +365,35 @@ class MessagePropertiesTest :
 
         context("kova.comparable") {
             test("min") {
-                val result = tryValidate { ensureMin(5, 10) }
+                val result = tryValidate { 5.ensureAtLeast(10) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be greater than or equal to 10"
             }
 
             test("min with message") {
-                val result = tryValidate { ensureMin(5, 10) { text("must be greater than or equal to 10") } }
+                val result = tryValidate { 5.ensureAtLeast(10) { text("must be greater than or equal to 10") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be greater than or equal to 10"
             }
 
             test("max") {
-                val result = tryValidate { ensureMax(15, 10) }
+                val result = tryValidate { 15.ensureAtMost(10) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be less than or equal to 10"
             }
 
             test("max with message") {
-                val result = tryValidate { ensureMax(15, 10) { text("must be less than or equal to 10") } }
+                val result = tryValidate { 15.ensureAtMost(10) { text("must be less than or equal to 10") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be less than or equal to 10"
             }
 
             test("ensureGreaterThan") {
-                val result = tryValidate { ensureGreaterThan(10, 10) }
+                val result = tryValidate { 10.ensureGreaterThan(10) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be greater than 10"
@@ -405,91 +401,91 @@ class MessagePropertiesTest :
 
             test("ensureGreaterThan with message") {
                 val result =
-                    tryValidate { ensureGreaterThan(10, 10) { text("must be greater than 10") } }
+                    tryValidate { 10.ensureGreaterThan(10) { text("must be greater than 10") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be greater than 10"
             }
 
             test("ensureGreaterThanOrEqual") {
-                val result = tryValidate { ensureGreaterThanOrEqual(9, 10) }
+                val result = tryValidate { 9.ensureGreaterThanOrEqual(10) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be greater than or equal to 10"
             }
 
             test("ensureGreaterThanOrEqual with message") {
-                val result = tryValidate { ensureGreaterThanOrEqual(9, 10) { text("must be greater than or equal to 10") } }
+                val result = tryValidate { 9.ensureGreaterThanOrEqual(10) { text("must be greater than or equal to 10") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be greater than or equal to 10"
             }
 
             test("ensureLessThan") {
-                val result = tryValidate { ensureLessThan(10, 10) }
+                val result = tryValidate { 10.ensureLessThan(10) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be less than 10"
             }
 
             test("ensureLessThan with message") {
-                val result = tryValidate { ensureLessThan(10, 10) { text("must be less than 10") } }
+                val result = tryValidate { 10.ensureLessThan(10) { text("must be less than 10") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be less than 10"
             }
 
             test("ensureLessThanOrEqual") {
-                val result = tryValidate { ensureLessThanOrEqual(11, 10) }
+                val result = tryValidate { 11.ensureLessThanOrEqual(10) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be less than or equal to 10"
             }
 
             test("ensureLessThanOrEqual with message") {
-                val result = tryValidate { ensureLessThanOrEqual(11, 10) { text("must be less than or equal to 10") } }
+                val result = tryValidate { 11.ensureLessThanOrEqual(10) { text("must be less than or equal to 10") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be less than or equal to 10"
             }
 
             test("ensureInRange") {
-                val result = tryValidate { ensureInRange(15, 1..10) }
+                val result = tryValidate { 15.ensureInRange(1..10) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be within range 1..10"
             }
 
             test("ensureInRange with message") {
-                val result = tryValidate { ensureInRange(15, 1..10) { text("must be within range 1..10") } }
+                val result = tryValidate { 15.ensureInRange(1..10) { text("must be within range 1..10") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be within range 1..10"
             }
 
             test("ensureInClosedRange") {
-                val result = tryValidate { ensureInClosedRange(15, 1..10) }
+                val result = tryValidate { 15.ensureInClosedRange(1..10) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be within range 1..10"
             }
 
             test("ensureInClosedRange with message") {
-                val result = tryValidate { ensureInClosedRange(15, 1..10) { text("must be within range 1..10") } }
+                val result = tryValidate { 15.ensureInClosedRange(1..10) { text("must be within range 1..10") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be within range 1..10"
             }
 
             test("ensureInOpenEndRange") {
-                val result = tryValidate { ensureInOpenEndRange(10, 1..<10) }
+                val result = tryValidate { 10.ensureInOpenEndRange(1..<10) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be within range 1..9"
             }
 
             test("ensureInOpenEndRange with message") {
-                val result = tryValidate { ensureInOpenEndRange(10, 1..<10) { text("must be within range 1..<10") } }
+                val result = tryValidate { 10.ensureInOpenEndRange(1..<10) { text("must be within range 1..<10") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be within range 1..<10"
@@ -498,42 +494,42 @@ class MessagePropertiesTest :
 
         context("kova.iterable") {
             test("ensureEach") {
-                val result = tryValidate { ensureEach(listOf(1, -2, 3)) { ensurePositive(it) } }
+                val result = tryValidate { listOf(1, -2, 3).ensureEach { it.ensurePositive() } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "Some elements do not satisfy the constraint: [must be positive]"
             }
 
             test("ensureNotEmpty") {
-                val result = tryValidate { ensureNotEmpty(emptyList<Nothing>()) }
+                val result = tryValidate { emptyList<Nothing>().ensureNotEmpty() }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must not be empty"
             }
 
             test("ensureContains") {
-                val result = tryValidate { ensureHas(listOf("bar", "baz"), "foo") }
+                val result = tryValidate { listOf("bar", "baz").ensureHas("foo") }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must contain foo"
             }
 
             test("ensureContains with message") {
-                val result = tryValidate { ensureHas(listOf("bar", "baz"), "foo") { text("must contain foo") } }
+                val result = tryValidate { listOf("bar", "baz").ensureHas("foo") { text("must contain foo") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must contain foo"
             }
 
             test("ensureNotContains") {
-                val result = tryValidate { ensureNotContains(listOf("foo", "bar"), "foo") }
+                val result = tryValidate { listOf("foo", "bar").ensureNotContains("foo") }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must not contain foo"
             }
 
             test("ensureNotContains with message") {
-                val result = tryValidate { ensureNotContains(listOf("foo", "bar"), "foo") { text("must not contain foo") } }
+                val result = tryValidate { listOf("foo", "bar").ensureNotContains("foo") { text("must not contain foo") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must not contain foo"
@@ -541,18 +537,17 @@ class MessagePropertiesTest :
         }
 
         context("kova.map") {
-            test("ensureMinSize") {
-                val result = tryValidate { ensureMinSize(mapOf("a" to 1, "b" to 2), 3) }
+            test("ensureSizeAtLeast") {
+                val result = tryValidate { mapOf("a" to 1, "b" to 2).ensureSizeAtLeast(3) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "Map (size 2) must have at least 3 entries"
             }
 
-            test("ensureMinSize with message") {
+            test("ensureSizeAtLeast with message") {
                 val result =
                     tryValidate {
-                        ensureMinSize(
-                            mapOf("a" to 1, "b" to 2),
+                        mapOf("a" to 1, "b" to 2).ensureSizeAtLeast(
                             3,
                         ) { text("Map (size $it) must have at least 3 entries") }
                     }
@@ -561,22 +556,21 @@ class MessagePropertiesTest :
                 message.text shouldBe "Map (size 2) must have at least 3 entries"
             }
 
-            test("ensureMaxSize") {
-                val result = tryValidate { ensureMaxSize(mapOf("a" to 1, "b" to 2, "c" to 3), 2) }
+            test("ensureSizeAtMost") {
+                val result = tryValidate { mapOf("a" to 1, "b" to 2, "c" to 3).ensureSizeAtMost(2) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "Map (size 3) must have at most 2 entries"
             }
 
-            test("ensureMaxSize with message") {
+            test("ensureSizeAtMost with message") {
                 val result =
                     tryValidate {
-                        ensureMaxSize(
-                            mapOf(
-                                "a" to 1,
-                                "b" to 2,
-                                "c" to 3,
-                            ),
+                        mapOf(
+                            "a" to 1,
+                            "b" to 2,
+                            "c" to 3,
+                        ).ensureSizeAtMost(
                             2,
                         ) { text("Map (size $it) must have at most 2 entries") }
                     }
@@ -586,7 +580,7 @@ class MessagePropertiesTest :
             }
 
             test("ensureSize") {
-                val result = tryValidate { ensureSize(mapOf("a" to 1, "b" to 2), 3) }
+                val result = tryValidate { mapOf("a" to 1, "b" to 2).ensureSize(3) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "Map (size 2) must have exactly 3 entries"
@@ -595,8 +589,7 @@ class MessagePropertiesTest :
             test("ensureSize with message") {
                 val result =
                     tryValidate {
-                        ensureSize(
-                            mapOf("a" to 1, "b" to 2),
+                        mapOf("a" to 1, "b" to 2).ensureSize(
                             3,
                         ) { text("Map (size $it) must have exactly 3 entries") }
                     }
@@ -606,7 +599,7 @@ class MessagePropertiesTest :
             }
 
             test("ensureSizeInRange") {
-                val result = tryValidate { ensureSizeInRange(mapOf("a" to 1, "b" to 2), 3..5) }
+                val result = tryValidate { mapOf("a" to 1, "b" to 2).ensureSizeInRange(3..5) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "Map size must be within range 3..5"
@@ -614,35 +607,35 @@ class MessagePropertiesTest :
 
             test("ensureSizeInRange with message") {
                 val result =
-                    tryValidate { ensureSizeInRange(mapOf("a" to 1, "b" to 2), 3..5) { text("Map size must be within range 3..5") } }
+                    tryValidate { mapOf("a" to 1, "b" to 2).ensureSizeInRange(3..5) { text("Map size must be within range 3..5") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "Map size must be within range 3..5"
             }
 
             test("ensureEachKey") {
-                val result = tryValidate { ensureEachKey(mapOf("a" to 1, "bb" to 2)) { ensureMinLength(it, 2) } }
+                val result = tryValidate { mapOf("a" to 1, "bb" to 2).ensureEachKey { it.ensureLengthAtLeast(2) } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "Some keys do not satisfy the constraint: [must be at least 2 characters]"
             }
 
             test("ensureEachValue") {
-                val result = tryValidate { ensureEachValue(mapOf("a" to 1, "b" to -2)) { ensurePositive(it) } }
+                val result = tryValidate { mapOf("a" to 1, "b" to -2).ensureEachValue { it.ensurePositive() } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "Some values do not satisfy the constraint: [must be positive]"
             }
 
             test("ensureNotEmpty") {
-                val result = tryValidate { ensureNotEmpty(emptyMap<Nothing, Nothing>()) }
+                val result = tryValidate { emptyMap<Nothing, Nothing>().ensureNotEmpty() }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must not be empty"
             }
 
             test("ensureContainsKey") {
-                val result = tryValidate { ensureHasKey(mapOf("bar" to 2, "baz" to 3), "foo") }
+                val result = tryValidate { mapOf("bar" to 2, "baz" to 3).ensureHasKey("foo") }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must contain key foo"
@@ -651,8 +644,7 @@ class MessagePropertiesTest :
             test("ensureContainsKey with message") {
                 val result =
                     tryValidate {
-                        ensureHasValue(
-                            mapOf("bar" to 2, "baz" to 3),
+                        mapOf("bar" to 2, "baz" to 3).ensureHasKey(
                             "foo",
                         ) { text("must contain key foo") }
                     }
@@ -662,7 +654,7 @@ class MessagePropertiesTest :
             }
 
             test("ensureNotContainsKey") {
-                val result = tryValidate { ensureNotContainsKey(mapOf("foo" to 1, "bar" to 2), "foo") }
+                val result = tryValidate { mapOf("foo" to 1, "bar" to 2).ensureNotContainsKey("foo") }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must not contain key foo"
@@ -671,8 +663,7 @@ class MessagePropertiesTest :
             test("ensureNotContainsKey with message") {
                 val result =
                     tryValidate {
-                        ensureNotContainsKey(
-                            mapOf("foo" to 1, "bar" to 2),
+                        mapOf("foo" to 1, "bar" to 2).ensureNotContainsKey(
                             "foo",
                         ) { text("must not contain key foo") }
                     }
@@ -682,14 +673,14 @@ class MessagePropertiesTest :
             }
 
             test("ensureContainsValue") {
-                val result = tryValidate { ensureHasValue(mapOf("foo" to 1, "bar" to 2), 42) }
+                val result = tryValidate { mapOf("foo" to 1, "bar" to 2).ensureHasValue(42) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must contain value 42"
             }
 
             test("ensureContainsValue with message") {
-                val result = tryValidate { ensureHasValue(mapOf("foo" to 1, "bar" to 2), 42) { text("must contain value 42") } }
+                val result = tryValidate { mapOf("foo" to 1, "bar" to 2).ensureHasValue(42) { text("must contain value 42") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must contain value 42"
@@ -697,7 +688,7 @@ class MessagePropertiesTest :
 
             test("ensureNotContainsValue") {
                 val result =
-                    tryValidate { ensureNotContainsValue(mapOf("foo" to 42, "bar" to 2), 42) }
+                    tryValidate { mapOf("foo" to 42, "bar" to 2).ensureNotContainsValue(42) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must not contain value 42"
@@ -706,7 +697,7 @@ class MessagePropertiesTest :
             test("ensureNotContainsValue with message") {
                 val result =
                     tryValidate {
-                        ensureNotContainsValue(mapOf("foo" to 42, "bar" to 2), 42) { text("must not contain value 42") }
+                        mapOf("foo" to 42, "bar" to 2).ensureNotContainsValue(42) { text("must not contain value 42") }
                     }
                 result.shouldBeFailure()
                 val message = result.messages.single()
@@ -716,14 +707,14 @@ class MessagePropertiesTest :
 
         context("kova.nullable") {
             test("ensureNull") {
-                val result = tryValidate { ensureNull("value") }
+                val result = tryValidate { "value".ensureNull() }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be null"
             }
 
             test("ensureNotNull") {
-                val result = tryValidate { ensureNotNull(null) }
+                val result = tryValidate { (null as String?).ensureNotNull() }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must not be null"
@@ -732,28 +723,28 @@ class MessagePropertiesTest :
 
         context("kova.number") {
             test("ensurePositive") {
-                val result = tryValidate { ensurePositive(-5) }
+                val result = tryValidate { (-5).ensurePositive() }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be positive"
             }
 
             test("ensureNegative") {
-                val result = tryValidate { ensureNegative(5) }
+                val result = tryValidate { 5.ensureNegative() }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be negative"
             }
 
             test("ensureNotPositive") {
-                val result = tryValidate { ensureNotPositive(5) }
+                val result = tryValidate { 5.ensureNotPositive() }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must not be positive"
             }
 
             test("ensureNotNegative") {
-                val result = tryValidate { ensureNotNegative(-5) }
+                val result = tryValidate { (-5).ensureNotNegative() }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must not be negative"
@@ -765,7 +756,7 @@ class MessagePropertiesTest :
                 val result =
                     tryValidate {
                         val value = 0
-                        or { ensurePositive(value) } orElse { ensureLessThan(value, 0) }
+                        or { value.ensurePositive() } orElse { value.ensureLessThan(0) }
                     }
                 result.shouldBeFailure()
                 val message = result.messages.single()
@@ -775,84 +766,84 @@ class MessagePropertiesTest :
 
         context("kova.string") {
             test("ensureInt") {
-                val result = tryValidate { ensureInt("abc") }
+                val result = tryValidate { "abc".ensureInt() }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be a valid integer"
             }
 
             test("ensureLong") {
-                val result = tryValidate { ensureLong("abc") }
+                val result = tryValidate { "abc".ensureLong() }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be a valid long"
             }
 
             test("ensureShort") {
-                val result = tryValidate { ensureShort("abc") }
+                val result = tryValidate { "abc".ensureShort() }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be a valid short"
             }
 
             test("ensureByte") {
-                val result = tryValidate { ensureByte("abc") }
+                val result = tryValidate { "abc".ensureByte() }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be a valid byte"
             }
 
             test("ensureDouble") {
-                val result = tryValidate { ensureDouble("abc") }
+                val result = tryValidate { "abc".ensureDouble() }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be a valid double"
             }
 
             test("ensureFloat") {
-                val result = tryValidate { ensureFloat("abc") }
+                val result = tryValidate { "abc".ensureFloat() }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be a valid float"
             }
 
             test("ensureBigDecimal") {
-                val result = tryValidate { ensureBigDecimal("abc") }
+                val result = tryValidate { "abc".ensureBigDecimal() }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be a valid decimal number"
             }
 
             test("ensureBigInteger") {
-                val result = tryValidate { ensureBigInteger("abc") }
+                val result = tryValidate { "abc".ensureBigInteger() }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be a valid integer number"
             }
 
             test("ensureBoolean") {
-                val result = tryValidate { ensureBoolean("abc") }
+                val result = tryValidate { "abc".ensureBoolean() }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be \"true\" or \"false\""
             }
 
             test("ensureEnum") {
-                val result = tryValidate { ensureEnum<TestEnum>("INVALID") }
+                val result = tryValidate { "INVALID".ensureEnum<TestEnum>() }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be one of: [A, B, C]"
             }
 
             test("ensureUppercase") {
-                val result = tryValidate { ensureUppercase("abc") }
+                val result = tryValidate { "abc".ensureUppercase() }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be uppercase"
             }
 
             test("ensureLowercase") {
-                val result = tryValidate { ensureLowercase("ABC") }
+                val result = tryValidate { "ABC".ensureLowercase() }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be lowercase"
@@ -863,11 +854,10 @@ class MessagePropertiesTest :
             test("ensureFuture") {
                 val result =
                     tryValidate {
-                        ensureFuture(
-                            LocalDate
-                                .now()
-                                .minusDays(1),
-                        )
+                        LocalDate
+                            .now()
+                            .minusDays(1)
+                            .ensureFuture()
                     }
                 result.shouldBeFailure()
                 val message = result.messages.single()
@@ -877,11 +867,10 @@ class MessagePropertiesTest :
             test("ensureFutureOrPresent") {
                 val result =
                     tryValidate {
-                        ensureFutureOrPresent(
-                            LocalDate
-                                .now()
-                                .minusDays(1),
-                        )
+                        LocalDate
+                            .now()
+                            .minusDays(1)
+                            .ensureFutureOrPresent()
                     }
                 result.shouldBeFailure()
                 val message = result.messages.single()
@@ -891,11 +880,10 @@ class MessagePropertiesTest :
             test("ensurePast") {
                 val result =
                     tryValidate {
-                        ensurePast(
-                            LocalDate
-                                .now()
-                                .plusDays(1),
-                        )
+                        LocalDate
+                            .now()
+                            .plusDays(1)
+                            .ensurePast()
                     }
                 result.shouldBeFailure()
                 val message = result.messages.single()
@@ -905,11 +893,10 @@ class MessagePropertiesTest :
             test("ensurePastOrPresent") {
                 val result =
                     tryValidate {
-                        ensurePastOrPresent(
-                            LocalDate
-                                .now()
-                                .plusDays(1),
-                        )
+                        LocalDate
+                            .now()
+                            .plusDays(1)
+                            .ensurePastOrPresent()
                     }
                 result.shouldBeFailure()
                 val message = result.messages.single()

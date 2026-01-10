@@ -5,6 +5,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ensureMatches
+import org.komapper.extension.validator.schema
 import org.komapper.extension.validator.tryValidate
 import java.util.Locale
 import io.konform.validation.Validation as KonformValidation
@@ -50,23 +51,25 @@ class DynamicTest :
         }
 
         context("kova") {
-            fun Validation.validate(address: Address) =
-                address.schema {
-                    address::postalCode {
-                        when (address.countryCode) {
-                            "US" -> ensureMatches(it, Regex("[0-9]{5}"))
-                            else -> ensureMatches(it, Regex("[A-Z]+"))
+
+            context(_: Validation)
+            fun Address.validate() =
+                schema {
+                    ::postalCode {
+                        when (countryCode) {
+                            "US" -> it.ensureMatches(Regex("[0-9]{5}"))
+                            else -> it.ensureMatches(Regex("[A-Z]+"))
                         }
                     }
                 }
 
             test("valid - us") {
-                val result = tryValidate { validate(us) }
+                val result = tryValidate { us.validate() }
                 result.shouldBeSuccess()
             }
 
             test("valid - de") {
-                val result = tryValidate { validate(de) }
+                val result = tryValidate { de.validate() }
                 result.shouldBeSuccess()
             }
         }

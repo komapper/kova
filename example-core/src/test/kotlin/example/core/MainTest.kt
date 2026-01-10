@@ -36,26 +36,26 @@ class MainTest :
         context("UserSchema validation") {
             test("success - valid user") {
                 val user = User("Alice", 30)
-                val result = tryValidate { validate(user) }
+                val result = tryValidate { user.validate() }
 
                 result.shouldBeSuccess()
             }
 
             test("failure - invalid user with ensureEmpty name and ensureNegative age") {
                 val user = User("", -1)
-                val result = tryValidate { validate(user) }
+                val result = tryValidate { user.validate() }
 
                 result.shouldBeFailure()
                 val ids = result.messages.map { it.constraintId }
                 ids.size shouldBe 3
-                ids[0] shouldBe "kova.charSequence.minLength"
+                ids[0] shouldBe "kova.charSequence.lengthAtLeast"
                 ids[1] shouldBe "kova.charSequence.notBlank"
                 ids[2] shouldBe "kova.comparable.inRange"
             }
 
             test("failure - age exceeds maximum") {
                 val user = User("Bob", 150)
-                val result = tryValidate { validate(user) }
+                val result = tryValidate { user.validate() }
 
                 result.shouldBeFailure()
                 val ids = result.messages.map { it.constraintId }

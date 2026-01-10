@@ -16,11 +16,12 @@ import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationException
-import org.komapper.extension.validator.ensureMax
-import org.komapper.extension.validator.ensureMin
-import org.komapper.extension.validator.ensureMinLength
+import org.komapper.extension.validator.ensureAtLeast
+import org.komapper.extension.validator.ensureAtMost
+import org.komapper.extension.validator.ensureLengthAtLeast
 import org.komapper.extension.validator.ensureNotBlank
 import org.komapper.extension.validator.ensureNotEmpty
+import org.komapper.extension.validator.schema
 import org.komapper.extension.validator.validate
 
 /**
@@ -63,7 +64,7 @@ class City(
     companion object : IntEntityClass<City>(Cities) {
         init {
             // Automatically validate cities when they are created
-            subscribe { validate(it) }
+            subscribe { it.validate() }
         }
     }
 }
@@ -87,7 +88,7 @@ class User(
     companion object : IntEntityClass<User>(Users) {
         init {
             // Automatically validate users when they are created
-            subscribe { validate(it) }
+            subscribe { it.validate() }
         }
     }
 }
@@ -96,9 +97,10 @@ class User(
  * Validation schema for City entities.
  * Validates that the city name is not ensureEmpty.
  */
-fun Validation.validate(city: City) =
-    city.schema {
-        city::name { ensureNotEmpty(it) }
+context(_: Validation)
+fun City.validate() =
+    schema {
+        ::name { it.ensureNotEmpty() }
     }
 
 /**
@@ -107,15 +109,16 @@ fun Validation.validate(city: City) =
  * - name is not ensureBlank and ensureHas minimum ensureLength of 1
  * - age is between 0 and 120
  */
-fun Validation.validate(user: User) =
-    user.schema {
-        user::name {
-            ensureMinLength(it, 1)
-            ensureNotBlank(it)
+context(_: Validation)
+fun User.validate() =
+    schema {
+        ::name {
+            it.ensureLengthAtLeast(1)
+            it.ensureNotBlank()
         }
-        user::age {
-            ensureMin(it, 0)
-            ensureMax(it, 120)
+        ::age {
+            it.ensureAtLeast(0)
+            it.ensureAtMost(120)
         }
     }
 
@@ -141,7 +144,7 @@ fun Validation.validate(user: User) =
  * providing a declarative way to enforce data integrity constraints.
  */
 @IgnorableReturnValue
-fun <ID : Any, T : Entity<ID>> EntityClass<ID, T>.subscribe(validate: Validation.(T) -> Unit): (EntityChange) -> Unit =
+fun <ID : Any, T : Entity<ID>> EntityClass<ID, T>.subscribe(validate: context(Validation)(T) -> Unit): (EntityChange) -> Unit =
     EntityHook.subscribe { change ->
         if (change.changeType == EntityChangeType.Created &&
             change.entityClass == this

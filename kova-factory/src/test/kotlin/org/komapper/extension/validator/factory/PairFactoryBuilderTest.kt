@@ -5,13 +5,13 @@ import io.kotest.core.spec.style.FunSpec
 import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationConfig
 import org.komapper.extension.validator.ValidationException
-import org.komapper.extension.validator.ensureMax
-import org.komapper.extension.validator.ensureMaxLength
-import org.komapper.extension.validator.ensureMin
-import org.komapper.extension.validator.ensureMinLength
+import org.komapper.extension.validator.ensureAtLeast
+import org.komapper.extension.validator.ensureAtMost
+import org.komapper.extension.validator.ensureLengthAtLeast
+import org.komapper.extension.validator.ensureLengthAtMost
 import org.komapper.extension.validator.ensureNotBlank
 import org.komapper.extension.validator.ensurePositive
-import org.komapper.extension.validator.parseInt
+import org.komapper.extension.validator.transformToInt
 import org.komapper.extension.validator.tryValidate
 import org.komapper.extension.validator.validate
 
@@ -19,17 +19,18 @@ class PairFactoryBuilderTest :
     FunSpec({
 
         context("PairFactoryBuilder with primitive types") {
-            fun Validation.build(
+            context(_: Validation)
+            fun build(
                 first: String,
                 second: Int,
             ) = buildPair(
                 bind(first) {
-                    ensureNotBlank(it)
-                    ensureMaxLength(it, 10)
+                    it.ensureNotBlank()
+                    it.ensureLengthAtMost(10)
                     it
                 },
                 bind(second) {
-                    ensurePositive(it)
+                    it.ensurePositive()
                     it
                 },
             )
@@ -102,19 +103,20 @@ class PairFactoryBuilderTest :
         }
 
         context("PairFactoryBuilder with different types") {
-            fun Validation.build(
+            context(_: Validation)
+            fun build(
                 name: String,
                 age: Int,
             ) = buildPair(
                 bind(name) {
-                    ensureNotBlank(it)
-                    ensureMinLength(it, 1)
-                    ensureMaxLength(it, 50)
+                    it.ensureNotBlank()
+                    it.ensureLengthAtLeast(1)
+                    it.ensureLengthAtMost(50)
                     it
                 },
                 bind(age) {
-                    ensureMin(it, 0)
-                    ensureMax(it, 120)
+                    it.ensureAtLeast(0)
+                    it.ensureAtMost(120)
                     it
                 },
             )
@@ -129,18 +131,19 @@ class PairFactoryBuilderTest :
                 val longName = "a".repeat(51)
                 val result = tryValidate { build(longName, 30) }
                 result.shouldBeFailure()
-                result.messages.single().constraintId shouldBe "kova.charSequence.maxLength"
+                result.messages.single().constraintId shouldBe "kova.charSequence.lengthAtMost"
             }
 
             test("failure - age out of range") {
                 val result = tryValidate { build("Alice", 150) }
                 result.shouldBeFailure()
-                result.messages.single().constraintId shouldBe "kova.comparable.max"
+                result.messages.single().constraintId shouldBe "kova.comparable.atMost"
             }
         }
 
         context("PairFactoryBuilder with identity validators") {
-            fun Validation.build(
+            context(_: Validation)
+            fun build(
                 first: String,
                 second: Int,
             ) = buildPair(
@@ -156,12 +159,13 @@ class PairFactoryBuilderTest :
         }
 
         context("PairFactoryBuilder with type transformation") {
-            fun Validation.build(
+            context(_: Validation)
+            fun build(
                 first: String,
                 second: String,
             ) = buildPair(
-                bind(first) { parseInt(it) },
-                bind(second) { parseInt(it) },
+                bind(first) { it.transformToInt() },
+                bind(second) { it.transformToInt() },
             )
 
             test("success - both elements transformed") {

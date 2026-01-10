@@ -5,7 +5,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ensureEach
-import org.komapper.extension.validator.ensureMaxSize
+import org.komapper.extension.validator.ensureSizeAtMost
+import org.komapper.extension.validator.schema
 import org.komapper.extension.validator.tryValidate
 import java.util.Locale
 import io.konform.validation.Validation as KonformValidation
@@ -83,22 +84,23 @@ class RecursiveTest :
 
         context("kova") {
 
-            fun Validation.validate(node: Node) {
-                node.schema {
-                    node::children { children ->
-                        ensureMaxSize(children, 2)
-                        ensureEach(children) { validate(it) }
+            context(_: Validation)
+            fun Node.validate() {
+                schema {
+                    ::children { children ->
+                        children.ensureSizeAtMost(2)
+                        children.ensureEach { it.validate() }
                     }
                 }
             }
 
             test("valid") {
-                val result = tryValidate { validate(validNode) }
+                val result = tryValidate { validNode.validate() }
                 result.shouldBeSuccess()
             }
 
             test("invalid") {
-                val result = tryValidate { validate(invalidNode) }
+                val result = tryValidate { invalidNode.validate() }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].text shouldBe "Collection (size 3) must have at most 2 elements"
@@ -107,7 +109,7 @@ class RecursiveTest :
             }
 
             test("cyclic") {
-                val result = tryValidate { validate(cyclicNode) }
+                val result = tryValidate { cyclicNode.validate() }
                 result.shouldBeSuccess()
             }
         }

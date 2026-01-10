@@ -6,7 +6,7 @@ import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationConfig
 import org.komapper.extension.validator.ValidationException
 import org.komapper.extension.validator.ensureNotBlank
-import org.komapper.extension.validator.parseInt
+import org.komapper.extension.validator.transformToInt
 import org.komapper.extension.validator.tryValidate
 import org.komapper.extension.validator.validate
 
@@ -18,10 +18,11 @@ class FactoryTest :
                 val name: String,
             )
 
-            fun Validation.buildUser(name: String) =
+            context(_: Validation)
+            fun buildUser(name: String) =
                 factory {
                     val name by bind(name) {
-                        ensureNotBlank(it)
+                        it.ensureNotBlank()
                         it
                     }
                     User(name)
@@ -78,16 +79,18 @@ class FactoryTest :
                 val age: Age,
             )
 
-            fun Validation.buildName(value: String) =
+            context(_: Validation)
+            fun buildName(value: String) =
                 factory {
                     val value by bind(value) {
-                        ensureNotBlank(it)
+                        it.ensureNotBlank()
                         it
                     }
                     Name(value)
                 }
 
-            fun Validation.buildFullName(
+            context(_: Validation)
+            fun buildFullName(
                 first: String,
                 last: String,
             ) = factory {
@@ -96,19 +99,21 @@ class FactoryTest :
                 FullName(first, last)
             }
 
-            fun Validation.buildAge(value: String) =
+            context(_: Validation)
+            fun buildAge(value: String) =
                 factory {
-                    val value by bind(value) { parseInt(it) }
+                    val value by bind(value) { it.transformToInt() }
                     Age(value)
                 }
 
-            fun Validation.buildUser(
+            context(_: Validation)
+            fun buildUser(
                 id: String,
                 firstName: String,
                 lastName: String,
                 age: String,
             ) = factory {
-                val id by bind(id) { parseInt(it) }
+                val id by bind(id) { it.transformToInt() }
                 val fullName by bind { buildFullName(firstName, lastName) }
                 val age by bind { buildAge(age) }
                 User(id, fullName, age)

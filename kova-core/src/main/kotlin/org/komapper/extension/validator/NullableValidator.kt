@@ -10,18 +10,16 @@ import kotlin.contracts.contract
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureNull(null) }    // Success
- * tryValidate { ensureNull("hello") } // Failure
+ * tryValidate { null.ensureNull() }    // Success
+ * tryValidate { "hello".ensureNull() } // Failure
  * ```
  *
- * @param input The nullable input value to validate
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <T> Validation.ensureNull(
-    input: T,
-    message: MessageProvider = { "kova.nullable.null".resource },
-) = input.constrain("kova.nullable.null") { satisfies(it == null, message) }
+context(_: Validation)
+fun <T> T.ensureNull(message: MessageProvider = { "kova.nullable.null".resource }) =
+    this.constrain("kova.nullable.null") { satisfies(it == null, message) }
 
 /**
  * Validates that the input is null OR satisfies the given constraints.
@@ -35,21 +33,20 @@ fun <T> Validation.ensureNull(
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureNullOr(null) { min(it, 3) } }      // Success (is null)
- * tryValidate { ensureNullOr("hello") { min(it, 3) } }  // Success (satisfies min)
- * tryValidate { ensureNullOr("hi") { min(it, 3) } }     // Failure (too short)
+ * tryValidate { null.ensureNullOr { it.ensureLengthAtLeast(3) } }      // Success (is null)
+ * tryValidate { "hello".ensureNullOr { it.ensureLengthAtLeast(3) } }  // Success (satisfies min)
+ * tryValidate { "hi".ensureNullOr { it.ensureLengthAtLeast(3) } }     // Failure (too short)
  * ```
  *
- * @param input The nullable input value to validate
  * @param message Custom error message provider for the null check
  * @param block Validation block to execute if input is not null
  */
 @IgnorableReturnValue
-inline fun <T> Validation.ensureNullOr(
-    input: T,
+context(_: Validation)
+inline fun <T> T.ensureNullOr(
     noinline message: MessageProvider = { "kova.nullable.null".resource },
-    block: Validation.(T & Any) -> Unit,
-) = or<Unit> { ensureNull(input, message) } orElse { block(input!!) }
+    block: context(Validation)(T & Any) -> Unit,
+) = or<Unit> { this.ensureNull(message) } orElse { block(this!!) }
 
 /**
  * Validates that the input is not null.
@@ -59,20 +56,17 @@ inline fun <T> Validation.ensureNullOr(
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureNotNull("hello") } // Success
- * tryValidate { ensureNotNull(null) }    // Failure
+ * tryValidate { "hello".ensureNotNull() } // Success
+ * tryValidate { null.ensureNotNull() }    // Failure
  * ```
  *
- * @param input The nullable input value to validate
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <T> Validation.ensureNotNull(
-    input: T,
-    message: MessageProvider = { "kova.nullable.notNull".resource },
-): Accumulate.Value<Unit> {
-    contract { returns() implies (input != null) }
-    return raiseIfNull(input, "kova.nullable.notNull", message)
+context(_: Validation)
+fun <T> T.ensureNotNull(message: MessageProvider = { "kova.nullable.notNull".resource }): Accumulate.Value<Unit> {
+    contract { returns() implies (this@ensureNotNull != null) }
+    return raiseIfNull(this, "kova.nullable.notNull", message)
 }
 
 /**
@@ -82,9 +76,9 @@ fun <T> Validation.ensureNotNull(
  * null check validation. It validates that the input is not null and converts the output
  * type from `T?` to `T & Any`.
  *
- * This function is primarily used internally by type conversion validators (e.g., [parseInt],
- * [parseLong], [parseEnum]) that need to report errors with their specific constraint IDs
- * (e.g., "kova.string.ensureInt", "kova.string.ensureEnum") rather than the generic
+ * This function is primarily used internally by type conversion validators (e.g., [transformToInt],
+ * [transformToLong], [transformToEnum]) that need to report errors with their specific constraint IDs
+ * (e.g., "kova.string.int", "kova.string.enum") rather than the generic
  * "kova.nullable.notNull".
  *
  * The function uses [constrain] to properly track the validation path context and returns
@@ -96,14 +90,16 @@ fun <T> Validation.ensureNotNull(
  * @return The non-null input value with type `T & Any`
  */
 @IgnorableReturnValue
-fun <T> Validation.toNonNullable(
+context(_: Validation)
+fun <T> toNonNullable(
     input: T,
     constraintId: String,
     message: MessageProvider,
 ): T & Any = raiseIfNull(input, constraintId, message).let { input }
 
 @IgnorableReturnValue
-private fun <T> Validation.raiseIfNull(
+context(_: Validation)
+private fun <T> raiseIfNull(
     input: T,
     constraintId: String,
     message: MessageProvider,

@@ -5,8 +5,10 @@ import io.konform.validation.required
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import org.komapper.extension.validator.Validation
-import org.komapper.extension.validator.ensureMin
+import org.komapper.extension.validator.ensureAtLeast
 import org.komapper.extension.validator.ensureNotNull
+import org.komapper.extension.validator.named
+import org.komapper.extension.validator.schema
 import org.komapper.extension.validator.tryValidate
 import java.util.Locale
 import io.konform.validation.Validation as KonformValidation
@@ -68,28 +70,30 @@ class SplitTest :
 
         context("kova") {
 
-            fun Validation.checkAge(age: Int?) {
-                ensureNotNull(age)
-                ensureMin(age, 21)
+            context(_: Validation)
+            fun checkAge(age: Int?) {
+                age.ensureNotNull()
+                age.ensureAtLeast(21)
             }
 
-            fun Validation.validate(userProfile: UserProfile) =
-                userProfile.schema {
-                    userProfile::age {
+            context(_: Validation)
+            fun UserProfile.validate() =
+                schema {
+                    ::age {
                         checkAge(it)
                     }
-                    userProfile.age.name("ageMinus10") {
+                    age.named("ageMinus10") {
                         checkAge(it?.let { age -> age - 10 })
                     }
                 }
 
             test("valid") {
-                val result = tryValidate { validate(validUserProfile) }
+                val result = tryValidate { validUserProfile.validate() }
                 result.shouldBeSuccess()
             }
 
             test("invalid") {
-                val result = tryValidate { validate(invalidUserProfile) }
+                val result = tryValidate { invalidUserProfile.validate() }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 2
                 result.messages[0].let {

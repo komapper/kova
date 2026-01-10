@@ -6,6 +6,7 @@ import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ensureLengthInRange
 import org.komapper.extension.validator.ensureNotNull
 import org.komapper.extension.validator.ensureUppercase
+import org.komapper.extension.validator.schema
 import org.komapper.extension.validator.tryValidate
 import java.util.Locale
 
@@ -25,15 +26,17 @@ class ConstraintCompositionTest :
                 val licensePlate: String?,
             )
 
-            fun Validation.validateLicensePlate(s: String?) {
-                ensureNotNull(s)
-                ensureLengthInRange(s, 2..14)
-                ensureUppercase(s)
+            context(_: Validation)
+            fun validateLicensePlate(s: String?) {
+                s.ensureNotNull()
+                s.ensureLengthInRange(2..14)
+                s.ensureUppercase()
             }
 
-            fun Validation.validate(car: Car) =
-                car.schema {
-                    car::licensePlate {
+            context(_: Validation)
+            fun Car.validate() =
+                schema {
+                    ::licensePlate {
                         validateLicensePlate(it)
                     }
                 }
@@ -41,7 +44,7 @@ class ConstraintCompositionTest :
             test("testClassLevelConstraint") {
                 val car = Car("dd-ab-123")
 
-                val result = tryValidate { validate(car) }
+                val result = tryValidate { car.validate() }
 
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
@@ -51,7 +54,7 @@ class ConstraintCompositionTest :
             test("carIsValid") {
                 val car = Car("DD-AB-123")
 
-                val result = tryValidate { validate(car) }
+                val result = tryValidate { car.validate() }
 
                 result.shouldBeSuccess()
             }

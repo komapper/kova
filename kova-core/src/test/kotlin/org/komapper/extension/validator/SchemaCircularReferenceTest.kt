@@ -24,10 +24,12 @@ class City(
     val users: List<User>,
 )
 
-fun Validation.validate(city: City) = city.schema { city::users { users -> ensureEach(users) { validate(it) } } }
+context(_: Validation)
+fun validate(city: City) = city.schema { city::users { users -> users.ensureEach { validate(it) } } }
 
 class User(
     val city: City,
 )
 
-fun Validation.validate(user: User): Unit = user.schema { user::city { validate(it) } }
+context(_: Validation)
+fun validate(user: User): Unit = user.schema { user::city { validate(it) } }

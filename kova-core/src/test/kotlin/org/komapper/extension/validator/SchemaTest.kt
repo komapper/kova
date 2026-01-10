@@ -44,13 +44,14 @@ class SchemaTest :
         )
 
         context("and") {
-            fun Validation.validate(user: User) =
+            context(_: Validation)
+            fun validate(user: User) =
                 user.schema {
                     user::name {
-                        ensureMinLength(it, 1)
-                        ensureMaxLength(it, 10)
+                        it.ensureLengthAtLeast(1)
+                        it.ensureLengthAtMost(10)
                     }
-                    user::id { ensureMin(it, 1) }
+                    user::id { it.ensureAtLeast(1) }
                 }
 
             test("success") {
@@ -67,7 +68,7 @@ class SchemaTest :
                 result.messages[0].let {
                     it.root shouldBe "User"
                     it.path.fullName shouldBe "name"
-                    it.constraintId shouldBe "kova.charSequence.maxLength"
+                    it.constraintId shouldBe "kova.charSequence.lengthAtMost"
                 }
             }
 
@@ -80,25 +81,26 @@ class SchemaTest :
                 result.messages[0].let {
                     it.root shouldBe "User"
                     it.path.fullName shouldBe "name"
-                    it.constraintId shouldBe "kova.charSequence.maxLength"
+                    it.constraintId shouldBe "kova.charSequence.lengthAtMost"
                 }
                 result.messages[1].let {
                     it.root shouldBe "User"
                     it.path.fullName shouldBe "id"
-                    it.constraintId shouldBe "kova.comparable.min"
+                    it.constraintId shouldBe "kova.comparable.atLeast"
                 }
             }
         }
 
         context("or") {
-            fun Validation.validate(user: User) =
+            context(_: Validation)
+            fun validate(user: User) =
                 user.schema {
                     or<Unit> {
                         user::name {
-                            ensureMinLength(it, 1)
-                            ensureMaxLength(it, 10)
+                            it.ensureLengthAtLeast(1)
+                            it.ensureLengthAtMost(10)
                         }
-                    } orElse { user::id { ensureMin(it, 1) } }
+                    } orElse { user::id { it.ensureAtLeast(1) } }
                 }
 
             test("success when both schemas are satisfied") {
@@ -139,7 +141,8 @@ class SchemaTest :
                 val endDate: LocalDate,
             )
 
-            fun Validation.validate(period: Period) =
+            context(_: Validation)
+            fun validate(period: Period) =
                 period.schema {
                     period.constrain("test") {
                         satisfies(it.startDate <= it.endDate) { text("startDate must be less than or equal to endDate") }
@@ -166,12 +169,13 @@ class SchemaTest :
         }
 
         context("nullable") {
-            fun Validation.validate(user: User?) =
+            context(_: Validation)
+            fun validate(user: User?) =
                 user?.schema {
-                    user::id { ensureMin(it, 1) }
+                    user::id { it.ensureAtLeast(1) }
                     user::name {
-                        ensureMinLength(it, 1)
-                        ensureMaxLength(it, 10)
+                        it.ensureLengthAtLeast(1)
+                        it.ensureLengthAtMost(10)
                     }
                 }
 
@@ -188,12 +192,13 @@ class SchemaTest :
         }
 
         context("prop - simple") {
-            fun Validation.validate(user: User) =
+            context(_: Validation)
+            fun validate(user: User) =
                 user.schema {
-                    user::id { ensureMin(it, 1) }
+                    user::id { it.ensureAtLeast(1) }
                     user::name {
-                        ensureMinLength(it, 1)
-                        ensureMaxLength(it, 10)
+                        it.ensureLengthAtLeast(1)
+                        it.ensureLengthAtMost(10)
                     }
                 }
 
@@ -211,7 +216,7 @@ class SchemaTest :
                 result.messages[0].let {
                     it.root shouldBe "User"
                     it.path.fullName shouldBe "name"
-                    it.constraintId shouldBe "kova.charSequence.maxLength"
+                    it.constraintId shouldBe "kova.charSequence.lengthAtMost"
                 }
             }
 
@@ -224,29 +229,32 @@ class SchemaTest :
                 result.messages[0].let {
                     it.root shouldBe "User"
                     it.path.fullName shouldBe "id"
-                    it.constraintId shouldBe "kova.comparable.min"
+                    it.constraintId shouldBe "kova.comparable.atLeast"
                 }
                 result.messages[1].let {
                     it.root shouldBe "User"
                     it.path.fullName shouldBe "name"
-                    it.constraintId shouldBe "kova.charSequence.maxLength"
+                    it.constraintId shouldBe "kova.charSequence.lengthAtMost"
                 }
             }
         }
 
         context("prop - nest") {
-            fun Validation.validate(street: Street) =
+            context(_: Validation)
+            fun validate(street: Street) =
                 street.schema {
-                    street::id { ensureMin(it, 1) }
+                    street::id { it.ensureAtLeast(1) }
                     street::name {
-                        ensureMinLength(it, 3)
-                        ensureMaxLength(it, 5)
+                        it.ensureLengthAtLeast(3)
+                        it.ensureLengthAtMost(5)
                     }
                 }
 
-            fun Validation.validate(address: Address) = address.schema { address::street { validate(it) } }
+            context(_: Validation)
+            fun validate(address: Address) = address.schema { address::street { validate(it) } }
 
-            fun Validation.validate(employee: Employee) = employee.schema { employee::address { validate(it) } }
+            context(_: Validation)
+            fun validate(employee: Employee) = employee.schema { employee::address { validate(it) } }
 
             test("success") {
                 val employee = Employee(1, "abc", Address(1, Street(1, "def")))
@@ -262,33 +270,36 @@ class SchemaTest :
                 result.messages[0].let {
                     it.root shouldBe "Employee"
                     it.path.fullName shouldBe "address.street.name"
-                    it.constraintId shouldBe "kova.charSequence.maxLength"
+                    it.constraintId shouldBe "kova.charSequence.lengthAtMost"
                 }
             }
         }
 
         context("prop - nest - dynamic") {
-            fun Validation.validate(street: Street) =
+            context(_: Validation)
+            fun validate(street: Street) =
                 street.schema {
-                    street::id { ensureMin(it, 1) }
+                    street::id { it.ensureAtLeast(1) }
                     street::name {
-                        ensureMinLength(it, 3)
-                        ensureMaxLength(it, 5)
+                        it.ensureLengthAtLeast(3)
+                        it.ensureLengthAtMost(5)
                     }
                 }
 
-            fun Validation.validate(address: Address) =
+            context(_: Validation)
+            fun validate(address: Address) =
                 address.schema {
                     address::street { validate(it) }
                     address::postalCode {
                         when (address.country) {
-                            "US" -> ensureLength(it, 8)
-                            else -> ensureLength(it, 5)
+                            "US" -> it.ensureLength(8)
+                            else -> it.ensureLength(5)
                         }
                     }
                 }
 
-            fun Validation.validate(employee: Employee) = employee.schema { employee::address { validate(it) } }
+            context(_: Validation)
+            fun validate(employee: Employee) = employee.schema { employee::address { validate(it) } }
 
             test("success when country is US") {
                 val employee = Employee(1, "abc", Address(1, Street(1, "def"), country = "US", postalCode = "12345678"))
@@ -330,28 +341,32 @@ class SchemaTest :
         }
 
         context("prop - nullable") {
-            fun Validation.validate(street: Street) =
+            context(_: Validation)
+            fun validate(street: Street) =
                 street.schema {
-                    street::id { ensureMin(it, 1) }
+                    street::id { it.ensureAtLeast(1) }
                     street::name {
-                        ensureMinLength(it, 3)
-                        ensureMaxLength(it, 5)
+                        it.ensureLengthAtLeast(3)
+                        it.ensureLengthAtMost(5)
                     }
                 }
 
-            fun Validation.validate(address: Address) = address.schema { address::street { validate(it) } }
+            context(_: Validation)
+            fun validate(address: Address) = address.schema { address::street { validate(it) } }
 
-            fun Validation.validate(person: Person) =
+            context(_: Validation)
+            fun validate(person: Person) =
                 person.schema {
                     person::firstName { }
                     person::lastName { }
                     person::address { if (it != null) validate(it) }
                 }
 
-            fun Validation.validate2(person: Person) =
+            context(_: Validation)
+            fun validate2(person: Person) =
                 person.schema {
-                    person::firstName { ensureNotNull(it) }
-                    person::lastName { ensureNotNull(it) }
+                    person::firstName { it.ensureNotNull() }
+                    person::lastName { it.ensureNotNull() }
                     person::address { if (it != null) validate(it) }
                 }
 
@@ -390,11 +405,12 @@ class SchemaTest :
                 val children: List<Node> = emptyList(),
             )
 
-            fun Validation.validate(node: Node) {
+            context(_: Validation)
+            fun validate(node: Node) {
                 node.schema {
                     node::children {
-                        ensureMaxSize(it, 3)
-                        ensureEach(it) { child -> validate(child) }
+                        it.ensureSizeAtMost(3)
+                        it.ensureEach { child -> validate(child) }
                     }
                 }
             }
@@ -430,11 +446,12 @@ class SchemaTest :
                 var next: NodeWithValue?,
             )
 
-            fun Validation.validate(node: NodeWithValue) {
+            context(_: Validation)
+            fun validate(node: NodeWithValue) {
                 node.schema {
                     node::value {
-                        ensureMin(it, 0)
-                        ensureMax(it, 100)
+                        it.ensureAtLeast(0)
+                        it.ensureAtMost(100)
                     }
                     node::next { if (it != null) validate(it) }
                 }
@@ -468,7 +485,7 @@ class SchemaTest :
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].path.fullName shouldBe "next.next.value"
-                result.messages[0].constraintId shouldBe "kova.comparable.max"
+                result.messages[0].constraintId shouldBe "kova.comparable.atMost"
             }
 
             test("failure when constraint violated in root object") {
@@ -479,7 +496,7 @@ class SchemaTest :
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].path.fullName shouldBe "value"
-                result.messages[0].constraintId shouldBe "kova.comparable.min"
+                result.messages[0].constraintId shouldBe "kova.comparable.atLeast"
             }
 
             // To avoid StackOverflowError, use 'shouldBeEqual' instead of 'shouldBe'
@@ -492,7 +509,7 @@ class SchemaTest :
                 result.shouldBeFailure()
                 result.messages.size shouldBeEqual 1
                 result.messages[0].path.fullName shouldBeEqual "value"
-                result.messages[0].constraintId.shouldNotBeNull() shouldBeEqual "kova.comparable.max"
+                result.messages[0].constraintId.shouldNotBeNull() shouldBeEqual "kova.comparable.atMost"
             }
         }
     })

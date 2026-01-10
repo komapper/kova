@@ -5,13 +5,13 @@ import io.kotest.core.spec.style.FunSpec
 import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationConfig
 import org.komapper.extension.validator.ValidationException
-import org.komapper.extension.validator.ensureMax
-import org.komapper.extension.validator.ensureMaxLength
-import org.komapper.extension.validator.ensureMin
-import org.komapper.extension.validator.ensureMinLength
+import org.komapper.extension.validator.ensureAtLeast
+import org.komapper.extension.validator.ensureAtMost
+import org.komapper.extension.validator.ensureLengthAtLeast
+import org.komapper.extension.validator.ensureLengthAtMost
 import org.komapper.extension.validator.ensureNotBlank
 import org.komapper.extension.validator.ensurePositive
-import org.komapper.extension.validator.parseInt
+import org.komapper.extension.validator.transformToInt
 import org.komapper.extension.validator.tryValidate
 import org.komapper.extension.validator.validate
 
@@ -19,23 +19,24 @@ class TripleFactoryBuilderTest :
     FunSpec({
 
         context("TripleFactoryBuilder with primitive types") {
-            fun Validation.build(
+            context(_: Validation)
+            fun build(
                 first: String,
                 second: Int,
                 third: String,
             ) = buildTriple(
                 bind(first) {
-                    ensureNotBlank(it)
-                    ensureMaxLength(it, 10)
+                    it.ensureNotBlank()
+                    it.ensureLengthAtMost(10)
                     it
                 },
                 bind(second) {
-                    ensurePositive(it)
+                    it.ensurePositive()
                     it
                 },
                 bind(third) {
-                    ensureNotBlank(it)
-                    ensureMaxLength(it, 20)
+                    it.ensureNotBlank()
+                    it.ensureLengthAtMost(20)
                     it
                 },
             )
@@ -124,25 +125,26 @@ class TripleFactoryBuilderTest :
         }
 
         context("TripleFactoryBuilder with different types") {
-            fun Validation.build(
+            context(_: Validation)
+            fun build(
                 name: String,
                 age: Int,
                 email: String,
             ) = buildTriple(
                 bind(name) {
-                    ensureNotBlank(it)
-                    ensureMinLength(it, 1)
-                    ensureMaxLength(it, 50)
+                    it.ensureNotBlank()
+                    it.ensureLengthAtLeast(1)
+                    it.ensureLengthAtMost(50)
                     it
                 },
                 bind(age) {
-                    ensureMin(it, 0)
-                    ensureMax(it, 120)
+                    it.ensureAtLeast(0)
+                    it.ensureAtMost(120)
                     it
                 },
                 bind(email) {
-                    ensureNotBlank(it)
-                    ensureMaxLength(it, 100)
+                    it.ensureNotBlank()
+                    it.ensureLengthAtMost(100)
                     it
                 },
             )
@@ -157,25 +159,26 @@ class TripleFactoryBuilderTest :
                 val longName = "a".repeat(51)
                 val result = tryValidate { build(longName, 30, "alice@example.com") }
                 result.shouldBeFailure()
-                result.messages.single().constraintId shouldBe "kova.charSequence.maxLength"
+                result.messages.single().constraintId shouldBe "kova.charSequence.lengthAtMost"
             }
 
             test("failure - age out of range") {
                 val result = tryValidate { build("Alice", 150, "alice@example.com") }
                 result.shouldBeFailure()
-                result.messages.single().constraintId shouldBe "kova.comparable.max"
+                result.messages.single().constraintId shouldBe "kova.comparable.atMost"
             }
 
             test("failure - email too long") {
                 val longEmail = "a".repeat(101)
                 val result = tryValidate { build("Alice", 30, longEmail) }
                 result.shouldBeFailure()
-                result.messages.single().constraintId shouldBe "kova.charSequence.maxLength"
+                result.messages.single().constraintId shouldBe "kova.charSequence.lengthAtMost"
             }
         }
 
         context("TripleFactoryBuilder with identity validators") {
-            fun Validation.build(
+            context(_: Validation)
+            fun build(
                 first: String,
                 second: Int,
                 third: String,
@@ -193,14 +196,15 @@ class TripleFactoryBuilderTest :
         }
 
         context("TripleFactoryBuilder with type transformation") {
-            fun Validation.build(
+            context(_: Validation)
+            fun build(
                 first: String,
                 second: String,
                 third: String,
             ) = buildTriple(
-                bind(first) { parseInt(it) },
-                bind(second) { parseInt(it) },
-                bind(third) { parseInt(it) },
+                bind(first) { it.transformToInt() },
+                bind(second) { it.transformToInt() },
+                bind(third) { it.transformToInt() },
             )
 
             test("success - all elements transformed") {

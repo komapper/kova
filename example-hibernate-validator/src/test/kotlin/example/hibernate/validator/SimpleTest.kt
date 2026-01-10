@@ -7,9 +7,10 @@ import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
 import org.komapper.extension.validator.Validation
+import org.komapper.extension.validator.ensureAtLeast
 import org.komapper.extension.validator.ensureLengthInRange
-import org.komapper.extension.validator.ensureMin
 import org.komapper.extension.validator.ensureNotNull
+import org.komapper.extension.validator.schema
 import org.komapper.extension.validator.tryValidate
 import java.util.Locale
 import jakarta.validation.Validation as HibernateValidation
@@ -80,20 +81,21 @@ class SimpleTest :
                 val seatCount: Int,
             )
 
-            fun Validation.validate(car: Car) =
-                car.schema {
-                    car::manufacturer { ensureNotNull(it) }
-                    car::licensePlate {
-                        ensureNotNull(it)
-                        ensureLengthInRange(it, 2..14)
+            context(_: Validation)
+            fun Car.validate() =
+                schema {
+                    ::manufacturer { it.ensureNotNull() }
+                    ::licensePlate {
+                        it.ensureNotNull()
+                        it.ensureLengthInRange(2..14)
                     }
-                    car::seatCount { ensureMin(it, 2) }
+                    ::seatCount { it.ensureAtLeast(2) }
                 }
 
             test("manufacturerIsNull") {
                 val car = Car(null, "DD-AB-123", 4)
 
-                val result = tryValidate { validate(car) }
+                val result = tryValidate { car.validate() }
 
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
@@ -103,7 +105,7 @@ class SimpleTest :
             test("licensePlateTooShort") {
                 val car = Car("Morris", "D", 4)
 
-                val result = tryValidate { validate(car) }
+                val result = tryValidate { car.validate() }
 
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
@@ -113,7 +115,7 @@ class SimpleTest :
             test("seatCountTooLow") {
                 val car = Car("Morris", "DD-AB-123", 1)
 
-                val result = tryValidate { validate(car) }
+                val result = tryValidate { car.validate() }
 
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
@@ -123,7 +125,7 @@ class SimpleTest :
             test("carIsValid") {
                 val car = Car("Morris", "DD-AB-123", 2)
 
-                val result = tryValidate { validate(car) }
+                val result = tryValidate { car.validate() }
 
                 result.shouldBeSuccess()
             }

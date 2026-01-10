@@ -7,6 +7,7 @@ import jakarta.validation.ValidatorFactory
 import jakarta.validation.constraints.NotNull
 import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ensureNotNull
+import org.komapper.extension.validator.schema
 import org.komapper.extension.validator.tryValidate
 import java.util.Locale
 import jakarta.validation.Validation as HibernateValidation
@@ -78,25 +79,27 @@ class ObjectGraphTest :
                 val driver: Person?,
             )
 
-            fun Validation.validate(person: Person) =
-                person.schema {
-                    person::name {
-                        ensureNotNull(it)
+            context(_: Validation)
+            fun Person.validate() =
+                schema {
+                    ::name {
+                        it.ensureNotNull()
                     }
                 }
 
-            fun Validation.validate(car: Car) =
-                car.schema {
-                    car::driver {
-                        ensureNotNull(it)
-                        validate(it)
+            context(_: Validation)
+            fun Car.validate() =
+                schema {
+                    ::driver {
+                        it.ensureNotNull()
+                        it.validate()
                     }
                 }
 
             test("driverIsNull") {
                 val car = Car(null)
 
-                val result = tryValidate { validate(car) }
+                val result = tryValidate { car.validate() }
 
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
@@ -107,7 +110,7 @@ class ObjectGraphTest :
             test("driverNameIsNull") {
                 val car = Car(Person(null))
 
-                val result = tryValidate { validate(car) }
+                val result = tryValidate { car.validate() }
 
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
@@ -118,7 +121,7 @@ class ObjectGraphTest :
             test("carIsValid") {
                 val car = Car(Person("Smith"))
 
-                val result = tryValidate { validate(car) }
+                val result = tryValidate { car.validate() }
 
                 result.shouldBeSuccess()
             }

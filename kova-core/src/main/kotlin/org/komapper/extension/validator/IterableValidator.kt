@@ -7,74 +7,73 @@ typealias CountMessageProvider = (actualCount: Int) -> Message
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureNotEmpty(listOf("a")) } // Success
- * tryValidate { ensureNotEmpty(listOf()) }    // Failure
+ * tryValidate { listOf("a").ensureNotEmpty() } // Success
+ * tryValidate { listOf<String>().ensureNotEmpty() }    // Failure
  * ```
  *
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun Validation.ensureNotEmpty(
-    input: Iterable<*>,
-    message: MessageProvider = { "kova.iterable.notEmpty".resource },
-) = input.constrain("kova.iterable.notEmpty") { satisfies(it.iterator().hasNext(), message) }
+context(_: Validation)
+fun Iterable<*>.ensureNotEmpty(message: MessageProvider = { "kova.iterable.notEmpty".resource }) =
+    this.constrain("kova.iterable.notEmpty") { satisfies(it.iterator().hasNext(), message) }
 
 /**
  * Validates that the iterable ensureContains the specified element.
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureHas(listOf("foo", "bar"), "foo") }  // Success
- * tryValidate { ensureHas(listOf("bar", "baz"), "foo") }  // Failure
+ * tryValidate { listOf("foo", "bar").ensureHas("foo") }  // Success
+ * tryValidate { listOf("bar", "baz").ensureHas("foo") }  // Failure
  * ```
  *
  * @param element The element that must be present in the iterable
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <E> Validation.ensureHas(
-    input: Iterable<E>,
+context(_: Validation)
+fun <E> Iterable<E>.ensureHas(
     element: E,
     message: MessageProvider = { "kova.iterable.contains".resource(element) },
-) = ensureContains(input, element, message)
+) = ensureContains(element, message)
 
 /**
  * Validates that the iterable ensureContains the specified element.
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureContains(listOf("foo", "bar"), "foo") }  // Success
- * tryValidate { ensureContains(listOf("bar", "baz"), "foo") }  // Failure
+ * tryValidate { listOf("foo", "bar").ensureContains("foo") }  // Success
+ * tryValidate { listOf("bar", "baz").ensureContains("foo") }  // Failure
  * ```
  *
  * @param element The element that must be present in the iterable
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <E> Validation.ensureContains(
-    input: Iterable<E>,
+context(_: Validation)
+fun <E> Iterable<E>.ensureContains(
     element: E,
     message: MessageProvider = { "kova.iterable.contains".resource(element) },
-) = input.constrain("kova.iterable.contains") { satisfies(it.contains(element), message) }
+) = this.constrain("kova.iterable.contains") { satisfies(it.contains(element), message) }
 
 /**
  * Validates that the iterable does not contain the specified element.
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureNotContains(listOf("bar", "baz"), "foo") }  // Success
- * tryValidate { ensureNotContains(listOf("foo", "bar"), "foo") }  // Failure
+ * tryValidate { listOf("bar", "baz").ensureNotContains("foo") }  // Success
+ * tryValidate { listOf("foo", "bar").ensureNotContains("foo") }  // Failure
  * ```
  *
  * @param element The element that must not be present in the iterable
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <E> Validation.ensureNotContains(
-    input: Iterable<E>,
+context(_: Validation)
+fun <E> Iterable<E>.ensureNotContains(
     element: E,
     message: MessageProvider = { "kova.iterable.notContains".resource(element) },
-) = input.constrain("kova.iterable.notContains") { satisfies(!it.contains(element), message) }
+) = this.constrain("kova.iterable.notContains") { satisfies(!it.contains(element), message) }
 
 /**
  * Validates each element of the iterable using the specified validator.
@@ -85,30 +84,29 @@ fun <E> Validation.ensureNotContains(
  * Example:
  * ```kotlin
  * tryValidate {
- *     ensureEach(listOf("abc", "def")) { min(it, 2); max(it, 10) }
+ *     listOf("abc", "def").ensureEach { it.ensureLengthAtLeast(2); it.ensureLengthAtMost(10) }
  * } // Success
  *
  * tryValidate {
- *     ensureEach(listOf("a", "b")) { min(it, 2); max(it, 10) }
+ *     listOf("a", "b").ensureEach { it.ensureLengthAtLeast(2); it.ensureLengthAtMost(10) }
  * } // Failure: elements too short
  * ```
  *
  * @param validate The validator to apply to each element
  */
 @IgnorableReturnValue
-fun <E> Validation.ensureEach(
-    input: Iterable<E>,
-    validate: Validation.(E) -> Unit,
-) = input.constrain("kova.iterable.each") {
-    with(validation) {
-        withMessage({ "kova.iterable.each".resource(it) }) {
-            for ((i, element) in input.withIndex()) {
-                accumulating {
-                    appendPath("[$i]<iterable element>") {
-                        validate(element)
+context(_: Validation)
+fun <E> Iterable<E>.ensureEach(validate: context(Validation)(E) -> Unit) =
+    this.constrain("kova.iterable.each") {
+        context(validation) {
+            withMessage({ "kova.iterable.each".resource(it) }) {
+                for ((i, element) in this@ensureEach.withIndex()) {
+                    accumulating {
+                        appendPath("[$i]<iterable element>") {
+                            validate(element)
+                        }
                     }
                 }
             }
         }
     }
-}

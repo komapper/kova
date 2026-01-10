@@ -15,7 +15,7 @@ import org.komapper.extension.validator.ValidationResult.Success
  * Example using when expression:
  * ```kotlin
  * val text = getUserInput()
- * when (val result = tryValidate { ensureMinLength(text, 1); ensureMaxLength(text, 10); text }) {
+ * when (val result = tryValidate { ensureLengthAtLeast(text, 1); ensureLengthAtMost(text, 10); text }) {
  *     is ValidationResult.Success -> println("Valid: ${result.value}")
  *     is ValidationResult.Failure -> println("Errors: ${result.messages}")
  * }
@@ -24,7 +24,7 @@ import org.komapper.extension.validator.ValidationResult.Success
  * Example using isSuccess():
  * ```kotlin
  * val text = getUserInput()
- * val result = tryValidate { ensureMinLength(text, 1); ensureMaxLength(text, 10); text }
+ * val result = tryValidate { ensureLengthAtLeast(text, 1); ensureLengthAtMost(text, 10); text }
  * if (result.isSuccess()) {
  *     // result is automatically smart-cast to Success here
  *     println("Valid: ${result.value}")
@@ -40,9 +40,9 @@ import org.komapper.extension.validator.ValidationResult.Success
  */
 fun <R> tryValidate(
     config: ValidationConfig = ValidationConfig(),
-    validator: Validation.() -> R,
+    validator: context(Validation)() -> R,
 ): ValidationResult<R> =
-    when (val result = with(Validation(config = config)) { or { validator() } }) {
+    when (val result = context(Validation(config = config)) { or { validator() } }) {
         is ValidationResult -> result
         is Both -> Failure(result.messages)
     }
@@ -58,7 +58,7 @@ fun <R> tryValidate(
  * ```kotlin
  * val text = getUserInput()
  * try {
- *     val validated = validate { ensureMinLength(text, 1); ensureMaxLength(text, 10); text }
+ *     val validated = validate { ensureLengthAtLeast(text, 1); ensureLengthAtMost(text, 10); text }
  *     println("Valid: $validated")
  * } catch (e: ValidationException) {
  *     println("Errors: ${e.messages}")
@@ -72,7 +72,7 @@ fun <R> tryValidate(
  */
 fun <R> validate(
     config: ValidationConfig = ValidationConfig(),
-    validator: Validation.() -> R,
+    validator: context(Validation)() -> R,
 ): R =
     when (val result = tryValidate(config, validator)) {
         is Success -> result.value
@@ -92,14 +92,15 @@ fun <R> validate(
  * @param block The validation logic to execute
  * @return A [ValidationIor] containing the result and/or accumulated error messages
  */
-inline fun <R> Validation.or(block: Validation.() -> R): ValidationIor<R> {
+context(v: Validation)
+inline fun <R> or(block: context(Validation)() -> R): ValidationIor<R> {
     val messages = mutableListOf<Message>()
     return recoverValidation({ Failure(messages) }) {
         val result =
             block(
-                copy(acc = {
+                v.copy(acc = {
                     messages.addAll(it)
-                    if (config.failFast) raise()
+                    if (v.config.failFast) raise()
                     this
                 }),
             )
@@ -128,9 +129,10 @@ inline fun <R> Validation.or(block: Validation.() -> R): ValidationIor<R> {
  * @param block The validation logic to execute
  * @return The validated result
  */
-inline fun <R> Validation.withMessage(
+context(_: Validation)
+inline fun <R> withMessage(
     noinline transform: (List<Message>) -> Message = { "kova.withMessage".resource(it) },
-    block: Validation.() -> R,
+    block: context(Validation)() -> R,
 ): R =
     when (val result = or(block)) {
         is Success -> result.value
@@ -154,7 +156,8 @@ inline fun <R> Validation.withMessage(
  * @param block The validation logic to execute
  * @return The validated result
  */
-inline fun <R> Validation.withMessage(
+context(_: Validation)
+inline fun <R> withMessage(
     message: String,
-    block: Validation.() -> R,
+    block: context(Validation)() -> R,
 ): R = withMessage({ text(message) }, block)

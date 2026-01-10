@@ -51,6 +51,6 @@ data class Constraint(
         message: MessageProvider,
     ) {
         contract { returns() implies condition }
-        if (!condition) validation.raise(message())
+        if (!condition) context(validation) { raise(message()) }
     }
 }

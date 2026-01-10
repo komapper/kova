@@ -13,11 +13,12 @@ import org.komapper.extension.validator.Validation
  * ```kotlin
  * @Serializable
  * data class Customer(val id: Int, val name: String) : Validated {
- *     override fun Validation.validate() = this@Customer.schema {
- *         ::id { ensurePositive(it) }
+ *     context(_: Validation)
+ *     override fun validate() = schema {
+ *         ::id { it.ensurePositive() }
  *         ::name {
- *             ensureNotBlank(it)
- *             ensureLengthInRange(it, 1..100)
+ *             it.ensureNotBlank()
+ *             it.ensureLengthInRange(1..100)
  *         }
  *     }
  * }
@@ -32,5 +33,6 @@ interface Validated {
      * Typically implemented using the [schema][Validation.schema] function with property
      * references. Property names are automatically used as validation paths in error messages.
      */
-    fun Validation.validate()
+    context(_: Validation)
+    fun validate()
 }
