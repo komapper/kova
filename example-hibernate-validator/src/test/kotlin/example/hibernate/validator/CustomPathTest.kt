@@ -3,7 +3,7 @@ package example.hibernate.validator
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import org.komapper.extension.validator.Validation
-import org.komapper.extension.validator.name
+import org.komapper.extension.validator.named
 import org.komapper.extension.validator.schema
 import org.komapper.extension.validator.text
 import org.komapper.extension.validator.tryValidate
@@ -33,7 +33,7 @@ class CustomPathTest :
             context(_: Validation)
             fun Car.validate() =
                 schema {
-                    name("passengers") {
+                    named("passengers") {
                         constrain("validPassengerCount") {
                             satisfies(it.passengers.size <= it.seatCount) {
                                 text("There must be not more passengers than seats.")

@@ -180,10 +180,10 @@ inline infix fun <R> ValidationIor<R>.orElse(block: context(Validation)() -> R):
  * @return the result of executing the validation block
  */
 context(_: Validation)
-inline fun <T, R> T.name(
+inline fun <T, R> T.named(
     name: String,
     block: context(Validation)(T) -> R,
-): R = addPath(name, this, { block(this@name) })
+): R = addPath(name, this, { block(this@named) })
 
 /**
  * Validates an object using its class name as the validation root.
@@ -692,7 +692,9 @@ sealed interface LogEntry {
     ) : LogEntry
 }
 
-class Schema<T>(private val obj: T) {
+class Schema<T>(
+    private val obj: T,
+) {
     /**
      * Validates a property value within a schema using the invoke operator.
      *
@@ -736,5 +738,4 @@ class Schema<T>(private val obj: T) {
         id: String,
         check: Constraint.(T) -> Unit,
     ) = obj.constrain(id, check)
-
 }

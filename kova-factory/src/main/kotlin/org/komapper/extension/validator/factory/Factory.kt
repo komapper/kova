@@ -5,7 +5,7 @@ import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.accumulating
 import org.komapper.extension.validator.addRoot
 import org.komapper.extension.validator.bindObject
-import org.komapper.extension.validator.name
+import org.komapper.extension.validator.named
 import kotlin.reflect.KProperty
 
 /**
@@ -107,6 +107,6 @@ class Factory(
         property: KProperty<*>,
     ): Accumulate.Value<S> =
         context(validation) {
-            null.name(property.name) { accumulating { this@provideDelegate() } }
+            null.named(property.name) { accumulating { this@provideDelegate() } }
         }
 }

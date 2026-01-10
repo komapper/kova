@@ -224,7 +224,7 @@ class ValidatorTest :
             fun requestKey(
                 request: Request,
                 block: context(Validation)(String?) -> Unit,
-            ) = request.name("Request[key]") { r ->
+            ) = request.named("Request[key]") { r ->
                 r["key"].also { block(it) }
             }
 
