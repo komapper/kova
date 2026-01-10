@@ -179,7 +179,7 @@ class QuickStartTest :
                     result.messages.joinToString("\n").let { println(it) }
                     // Message(constraintId=kova.charSequence.ensureContains, text='must contain "@"', root=Customer, path=email, input=invalid-email, args=[@])
                     // Message(constraintId=kova.charSequence.ensureNotBlank, text='must not be ensureBlank', root=Customer, path=address.street, input=, args=[])
-                    // Message(constraintId=kova.charSequence.minLength, text='must be at least 1 characters', root=Customer, path=address.street, input=, args=[1])
+                    // Message(constraintId=kova.charSequence.lengthAtLeast, text='must be at least 1 characters', root=Customer, path=address.street, input=, args=[1])
                     // Message(constraintId=kova.charSequence.ensureMatches, text='must match pattern: ^\d{5}(-\d{4})?$', root=Customer, path=address.zipCode, input=123, args=[^\d{5}(-\d{4})?$])
                 }
 

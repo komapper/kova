@@ -17,8 +17,8 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationException
 import org.komapper.extension.validator.ensureAtLeast
-import org.komapper.extension.validator.ensureLengthAtLeast
 import org.komapper.extension.validator.ensureAtMost
+import org.komapper.extension.validator.ensureLengthAtLeast
 import org.komapper.extension.validator.ensureNotBlank
 import org.komapper.extension.validator.ensureNotEmpty
 import org.komapper.extension.validator.schema

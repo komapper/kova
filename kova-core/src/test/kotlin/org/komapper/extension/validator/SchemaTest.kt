@@ -68,7 +68,7 @@ class SchemaTest :
                 result.messages[0].let {
                     it.root shouldBe "User"
                     it.path.fullName shouldBe "name"
-                    it.constraintId shouldBe "kova.charSequence.maxLength"
+                    it.constraintId shouldBe "kova.charSequence.lengthAtMost"
                 }
             }
 
@@ -81,12 +81,12 @@ class SchemaTest :
                 result.messages[0].let {
                     it.root shouldBe "User"
                     it.path.fullName shouldBe "name"
-                    it.constraintId shouldBe "kova.charSequence.maxLength"
+                    it.constraintId shouldBe "kova.charSequence.lengthAtMost"
                 }
                 result.messages[1].let {
                     it.root shouldBe "User"
                     it.path.fullName shouldBe "id"
-                    it.constraintId shouldBe "kova.comparable.min"
+                    it.constraintId shouldBe "kova.comparable.atLeast"
                 }
             }
         }
@@ -216,7 +216,7 @@ class SchemaTest :
                 result.messages[0].let {
                     it.root shouldBe "User"
                     it.path.fullName shouldBe "name"
-                    it.constraintId shouldBe "kova.charSequence.maxLength"
+                    it.constraintId shouldBe "kova.charSequence.lengthAtMost"
                 }
             }
 
@@ -229,12 +229,12 @@ class SchemaTest :
                 result.messages[0].let {
                     it.root shouldBe "User"
                     it.path.fullName shouldBe "id"
-                    it.constraintId shouldBe "kova.comparable.min"
+                    it.constraintId shouldBe "kova.comparable.atLeast"
                 }
                 result.messages[1].let {
                     it.root shouldBe "User"
                     it.path.fullName shouldBe "name"
-                    it.constraintId shouldBe "kova.charSequence.maxLength"
+                    it.constraintId shouldBe "kova.charSequence.lengthAtMost"
                 }
             }
         }
@@ -270,7 +270,7 @@ class SchemaTest :
                 result.messages[0].let {
                     it.root shouldBe "Employee"
                     it.path.fullName shouldBe "address.street.name"
-                    it.constraintId shouldBe "kova.charSequence.maxLength"
+                    it.constraintId shouldBe "kova.charSequence.lengthAtMost"
                 }
             }
         }
@@ -485,7 +485,7 @@ class SchemaTest :
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].path.fullName shouldBe "next.next.value"
-                result.messages[0].constraintId shouldBe "kova.comparable.max"
+                result.messages[0].constraintId shouldBe "kova.comparable.atMost"
             }
 
             test("failure when constraint violated in root object") {
@@ -496,7 +496,7 @@ class SchemaTest :
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].path.fullName shouldBe "value"
-                result.messages[0].constraintId shouldBe "kova.comparable.min"
+                result.messages[0].constraintId shouldBe "kova.comparable.atLeast"
             }
 
             // To avoid StackOverflowError, use 'shouldBeEqual' instead of 'shouldBe'
@@ -509,7 +509,7 @@ class SchemaTest :
                 result.shouldBeFailure()
                 result.messages.size shouldBeEqual 1
                 result.messages[0].path.fullName shouldBeEqual "value"
-                result.messages[0].constraintId.shouldNotBeNull() shouldBeEqual "kova.comparable.max"
+                result.messages[0].constraintId.shouldNotBeNull() shouldBeEqual "kova.comparable.atMost"
             }
         }
     })

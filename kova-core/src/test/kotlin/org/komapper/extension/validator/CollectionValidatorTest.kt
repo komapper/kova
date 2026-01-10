@@ -41,7 +41,7 @@ class CollectionValidatorTest :
                 val result = tryValidate { listOf("1").ensureSizeAtLeast(2) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
-                result.messages[0].constraintId shouldBe "kova.collection.minSize"
+                result.messages[0].constraintId shouldBe "kova.collection.sizeAtLeast"
             }
 
             test("ensureSizeAtMost success") {
@@ -53,7 +53,7 @@ class CollectionValidatorTest :
                 val result = tryValidate { listOf("1", "2", "3", "4").ensureSizeAtMost(3) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
-                result.messages[0].constraintId shouldBe "kova.collection.maxSize"
+                result.messages[0].constraintId shouldBe "kova.collection.sizeAtMost"
             }
 
             test("multiple constraints") {
@@ -64,8 +64,8 @@ class CollectionValidatorTest :
                     }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 2
-                result.messages[0].constraintId shouldBe "kova.collection.minSize"
-                result.messages[1].constraintId shouldBe "kova.collection.minSize"
+                result.messages[0].constraintId shouldBe "kova.collection.sizeAtLeast"
+                result.messages[1].constraintId shouldBe "kova.collection.sizeAtLeast"
             }
         }
 

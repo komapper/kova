@@ -16,8 +16,8 @@ package org.komapper.extension.validator
 context(_: Validation)
 fun <S : Comparable<S>> S.ensureAtLeast(
     value: S,
-    message: MessageProvider = { "kova.comparable.min".resource(value) },
-) = this.constrain("kova.comparable.min") { satisfies(it >= value, message) }
+    message: MessageProvider = { "kova.comparable.atLeast".resource(value) },
+) = this.constrain("kova.comparable.atLeast") { satisfies(it >= value, message) }
 
 /**
  * Validates that the value is less than or equal to the specified maximum value.
@@ -35,8 +35,8 @@ fun <S : Comparable<S>> S.ensureAtLeast(
 context(_: Validation)
 fun <S : Comparable<S>> S.ensureAtMost(
     value: S,
-    message: MessageProvider = { "kova.comparable.max".resource(value) },
-) = this.constrain("kova.comparable.max") { satisfies(it <= value, message) }
+    message: MessageProvider = { "kova.comparable.atMost".resource(value) },
+) = this.constrain("kova.comparable.atMost") { satisfies(it <= value, message) }
 
 /**
  * Validates that the value is strictly greater than the specified value.

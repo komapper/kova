@@ -25,7 +25,7 @@ class ComparableValidatorTest :
                 test("failure with value less than threshold") {
                     val result = tryValidate { 4u.ensureAtLeast(5u) }
                     result.shouldBeFailure()
-                    result.messages[0].constraintId shouldBe "kova.comparable.min"
+                    result.messages[0].constraintId shouldBe "kova.comparable.atLeast"
                 }
             }
 
@@ -43,7 +43,7 @@ class ComparableValidatorTest :
                 test("failure with value greater than threshold") {
                     val result = tryValidate { 11u.ensureAtMost(10u) }
                     result.shouldBeFailure()
-                    result.messages[0].constraintId shouldBe "kova.comparable.max"
+                    result.messages[0].constraintId shouldBe "kova.comparable.atMost"
                 }
             }
 
@@ -268,7 +268,7 @@ class ComparableValidatorTest :
                 test("failure") {
                     val result = tryValidate { 4uL.ensureAtLeast(5uL) }
                     result.shouldBeFailure()
-                    result.messages[0].constraintId shouldBe "kova.comparable.min"
+                    result.messages[0].constraintId shouldBe "kova.comparable.atLeast"
                 }
             }
 
@@ -281,7 +281,7 @@ class ComparableValidatorTest :
                 test("failure") {
                     val result = tryValidate { 11uL.ensureAtMost(10uL) }
                     result.shouldBeFailure()
-                    result.messages[0].constraintId shouldBe "kova.comparable.max"
+                    result.messages[0].constraintId shouldBe "kova.comparable.atMost"
                 }
             }
         }
@@ -296,7 +296,7 @@ class ComparableValidatorTest :
                 test("failure") {
                     val result = tryValidate { 4u.ensureAtLeast(5u) }
                     result.shouldBeFailure()
-                    result.messages[0].constraintId shouldBe "kova.comparable.min"
+                    result.messages[0].constraintId shouldBe "kova.comparable.atLeast"
                 }
             }
 
@@ -309,7 +309,7 @@ class ComparableValidatorTest :
                 test("failure") {
                     val result = tryValidate { 11u.ensureAtMost(10u) }
                     result.shouldBeFailure()
-                    result.messages[0].constraintId shouldBe "kova.comparable.max"
+                    result.messages[0].constraintId shouldBe "kova.comparable.atMost"
                 }
             }
         }
@@ -324,7 +324,7 @@ class ComparableValidatorTest :
                 test("failure") {
                     val result = tryValidate { 4u.ensureAtLeast(5u) }
                     result.shouldBeFailure()
-                    result.messages[0].constraintId shouldBe "kova.comparable.min"
+                    result.messages[0].constraintId shouldBe "kova.comparable.atLeast"
                 }
             }
 
@@ -337,7 +337,7 @@ class ComparableValidatorTest :
                 test("failure") {
                     val result = tryValidate { 11u.ensureAtMost(10u) }
                     result.shouldBeFailure()
-                    result.messages[0].constraintId shouldBe "kova.comparable.max"
+                    result.messages[0].constraintId shouldBe "kova.comparable.atMost"
                 }
             }
         }

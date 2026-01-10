@@ -5,10 +5,10 @@ import io.kotest.core.spec.style.FunSpec
 import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationConfig
 import org.komapper.extension.validator.ValidationException
-import org.komapper.extension.validator.ensureAtMost
-import org.komapper.extension.validator.ensureLengthAtMost
 import org.komapper.extension.validator.ensureAtLeast
+import org.komapper.extension.validator.ensureAtMost
 import org.komapper.extension.validator.ensureLengthAtLeast
+import org.komapper.extension.validator.ensureLengthAtMost
 import org.komapper.extension.validator.ensureNotBlank
 import org.komapper.extension.validator.ensurePositive
 import org.komapper.extension.validator.transformToInt
@@ -131,13 +131,13 @@ class PairFactoryBuilderTest :
                 val longName = "a".repeat(51)
                 val result = tryValidate { build(longName, 30) }
                 result.shouldBeFailure()
-                result.messages.single().constraintId shouldBe "kova.charSequence.maxLength"
+                result.messages.single().constraintId shouldBe "kova.charSequence.lengthAtMost"
             }
 
             test("failure - age out of range") {
                 val result = tryValidate { build("Alice", 150) }
                 result.shouldBeFailure()
-                result.messages.single().constraintId shouldBe "kova.comparable.max"
+                result.messages.single().constraintId shouldBe "kova.comparable.atMost"
             }
         }
 

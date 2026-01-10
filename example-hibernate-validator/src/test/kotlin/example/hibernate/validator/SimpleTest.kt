@@ -7,8 +7,8 @@ import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
 import org.komapper.extension.validator.Validation
-import org.komapper.extension.validator.ensureLengthInRange
 import org.komapper.extension.validator.ensureAtLeast
+import org.komapper.extension.validator.ensureLengthInRange
 import org.komapper.extension.validator.ensureNotNull
 import org.komapper.extension.validator.schema
 import org.komapper.extension.validator.tryValidate

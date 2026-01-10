@@ -667,7 +667,7 @@ sealed interface LogEntry {
      *
      * This is emitted when a constraint evaluation succeeds.
      *
-     * @property constraintId The unique identifier of the constraint (e.g., "kova.charSequence.minLength")
+     * @property constraintId The unique identifier of the constraint (e.g., "kova.charSequence.lengthAtLeast")
      * @property root The qualified name of the root object being validated
      * @property path The validation path indicating the property location (e.g., "address.city")
      * @property input The input value that was validated

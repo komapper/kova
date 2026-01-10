@@ -28,7 +28,7 @@ class ValidatorTest :
                 val result = tryValidate { validate(0) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
-                result.messages[0].constraintId shouldBe "kova.comparable.min"
+                result.messages[0].constraintId shouldBe "kova.comparable.atLeast"
             }
 
             test("validate - success") {
@@ -41,7 +41,7 @@ class ValidatorTest :
                         validate { validate(0) }
                     }
                 ex.messages.size shouldBe 1
-                ex.messages[0].constraintId shouldBe "kova.comparable.min"
+                ex.messages[0].constraintId shouldBe "kova.comparable.atLeast"
             }
         }
 
@@ -79,12 +79,12 @@ class ValidatorTest :
             test("failure when first constraint violated") {
                 val result = tryValidate { validate(2) }
                 result.shouldBeFailure()
-                result.messages.single().constraintId shouldBe "kova.comparable.min"
+                result.messages.single().constraintId shouldBe "kova.comparable.atLeast"
             }
             test("failure when second constraint violated") {
                 val result = tryValidate { validate(10) }
                 result.shouldBeFailure()
-                result.messages.single().constraintId shouldBe "kova.charSequence.maxLength"
+                result.messages.single().constraintId shouldBe "kova.charSequence.lengthAtMost"
             }
         }
 
@@ -103,13 +103,13 @@ class ValidatorTest :
                 } shouldBe
                     listOf(
                         LogEntry.Satisfied(
-                            constraintId = "kova.charSequence.minLength",
+                            constraintId = "kova.charSequence.lengthAtLeast",
                             root = "",
                             path = "",
                             input = "abcde",
                         ),
                         LogEntry.Satisfied(
-                            constraintId = "kova.charSequence.maxLength",
+                            constraintId = "kova.charSequence.lengthAtMost",
                             root = "",
                             path = "",
                             input = "abcde",
@@ -125,14 +125,14 @@ class ValidatorTest :
                 logs shouldBe
                     listOf(
                         LogEntry.Violated(
-                            constraintId = "kova.charSequence.minLength",
+                            constraintId = "kova.charSequence.lengthAtLeast",
                             root = "",
                             path = "",
                             input = "ab",
                             args = listOf(3),
                         ),
                         LogEntry.Satisfied(
-                            constraintId = "kova.charSequence.maxLength",
+                            constraintId = "kova.charSequence.lengthAtMost",
                             root = "",
                             path = "",
                             input = "ab",
@@ -155,14 +155,14 @@ class ValidatorTest :
                 logs shouldBe
                     listOf(
                         LogEntry.Violated(
-                            constraintId = "kova.charSequence.minLength",
+                            constraintId = "kova.charSequence.lengthAtLeast",
                             root = "",
                             path = "",
                             input = "ab",
                             args = listOf(3),
                         ),
                         LogEntry.Satisfied(
-                            constraintId = "kova.charSequence.maxLength",
+                            constraintId = "kova.charSequence.lengthAtMost",
                             root = "",
                             path = "",
                             input = "AB",
@@ -266,7 +266,7 @@ class ValidatorTest :
                 result.messages.size shouldBe 1
                 result.messages[0].let {
                     it.path.fullName shouldBe "Request[key]"
-                    it.constraintId shouldBe "kova.charSequence.minLength"
+                    it.constraintId shouldBe "kova.charSequence.lengthAtLeast"
                 }
             }
         }

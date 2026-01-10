@@ -8,14 +8,14 @@ import io.konform.validation.constraints.pattern
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import org.komapper.extension.validator.Validation
+import org.komapper.extension.validator.ensureAtLeast
 import org.komapper.extension.validator.ensureEach
 import org.komapper.extension.validator.ensureEachValue
-import org.komapper.extension.validator.ensureMatches
-import org.komapper.extension.validator.ensureSizeAtMost
-import org.komapper.extension.validator.ensureAtLeast
 import org.komapper.extension.validator.ensureLengthAtLeast
+import org.komapper.extension.validator.ensureMatches
 import org.komapper.extension.validator.ensureNotNull
 import org.komapper.extension.validator.ensureSizeAtLeast
+import org.komapper.extension.validator.ensureSizeAtMost
 import org.komapper.extension.validator.schema
 import org.komapper.extension.validator.text
 import org.komapper.extension.validator.tryValidate

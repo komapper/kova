@@ -20,6 +20,44 @@ fun CharSequence.ensureLength(
 ) = this.constrain("kova.charSequence.length") { satisfies(it.length == length, message) }
 
 /**
+ * Validates that the character sequence length is at least the specified minimum.
+ *
+ * Example:
+ * ```kotlin
+ * tryValidate { "hello".ensureLengthAtLeast(3) } // Success
+ * tryValidate { "hi".ensureLengthAtLeast(3) }    // Failure
+ * ```
+ *
+ * @param length Minimum length (inclusive)
+ * @param message Custom error message provider
+ */
+@IgnorableReturnValue
+context(_: Validation)
+fun CharSequence.ensureLengthAtLeast(
+    length: Int,
+    message: MessageProvider = { "kova.charSequence.lengthAtLeast".resource(length) },
+) = this.constrain("kova.charSequence.lengthAtLeast") { satisfies(it.length >= length, message) }
+
+/**
+ * Validates that the character sequence length does not exceed the specified maximum.
+ *
+ * Example:
+ * ```kotlin
+ * tryValidate { "hello".ensureLengthAtMost(10) }           // Success
+ * tryValidate { "very long string".ensureLengthAtMost(10) } // Failure
+ * ```
+ *
+ * @param length Maximum length (inclusive)
+ * @param message Custom error message provider
+ */
+@IgnorableReturnValue
+context(_: Validation)
+fun CharSequence.ensureLengthAtMost(
+    length: Int,
+    message: MessageProvider = { "kova.charSequence.lengthAtMost".resource(length) },
+) = this.constrain("kova.charSequence.lengthAtMost") { satisfies(it.length <= length, message) }
+
+/**
  * Validates that the character sequence length is within the specified range.
  *
  * Supports ranges that implement both ClosedRange and OpenEndRange interfaces,
@@ -43,44 +81,6 @@ fun <R> CharSequence.ensureLengthInRange(
     message: MessageProvider = { "kova.charSequence.lengthInRange".resource(range) },
 ) where R : ClosedRange<Int>, R : OpenEndRange<Int> =
     this.constrain("kova.charSequence.lengthInRange") { satisfies(it.length in range, message) }
-
-/**
- * Validates that the character sequence length is at least the specified minimum.
- *
- * Example:
- * ```kotlin
- * tryValidate { "hello".ensureLengthAtLeast(3) } // Success
- * tryValidate { "hi".ensureLengthAtLeast(3) }    // Failure
- * ```
- *
- * @param length Minimum length (inclusive)
- * @param message Custom error message provider
- */
-@IgnorableReturnValue
-context(_: Validation)
-fun CharSequence.ensureLengthAtLeast(
-    length: Int,
-    message: MessageProvider = { "kova.charSequence.minLength".resource(length) },
-) = this.constrain("kova.charSequence.minLength") { satisfies(it.length >= length, message) }
-
-/**
- * Validates that the character sequence length does not exceed the specified maximum.
- *
- * Example:
- * ```kotlin
- * tryValidate { "hello".ensureLengthAtMost(10) }           // Success
- * tryValidate { "very long string".ensureLengthAtMost(10) } // Failure
- * ```
- *
- * @param length Maximum length (inclusive)
- * @param message Custom error message provider
- */
-@IgnorableReturnValue
-context(_: Validation)
-fun CharSequence.ensureLengthAtMost(
-    length: Int,
-    message: MessageProvider = { "kova.charSequence.maxLength".resource(length) },
-) = this.constrain("kova.charSequence.maxLength") { satisfies(it.length <= length, message) }
 
 /**
  * Validates that the character sequence is not blank (not empty and not only whitespace).

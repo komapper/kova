@@ -48,7 +48,7 @@ class MainTest :
                 result.shouldBeFailure()
                 val ids = result.messages.map { it.constraintId }
                 ids.size shouldBe 3
-                ids[0] shouldBe "kova.charSequence.minLength"
+                ids[0] shouldBe "kova.charSequence.lengthAtLeast"
                 ids[1] shouldBe "kova.charSequence.notBlank"
                 ids[2] shouldBe "kova.comparable.inRange"
             }

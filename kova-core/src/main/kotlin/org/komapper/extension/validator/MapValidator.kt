@@ -1,7 +1,7 @@
 package org.komapper.extension.validator
 
 /**
- * Validates that the map ensureSize equals exactly the specified value.
+ * Validates that the map size equals exactly the specified value.
  *
  * Example:
  * ```kotlin
@@ -19,6 +19,46 @@ fun Map<*, *>.ensureSize(
     size: Int,
     message: SizeMessageProvider = { "kova.map.size".resource(it, size) },
 ) = this.constrain("kova.map.size") { satisfies(it.size == size) { message(it.size) } }
+
+/**
+ * Validates that the map size is at least the specified minimum.
+ *
+ * Example:
+ * ```kotlin
+ * tryValidate { mapOf("a" to 1, "b" to 2, "c" to 3).ensureSizeAtLeast(2) } // Success
+ * tryValidate { mapOf("a" to 1).ensureSizeAtLeast(2) }                     // Failure
+ * ```
+ *
+ * @param size Minimum map ensureSize (inclusive)
+ * @param message Custom error message provider
+ * @return A new validator with the minimum ensureSize constraint
+ */
+@IgnorableReturnValue
+context(_: Validation)
+fun Map<*, *>.ensureSizeAtLeast(
+    size: Int,
+    message: SizeMessageProvider = { "kova.map.sizeAtLeast".resource(it, size) },
+) = this.constrain("kova.map.sizeAtLeast") { satisfies(it.size >= size) { message(it.size) } }
+
+/**
+ * Validates that the map size does not exceed the specified maximum.
+ *
+ * Example:
+ * ```kotlin
+ * tryValidate { mapOf("a" to 1, "b" to 2).ensureSizeAtMost(3) }                   // Success
+ * tryValidate { mapOf("a" to 1, "b" to 2, "c" to 3, "d" to 4).ensureSizeAtMost(3) } // Failure
+ * ```
+ *
+ * @param size Maximum map ensureSize (inclusive)
+ * @param message Custom error message provider
+ * @return A new validator with the maximum ensureSize constraint
+ */
+@IgnorableReturnValue
+context(_: Validation)
+fun Map<*, *>.ensureSizeAtMost(
+    size: Int,
+    message: SizeMessageProvider = { "kova.map.sizeAtMost".resource(it, size) },
+) = this.constrain("kova.map.sizeAtMost") { satisfies(it.size <= size) { message(it.size) } }
 
 /**
  * Validates that the map size is within the specified range.
@@ -41,52 +81,12 @@ fun <R> Map<*, *>.ensureSizeInRange(
 ) where R : ClosedRange<Int>, R : OpenEndRange<Int> = this.constrain("kova.map.sizeInRange") { satisfies(it.size in range, message) }
 
 /**
- * Validates that the map ensureSize is at least the specified minimum.
- *
- * Example:
- * ```kotlin
- * tryValidate { mapOf("a" to 1, "b" to 2, "c" to 3).ensureSizeAtLeast(2) } // Success
- * tryValidate { mapOf("a" to 1).ensureSizeAtLeast(2) }                     // Failure
- * ```
- *
- * @param size Minimum map ensureSize (inclusive)
- * @param message Custom error message provider
- * @return A new validator with the minimum ensureSize constraint
- */
-@IgnorableReturnValue
-context(_: Validation)
-fun Map<*, *>.ensureSizeAtLeast(
-    size: Int,
-    message: SizeMessageProvider = { "kova.map.minSize".resource(it, size) },
-) = this.constrain("kova.map.minSize") { satisfies(it.size >= size) { message(it.size) } }
-
-/**
- * Validates that the map ensureSize does not exceed the specified maximum.
- *
- * Example:
- * ```kotlin
- * tryValidate { mapOf("a" to 1, "b" to 2).ensureSizeAtMost(3) }                   // Success
- * tryValidate { mapOf("a" to 1, "b" to 2, "c" to 3, "d" to 4).ensureSizeAtMost(3) } // Failure
- * ```
- *
- * @param size Maximum map ensureSize (inclusive)
- * @param message Custom error message provider
- * @return A new validator with the maximum ensureSize constraint
- */
-@IgnorableReturnValue
-context(_: Validation)
-fun Map<*, *>.ensureSizeAtMost(
-    size: Int,
-    message: SizeMessageProvider = { "kova.map.maxSize".resource(it, size) },
-) = this.constrain("kova.map.maxSize") { satisfies(it.size <= size) { message(it.size) } }
-
-/**
  * Validates that the map is not ensureEmpty.
  *
  * Example:
  * ```kotlin
- * tryValidate { mapOf("a" to 1).ensureNotEmpty() } // Success
- * tryValidate { mapOf<String, Int>().ensureNotEmpty() }         // Failure
+ * tryValidate { mapOf("a" to 1).ensureNotEmpty() }       // Success
+ * tryValidate { mapOf<String, Int>().ensureNotEmpty() }  // Failure
  * ```
  *
  * @param message Custom error message provider
@@ -214,29 +214,6 @@ fun <V> Map<*, V>.ensureContainsValue(
     value: V,
     message: MessageProvider = { "kova.map.containsValue".resource(value) },
 ) = this.constrain("kova.map.containsValue") { satisfies(it.containsValue(value), message) }
-
-/**
- * Validates that the map ensureContains the specified value.
- *
- * Example:
- * ```kotlin
- * tryValidate { mapOf("foo" to 42, "bar" to 2).ensureCcontainsValue(42) }  // Success
- * tryValidate { mapOf("foo" to 1, "bar" to 2).ensureCcontainsValue(42) }   // Failure
- * ```
- *
- * @param value The value that must be present in the map
- * @param message Custom error message provider
- */
-@Deprecated(
-    "Use ensureContainsValue (fixed typo)",
-    ReplaceWith("ensureContainsValue(value, message)"),
-)
-@IgnorableReturnValue
-context(_: Validation)
-fun <V> Map<*, V>.ensureCcontainsValue(
-    value: V,
-    message: MessageProvider = { "kova.map.containsValue".resource(value) },
-) = ensureContainsValue(value, message)
 
 /**
  * Validates that the map does not contain the specified value.

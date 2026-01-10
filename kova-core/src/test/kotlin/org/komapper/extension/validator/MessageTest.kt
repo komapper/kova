@@ -12,15 +12,15 @@ class MessageTest :
         }
 
         test("getPattern") {
-            val pattern = getPattern("kova.comparable.min")
+            val pattern = getPattern("kova.comparable.atLeast")
             val formatted = MessageFormat.format(pattern, 0)
             formatted shouldBe "must be greater than or equal to 0"
         }
 
         test("resolve arguments") {
             with(Validation()) {
-                val resource1 = "kova.charSequence.minLength".resource(1)
-                val resource2 = "kova.charSequence.maxLength".resource(5)
+                val resource1 = "kova.charSequence.lengthAtLeast".resource(1)
+                val resource2 = "kova.charSequence.lengthAtMost".resource(5)
                 val resource3 = "kova.or".resource(listOf(resource1), resource2)
 
                 resource3.text shouldBe
@@ -36,7 +36,7 @@ class MessageTest :
             result.shouldBeFailure()
             result.messages.size shouldBe 1
             result.messages[0].toString() shouldBe
-                "Message(constraintId=kova.charSequence.minLength, text='must be at least 5 characters', root=, path=, input=abc, args=[5])"
+                "Message(constraintId=kova.charSequence.lengthAtLeast, text='must be at least 5 characters', root=, path=, input=abc, args=[5])"
         }
 
         test("toString: object") {
@@ -51,6 +51,6 @@ class MessageTest :
             result.shouldBeFailure()
             result.messages.size shouldBe 1
             result.messages[0].toString() shouldBe
-                "Message(constraintId=kova.charSequence.minLength, text='must be at least 5 characters', root=Person, path=name, input=abc, args=[5])"
+                "Message(constraintId=kova.charSequence.lengthAtLeast, text='must be at least 5 characters', root=Person, path=name, input=abc, args=[5])"
         }
     })

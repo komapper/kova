@@ -504,7 +504,7 @@ val result = tryValidate {
 if (!result.isSuccess()) {
     result.messages.forEach {
         println(it)
-        // Message(constraintId=kova.charSequence.minLength, text='must be at least 5 characters', root=, path=, input=joe, args=[5])
+        // Message(constraintId=kova.charSequence.lengthAtLeast, text='must be at least 5 characters', root=, path=, input=joe, args=[5])
     }
 }
 ```
@@ -553,7 +553,7 @@ val result = tryValidate {
 // Extract message details
 if (!result.isSuccess()) {
     result.messages.forEach { message ->
-        println("Constraint: ${message.constraintId}")      // kova.charSequence.minLength
+        println("Constraint: ${message.constraintId}")      // kova.charSequence.lengthAtLeast
         println("Error text: ${message.text}")              // must be at least 3 characters
         println("Root object: ${message.root}")             // Product
         println("Path: ${message.path.fullName}")           // name

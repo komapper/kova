@@ -41,7 +41,7 @@ class CharSequenceValidatorTest :
             test("failure") {
                 val result = tryValidate { "ab".ensureLengthAtLeast(3) }
                 result.shouldBeFailure()
-                result.messages.single().constraintId shouldBe "kova.charSequence.minLength"
+                result.messages.single().constraintId shouldBe "kova.charSequence.lengthAtLeast"
             }
         }
 
@@ -54,7 +54,7 @@ class CharSequenceValidatorTest :
             test("failure") {
                 val result = tryValidate { "ab".ensureLengthAtMost(1) }
                 result.shouldBeFailure()
-                result.messages.single().constraintId shouldBe "kova.charSequence.maxLength"
+                result.messages.single().constraintId shouldBe "kova.charSequence.lengthAtMost"
             }
         }
 
@@ -284,7 +284,7 @@ class CharSequenceValidatorTest :
             test("failure") {
                 val result = tryValidate { max1("12") }
                 result.shouldBeFailure()
-                result.messages.single().constraintId shouldBe "kova.charSequence.maxLength"
+                result.messages.single().constraintId shouldBe "kova.charSequence.lengthAtMost"
             }
         }
     })

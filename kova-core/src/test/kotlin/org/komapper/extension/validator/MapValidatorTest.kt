@@ -19,7 +19,7 @@ class MapValidatorTest :
             test("failure") {
                 val result = tryValidate { mapOf("a" to "1", "b" to "2", "c" to "3").ensureSizeAtMost(2) }
                 result.shouldBeFailure()
-                result.messages.single().constraintId shouldBe "kova.map.maxSize"
+                result.messages.single().constraintId shouldBe "kova.map.sizeAtMost"
             }
         }
 

@@ -44,7 +44,7 @@ class NullableValidatorTest :
                 val result = tryValidate { nullableMin3(2) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
-                result.messages[0].constraintId shouldBe "kova.comparable.min"
+                result.messages[0].constraintId shouldBe "kova.comparable.atLeast"
             }
         }
 
@@ -182,14 +182,14 @@ class NullableValidatorTest :
                 val result = tryValidate { notNullAndMin3AndMax3(2) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
-                result.messages[0].constraintId shouldBe "kova.comparable.min"
+                result.messages[0].constraintId shouldBe "kova.comparable.atLeast"
             }
 
             test("failure when max5 constraint violated") {
                 val result = tryValidate { notNullAndMin3AndMax3(6) }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
-                result.messages[0].constraintId shouldBe "kova.comparable.max"
+                result.messages[0].constraintId shouldBe "kova.comparable.atMost"
             }
         }
 
@@ -202,7 +202,7 @@ class NullableValidatorTest :
                 logs shouldBe
                     listOf(
                         LogEntry.Violated(constraintId = "kova.nullable.null", root = "", path = "", input = 3, args = listOf()),
-                        LogEntry.Satisfied(constraintId = "kova.comparable.min", root = "", path = "", input = 3),
+                        LogEntry.Satisfied(constraintId = "kova.comparable.atLeast", root = "", path = "", input = 3),
                     )
             }
 
