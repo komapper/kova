@@ -15,7 +15,8 @@ typealias SizeMessageProvider = (actualSize: Int) -> Message
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun Validation.ensureMinSize(
+context(_: Validation)
+fun ensureMinSize(
     input: Collection<*>,
     size: Int,
     message: SizeMessageProvider = { "kova.collection.minSize".resource(it, size) },
@@ -34,7 +35,8 @@ fun Validation.ensureMinSize(
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun Validation.ensureMaxSize(
+context(_: Validation)
+fun ensureMaxSize(
     input: Collection<*>,
     size: Int,
     message: SizeMessageProvider = { "kova.collection.maxSize".resource(it, size) },
@@ -53,7 +55,8 @@ fun Validation.ensureMaxSize(
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun Validation.ensureSize(
+context(_: Validation)
+fun ensureSize(
     input: Collection<*>,
     size: Int,
     message: SizeMessageProvider = { "kova.collection.size".resource(it, size) },
@@ -73,7 +76,8 @@ fun Validation.ensureSize(
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <R> Validation.ensureSizeInRange(
+context(_: Validation)
+fun <R> ensureSizeInRange(
     input: Collection<*>,
     range: R,
     message: MessageProvider = { "kova.collection.sizeInRange".resource(range) },

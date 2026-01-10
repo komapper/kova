@@ -10,6 +10,8 @@ import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ensureInRange
 import org.komapper.extension.validator.ensureMaxLength
 import org.komapper.extension.validator.ensureMinLength
+import org.komapper.extension.validator.invoke
+import org.komapper.extension.validator.schema
 import org.komapper.extension.validator.tryValidate
 import java.util.Locale
 import io.konform.validation.Validation as KonformValidation
@@ -64,7 +66,8 @@ class SimpleTest :
         }
 
         context("kova") {
-            fun Validation.validate(userProfile: UserProfile) =
+            context(_: Validation)
+            fun validate(userProfile: UserProfile) =
                 userProfile.schema {
                     userProfile::fullName {
                         ensureMinLength(it, 2)

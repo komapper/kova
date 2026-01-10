@@ -25,7 +25,8 @@ class NullableValidatorTest :
         }
 
         context("nullable with constraint") {
-            fun Validation.nullableMin3(i: Int?) {
+            context(_: Validation)
+            fun nullableMin3(i: Int?) {
                 if (i != null) ensureMin(i, 3)
             }
 
@@ -48,7 +49,8 @@ class NullableValidatorTest :
         }
 
         context("nullable with constraint - for each List element") {
-            fun Validation.nullableMin3(i: Int?) {
+            context(_: Validation)
+            fun nullableMin3(i: Int?) {
                 if (i != null) ensureMin(i, 3)
             }
 
@@ -85,7 +87,8 @@ class NullableValidatorTest :
         }
 
         context("or ensureNull orElse") {
-            fun Validation.isNullOrMin3Max3(i: Int?) =
+            context(_: Validation)
+            fun isNullOrMin3Max3(i: Int?) =
                 or { ensureNull(i) } orElse {
                     if (i == null) return@orElse
                     ensureMin(i, 3)
@@ -115,7 +118,8 @@ class NullableValidatorTest :
         }
 
         context("ensureNullOr") {
-            fun Validation.isNullOrMin3Max3(i: Int?) =
+            context(_: Validation)
+            fun isNullOrMin3Max3(i: Int?) =
                 ensureNullOr(i) {
                     ensureMin(it, 3)
                     ensureMax(it, 3)
@@ -154,7 +158,8 @@ class NullableValidatorTest :
         }
 
         context("ensureNotNull and other constraints") {
-            fun Validation.notNullAndMin3AndMax3(i: Int?): Int {
+            context(_: Validation)
+            fun notNullAndMin3AndMax3(i: Int?): Int {
                 ensureNotNull(i)
                 ensureMax(i, 5)
                 ensureMin(i, 3)

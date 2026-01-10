@@ -8,6 +8,9 @@ import org.komapper.extension.validator.ensureMaxLength
 import org.komapper.extension.validator.ensureMin
 import org.komapper.extension.validator.ensureMinLength
 import org.komapper.extension.validator.ensureNotNull
+import org.komapper.extension.validator.invoke
+import org.komapper.extension.validator.schema
+import org.komapper.extension.validator.text
 import org.komapper.extension.validator.tryValidate
 import java.util.Locale
 
@@ -47,7 +50,8 @@ class GroupTest :
                 var passedVehicleInspection: Boolean = false
             }
 
-            fun Validation.validate(
+            context(_: Validation)
+            fun validate(
                 person: Person,
                 checks: Set<Check> = setOf(Check.DEFAULT),
             ) = person.schema {
@@ -56,7 +60,8 @@ class GroupTest :
                 }
             }
 
-            fun Validation.validate(
+            context(_: Validation)
+            fun validate(
                 driver: Driver,
                 checks: Set<Check> = setOf(Check.DEFAULT),
             ) = driver.schema {
@@ -73,7 +78,8 @@ class GroupTest :
                 }
             }
 
-            fun Validation.validate(
+            context(_: Validation)
+            fun validate(
                 car: Car,
                 checks: Set<Check> = setOf(Check.DEFAULT),
             ) = car.schema {

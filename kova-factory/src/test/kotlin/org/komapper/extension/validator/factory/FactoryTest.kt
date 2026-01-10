@@ -18,7 +18,8 @@ class FactoryTest :
                 val name: String,
             )
 
-            fun Validation.buildUser(name: String) =
+            context(_: Validation)
+            fun buildUser(name: String) =
                 factory {
                     val name by bind(name) {
                         ensureNotBlank(it)
@@ -78,7 +79,8 @@ class FactoryTest :
                 val age: Age,
             )
 
-            fun Validation.buildName(value: String) =
+            context(_: Validation)
+            fun buildName(value: String) =
                 factory {
                     val value by bind(value) {
                         ensureNotBlank(it)
@@ -87,7 +89,8 @@ class FactoryTest :
                     Name(value)
                 }
 
-            fun Validation.buildFullName(
+            context(_: Validation)
+            fun buildFullName(
                 first: String,
                 last: String,
             ) = factory {
@@ -96,13 +99,15 @@ class FactoryTest :
                 FullName(first, last)
             }
 
-            fun Validation.buildAge(value: String) =
+            context(_: Validation)
+            fun buildAge(value: String) =
                 factory {
                     val value by bind(value) { parseInt(it) }
                     Age(value)
                 }
 
-            fun Validation.buildUser(
+            context(_: Validation)
+            fun buildUser(
                 id: String,
                 firstName: String,
                 lastName: String,

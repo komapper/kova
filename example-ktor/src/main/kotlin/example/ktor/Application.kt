@@ -15,6 +15,8 @@ import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ktor.server.SchemaValidator
 import org.komapper.extension.validator.ktor.server.Validated
 import org.komapper.extension.validator.ensurePositive
+import org.komapper.extension.validator.schema
+import org.komapper.extension.validator.*
 
 /**
  * Customer data class demonstrating Kova integration with Ktor.
@@ -32,7 +34,8 @@ import org.komapper.extension.validator.ensurePositive
  */
 @Serializable
 data class Customer(val id: Int, val firstName: String, val lastName: String) : Validated {
-    override fun Validation.validate() = validate(this@Customer)
+    context(_: Validation)
+    override fun validate() = validate(this@Customer)
 }
 
 /**
@@ -45,7 +48,8 @@ data class Customer(val id: Int, val firstName: String, val lastName: String) : 
  * but this example focuses on demonstrating custom error messages with the
  * ensurePositive() constraint.
  */
-fun Validation.validate(customer: Customer) = customer.schema {
+context(_: Validation)
+fun validate(customer: Customer) = customer.schema {
     customer::id { ensurePositive(it) { text("A customer ID should be greater than 0") } }
 }
 

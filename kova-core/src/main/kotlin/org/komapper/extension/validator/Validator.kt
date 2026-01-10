@@ -40,9 +40,9 @@ import org.komapper.extension.validator.ValidationResult.Success
  */
 fun <R> tryValidate(
     config: ValidationConfig = ValidationConfig(),
-    validator: Validation.() -> R,
+    validator: context(Validation)() -> R,
 ): ValidationResult<R> =
-    when (val result = with(Validation(config = config)) { or { validator() } }) {
+    when (val result = context(Validation(config = config)) { or { validator() } }) {
         is ValidationResult -> result
         is Both -> Failure(result.messages)
     }
@@ -72,7 +72,7 @@ fun <R> tryValidate(
  */
 fun <R> validate(
     config: ValidationConfig = ValidationConfig(),
-    validator: Validation.() -> R,
+    validator: context(Validation)() -> R,
 ): R =
     when (val result = tryValidate(config, validator)) {
         is Success -> result.value
@@ -92,14 +92,15 @@ fun <R> validate(
  * @param block The validation logic to execute
  * @return A [ValidationIor] containing the result and/or accumulated error messages
  */
-inline fun <R> Validation.or(block: Validation.() -> R): ValidationIor<R> {
+context(v: Validation)
+inline fun <R> or(block: context(Validation)() -> R): ValidationIor<R> {
     val messages = mutableListOf<Message>()
     return recoverValidation({ Failure(messages) }) {
         val result =
             block(
-                copy(acc = {
+                v.copy(acc = {
                     messages.addAll(it)
-                    if (config.failFast) raise()
+                    if (v.config.failFast) raise()
                     this
                 }),
             )
@@ -128,9 +129,10 @@ inline fun <R> Validation.or(block: Validation.() -> R): ValidationIor<R> {
  * @param block The validation logic to execute
  * @return The validated result
  */
-inline fun <R> Validation.withMessage(
+context(_: Validation)
+inline fun <R> withMessage(
     noinline transform: (List<Message>) -> Message = { "kova.withMessage".resource(it) },
-    block: Validation.() -> R,
+    block: context(Validation)() -> R,
 ): R =
     when (val result = or(block)) {
         is Success -> result.value
@@ -154,7 +156,8 @@ inline fun <R> Validation.withMessage(
  * @param block The validation logic to execute
  * @return The validated result
  */
-inline fun <R> Validation.withMessage(
+context(_: Validation)
+inline fun <R> withMessage(
     message: String,
-    block: Validation.() -> R,
+    block: context(Validation)() -> R,
 ): R = withMessage({ text(message) }, block)

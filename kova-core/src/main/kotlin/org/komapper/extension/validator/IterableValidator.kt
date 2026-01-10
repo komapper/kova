@@ -14,7 +14,8 @@ typealias CountMessageProvider = (actualCount: Int) -> Message
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun Validation.ensureNotEmpty(
+context(_: Validation)
+fun ensureNotEmpty(
     input: Iterable<*>,
     message: MessageProvider = { "kova.iterable.notEmpty".resource },
 ) = input.constrain("kova.iterable.notEmpty") { satisfies(it.iterator().hasNext(), message) }
@@ -32,7 +33,8 @@ fun Validation.ensureNotEmpty(
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <E> Validation.ensureHas(
+context(_: Validation)
+fun <E> ensureHas(
     input: Iterable<E>,
     element: E,
     message: MessageProvider = { "kova.iterable.contains".resource(element) },
@@ -51,7 +53,8 @@ fun <E> Validation.ensureHas(
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <E> Validation.ensureContains(
+context(_: Validation)
+fun <E> ensureContains(
     input: Iterable<E>,
     element: E,
     message: MessageProvider = { "kova.iterable.contains".resource(element) },
@@ -70,7 +73,8 @@ fun <E> Validation.ensureContains(
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <E> Validation.ensureNotContains(
+context(_: Validation)
+fun <E> ensureNotContains(
     input: Iterable<E>,
     element: E,
     message: MessageProvider = { "kova.iterable.notContains".resource(element) },
@@ -96,11 +100,12 @@ fun <E> Validation.ensureNotContains(
  * @param validate The validator to apply to each element
  */
 @IgnorableReturnValue
-fun <E> Validation.ensureEach(
+context(_: Validation)
+fun <E> ensureEach(
     input: Iterable<E>,
-    validate: Validation.(E) -> Unit,
+    validate: context(Validation)(E) -> Unit,
 ) = input.constrain("kova.iterable.each") {
-    with(validation) {
+    context(validation) {
         withMessage({ "kova.iterable.each".resource(it) }) {
             for ((i, element) in input.withIndex()) {
                 accumulating {

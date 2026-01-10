@@ -11,7 +11,8 @@ class CharSequenceValidatorTest :
         }
 
         context("with conversion") {
-            fun Validation.validate(string: String) =
+            context(_: Validation)
+            fun validate(string: String) =
                 string.trim().let { trimmed ->
                     ensureLength(trimmed, 3)
                     trimmed.uppercase()
@@ -266,7 +267,8 @@ class CharSequenceValidatorTest :
         }
 
         context("nullableString") {
-            fun Validation.max1(string: String?) {
+            context(_: Validation)
+            fun max1(string: String?) {
                 ensureNotNull(string)
                 ensureMaxLength(string, 1)
             }

@@ -19,6 +19,7 @@ kotlin {
     compilerOptions {
         freeCompilerArgs.addAll(
             "-Xreturn-value-checker=full",
+            "-Xcontext-parameters",
             "-opt-in=kotlin.contracts.ExperimentalContracts",
         )
     }

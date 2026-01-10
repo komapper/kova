@@ -2,9 +2,10 @@ package org.komapper.extension.validator.factory
 
 import org.komapper.extension.validator.Validation
 
-fun <A, B> Validation.buildPair(
-    buildFirst: Validation.() -> A,
-    buildSecond: Validation.() -> B,
+context(_: Validation)
+fun <A, B> buildPair(
+    buildFirst: context(Validation)() -> A,
+    buildSecond: context(Validation)() -> B,
 ): Pair<A, B> =
     factory("kotlin.Pair") {
         val first by buildFirst

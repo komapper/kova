@@ -12,7 +12,8 @@ class ConditionalTest :
         }
 
         context("if expression") {
-            fun Validation.validate(i: Int) {
+            context(_: Validation)
+            fun validate(i: Int) {
                 if (i % 2 == 0) ensureMin(i, 3)
             }
             test("success when condition not met") {
@@ -28,7 +29,8 @@ class ConditionalTest :
             }
 
             context("and") {
-                fun Validation.validateAndMin1(i: Int) {
+                context(_: Validation)
+                fun validateAndMin1(i: Int) {
                     if (i % 2 == 0) ensureMin(i, 3)
                     ensureMin(i, 1)
                 }
@@ -49,7 +51,8 @@ class ConditionalTest :
         }
 
         context("if expression -  early return") {
-            fun Validation.nullableMin3(i: Int?): Int {
+            context(_: Validation)
+            fun nullableMin3(i: Int?): Int {
                 if (i == null) return 0
                 ensureMin(i, 3)
                 return i
@@ -77,7 +80,8 @@ class ConditionalTest :
         }
 
         context("elvis operator") {
-            fun Validation.nullableThenMin3AndMax3(i: Int?) =
+            context(_: Validation)
+            fun nullableThenMin3AndMax3(i: Int?) =
                 (i ?: 4).also {
                     ensureMin(it, 3)
                     ensureMax(it, 5)
@@ -110,7 +114,8 @@ class ConditionalTest :
         }
 
         context("and") {
-            fun Validation.validate(i: Int) {
+            context(_: Validation)
+            fun validate(i: Int) {
                 ensureMax(i, 2)
                 ensureMax(i, 3)
                 ensureNegative(i)
@@ -132,7 +137,8 @@ class ConditionalTest :
         }
 
         context("or") {
-            fun Validation.validate(i: UInt) {
+            context(_: Validation)
+            fun validate(i: UInt) {
                 val _ = or { ensureMax(i, 10u) } orElse { ensureMax(i, 20u) }
                 ensureMin(i, 5u)
             }
@@ -156,7 +162,8 @@ class ConditionalTest :
         }
 
         context("or - nullable") {
-            fun Validation.nullableMax5OrMin3(i: Int?): Int {
+            context(_: Validation)
+            fun nullableMax5OrMin3(i: Int?): Int {
                 if (i == null) return 0
                 return i.let {
                     val _ = or { ensureMax(it, 5) } orElse { ensureMin(it, 3) }
@@ -212,7 +219,8 @@ class ConditionalTest :
         }
 
         context("or: 2 branches") {
-            fun Validation.length2or5(string: String) = or { ensureLength(string, 2) } orElse { ensureLength(string, 5) }
+            context(_: Validation)
+            fun length2or5(string: String) = or { ensureLength(string, 2) } orElse { ensureLength(string, 5) }
 
             test("success with ensureLength 2") {
                 val result = tryValidate { length2or5("ab") }
@@ -242,7 +250,8 @@ class ConditionalTest :
         }
 
         context("or: 3 branches") {
-            fun Validation.length2or5or7(string: String) =
+            context(_: Validation)
+            fun length2or5or7(string: String) =
                 or { ensureLength(string, 2) } or { ensureLength(string, 5) } orElse {
                     ensureLength(string, 7)
                 }

@@ -44,7 +44,8 @@ class SchemaTest :
         )
 
         context("and") {
-            fun Validation.validate(user: User) =
+            context(_: Validation)
+            fun validate(user: User) =
                 user.schema {
                     user::name {
                         ensureMinLength(it, 1)
@@ -91,7 +92,8 @@ class SchemaTest :
         }
 
         context("or") {
-            fun Validation.validate(user: User) =
+            context(_: Validation)
+            fun validate(user: User) =
                 user.schema {
                     or<Unit> {
                         user::name {
@@ -139,7 +141,8 @@ class SchemaTest :
                 val endDate: LocalDate,
             )
 
-            fun Validation.validate(period: Period) =
+            context(_: Validation)
+            fun validate(period: Period) =
                 period.schema {
                     period.constrain("test") {
                         satisfies(it.startDate <= it.endDate) { text("startDate must be less than or equal to endDate") }
@@ -166,7 +169,8 @@ class SchemaTest :
         }
 
         context("nullable") {
-            fun Validation.validate(user: User?) =
+            context(_: Validation)
+            fun validate(user: User?) =
                 user?.schema {
                     user::id { ensureMin(it, 1) }
                     user::name {
@@ -188,7 +192,8 @@ class SchemaTest :
         }
 
         context("prop - simple") {
-            fun Validation.validate(user: User) =
+            context(_: Validation)
+            fun validate(user: User) =
                 user.schema {
                     user::id { ensureMin(it, 1) }
                     user::name {
@@ -235,7 +240,8 @@ class SchemaTest :
         }
 
         context("prop - nest") {
-            fun Validation.validate(street: Street) =
+            context(_: Validation)
+            fun validate(street: Street) =
                 street.schema {
                     street::id { ensureMin(it, 1) }
                     street::name {
@@ -244,9 +250,11 @@ class SchemaTest :
                     }
                 }
 
-            fun Validation.validate(address: Address) = address.schema { address::street { validate(it) } }
+            context(_: Validation)
+            fun validate(address: Address) = address.schema { address::street { validate(it) } }
 
-            fun Validation.validate(employee: Employee) = employee.schema { employee::address { validate(it) } }
+            context(_: Validation)
+            fun validate(employee: Employee) = employee.schema { employee::address { validate(it) } }
 
             test("success") {
                 val employee = Employee(1, "abc", Address(1, Street(1, "def")))
@@ -268,7 +276,8 @@ class SchemaTest :
         }
 
         context("prop - nest - dynamic") {
-            fun Validation.validate(street: Street) =
+            context(_: Validation)
+            fun validate(street: Street) =
                 street.schema {
                     street::id { ensureMin(it, 1) }
                     street::name {
@@ -277,7 +286,8 @@ class SchemaTest :
                     }
                 }
 
-            fun Validation.validate(address: Address) =
+            context(_: Validation)
+            fun validate(address: Address) =
                 address.schema {
                     address::street { validate(it) }
                     address::postalCode {
@@ -288,7 +298,8 @@ class SchemaTest :
                     }
                 }
 
-            fun Validation.validate(employee: Employee) = employee.schema { employee::address { validate(it) } }
+            context(_: Validation)
+            fun validate(employee: Employee) = employee.schema { employee::address { validate(it) } }
 
             test("success when country is US") {
                 val employee = Employee(1, "abc", Address(1, Street(1, "def"), country = "US", postalCode = "12345678"))
@@ -330,7 +341,8 @@ class SchemaTest :
         }
 
         context("prop - nullable") {
-            fun Validation.validate(street: Street) =
+            context(_: Validation)
+            fun validate(street: Street) =
                 street.schema {
                     street::id { ensureMin(it, 1) }
                     street::name {
@@ -339,16 +351,19 @@ class SchemaTest :
                     }
                 }
 
-            fun Validation.validate(address: Address) = address.schema { address::street { validate(it) } }
+            context(_: Validation)
+            fun validate(address: Address) = address.schema { address::street { validate(it) } }
 
-            fun Validation.validate(person: Person) =
+            context(_: Validation)
+            fun validate(person: Person) =
                 person.schema {
                     person::firstName { }
                     person::lastName { }
                     person::address { if (it != null) validate(it) }
                 }
 
-            fun Validation.validate2(person: Person) =
+            context(_: Validation)
+            fun validate2(person: Person) =
                 person.schema {
                     person::firstName { ensureNotNull(it) }
                     person::lastName { ensureNotNull(it) }
@@ -390,7 +405,8 @@ class SchemaTest :
                 val children: List<Node> = emptyList(),
             )
 
-            fun Validation.validate(node: Node) {
+            context(_: Validation)
+            fun validate(node: Node) {
                 node.schema {
                     node::children {
                         ensureMaxSize(it, 3)
@@ -430,7 +446,8 @@ class SchemaTest :
                 var next: NodeWithValue?,
             )
 
-            fun Validation.validate(node: NodeWithValue) {
+            context(_: Validation)
+            fun validate(node: NodeWithValue) {
                 node.schema {
                     node::value {
                         ensureMin(it, 0)

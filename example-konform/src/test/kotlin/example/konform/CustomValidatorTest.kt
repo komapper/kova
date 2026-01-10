@@ -7,6 +7,9 @@ import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ensureMinLength
 import org.komapper.extension.validator.ensureNotBlank
 import org.komapper.extension.validator.ensureNotContains
+import org.komapper.extension.validator.invoke
+import org.komapper.extension.validator.schema
+import org.komapper.extension.validator.text
 import org.komapper.extension.validator.tryValidate
 import java.util.Locale
 import io.konform.validation.Validation as KonformValidation
@@ -61,7 +64,8 @@ class CustomValidatorTest :
         }
 
         context("kova") {
-            fun Validation.validate(userProfile: UserProfile) =
+            context(_: Validation)
+            fun validate(userProfile: UserProfile) =
                 userProfile.schema {
                     userProfile::fullName {
                         ensureNotContains(it, "\t") { text("Name cannot contain a tab") }

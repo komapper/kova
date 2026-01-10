@@ -13,7 +13,8 @@ package org.komapper.extension.validator
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <S : Comparable<S>> Validation.ensureMin(
+context(_: Validation)
+fun <S : Comparable<S>> ensureMin(
     input: S,
     value: S,
     message: MessageProvider = { "kova.comparable.min".resource(value) },
@@ -32,7 +33,8 @@ fun <S : Comparable<S>> Validation.ensureMin(
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <S : Comparable<S>> Validation.ensureMax(
+context(_: Validation)
+fun <S : Comparable<S>> ensureMax(
     input: S,
     value: S,
     message: MessageProvider = { "kova.comparable.max".resource(value) },
@@ -52,7 +54,8 @@ fun <S : Comparable<S>> Validation.ensureMax(
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <S : Comparable<S>> Validation.ensureGreaterThan(
+context(_: Validation)
+fun <S : Comparable<S>> ensureGreaterThan(
     input: S,
     value: S,
     message: MessageProvider = { "kova.comparable.greaterThan".resource(value) },
@@ -72,7 +75,8 @@ fun <S : Comparable<S>> Validation.ensureGreaterThan(
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <S : Comparable<S>> Validation.ensureGreaterThanOrEqual(
+context(_: Validation)
+fun <S : Comparable<S>> ensureGreaterThanOrEqual(
     input: S,
     value: S,
     message: MessageProvider = { "kova.comparable.greaterThanOrEqual".resource(value) },
@@ -92,7 +96,8 @@ fun <S : Comparable<S>> Validation.ensureGreaterThanOrEqual(
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <S : Comparable<S>> Validation.ensureLessThan(
+context(_: Validation)
+fun <S : Comparable<S>> ensureLessThan(
     input: S,
     value: S,
     message: MessageProvider = { "kova.comparable.lessThan".resource(value) },
@@ -112,7 +117,8 @@ fun <S : Comparable<S>> Validation.ensureLessThan(
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <S : Comparable<S>> Validation.ensureLessThanOrEqual(
+context(_: Validation)
+fun <S : Comparable<S>> ensureLessThanOrEqual(
     input: S,
     value: S,
     message: MessageProvider = { "kova.comparable.lessThanOrEqual".resource(value) },
@@ -147,7 +153,8 @@ fun <S : Comparable<S>> Validation.ensureLessThanOrEqual(
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <S : Comparable<S>, R> Validation.ensureInRange(
+context(_: Validation)
+fun <S : Comparable<S>, R> ensureInRange(
     input: S,
     range: R,
     message: MessageProvider = { "kova.comparable.inRange".resource(range) },
@@ -171,7 +178,8 @@ fun <S : Comparable<S>, R> Validation.ensureInRange(
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <S : Comparable<S>> Validation.ensureInClosedRange(
+context(_: Validation)
+fun <S : Comparable<S>> ensureInClosedRange(
     input: S,
     range: ClosedRange<S>,
     message: MessageProvider = { "kova.comparable.inClosedRange".resource(range) },
@@ -195,7 +203,8 @@ fun <S : Comparable<S>> Validation.ensureInClosedRange(
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <S : Comparable<S>> Validation.ensureInOpenEndRange(
+context(_: Validation)
+fun <S : Comparable<S>> ensureInOpenEndRange(
     input: S,
     range: OpenEndRange<S>,
     message: MessageProvider = { "kova.comparable.inOpenEndRange".resource(range) },

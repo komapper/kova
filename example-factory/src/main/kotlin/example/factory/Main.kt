@@ -7,8 +7,10 @@ import org.komapper.extension.validator.ensureMinLength
 import org.komapper.extension.validator.ensureNotBlank
 import org.komapper.extension.validator.factory.bind
 import org.komapper.extension.validator.factory.factory
+import org.komapper.extension.validator.invoke
 import org.komapper.extension.validator.isSuccess
 import org.komapper.extension.validator.parseInt
+import org.komapper.extension.validator.schema
 import org.komapper.extension.validator.tryValidate
 
 /**
@@ -41,7 +43,8 @@ data class Person(
  * Schema validation for User objects.
  * Validates that the age property is between 0 and 120.
  */
-fun Validation.validate(user: User) =
+context(_: Validation)
+fun validate(user: User) =
     user.schema {
         user::age {
             ensureInRange(it, 0..120)
@@ -68,7 +71,8 @@ fun Validation.validate(user: User) =
  * Property delegation (by bind) enables clean syntax while tracking validation errors
  * with proper paths for each parameter.
  */
-fun Validation.buildUser(
+context(_: Validation)
+fun buildUser(
     name: String,
     age: String,
 ) = factory {
@@ -85,7 +89,8 @@ fun Validation.buildUser(
  * Factory function to build an Age object from a string.
  * Converts the string to Int and wraps it in an Age object.
  */
-fun Validation.buildAge(age: String) =
+context(_: Validation)
+fun buildAge(age: String) =
     factory {
         val value by bind(age) { parseInt(it) } // argument validator
         Age(value)
@@ -103,7 +108,8 @@ fun Validation.buildAge(age: String) =
  * This pattern allows you to compose complex object graphs while maintaining
  * proper validation error paths (e.g., "age.value" for nested properties).
  */
-fun Validation.buildPerson(
+context(_: Validation)
+fun buildPerson(
     name: String,
     age: String,
 ) = factory {

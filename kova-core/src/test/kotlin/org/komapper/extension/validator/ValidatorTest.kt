@@ -13,7 +13,8 @@ class ValidatorTest :
         }
 
         context("tryValidate and validate") {
-            fun Validation.validate(i: Int) {
+            context(_: Validation)
+            fun validate(i: Int) {
                 ensureMin(i, 1)
                 ensureMax(i, 10)
             }
@@ -45,7 +46,8 @@ class ValidatorTest :
         }
 
         context("map") {
-            fun Validation.validate(i: Int): Int {
+            context(_: Validation)
+            fun validate(i: Int): Int {
                 ensureMin(i, 1)
                 return i * 2
             }
@@ -63,7 +65,8 @@ class ValidatorTest :
         }
 
         context("then") {
-            fun Validation.validate(i: Int): String {
+            context(_: Validation)
+            fun validate(i: Int): String {
                 ensureMin(i, 3)
                 return i.toString().also { ensureMaxLength(it, 1) }
             }
@@ -86,7 +89,8 @@ class ValidatorTest :
         }
 
         context("logs") {
-            fun Validation.validate(string: String) =
+            context(_: Validation)
+            fun validate(string: String) =
                 string.trim().let {
                     ensureMinLength(it, 3)
                     ensureMaxLength(it, 5)
@@ -138,7 +142,8 @@ class ValidatorTest :
         }
 
         context("mapping operation after failure") {
-            fun Validation.validate(string: String) =
+            context(_: Validation)
+            fun validate(string: String) =
                 string.trim().also { ensureMinLength(it, 3) }.uppercase().also {
                     ensureMaxLength(it, 3)
                 }
@@ -167,7 +172,8 @@ class ValidatorTest :
         }
 
         context("failFast") {
-            fun Validation.validate(string: String) {
+            context(_: Validation)
+            fun validate(string: String) {
                 ensureMinLength(string, 3)
                 ensureLength(string, 4)
             }
@@ -186,7 +192,8 @@ class ValidatorTest :
         }
 
         context("failFast with plus operator") {
-            fun Validation.validate(string: String?) {
+            context(_: Validation)
+            fun validate(string: String?) {
                 if (string == null) return
                 ensureMinLength(string, 3)
                 ensureLength(string, 4)
@@ -213,16 +220,19 @@ class ValidatorTest :
                 operator fun get(key: String): String? = map[key]
             }
 
-            fun Validation.requestKey(
+            context(_: Validation)
+            fun requestKey(
                 request: Request,
-                block: Validation.(String?) -> Unit,
+                block: context(Validation)(String?) -> Unit,
             ) = request.name("Request[key]") { r ->
                 r["key"].also { block(it) }
             }
 
-            fun Validation.requestKeyIsNotNull(request: Request) = requestKey(request) { ensureNotNull(it) }
+            context(_: Validation)
+            fun requestKeyIsNotNull(request: Request) = requestKey(request) { ensureNotNull(it) }
 
-            fun Validation.requestKeyIsNotNullAndMin3(request: Request) =
+            context(_: Validation)
+            fun requestKeyIsNotNullAndMin3(request: Request) =
                 requestKey(request) {
                     ensureNotNull(it)
                     if (it != null) ensureMinLength(it, 3)
@@ -263,7 +273,8 @@ class ValidatorTest :
 
         context("constrain - with text message") {
             @IgnorableReturnValue
-            fun Validation.validate(string: String) =
+            context(_: Validation)
+            fun validate(string: String) =
                 string.constrain("test") {
                     satisfies(it == "OK") { text("Constraint failed") }
                 }
@@ -283,7 +294,8 @@ class ValidatorTest :
 
         context("constrain - with resource message") {
             @IgnorableReturnValue
-            fun Validation.validate(string: String) =
+            context(_: Validation)
+            fun validate(string: String) =
                 string.constrain("test") {
                     satisfies(it.isNotBlank()) { "kova.charSequence.notBlank".resource }
                 }
@@ -304,7 +316,8 @@ class ValidatorTest :
         }
 
         context("withMessage - text") {
-            fun Validation.validate(string: String) =
+            context(_: Validation)
+            fun validate(string: String) =
                 withMessage({ messages -> text("Invalid: consolidates messages=(${messages.joinToString { it.text }})") }) {
                     ensureUppercase(string)
                     ensureMinLength(string, 3)
@@ -327,7 +340,8 @@ class ValidatorTest :
         }
 
         context("withMessage - resource") {
-            fun Validation.validate(string: String) =
+            context(_: Validation)
+            fun validate(string: String) =
                 withMessage {
                     ensureUppercase(string)
                     ensureMinLength(string, 3)
@@ -355,7 +369,8 @@ class ValidatorTest :
                 val name: String,
             )
 
-            fun Validation.validate(user: User) =
+            context(_: Validation)
+            fun validate(user: User) =
                 user.schema {
                     user::id { }
                     user::name {

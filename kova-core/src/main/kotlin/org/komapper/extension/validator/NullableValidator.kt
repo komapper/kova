@@ -18,7 +18,8 @@ import kotlin.contracts.contract
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <T> Validation.ensureNull(
+context(_: Validation)
+fun <T> ensureNull(
     input: T,
     message: MessageProvider = { "kova.nullable.null".resource },
 ) = input.constrain("kova.nullable.null") { satisfies(it == null, message) }
@@ -45,10 +46,11 @@ fun <T> Validation.ensureNull(
  * @param block Validation block to execute if input is not null
  */
 @IgnorableReturnValue
-inline fun <T> Validation.ensureNullOr(
+context(_: Validation)
+inline fun <T> ensureNullOr(
     input: T,
     noinline message: MessageProvider = { "kova.nullable.null".resource },
-    block: Validation.(T & Any) -> Unit,
+    block: context(Validation)(T & Any) -> Unit,
 ) = or<Unit> { ensureNull(input, message) } orElse { block(input!!) }
 
 /**
@@ -67,7 +69,8 @@ inline fun <T> Validation.ensureNullOr(
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <T> Validation.ensureNotNull(
+context(_: Validation)
+fun <T> ensureNotNull(
     input: T,
     message: MessageProvider = { "kova.nullable.notNull".resource },
 ): Accumulate.Value<Unit> {
@@ -96,14 +99,16 @@ fun <T> Validation.ensureNotNull(
  * @return The non-null input value with type `T & Any`
  */
 @IgnorableReturnValue
-fun <T> Validation.toNonNullable(
+context(_: Validation)
+fun <T> toNonNullable(
     input: T,
     constraintId: String,
     message: MessageProvider,
 ): T & Any = raiseIfNull(input, constraintId, message).let { input }
 
 @IgnorableReturnValue
-private fun <T> Validation.raiseIfNull(
+context(_: Validation)
+private fun <T> raiseIfNull(
     input: T,
     constraintId: String,
     message: MessageProvider,

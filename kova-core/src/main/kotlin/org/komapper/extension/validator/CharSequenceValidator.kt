@@ -13,7 +13,8 @@ package org.komapper.extension.validator
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun Validation.ensureMinLength(
+context(_: Validation)
+fun ensureMinLength(
     input: CharSequence,
     length: Int,
     message: MessageProvider = { "kova.charSequence.minLength".resource(length) },
@@ -32,7 +33,8 @@ fun Validation.ensureMinLength(
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun Validation.ensureMaxLength(
+context(_: Validation)
+fun ensureMaxLength(
     input: CharSequence,
     length: Int,
     message: MessageProvider = { "kova.charSequence.maxLength".resource(length) },
@@ -51,7 +53,8 @@ fun Validation.ensureMaxLength(
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun Validation.ensureNotBlank(
+context(_: Validation)
+fun ensureNotBlank(
     input: CharSequence,
     message: MessageProvider = { "kova.charSequence.notBlank".resource },
 ) = input.constrain("kova.charSequence.notBlank") { satisfies(it.isNotBlank(), message) }
@@ -69,7 +72,8 @@ fun Validation.ensureNotBlank(
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun Validation.ensureBlank(
+context(_: Validation)
+fun ensureBlank(
     input: CharSequence,
     message: MessageProvider = { "kova.charSequence.blank".resource },
 ) = input.constrain("kova.charSequence.blank") { satisfies(it.isBlank(), message) }
@@ -87,7 +91,8 @@ fun Validation.ensureBlank(
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun Validation.ensureNotEmpty(
+context(_: Validation)
+fun ensureNotEmpty(
     input: CharSequence,
     message: MessageProvider = { "kova.charSequence.notEmpty".resource },
 ) = input.constrain("kova.charSequence.notEmpty") { satisfies(it.isNotEmpty(), message) }
@@ -105,7 +110,8 @@ fun Validation.ensureNotEmpty(
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun Validation.ensureEmpty(
+context(_: Validation)
+fun ensureEmpty(
     input: CharSequence,
     message: MessageProvider = { "kova.charSequence.empty".resource },
 ) = input.constrain("kova.charSequence.empty") { satisfies(it.isEmpty(), message) }
@@ -123,7 +129,8 @@ fun Validation.ensureEmpty(
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun Validation.ensureLength(
+context(_: Validation)
+fun ensureLength(
     input: CharSequence,
     length: Int,
     message: MessageProvider = { "kova.charSequence.length".resource(length) },
@@ -147,7 +154,8 @@ fun Validation.ensureLength(
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <R> Validation.ensureLengthInRange(
+context(_: Validation)
+fun <R> ensureLengthInRange(
     input: CharSequence,
     range: R,
     message: MessageProvider = { "kova.charSequence.lengthInRange".resource(range) },
@@ -167,7 +175,8 @@ fun <R> Validation.ensureLengthInRange(
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun Validation.ensureStartsWith(
+context(_: Validation)
+fun ensureStartsWith(
     input: CharSequence,
     prefix: CharSequence,
     message: MessageProvider = { "kova.charSequence.startsWith".resource(prefix) },
@@ -186,7 +195,8 @@ fun Validation.ensureStartsWith(
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun Validation.ensureNotStartsWith(
+context(_: Validation)
+fun ensureNotStartsWith(
     input: CharSequence,
     prefix: CharSequence,
     message: MessageProvider = { "kova.charSequence.notStartsWith".resource(prefix) },
@@ -207,7 +217,8 @@ fun Validation.ensureNotStartsWith(
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun Validation.ensureEndsWith(
+context(_: Validation)
+fun ensureEndsWith(
     input: CharSequence,
     suffix: CharSequence,
     message: MessageProvider = { "kova.charSequence.endsWith".resource(suffix) },
@@ -226,7 +237,8 @@ fun Validation.ensureEndsWith(
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun Validation.ensureNotEndsWith(
+context(_: Validation)
+fun ensureNotEndsWith(
     input: CharSequence,
     suffix: CharSequence,
     message: MessageProvider = { "kova.charSequence.notEndsWith".resource(suffix) },
@@ -245,7 +257,8 @@ fun Validation.ensureNotEndsWith(
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun Validation.ensureContains(
+context(_: Validation)
+fun ensureContains(
     input: CharSequence,
     infix: CharSequence,
     message: MessageProvider = { "kova.charSequence.contains".resource(infix) },
@@ -264,7 +277,8 @@ fun Validation.ensureContains(
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun Validation.ensureNotContains(
+context(_: Validation)
+fun ensureNotContains(
     input: CharSequence,
     infix: CharSequence,
     message: MessageProvider = { "kova.charSequence.notContains".resource(infix) },
@@ -283,7 +297,8 @@ fun Validation.ensureNotContains(
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun Validation.ensureMatches(
+context(_: Validation)
+fun ensureMatches(
     input: CharSequence,
     pattern: Regex,
     message: MessageProvider = { "kova.charSequence.matches".resource(pattern) },
@@ -302,7 +317,8 @@ fun Validation.ensureMatches(
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun Validation.ensureNotMatches(
+context(_: Validation)
+fun ensureNotMatches(
     input: CharSequence,
     pattern: Regex,
     message: MessageProvider = { "kova.charSequence.notMatches".resource(pattern) },

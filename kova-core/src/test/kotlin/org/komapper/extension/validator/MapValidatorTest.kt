@@ -131,7 +131,8 @@ class MapValidatorTest :
 
         context("constrain") {
             @IgnorableReturnValue
-            fun Validation.validate(map: Map<*, *>) = map.constrain("test") { satisfies(it.size == 1) { text("Constraint failed") } }
+            context(_: Validation)
+            fun validate(map: Map<*, *>) = map.constrain("test") { satisfies(it.size == 1) { text("Constraint failed") } }
 
             test("success") {
                 val result = tryValidate { validate(mapOf("a" to "1")) }
@@ -147,7 +148,8 @@ class MapValidatorTest :
 
         context("ensureEach") {
             @IgnorableReturnValue
-            fun <T> Validation.validate(map: Map<T, T>) =
+            context(_: Validation)
+            fun <T> validate(map: Map<T, T>) =
                 ensureEach(map) { v ->
                     v.constrain("test") { (key, value) ->
                         satisfies(key != value) { text("Constraint failed: $key") }

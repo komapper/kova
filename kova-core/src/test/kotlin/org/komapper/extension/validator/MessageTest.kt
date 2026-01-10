@@ -44,7 +44,8 @@ class MessageTest :
                 val name: String,
             )
 
-            fun Validation.validate(person: Person) = person.schema { person::name { ensureMinLength(it, 5) } }
+            context(_: Validation)
+            fun validate(person: Person) = person.schema { person::name { ensureMinLength(it, 5) } }
 
             val result = tryValidate { validate(Person("abc")) }
             result.shouldBeFailure()

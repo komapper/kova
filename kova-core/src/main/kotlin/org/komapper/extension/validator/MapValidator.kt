@@ -14,7 +14,8 @@ package org.komapper.extension.validator
  * @return A new validator with the minimum ensureSize constraint
  */
 @IgnorableReturnValue
-fun Validation.ensureMinSize(
+context(_: Validation)
+fun ensureMinSize(
     input: Map<*, *>,
     size: Int,
     message: SizeMessageProvider = { "kova.map.minSize".resource(it, size) },
@@ -34,7 +35,8 @@ fun Validation.ensureMinSize(
  * @return A new validator with the maximum ensureSize constraint
  */
 @IgnorableReturnValue
-fun Validation.ensureMaxSize(
+context(_: Validation)
+fun ensureMaxSize(
     input: Map<*, *>,
     size: Int,
     message: SizeMessageProvider = { "kova.map.maxSize".resource(it, size) },
@@ -53,7 +55,8 @@ fun Validation.ensureMaxSize(
  * @return A new validator with the not-ensureEmpty constraint
  */
 @IgnorableReturnValue
-fun Validation.ensureNotEmpty(
+context(_: Validation)
+fun ensureNotEmpty(
     input: Map<*, *>,
     message: MessageProvider = { "kova.map.notEmpty".resource },
 ) = input.constrain("kova.map.notEmpty") { satisfies(it.isNotEmpty(), message) }
@@ -72,7 +75,8 @@ fun Validation.ensureNotEmpty(
  * @return A new validator with the exact ensureSize constraint
  */
 @IgnorableReturnValue
-fun Validation.ensureSize(
+context(_: Validation)
+fun ensureSize(
     input: Map<*, *>,
     size: Int,
     message: SizeMessageProvider = { "kova.map.size".resource(it, size) },
@@ -92,7 +96,8 @@ fun Validation.ensureSize(
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <R> Validation.ensureSizeInRange(
+context(_: Validation)
+fun <R> ensureSizeInRange(
     input: Map<*, *>,
     range: R,
     message: MessageProvider = { "kova.map.sizeInRange".resource(range) },
@@ -111,7 +116,8 @@ fun <R> Validation.ensureSizeInRange(
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <K> Validation.ensureHasKey(
+context(_: Validation)
+fun <K> ensureHasKey(
     input: Map<K, *>,
     key: K,
     message: MessageProvider = { "kova.map.containsKey".resource(key) },
@@ -130,7 +136,8 @@ fun <K> Validation.ensureHasKey(
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <K> Validation.ensureContainsKey(
+context(_: Validation)
+fun <K> ensureContainsKey(
     input: Map<K, *>,
     key: K,
     message: MessageProvider = { "kova.map.containsKey".resource(key) },
@@ -149,7 +156,8 @@ fun <K> Validation.ensureContainsKey(
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <K> Validation.ensureNotContainsKey(
+context(_: Validation)
+fun <K> ensureNotContainsKey(
     input: Map<K, *>,
     key: K,
     message: MessageProvider = { "kova.map.notContainsKey".resource(key) },
@@ -172,7 +180,8 @@ fun <K> Validation.ensureNotContainsKey(
     ReplaceWith("ensureNotContainsKey(input, key, message)"),
 )
 @IgnorableReturnValue
-fun <K> Validation.notContainsKey(
+context(_: Validation)
+fun <K> notContainsKey(
     input: Map<K, *>,
     key: K,
     message: MessageProvider = { "kova.map.notContainsKey".resource(key) },
@@ -191,7 +200,8 @@ fun <K> Validation.notContainsKey(
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <V> Validation.ensureHasValue(
+context(_: Validation)
+fun <V> ensureHasValue(
     input: Map<*, V>,
     value: V,
     message: MessageProvider = { "kova.map.containsValue".resource(value) },
@@ -210,7 +220,8 @@ fun <V> Validation.ensureHasValue(
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <V> Validation.ensureContainsValue(
+context(_: Validation)
+fun <V> ensureContainsValue(
     input: Map<*, V>,
     value: V,
     message: MessageProvider = { "kova.map.containsValue".resource(value) },
@@ -233,7 +244,8 @@ fun <V> Validation.ensureContainsValue(
     ReplaceWith("ensureContainsValue(input, value, message)"),
 )
 @IgnorableReturnValue
-fun <V> Validation.ensureCcontainsValue(
+context(_: Validation)
+fun <V> ensureCcontainsValue(
     input: Map<*, V>,
     value: V,
     message: MessageProvider = { "kova.map.containsValue".resource(value) },
@@ -252,7 +264,8 @@ fun <V> Validation.ensureCcontainsValue(
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <V> Validation.ensureNotContainsValue(
+context(_: Validation)
+fun <V> ensureNotContainsValue(
     input: Map<*, V>,
     value: V,
     message: MessageProvider = { "kova.map.notContainsValue".resource(value) },
@@ -281,11 +294,12 @@ fun <V> Validation.ensureNotContainsValue(
  * @return A new validator with per-entry validation
  */
 @IgnorableReturnValue
-fun <K, V> Validation.ensureEach(
+context(_: Validation)
+fun <K, V> ensureEach(
     input: Map<K, V>,
-    validator: Validation.(Map.Entry<K, V>) -> Unit,
+    validator: context(Validation)(Map.Entry<K, V>) -> Unit,
 ) = input.constrain("kova.map.each") {
-    with(validation) {
+    context(validation) {
         validateOnEach(input, "kova.map.each") { entry ->
             appendPath(text = "<map entry>") { validator(entry) }
         }
@@ -313,11 +327,12 @@ fun <K, V> Validation.ensureEach(
  * @return A new validator with per-key validation
  */
 @IgnorableReturnValue
-fun <K> Validation.ensureEachKey(
+context(_: Validation)
+fun <K> ensureEachKey(
     input: Map<K, *>,
-    validator: Validation.(K) -> Unit,
+    validator: context(Validation)(K) -> Unit,
 ) = input.constrain("kova.map.eachKey") {
-    with(validation) {
+    context(validation) {
         validateOnEach(input, "kova.map.eachKey") { entry ->
             appendPath(text = "<map key>") { validator(entry.key) }
         }
@@ -345,21 +360,23 @@ fun <K> Validation.ensureEachKey(
  * @return A new validator with per-value validation
  */
 @IgnorableReturnValue
-fun <V> Validation.ensureEachValue(
+context(_: Validation)
+fun <V> ensureEachValue(
     input: Map<*, V>,
-    validator: Validation.(V) -> Unit,
+    validator: context(Validation)(V) -> Unit,
 ) = input.constrain("kova.map.eachValue") {
-    with(validation) {
+    context(validation) {
         validateOnEach(input, "kova.map.eachValue") { entry ->
             appendPath(text = "[${entry.key}]<map value>") { validator(entry.value) }
         }
     }
 }
 
-private fun <K, V> Validation.validateOnEach(
+context(_: Validation)
+private fun <K, V> validateOnEach(
     input: Map<K, V>,
     constraintId: String,
-    validate: Validation.(Map.Entry<K, V>) -> Unit,
+    validate: context(Validation)(Map.Entry<K, V>) -> Unit,
 ): Unit =
     withMessage({ constraintId.resource(it) }) {
         for (entry in input.entries) accumulating { validate(entry) }

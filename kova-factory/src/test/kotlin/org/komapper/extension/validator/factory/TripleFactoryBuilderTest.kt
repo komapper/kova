@@ -19,7 +19,8 @@ class TripleFactoryBuilderTest :
     FunSpec({
 
         context("TripleFactoryBuilder with primitive types") {
-            fun Validation.build(
+            context(_: Validation)
+            fun build(
                 first: String,
                 second: Int,
                 third: String,
@@ -124,7 +125,8 @@ class TripleFactoryBuilderTest :
         }
 
         context("TripleFactoryBuilder with different types") {
-            fun Validation.build(
+            context(_: Validation)
+            fun build(
                 name: String,
                 age: Int,
                 email: String,
@@ -175,7 +177,8 @@ class TripleFactoryBuilderTest :
         }
 
         context("TripleFactoryBuilder with identity validators") {
-            fun Validation.build(
+            context(_: Validation)
+            fun build(
                 first: String,
                 second: Int,
                 third: String,
@@ -193,7 +196,8 @@ class TripleFactoryBuilderTest :
         }
 
         context("TripleFactoryBuilder with type transformation") {
-            fun Validation.build(
+            context(_: Validation)
+            fun build(
                 first: String,
                 second: String,
                 third: String,

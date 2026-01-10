@@ -6,6 +6,8 @@ import io.kotest.matchers.shouldBe
 import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ensureEach
 import org.komapper.extension.validator.ensureMaxSize
+import org.komapper.extension.validator.invoke
+import org.komapper.extension.validator.schema
 import org.komapper.extension.validator.tryValidate
 import java.util.Locale
 import io.konform.validation.Validation as KonformValidation
@@ -83,7 +85,8 @@ class RecursiveTest :
 
         context("kova") {
 
-            fun Validation.validate(node: Node) {
+            context(_: Validation)
+            fun validate(node: Node) {
                 node.schema {
                     node::children { children ->
                         ensureMaxSize(children, 2)

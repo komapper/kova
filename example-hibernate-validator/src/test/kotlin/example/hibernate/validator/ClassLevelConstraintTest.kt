@@ -3,6 +3,9 @@ package example.hibernate.validator
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import org.komapper.extension.validator.Validation
+import org.komapper.extension.validator.constrain
+import org.komapper.extension.validator.schema
+import org.komapper.extension.validator.text
 import org.komapper.extension.validator.tryValidate
 import java.util.Locale
 
@@ -27,7 +30,8 @@ class ClassLevelConstraintTest :
                 val passengers: List<Person>,
             )
 
-            fun Validation.validate(car: Car) =
+            context(_: Validation)
+            fun validate(car: Car) =
                 car.schema {
                     car.constrain("validPassengerCount") {
                         satisfies(it.passengers.size <= it.seatCount) {

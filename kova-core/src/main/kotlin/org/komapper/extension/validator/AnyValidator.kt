@@ -14,7 +14,8 @@ package org.komapper.extension.validator
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <S> Validation.ensureEquals(
+context(_: Validation)
+fun <S> ensureEquals(
     input: S,
     value: S,
     message: MessageProvider = { "kova.any.equals".resource(value) },
@@ -34,7 +35,8 @@ fun <S> Validation.ensureEquals(
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <S> Validation.ensureNotEquals(
+context(_: Validation)
+fun <S> ensureNotEquals(
     input: S,
     value: S,
     message: MessageProvider = { "kova.any.notEquals".resource(value) },
@@ -57,7 +59,8 @@ fun <S> Validation.ensureNotEquals(
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun <S> Validation.ensureIn(
+context(_: Validation)
+fun <S> ensureIn(
     input: S,
     iterable: Iterable<S>,
     message: MessageProvider = { "kova.any.in".resource(iterable) },

@@ -10,6 +10,8 @@ import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ensureLengthInRange
 import org.komapper.extension.validator.ensureMin
 import org.komapper.extension.validator.ensureNotNull
+import org.komapper.extension.validator.invoke
+import org.komapper.extension.validator.schema
 import org.komapper.extension.validator.tryValidate
 import java.util.Locale
 import jakarta.validation.Validation as HibernateValidation
@@ -80,7 +82,8 @@ class SimpleTest :
                 val seatCount: Int,
             )
 
-            fun Validation.validate(car: Car) =
+            context(_: Validation)
+            fun validate(car: Car) =
                 car.schema {
                     car::manufacturer { ensureNotNull(it) }
                     car::licensePlate {

@@ -21,6 +21,8 @@ import org.komapper.extension.validator.ensureMin
 import org.komapper.extension.validator.ensureMinLength
 import org.komapper.extension.validator.ensureNotBlank
 import org.komapper.extension.validator.ensureNotEmpty
+import org.komapper.extension.validator.invoke
+import org.komapper.extension.validator.schema
 import org.komapper.extension.validator.validate
 
 /**
@@ -96,7 +98,8 @@ class User(
  * Validation schema for City entities.
  * Validates that the city name is not ensureEmpty.
  */
-fun Validation.validate(city: City) =
+context(_: Validation)
+fun validate(city: City) =
     city.schema {
         city::name { ensureNotEmpty(it) }
     }
@@ -107,7 +110,8 @@ fun Validation.validate(city: City) =
  * - name is not ensureBlank and ensureHas minimum ensureLength of 1
  * - age is between 0 and 120
  */
-fun Validation.validate(user: User) =
+context(_: Validation)
+fun validate(user: User) =
     user.schema {
         user::name {
             ensureMinLength(it, 1)
@@ -141,7 +145,7 @@ fun Validation.validate(user: User) =
  * providing a declarative way to enforce data integrity constraints.
  */
 @IgnorableReturnValue
-fun <ID : Any, T : Entity<ID>> EntityClass<ID, T>.subscribe(validate: Validation.(T) -> Unit): (EntityChange) -> Unit =
+fun <ID : Any, T : Entity<ID>> EntityClass<ID, T>.subscribe(validate: context(Validation)(T) -> Unit): (EntityChange) -> Unit =
     EntityHook.subscribe { change ->
         if (change.changeType == EntityChangeType.Created &&
             change.entityClass == this

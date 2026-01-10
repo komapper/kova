@@ -17,7 +17,7 @@ dependencies {
 
 kotlin {
     compilerOptions {
-        freeCompilerArgs.addAll("-Xreturn-value-checker=full")
+        freeCompilerArgs.addAll("-Xreturn-value-checker=full", "-Xcontext-parameters")
     }
     jvmToolchain(17)
 }

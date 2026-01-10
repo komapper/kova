@@ -1,8 +1,12 @@
 package org.komapper.extension.validator.factory
 
+import org.komapper.extension.validator.Accumulate
 import org.komapper.extension.validator.Validation
+import org.komapper.extension.validator.accumulating
 import org.komapper.extension.validator.addRoot
 import org.komapper.extension.validator.bindObject
+import org.komapper.extension.validator.name
+import kotlin.reflect.KProperty
 
 /**
  * Creates a factory context for building validated objects.
@@ -30,10 +34,11 @@ import org.komapper.extension.validator.bindObject
  * @param block The factory block that builds and returns the validated object
  * @return The result of executing the factory block
  */
-inline fun <R> Validation.factory(
+context(_: Validation)
+inline fun <R> factory(
     name: String = "factory",
-    block: Validation.() -> R,
-): R = addRoot(name, null) { block() }
+    block: context(Validation) Factory.() -> R,
+): R = addRoot(name, null) { block(Factory(contextOf<Validation>())) }
 
 /**
  * Binds an input value to validation logic, creating a property delegate for factory contexts.
@@ -59,8 +64,9 @@ inline fun <R> Validation.factory(
  */
 fun <T, S> bind(
     input: T,
-    block: Validation.(T) -> S,
-): Validation.() -> S = { bindObject(input) { block(input) } }
+    block: context(Validation)(T) -> S,
+): context(Validation)
+() -> S = { bindObject(input) { block(input) } }
 
 /**
  * Binds validation logic without an explicit input value, for nested factory calls.
@@ -78,4 +84,29 @@ fun <T, S> bind(
  * @param block A function that returns the validated result
  * @return A property delegate provider that executes validation when accessed
  */
-fun <S> bind(block: Validation.() -> S) = block
+fun <S> bind(block: context(Validation)() -> S) = block
+
+class Factory(
+    private val validation: Validation,
+) {
+    /**
+     * Binds a validation lambda using property delegation.
+     *
+     * This enables composing validation logic to build complex nested object validation.
+     * The property name is automatically used as the validation path. The validation
+     * is executed within an accumulating context that collects errors.
+     *
+     * @param S the type produced by the validation lambda
+     * @return an [Accumulate.Value] for accessing the validation result
+     */
+    operator fun <S> (
+    context(Validation)
+    () -> S
+    ).provideDelegate(
+        thisRef: Any?,
+        property: KProperty<*>,
+    ): Accumulate.Value<S> =
+        context(validation) {
+            null.name(property.name) { accumulating { this@provideDelegate() } }
+        }
+}

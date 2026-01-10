@@ -32,5 +32,6 @@ interface Validated {
      * Typically implemented using the [schema][Validation.schema] function with property
      * references. Property names are automatically used as validation paths in error messages.
      */
-    fun Validation.validate()
+    context(_: Validation)
+    fun validate()
 }

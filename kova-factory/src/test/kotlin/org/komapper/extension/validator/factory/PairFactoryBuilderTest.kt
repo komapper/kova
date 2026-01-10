@@ -19,7 +19,8 @@ class PairFactoryBuilderTest :
     FunSpec({
 
         context("PairFactoryBuilder with primitive types") {
-            fun Validation.build(
+            context(_: Validation)
+            fun build(
                 first: String,
                 second: Int,
             ) = buildPair(
@@ -102,7 +103,8 @@ class PairFactoryBuilderTest :
         }
 
         context("PairFactoryBuilder with different types") {
-            fun Validation.build(
+            context(_: Validation)
+            fun build(
                 name: String,
                 age: Int,
             ) = buildPair(
@@ -140,7 +142,8 @@ class PairFactoryBuilderTest :
         }
 
         context("PairFactoryBuilder with identity validators") {
-            fun Validation.build(
+            context(_: Validation)
+            fun build(
                 first: String,
                 second: Int,
             ) = buildPair(
@@ -156,7 +159,8 @@ class PairFactoryBuilderTest :
         }
 
         context("PairFactoryBuilder with type transformation") {
-            fun Validation.build(
+            context(_: Validation)
+            fun build(
                 first: String,
                 second: String,
             ) = buildPair(

@@ -16,6 +16,9 @@ import org.komapper.extension.validator.ensureMin
 import org.komapper.extension.validator.ensureMinLength
 import org.komapper.extension.validator.ensureMinSize
 import org.komapper.extension.validator.ensureNotNull
+import org.komapper.extension.validator.invoke
+import org.komapper.extension.validator.schema
+import org.komapper.extension.validator.text
 import org.komapper.extension.validator.tryValidate
 import java.util.Locale
 import io.konform.validation.Validation as KonformValidation
@@ -117,7 +120,8 @@ class CollectionTest :
         }
 
         context("kova") {
-            fun Validation.validateOrganizer(person: Person) =
+            context(_: Validation)
+            fun validateOrganizer(person: Person) =
                 person.schema {
                     person::email {
                         ensureNotNull(it) { text("Email address must be given") }
@@ -125,7 +129,8 @@ class CollectionTest :
                     }
                 }
 
-            fun Validation.validateAttendee(person: Person) =
+            context(_: Validation)
+            fun validateAttendee(person: Person) =
                 person.schema {
                     person::name { ensureMinLength(it, 2) }
                     person::age { ensureMin(it, 18) { text("Attendees must be 18 years or older") } }
@@ -139,7 +144,8 @@ class CollectionTest :
                     }
                 }
 
-            fun Validation.validate(event: Event) =
+            context(_: Validation)
+            fun validate(event: Event) =
                 event.schema {
                     event::organizer { validateOrganizer(it) }
                     event::attendees {

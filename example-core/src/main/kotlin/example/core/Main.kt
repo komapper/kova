@@ -2,11 +2,15 @@ package example.core
 
 import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationResult
+import org.komapper.extension.validator.constrain
 import org.komapper.extension.validator.ensureInRange
 import org.komapper.extension.validator.ensureMinLength
 import org.komapper.extension.validator.ensureNotBlank
 import org.komapper.extension.validator.ensureNotNegative
+import org.komapper.extension.validator.invoke
 import org.komapper.extension.validator.isSuccess
+import org.komapper.extension.validator.schema
+import org.komapper.extension.validator.text
 import org.komapper.extension.validator.tryValidate
 
 /**
@@ -49,7 +53,8 @@ data class PriceRange(
  * - name is not ensureBlank and ensureHas minimum ensureLength of 1
  * - age is between 0 and 120
  */
-fun Validation.validate(user: User) =
+context(_: Validation)
+fun validate(user: User) =
     user.schema {
         user::name {
             ensureMinLength(it, 1)
@@ -64,7 +69,8 @@ fun Validation.validate(user: User) =
  * Schema validation for Age value object.
  * Validates that the value is between 0 and 120.
  */
-fun Validation.validate(age: Age) =
+context(_: Validation)
+fun validate(age: Age) =
     age.schema {
         age::value {
             ensureInRange(it, 0..120)
@@ -76,7 +82,8 @@ fun Validation.validate(age: Age) =
  * Demonstrates how to reuse validators - the age property uses validate(Age).
  * This creates a nested validation path (e.g., "age.value").
  */
-fun Validation.validate(person: Person) =
+context(_: Validation)
+fun validate(person: Person) =
     person.schema {
         person::name {
             ensureMinLength(it, 1)
@@ -90,7 +97,8 @@ fun Validation.validate(person: Person) =
  * Validates individual properties first, then checks the relationship
  * between minPrice and maxPrice using a custom constraint.
  */
-fun Validation.validate(range: PriceRange) =
+context(_: Validation)
+fun validate(range: PriceRange) =
     range.schema {
         range::minPrice { ensureNotNegative(it) }
         range::maxPrice { ensureNotNegative(it) }

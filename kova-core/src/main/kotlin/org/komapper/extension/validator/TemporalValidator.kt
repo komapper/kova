@@ -30,7 +30,8 @@ import kotlin.reflect.KClass
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-inline fun <reified S> Validation.ensureFuture(
+context(_: Validation)
+inline fun <reified S> ensureFuture(
     input: S,
     noinline message: MessageProvider = { "kova.temporal.future".resource },
 ) where S : Temporal, S : Comparable<S> = input.constrain("kova.temporal.future") { satisfies(it > now(clock), message) }
@@ -52,7 +53,8 @@ inline fun <reified S> Validation.ensureFuture(
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-inline fun <reified S> Validation.ensureFutureOrPresent(
+context(_: Validation)
+inline fun <reified S> ensureFutureOrPresent(
     input: S,
     noinline message: MessageProvider = { "kova.temporal.futureOrPresent".resource },
 ) where S : Temporal, S : Comparable<S> = input.constrain("kova.temporal.futureOrPresent") { satisfies(it >= now(clock), message) }
@@ -74,7 +76,8 @@ inline fun <reified S> Validation.ensureFutureOrPresent(
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-inline fun <reified S> Validation.ensurePast(
+context(_: Validation)
+inline fun <reified S> ensurePast(
     input: S,
     noinline message: MessageProvider = { "kova.temporal.past".resource },
 )where S : Temporal, S : Comparable<S> = input.constrain("kova.temporal.past") { satisfies(it < now(clock), message) }
@@ -97,7 +100,8 @@ inline fun <reified S> Validation.ensurePast(
  * @return A new validator with the ensurePast-or-present constraint
  */
 @IgnorableReturnValue
-inline fun <reified S> Validation.ensurePastOrPresent(
+context(_: Validation)
+inline fun <reified S> ensurePastOrPresent(
     input: S,
     noinline message: MessageProvider = { "kova.temporal.pastOrPresent".resource },
 ) where S : Temporal, S : Comparable<S> = input.constrain("kova.temporal.pastOrPresent") { satisfies(it <= now(clock), message) }

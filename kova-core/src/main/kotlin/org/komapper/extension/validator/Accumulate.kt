@@ -89,7 +89,8 @@ fun interface Accumulate {
  * @return an [Accumulate.Error] instance representing the accumulated errors
  */
 @IgnorableReturnValue
-fun Validation.accumulate(messages: List<Message>) = acc.accumulate(messages)
+context(v: Validation)
+fun accumulate(messages: List<Message>) = v.acc.accumulate(messages)
 
 /**
  * Accumulates validation error messages and immediately raises a validation failure.
@@ -100,7 +101,8 @@ fun Validation.accumulate(messages: List<Message>) = acc.accumulate(messages)
  * @param messages the validation error messages to accumulate and raise
  * @throws ValidationCancellationException always
  */
-fun Validation.raise(messages: List<Message>): Nothing = accumulate(messages).raise()
+context(_: Validation)
+fun raise(messages: List<Message>): Nothing = accumulate(messages).raise()
 
 /**
  * Accumulates a single validation error message and immediately raises a validation failure.
@@ -108,7 +110,8 @@ fun Validation.raise(messages: List<Message>): Nothing = accumulate(messages).ra
  * @param message the validation error message to accumulate and raise
  * @throws ValidationCancellationException always
  */
-fun Validation.raise(message: Message): Nothing = raise(listOf(message))
+context(_: Validation)
+fun raise(message: Message): Nothing = raise(listOf(message))
 
 /**
  * Executes a validation block in accumulating mode, capturing all errors.
@@ -123,12 +126,13 @@ fun Validation.raise(message: Message): Nothing = raise(listOf(message))
  *         if validation fails with accumulated error messages
  */
 @IgnorableReturnValue
-inline fun <R> Validation.accumulating(block: Validation.() -> R): Accumulate.Value<R> {
+context(v: Validation)
+inline fun <R> accumulating(block: context(Validation)() -> R): Accumulate.Value<R> {
     lateinit var outsideError: Accumulate.Error
     // raise/error is only used after outsideError is initialized
     return recoverValidation({ outsideError }) {
         block(
-            copy(acc = {
+            v.copy(acc = {
                 outsideError = accumulate(it)
                 this
             }),

@@ -13,7 +13,8 @@ package org.komapper.extension.validator
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun Validation.ensurePositive(
+context(_: Validation)
+fun ensurePositive(
     input: Number,
     message: MessageProvider = { "kova.number.positive".resource },
 ) = input.constrain("kova.number.positive") { satisfies(it.toDouble() > 0.0, message) }
@@ -31,7 +32,8 @@ fun Validation.ensurePositive(
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun Validation.ensureNegative(
+context(_: Validation)
+fun ensureNegative(
     input: Number,
     message: MessageProvider = { "kova.number.negative".resource },
 ) = input.constrain("kova.number.negative") { satisfies(it.toDouble() < 0.0, message) }
@@ -49,7 +51,8 @@ fun Validation.ensureNegative(
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun Validation.ensureNotPositive(
+context(_: Validation)
+fun ensureNotPositive(
     input: Number,
     message: MessageProvider = { "kova.number.notPositive".resource },
 ) = input.constrain("kova.number.notPositive") { satisfies(it.toDouble() <= 0.0, message) }
@@ -67,7 +70,8 @@ fun Validation.ensureNotPositive(
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
-fun Validation.ensureNotNegative(
+context(_: Validation)
+fun ensureNotNegative(
     input: Number,
     message: MessageProvider = { "kova.number.notNegative".resource },
 ) = input.constrain("kova.number.notNegative") { satisfies(it.toDouble() >= 0.0, message) }

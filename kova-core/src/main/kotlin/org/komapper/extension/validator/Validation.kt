@@ -5,7 +5,6 @@ import org.komapper.extension.validator.ValidationIor.FailureLike
 import org.komapper.extension.validator.ValidationResult.Failure
 import org.komapper.extension.validator.ValidationResult.Success
 import java.time.Clock
-import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty0
 
 /**
@@ -25,332 +24,341 @@ data class Validation(
     val path: Path = Path(name = "", obj = null, parent = null),
     val config: ValidationConfig = ValidationConfig(),
     val acc: Accumulate = { error("Accumulate context not initialized") },
-) {
-    /**
-     * Adds a custom constraint to the input value.
-     *
-     * This is a fundamental building block for creating custom validation rules.
-     * The constraint function is executed within an accumulating context that collects
-     * validation errors. If the constraint fails, the error is accumulated and validation
-     * continues (unless failFast is enabled).
-     *
-     * Example:
-     * ```kotlin
-     * fun Validation.alphanumeric(
-     *     input: String,
-     *     message: MessageProvider = { "kova.string.alphanumeric".resource }
-     * ) = input.constrain("kova.string.alphanumeric") {
-     *     satisfies(it.all { c -> c.isLetterOrDigit() }, message)
-     * }
-     *
-     * tryValidate { alphanumeric("abc123") } // Success
-     * tryValidate { alphanumeric("abc-123") } // Failure
-     * ```
-     *
-     * @param id Unique identifier for the constraint (used in error messages and logging)
-     * @param check Constraint logic that validates the input value
-     */
-    @IgnorableReturnValue
-    inline fun <T> T.constrain(
-        id: String,
-        check: Constraint.(T) -> Unit,
-    ) = accumulating {
-        mapEachMessage({ logAndAddDetails(it, this@constrain, id) }) {
-            Constraint(this).check(this@constrain)
-            log {
-                LogEntry.Satisfied(
-                    constraintId = id,
-                    root = root,
-                    path = path.fullName,
-                    input = this@constrain,
-                )
-            }
-        }
+)
+
+/**
+ * Adds a custom constraint to the input value.
+ *
+ * This is a fundamental building block for creating custom validation rules.
+ * The constraint function is executed within an accumulating context that collects
+ * validation errors. If the constraint fails, the error is accumulated and validation
+ * continues (unless failFast is enabled).
+ *
+ * Example:
+ * ```kotlin
+ * fun Validation.alphanumeric(
+ *     input: String,
+ *     message: MessageProvider = { "kova.string.alphanumeric".resource }
+ * ) = input.constrain("kova.string.alphanumeric") {
+ *     satisfies(it.all { c -> c.isLetterOrDigit() }, message)
+ * }
+ *
+ * tryValidate { alphanumeric("abc123") } // Success
+ * tryValidate { alphanumeric("abc-123") } // Failure
+ * ```
+ *
+ * @param id Unique identifier for the constraint (used in error messages and logging)
+ * @param check Constraint logic that validates the input value
+ */
+@IgnorableReturnValue
+context(_: Validation)
+inline fun <T> T.constrain(
+    id: String,
+    check: Constraint.(T) -> Unit,
+) = accumulating {
+    mapEachMessage({ logAndAddDetails(it, this@constrain, id) }) {
+        this@constrain.checkThenLog(id, check)
     }
-
-    /**
-     * Extracts the value from a [ValidationIor], accumulating or raising errors as needed.
-     *
-     * This function handles all cases of [ValidationIor]:
-     * - [Success]: Returns the value directly
-     * - [Failure]: Raises validation failure with accumulated messages
-     * - [Both]: Accumulates partial errors and returns the partial value
-     *
-     * Example:
-     * ```kotlin
-     * val result: ValidationIor<String> = or { ensureNotBlank(name) }
-     * val value: String = result.bind()  // Extracts or raises
-     * ```
-     *
-     * @param T the type of the value
-     * @return the validated value
-     * @throws ValidationCancellationException if this is a [Failure]
-     */
-    fun <T> ValidationIor<T>.bind(): T =
-        when (this) {
-            is Success -> value
-            is Failure -> raise(messages)
-            is Both -> {
-                accumulate(messages)
-                value
-            }
-        }
-
-    /**
-     * Attempts alternative validation logic if this validation fails.
-     *
-     * This function implements a fallback strategy: if the current validation succeeds
-     * (is not [FailureLike]), it returns immediately. Otherwise, it executes the fallback
-     * block. If both fail, it wraps both error messages with a combined "or" message.
-     *
-     * Example:
-     * ```kotlin
-     * tryValidate {
-     *     or { min(input, 10) } or { max(input, 5) }
-     *     // Validates that input >= 10 OR input <= 5
-     * }
-     * ```
-     *
-     * @param R the type of the validation result
-     * @param block the fallback validation logic to try if this fails
-     * @return [ValidationIor] representing the combined validation result
-     */
-    inline infix fun <R> ValidationIor<R>.or(block: Validation.() -> R): ValidationIor<R> {
-        if (this !is FailureLike) return this
-        val other = this@Validation.or(block)
-        if (other !is FailureLike) return other
-        return (this as? Both ?: other).withMessage("kova.or".resource(messages, other.messages))
-    }
-
-    /**
-     * Attempts alternative validation logic and extracts the result, raising errors if both fail.
-     *
-     * This is a convenience function that combines [or] and [bind]. It tries the current
-     * validation, falls back to the alternative if needed, and extracts the value or raises
-     * accumulated errors.
-     *
-     * Example:
-     * ```kotlin
-     * tryValidate {
-     *     val value = or { min(input, 10) } orElse { max(input, 5) }
-     *     // Returns the value if either constraint passes, raises if both fail
-     * }
-     * ```
-     *
-     * @param R the type of the validation result
-     * @param block the fallback validation logic to try if this fails
-     * @return the validated value
-     * @throws ValidationCancellationException if both validations fail
-     */
-    inline infix fun <R> ValidationIor<R>.orElse(block: Validation.() -> R): R = or(block).bind()
-
-    /**
-     * Validates a value with a named path segment.
-     *
-     * This creates a new validation context with an extended path, allowing you to
-     * track where in a nested object structure validation occurs. The path name is
-     * included in error messages to help identify which property failed validation.
-     *
-     * Example:
-     * ```kotlin
-     * data class Address(val city: String, val zipCode: String)
-     * data class User(val name: String, val address: Address)
-     *
-     * tryValidate {
-     *     user.address.name("address") {
-     *         ensureNotBlank(user.address.city)
-     *         // Error path will be "address.city"
-     *     }
-     * }
-     * ```
-     *
-     * @param T the type of the value being validated
-     * @param R the type of the validation result
-     * @param name the name for this path segment (typically a property name)
-     * @param block the validation logic to execute in this path context
-     * @return the result of executing the validation block
-     */
-    inline fun <T, R> T.name(
-        name: String,
-        block: Validation.(T) -> R,
-    ): R = addPath(name, this, { block(this@name) })
-
-    /**
-     * Validates an object using its class name as the validation root.
-     *
-     * This function initializes the validation root with the object's qualified class name
-     * and sets up the validation context for property-level validation using the `invoke`
-     * operator on KProperty0 instances. This is the primary entry point for object schema
-     * validation.
-     *
-     * Example:
-     * ```kotlin
-     * data class User(val name: String, val age: Int)
-     *
-     * fun Validation.validate(user: User) = user.schema {
-     *     user::name { ensureNotBlank(it); ensureLengthInRange(it, 1..100) }
-     *     user::age { ensureMin(it, 0); ensureMax(it, 120) }
-     * }
-     *
-     * tryValidate { validate(User("Alice", 30)) }
-     * ```
-     *
-     * @param T the type of the object being validated (must be Any for reflection)
-     * @param block the validation logic that defines constraints for object properties
-     */
-    inline fun <T : Any> T.schema(block: Validation.() -> Unit) {
-        val klass = this::class
-        val rootName = klass.qualifiedName ?: klass.simpleName ?: klass.toString()
-        return addRoot(rootName, this, block)
-    }
-
-    /**
-     * Validates a property value within a schema using the invoke operator.
-     *
-     * This operator function enables the schema validation syntax where properties are
-     * validated using `property { constraints }`. It automatically:
-     * - Extracts the property value using reflection
-     * - Adds the property name to the validation path
-     * - Detects circular references to prevent infinite loops
-     * - Accumulates validation errors in the current context
-     *
-     * This is typically used within a `schema { }` block for object validation.
-     *
-     * Example:
-     * ```kotlin
-     * data class User(val name: String, val age: Int, val email: String?)
-     *
-     * fun Validation.validate(user: User) = user.schema {
-     *     user::name { ensureNotBlank(it); ensureMinLength(it, 1) }
-     *     user::age { ensureMin(it, 0); ensureMax(it, 120) }
-     *     user::email { ensureNullOr(it) { ensureMatches(it, emailRegex) } }
-     * }
-     * ```
-     *
-     * If a circular reference is detected (the object already appears in the validation
-     * path), the validation is skipped and returns [Accumulate.Ok] to prevent stack overflow.
-     *
-     * @param T the type of the property value
-     * @param block the validation logic to apply to the property value
-     * @return [Accumulate.Value] wrapping Unit, or null if circular reference detected
-     */
-    @IgnorableReturnValue
-    operator fun <T> KProperty0<T>.invoke(block: Validation.(T) -> Unit): Accumulate.Value<Unit> {
-        val value = get()
-        return addPathChecked(name, value) { accumulating { block(value) } } ?: Accumulate.Ok(Unit)
-    }
-
-    /**
-     * Binds a validation lambda using property delegation.
-     *
-     * This enables composing validation logic to build complex nested object validation.
-     * The property name is automatically used as the validation path. The validation
-     * is executed within an accumulating context that collects errors.
-     *
-     * @param S the type produced by the validation lambda
-     * @return an [Accumulate.Value] for accessing the validation result
-     */
-    operator fun <S> (Validation.() -> S).provideDelegate(
-        thisRef: Any?,
-        property: KProperty<*>,
-    ): Accumulate.Value<S> = null.name(property.name) { accumulating { this@provideDelegate() } }
-
-    /**
-     * Creates a text-based validation message with plain text content.
-     *
-     * Use this method to create ad-hoc validation messages instead of using i18n resource keys.
-     * When a validation error occurs, the enclosing `constrain()` call will automatically populate
-     * the constraint ID and input value in the message.
-     *
-     * Example usage in a constraint:
-     * ```kotlin
-     * tryValidate {
-     *     10.constrain("ensurePositive") {
-     *         satisfies(it > 0) { text("Value must be ensurePositive") }
-     *     }
-     * }
-     * ```
-     *
-     * Example with schema validation:
-     * ```kotlin
-     * data class Period(val startDate: LocalDate, val endDate: LocalDate)
-     *
-     * fun Validation.validate(period: Period) = period.schema {
-     *     period::startDate { ensurePastOrPresent(it) }
-     *     period::endDate { ensureFutureOrPresent(it) }
-     *     period.constrain("period") {
-     *         satisfies(it.startDate <= it.endDate) {
-     *             text("Start date must be before or equal to end date")
-     *         }
-     *     }
-     * }
-     * ```
-     *
-     * @param content The text content of the error message
-     * @return A [Message.Text] instance with the given content
-     */
-    fun text(content: String): Message = Message.Text("", root, path, content, null)
-
-    /**
-     * Creates a resource-based validation message for internationalization.
-     *
-     * Use this method to create internationalized messages that load text from `kova.properties`.
-     * The message key is the receiver string (typically a constraint ID like "kova.number.min").
-     * Arguments are provided as a vararg and used for MessageFormat substitution
-     * (i.e., the first argument becomes {0}, second becomes {1}, etc.).
-     *
-     * When a validation error occurs, the enclosing `constrain()` call will automatically populate
-     * the constraint ID and input value in the message.
-     *
-     * Example usage in a constraint:
-     * ```kotlin
-     * fun Validation.min(
-     *     input: Int,
-     *     ensureMin: Int,
-     *     message: MessageProvider = { "kova.number.min".resource(ensureMin) }
-     * ) = input.constrain("kova.number.min") {
-     *     satisfies(it >= ensureMin, message)
-     * }
-     *
-     * tryValidate { min(5, 0) } // Success
-     * ```
-     *
-     * The corresponding entry in `kova.properties` would be:
-     * ```
-     * kova.number.min=The value must be greater than or equal to {0}.
-     * ```
-     *
-     * For multiple arguments:
-     * ```kotlin
-     * fun Validation.range(
-     *     input: Int,
-     *     ensureMin: Int,
-     *     ensureMax: Int,
-     *     message: MessageProvider = { "kova.number.range".resource(ensureMin, ensureMax) }
-     * ) = input.constrain("kova.number.range") {
-     *     satisfies(it in ensureMin..ensureMax, message)
-     * }
-     * ```
-     *
-     * With corresponding resource:
-     * ```
-     * kova.number.range=The value must be between {0} and {1}.
-     * ```
-     *
-     * @param args Arguments to be interpolated into the message template using MessageFormat
-     * @return A [Message.Resource] instance configured with the provided arguments
-     */
-    fun String.resource(vararg args: Any?): Message.Resource = Message.Resource(this, this, root, path, null, args = args.toList())
-
-    val String.resource: Message.Resource get() = resource()
 }
+
+@PublishedApi
+context(v: Validation)
+internal inline fun <T> T.checkThenLog(
+    id: String,
+    check: Constraint.(T) -> Unit,
+) {
+    Constraint(v).check(this)
+    log {
+        LogEntry.Satisfied(
+            constraintId = id,
+            root = v.root,
+            path = v.path.fullName,
+            input = this,
+        )
+    }
+}
+
+/**
+ * Extracts the value from a [ValidationIor], accumulating or raising errors as needed.
+ *
+ * This function handles all cases of [ValidationIor]:
+ * - [Success]: Returns the value directly
+ * - [Failure]: Raises validation failure with accumulated messages
+ * - [Both]: Accumulates partial errors and returns the partial value
+ *
+ * Example:
+ * ```kotlin
+ * val result: ValidationIor<String> = or { ensureNotBlank(name) }
+ * val value: String = result.bind()  // Extracts or raises
+ * ```
+ *
+ * @param T the type of the value
+ * @return the validated value
+ * @throws ValidationCancellationException if this is a [Failure]
+ */
+context(_: Validation)
+fun <T> ValidationIor<T>.bind(): T =
+    when (this) {
+        is Success -> value
+        is Failure -> raise(messages)
+        is Both -> {
+            accumulate(messages)
+            value
+        }
+    }
+
+/**
+ * Attempts alternative validation logic if this validation fails.
+ *
+ * This function implements a fallback strategy: if the current validation succeeds
+ * (is not [FailureLike]), it returns immediately. Otherwise, it executes the fallback
+ * block. If both fail, it wraps both error messages with a combined "or" message.
+ *
+ * Example:
+ * ```kotlin
+ * tryValidate {
+ *     or { min(input, 10) } or { max(input, 5) }
+ *     // Validates that input >= 10 OR input <= 5
+ * }
+ * ```
+ *
+ * @param R the type of the validation result
+ * @param block the fallback validation logic to try if this fails
+ * @return [ValidationIor] representing the combined validation result
+ */
+context(v: Validation)
+inline infix fun <R> ValidationIor<R>.or(block: context(Validation)() -> R): ValidationIor<R> {
+    if (this !is FailureLike) return this
+    val other = eval(block)
+    if (other !is FailureLike) return other
+    return (this as? Both ?: other).withMessage("kova.or".resource(messages, other.messages))
+}
+
+@PublishedApi
+context(v: Validation)
+internal inline fun <R> eval(block: context(Validation)() -> R): ValidationIor<R> = or(block)
+
+/**
+ * Attempts alternative validation logic and extracts the result, raising errors if both fail.
+ *
+ * This is a convenience function that combines [or] and [bind]. It tries the current
+ * validation, falls back to the alternative if needed, and extracts the value or raises
+ * accumulated errors.
+ *
+ * Example:
+ * ```kotlin
+ * tryValidate {
+ *     val value = or { min(input, 10) } orElse { max(input, 5) }
+ *     // Returns the value if either constraint passes, raises if both fail
+ * }
+ * ```
+ *
+ * @param R the type of the validation result
+ * @param block the fallback validation logic to try if this fails
+ * @return the validated value
+ * @throws ValidationCancellationException if both validations fail
+ */
+context(_: Validation)
+inline infix fun <R> ValidationIor<R>.orElse(block: context(Validation)() -> R): R = or(block).bind()
+
+/**
+ * Validates a value with a named path segment.
+ *
+ * This creates a new validation context with an extended path, allowing you to
+ * track where in a nested object structure validation occurs. The path name is
+ * included in error messages to help identify which property failed validation.
+ *
+ * Example:
+ * ```kotlin
+ * data class Address(val city: String, val zipCode: String)
+ * data class User(val name: String, val address: Address)
+ *
+ * tryValidate {
+ *     user.address.name("address") {
+ *         ensureNotBlank(user.address.city)
+ *         // Error path will be "address.city"
+ *     }
+ * }
+ * ```
+ *
+ * @param T the type of the value being validated
+ * @param R the type of the validation result
+ * @param name the name for this path segment (typically a property name)
+ * @param block the validation logic to execute in this path context
+ * @return the result of executing the validation block
+ */
+context(_: Validation)
+inline fun <T, R> T.name(
+    name: String,
+    block: context(Validation)(T) -> R,
+): R = addPath(name, this, { block(this@name) })
+
+/**
+ * Validates an object using its class name as the validation root.
+ *
+ * This function initializes the validation root with the object's qualified class name
+ * and sets up the validation context for property-level validation using the `invoke`
+ * operator on KProperty0 instances. This is the primary entry point for object schema
+ * validation.
+ *
+ * Example:
+ * ```kotlin
+ * data class User(val name: String, val age: Int)
+ *
+ * fun Validation.validate(user: User) = user.schema {
+ *     user::name { ensureNotBlank(it); ensureLengthInRange(it, 1..100) }
+ *     user::age { ensureMin(it, 0); ensureMax(it, 120) }
+ * }
+ *
+ * tryValidate { validate(User("Alice", 30)) }
+ * ```
+ *
+ * @param T the type of the object being validated (must be Any for reflection)
+ * @param block the validation logic that defines constraints for object properties
+ */
+context(_: Validation)
+inline fun <T : Any> T.schema(block: context(Validation)() -> Unit) {
+    val klass = this::class
+    val rootName = klass.qualifiedName ?: klass.simpleName ?: klass.toString()
+    return addRoot(rootName, this, block)
+}
+
+/**
+ * Validates a property value within a schema using the invoke operator.
+ *
+ * This operator function enables the schema validation syntax where properties are
+ * validated using `property { constraints }`. It automatically:
+ * - Extracts the property value using reflection
+ * - Adds the property name to the validation path
+ * - Detects circular references to prevent infinite loops
+ * - Accumulates validation errors in the current context
+ *
+ * This is typically used within a `schema { }` block for object validation.
+ *
+ * Example:
+ * ```kotlin
+ * data class User(val name: String, val age: Int, val email: String?)
+ *
+ * fun Validation.validate(user: User) = user.schema {
+ *     user::name { ensureNotBlank(it); ensureMinLength(it, 1) }
+ *     user::age { ensureMin(it, 0); ensureMax(it, 120) }
+ *     user::email { ensureNullOr(it) { ensureMatches(it, emailRegex) } }
+ * }
+ * ```
+ *
+ * If a circular reference is detected (the object already appears in the validation
+ * path), the validation is skipped and returns [Accumulate.Ok] to prevent stack overflow.
+ *
+ * @param T the type of the property value
+ * @param block the validation logic to apply to the property value
+ * @return [Accumulate.Value] wrapping Unit, or null if circular reference detected
+ */
+@IgnorableReturnValue
+context(_: Validation)
+operator fun <T> KProperty0<T>.invoke(block: context(Validation)(T) -> Unit): Accumulate.Value<Unit> {
+    val value = get()
+    return addPathChecked(name, value) { accumulating { block(value) } } ?: Accumulate.Ok(Unit)
+}
+
+/**
+ * Creates a text-based validation message with plain text content.
+ *
+ * Use this method to create ad-hoc validation messages instead of using i18n resource keys.
+ * When a validation error occurs, the enclosing `constrain()` call will automatically populate
+ * the constraint ID and input value in the message.
+ *
+ * Example usage in a constraint:
+ * ```kotlin
+ * tryValidate {
+ *     10.constrain("ensurePositive") {
+ *         satisfies(it > 0) { text("Value must be ensurePositive") }
+ *     }
+ * }
+ * ```
+ *
+ * Example with schema validation:
+ * ```kotlin
+ * data class Period(val startDate: LocalDate, val endDate: LocalDate)
+ *
+ * fun Validation.validate(period: Period) = period.schema {
+ *     period::startDate { ensurePastOrPresent(it) }
+ *     period::endDate { ensureFutureOrPresent(it) }
+ *     period.constrain("period") {
+ *         satisfies(it.startDate <= it.endDate) {
+ *             text("Start date must be before or equal to end date")
+ *         }
+ *     }
+ * }
+ * ```
+ *
+ * @param content The text content of the error message
+ * @return A [Message.Text] instance with the given content
+ */
+context(v: Validation)
+fun text(content: String): Message = Message.Text("", v.root, v.path, content, null)
+
+/**
+ * Creates a resource-based validation message for internationalization.
+ *
+ * Use this method to create internationalized messages that load text from `kova.properties`.
+ * The message key is the receiver string (typically a constraint ID like "kova.number.min").
+ * Arguments are provided as a vararg and used for MessageFormat substitution
+ * (i.e., the first argument becomes {0}, second becomes {1}, etc.).
+ *
+ * When a validation error occurs, the enclosing `constrain()` call will automatically populate
+ * the constraint ID and input value in the message.
+ *
+ * Example usage in a constraint:
+ * ```kotlin
+ * fun Validation.min(
+ *     input: Int,
+ *     ensureMin: Int,
+ *     message: MessageProvider = { "kova.number.min".resource(ensureMin) }
+ * ) = input.constrain("kova.number.min") {
+ *     satisfies(it >= ensureMin, message)
+ * }
+ *
+ * tryValidate { min(5, 0) } // Success
+ * ```
+ *
+ * The corresponding entry in `kova.properties` would be:
+ * ```
+ * kova.number.min=The value must be greater than or equal to {0}.
+ * ```
+ *
+ * For multiple arguments:
+ * ```kotlin
+ * fun Validation.range(
+ *     input: Int,
+ *     ensureMin: Int,
+ *     ensureMax: Int,
+ *     message: MessageProvider = { "kova.number.range".resource(ensureMin, ensureMax) }
+ * ) = input.constrain("kova.number.range") {
+ *     satisfies(it in ensureMin..ensureMax, message)
+ * }
+ * ```
+ *
+ * With corresponding resource:
+ * ```
+ * kova.number.range=The value must be between {0} and {1}.
+ * ```
+ *
+ * @param args Arguments to be interpolated into the message template using MessageFormat
+ * @return A [Message.Resource] instance configured with the provided arguments
+ */
+context(v: Validation)
+fun String.resource(vararg args: Any?): Message.Resource = Message.Resource(this, this, v.root, v.path, null, args = args.toList())
+
+context(_: Validation)
+val String.resource: Message.Resource get() = resource()
 
 /**
  * The clock used for temporal validation constraints (ensurePast, ensureFuture, etc.).
  *
  * Delegates to [ValidationConfig.clock].
  */
-val Validation.clock: Clock get() = config.clock
+context(v: Validation)
+val clock: Clock get() = v.config.clock
 
 /**
  * Configuration settings for validation execution.
@@ -408,17 +416,18 @@ data class ValidationConfig(
  * @param block The validation logic to execute with the initialized context
  * @return The result of executing the block
  */
-inline fun <R> Validation.addRoot(
+context(v: Validation)
+inline fun <R> addRoot(
     name: String,
     obj: Any?,
-    block: Validation.() -> R,
+    block: context(Validation)() -> R,
 ): R =
     block(
-        if (root.isEmpty()) {
+        if (v.root.isEmpty()) {
             // initialize root
-            copy(root = name, path = Path(name = "", obj = obj, parent = null))
+            v.copy(root = name, path = Path(name = "", obj = obj, parent = null))
         } else {
-            this
+            v
         },
     )
 
@@ -442,19 +451,20 @@ inline fun <R> Validation.addRoot(
  * @param block The validation logic to execute with the extended path
  * @return The result of executing the block
  */
-inline fun <R> Validation.addPath(
+context(v: Validation)
+inline fun <R> addPath(
     name: String,
     obj: Any?,
-    block: Validation.() -> R,
+    block: context(Validation)() -> R,
 ): R {
-    val parent = path
+    val parent = v.path
     val path =
         parent.copy(
             name = name,
             obj = obj,
             parent = parent,
         )
-    return block(copy(path = path))
+    return block(v.copy(path = path))
 }
 
 /**
@@ -469,12 +479,13 @@ inline fun <R> Validation.addPath(
  * @param block The validation logic to execute with the updated context
  * @return The result of executing the block
  */
-inline fun <R> Validation.bindObject(
+context(v: Validation)
+inline fun <R> bindObject(
     obj: Any?,
-    block: Validation.() -> R,
+    block: context(Validation)() -> R,
 ): R {
-    val path = path.copy(obj = obj)
-    return block(copy(path = path))
+    val path = v.path.copy(obj = obj)
+    return block(v.copy(path = path))
 }
 
 /**
@@ -504,12 +515,13 @@ inline fun <R> Validation.bindObject(
  * @param block The validation logic to execute if no circular reference is detected
  * @return The result of executing the block, or null if a circular reference is detected
  */
-inline fun <T, R> Validation.addPathChecked(
+context(v: Validation)
+inline fun <T, R> addPathChecked(
     name: String,
     obj: T,
-    block: Validation.() -> R,
+    block: context(Validation)() -> R,
 ): R? {
-    val parent = path
+    val parent = v.path
     // Check for circular reference
     if (obj != null && parent.containsObject(obj)) return null
     return addPath(name, obj, block)
@@ -534,12 +546,13 @@ inline fun <T, R> Validation.addPathChecked(
  * @param block The validation logic to execute with the modified path
  * @return The result of executing the block
  */
-inline fun <R> Validation.appendPath(
+context(v: Validation)
+inline fun <R> appendPath(
     text: String,
-    block: Validation.() -> R,
+    block: context(Validation)() -> R,
 ): R {
-    val path = path.copy(name = path.name + text)
-    return block(copy(path = path))
+    val path = v.path.copy(name = v.path.name + text)
+    return block(v.copy(path = path))
 }
 
 /**
@@ -566,8 +579,9 @@ inline fun <R> Validation.appendPath(
  *
  * @param block Lambda that generates the log entry (only called if logger is configured)
  */
-inline fun Validation.log(block: () -> LogEntry) {
-    config.logger?.invoke(block())
+context(v: Validation)
+inline fun log(block: () -> LogEntry) {
+    v.config.logger?.invoke(block())
 }
 
 /**
@@ -587,7 +601,8 @@ inline fun Validation.log(block: () -> LogEntry) {
  * @return The enriched message with input and constraint ID details
  */
 @PublishedApi
-internal fun Validation.logAndAddDetails(
+context(v: Validation)
+internal fun logAndAddDetails(
     message: Message,
     input: Any?,
     id: String,
@@ -629,10 +644,11 @@ internal fun Validation.logAndAddDetails(
  * @return The result of executing the validation block
  */
 @PublishedApi
-internal inline fun <R> Validation.mapEachMessage(
+context(v: Validation)
+internal inline fun <R> mapEachMessage(
     noinline transform: (Message) -> Message,
-    block: Validation.() -> R,
-): R = block(copy(acc = { accumulate(it.map(transform)) }))
+    block: context(Validation)() -> R,
+): R = block(v.copy(acc = { accumulate(it.map(transform)) }))
 
 /**
  * Represents a path through the object graph during validation.

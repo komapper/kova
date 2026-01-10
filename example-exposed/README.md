@@ -53,7 +53,7 @@ The `subscribe()` extension function integrates Kova with Exposed's EntityHook:
 
 ```kotlin
 fun <ID : Any, T : Entity<ID>> EntityClass<ID, T>.subscribe(
-    validate: Validation.(T) -> Unit
+    validate: context(Validation)(T) -> Unit
 ): (EntityChange) -> Unit
 ```
 

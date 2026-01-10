@@ -137,7 +137,8 @@ class IterableValidatorTest :
                 val list: List<String>,
             )
 
-            fun Validation.validate(holder: ListHolder) = holder.schema { holder::list { e -> ensureEach(e) { ensureLength(it, 3) } } }
+            context(_: Validation)
+            fun validate(holder: ListHolder) = holder.schema { holder::list { e -> ensureEach(e) { ensureLength(it, 3) } } }
 
             test("success") {
                 val result = tryValidate { validate(ListHolder(listOf("123", "456"))) }
