@@ -7,7 +7,6 @@ import org.komapper.extension.validator.ensureInRange
 import org.komapper.extension.validator.ensureMinLength
 import org.komapper.extension.validator.ensureNotBlank
 import org.komapper.extension.validator.ensureNotNegative
-import org.komapper.extension.validator.invoke
 import org.komapper.extension.validator.isSuccess
 import org.komapper.extension.validator.schema
 import org.komapper.extension.validator.text

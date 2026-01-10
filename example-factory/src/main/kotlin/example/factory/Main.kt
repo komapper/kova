@@ -7,7 +7,6 @@ import org.komapper.extension.validator.ensureMinLength
 import org.komapper.extension.validator.ensureNotBlank
 import org.komapper.extension.validator.factory.bind
 import org.komapper.extension.validator.factory.factory
-import org.komapper.extension.validator.invoke
 import org.komapper.extension.validator.isSuccess
 import org.komapper.extension.validator.parseInt
 import org.komapper.extension.validator.schema

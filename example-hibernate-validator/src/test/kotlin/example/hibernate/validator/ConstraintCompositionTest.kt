@@ -6,7 +6,6 @@ import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ensureLengthInRange
 import org.komapper.extension.validator.ensureNotNull
 import org.komapper.extension.validator.ensureUppercase
-import org.komapper.extension.validator.invoke
 import org.komapper.extension.validator.schema
 import org.komapper.extension.validator.tryValidate
 import java.util.Locale

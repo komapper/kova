@@ -217,47 +217,10 @@ inline fun <T, R> T.name(
  * @param block the validation logic that defines constraints for object properties
  */
 context(_: Validation)
-inline fun <T : Any> T.schema(block: context(Validation)() -> Unit) {
+inline fun <T : Any> T.schema(block: context(Validation) Schema.() -> Unit) {
     val klass = this::class
     val rootName = klass.qualifiedName ?: klass.simpleName ?: klass.toString()
-    return addRoot(rootName, this, block)
-}
-
-/**
- * Validates a property value within a schema using the invoke operator.
- *
- * This operator function enables the schema validation syntax where properties are
- * validated using `property { constraints }`. It automatically:
- * - Extracts the property value using reflection
- * - Adds the property name to the validation path
- * - Detects circular references to prevent infinite loops
- * - Accumulates validation errors in the current context
- *
- * This is typically used within a `schema { }` block for object validation.
- *
- * Example:
- * ```kotlin
- * data class User(val name: String, val age: Int, val email: String?)
- *
- * fun Validation.validate(user: User) = user.schema {
- *     user::name { ensureNotBlank(it); ensureMinLength(it, 1) }
- *     user::age { ensureMin(it, 0); ensureMax(it, 120) }
- *     user::email { ensureNullOr(it) { ensureMatches(it, emailRegex) } }
- * }
- * ```
- *
- * If a circular reference is detected (the object already appears in the validation
- * path), the validation is skipped and returns [Accumulate.Ok] to prevent stack overflow.
- *
- * @param T the type of the property value
- * @param block the validation logic to apply to the property value
- * @return [Accumulate.Value] wrapping Unit, or null if circular reference detected
- */
-@IgnorableReturnValue
-context(_: Validation)
-operator fun <T> KProperty0<T>.invoke(block: context(Validation)(T) -> Unit): Accumulate.Value<Unit> {
-    val value = get()
-    return addPathChecked(name, value) { accumulating { block(value) } } ?: Accumulate.Ok(Unit)
+    return addRoot(rootName, this) { block(Schema) }
 }
 
 /**
@@ -734,4 +697,43 @@ sealed interface LogEntry {
         val input: Any?,
         val args: List<Any?>,
     ) : LogEntry
+}
+
+object Schema  {
+    /**
+     * Validates a property value within a schema using the invoke operator.
+     *
+     * This operator function enables the schema validation syntax where properties are
+     * validated using `property { constraints }`. It automatically:
+     * - Extracts the property value using reflection
+     * - Adds the property name to the validation path
+     * - Detects circular references to prevent infinite loops
+     * - Accumulates validation errors in the current context
+     *
+     * This is typically used within a `schema { }` block for object validation.
+     *
+     * Example:
+     * ```kotlin
+     * data class User(val name: String, val age: Int, val email: String?)
+     *
+     * fun Validation.validate(user: User) = user.schema {
+     *     user::name { ensureNotBlank(it); ensureMinLength(it, 1) }
+     *     user::age { ensureMin(it, 0); ensureMax(it, 120) }
+     *     user::email { ensureNullOr(it) { ensureMatches(it, emailRegex) } }
+     * }
+     * ```
+     *
+     * If a circular reference is detected (the object already appears in the validation
+     * path), the validation is skipped and returns [Accumulate.Ok] to prevent stack overflow.
+     *
+     * @param T the type of the property value
+     * @param block the validation logic to apply to the property value
+     * @return [Accumulate.Value] wrapping Unit, or null if circular reference detected
+     */
+    @IgnorableReturnValue
+    context(_: Validation)
+    operator fun <T> KProperty0<T>.invoke(block: context(Validation)(T) -> Unit): Accumulate.Value<Unit> {
+        val value = get()
+        return addPathChecked(name, value) { accumulating { block(value) } } ?: Accumulate.Ok(Unit)
+    }
 }

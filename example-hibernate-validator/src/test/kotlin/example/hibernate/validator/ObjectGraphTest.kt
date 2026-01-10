@@ -7,7 +7,6 @@ import jakarta.validation.ValidatorFactory
 import jakarta.validation.constraints.NotNull
 import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ensureNotNull
-import org.komapper.extension.validator.invoke
 import org.komapper.extension.validator.schema
 import org.komapper.extension.validator.tryValidate
 import java.util.Locale

@@ -16,7 +16,6 @@ import org.komapper.extension.validator.ensureMin
 import org.komapper.extension.validator.ensureMinLength
 import org.komapper.extension.validator.ensureMinSize
 import org.komapper.extension.validator.ensureNotNull
-import org.komapper.extension.validator.invoke
 import org.komapper.extension.validator.schema
 import org.komapper.extension.validator.text
 import org.komapper.extension.validator.tryValidate
