@@ -57,24 +57,16 @@ inline fun <T> T.constrain(
     check: Constraint.(T) -> Unit,
 ) = accumulating {
     mapEachMessage({ logAndAddDetails(it, this@constrain, id) }) {
-        this@constrain.checkThenLog(id, check)
-    }
-}
-
-@PublishedApi
-context(v: Validation)
-internal inline fun <T> T.checkThenLog(
-    id: String,
-    check: Constraint.(T) -> Unit,
-) {
-    Constraint(v).check(this)
-    log {
-        LogEntry.Satisfied(
-            constraintId = id,
-            root = v.root,
-            path = v.path.fullName,
-            input = this,
-        )
+        val v = contextOf<Validation>()
+        Constraint(v).check(this)
+        log {
+            LogEntry.Satisfied(
+                constraintId = id,
+                root = v.root,
+                path = v.path.fullName,
+                input = this,
+            )
+        }
     }
 }
 
@@ -217,10 +209,11 @@ inline fun <T, R> T.name(
  * @param block the validation logic that defines constraints for object properties
  */
 context(_: Validation)
-inline fun <T : Any> T.schema(block: context(Validation) Schema.() -> Unit) {
+inline fun <T : Any> T.schema(block: context(Validation) Schema<T>.() -> Unit) {
+    val obj = this
     val klass = this::class
     val rootName = klass.qualifiedName ?: klass.simpleName ?: klass.toString()
-    return addRoot(rootName, this) { block(Schema) }
+    return addRoot(rootName, this) { block(Schema(obj)) }
 }
 
 /**
@@ -699,7 +692,7 @@ sealed interface LogEntry {
     ) : LogEntry
 }
 
-object Schema {
+class Schema<T>(private val obj: T) {
     /**
      * Validates a property value within a schema using the invoke operator.
      *
@@ -736,4 +729,12 @@ object Schema {
         val value = get()
         return addPathChecked(name, value) { accumulating { block(value) } } ?: Accumulate.Ok(Unit)
     }
+
+    @IgnorableReturnValue
+    context(_: Validation)
+    fun constrain(
+        id: String,
+        check: Constraint.(T) -> Unit,
+    ) = obj.constrain(id, check)
+
 }

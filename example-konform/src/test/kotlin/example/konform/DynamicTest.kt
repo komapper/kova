@@ -53,10 +53,10 @@ class DynamicTest :
         context("kova") {
 
             context(_: Validation)
-            fun validate(address: Address) =
-                address.schema {
-                    address::postalCode {
-                        when (address.countryCode) {
+            fun Address.validate() =
+                schema {
+                    ::postalCode {
+                        when (countryCode) {
                             "US" -> it.ensureMatches(Regex("[0-9]{5}"))
                             else -> it.ensureMatches(Regex("[A-Z]+"))
                         }
@@ -64,12 +64,12 @@ class DynamicTest :
                 }
 
             test("valid - us") {
-                val result = tryValidate { validate(us) }
+                val result = tryValidate { us.validate() }
                 result.shouldBeSuccess()
             }
 
             test("valid - de") {
-                val result = tryValidate { validate(de) }
+                val result = tryValidate { de.validate() }
                 result.shouldBeSuccess()
             }
         }

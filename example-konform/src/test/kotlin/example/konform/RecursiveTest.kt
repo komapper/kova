@@ -85,22 +85,22 @@ class RecursiveTest :
         context("kova") {
 
             context(_: Validation)
-            fun validate(node: Node) {
-                node.schema {
-                    node::children { children ->
+            fun Node.validate() {
+                schema {
+                    ::children { children ->
                         children.ensureSizeAtMost(2)
-                        children.ensureEach { validate(it) }
+                        children.ensureEach { it.validate() }
                     }
                 }
             }
 
             test("valid") {
-                val result = tryValidate { validate(validNode) }
+                val result = tryValidate { validNode.validate() }
                 result.shouldBeSuccess()
             }
 
             test("invalid") {
-                val result = tryValidate { validate(invalidNode) }
+                val result = tryValidate { invalidNode.validate() }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].text shouldBe "Collection (size 3) must have at most 2 elements"
@@ -109,7 +109,7 @@ class RecursiveTest :
             }
 
             test("cyclic") {
-                val result = tryValidate { validate(cyclicNode) }
+                val result = tryValidate { cyclicNode.validate() }
                 result.shouldBeSuccess()
             }
         }

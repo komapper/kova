@@ -64,7 +64,7 @@ class City(
     companion object : IntEntityClass<City>(Cities) {
         init {
             // Automatically validate cities when they are created
-            subscribe { validate(it) }
+            subscribe { it.validate() }
         }
     }
 }
@@ -88,7 +88,7 @@ class User(
     companion object : IntEntityClass<User>(Users) {
         init {
             // Automatically validate users when they are created
-            subscribe { validate(it) }
+            subscribe { it.validate() }
         }
     }
 }
@@ -98,9 +98,9 @@ class User(
  * Validates that the city name is not ensureEmpty.
  */
 context(_: Validation)
-fun validate(city: City) =
-    city.schema {
-        city::name { it.ensureNotEmpty() }
+fun City.validate() =
+    schema {
+        ::name { it.ensureNotEmpty() }
     }
 
 /**
@@ -110,13 +110,13 @@ fun validate(city: City) =
  * - age is between 0 and 120
  */
 context(_: Validation)
-fun validate(user: User) =
-    user.schema {
-        user::name {
+fun User.validate() =
+    schema {
+        ::name {
             it.ensureLengthAtLeast(1)
             it.ensureNotBlank()
         }
-        user::age {
+        ::age {
             it.ensureAtLeast(0)
             it.ensureAtMost(120)
         }

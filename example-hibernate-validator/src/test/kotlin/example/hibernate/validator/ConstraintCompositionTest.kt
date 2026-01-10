@@ -34,9 +34,9 @@ class ConstraintCompositionTest :
             }
 
             context(_: Validation)
-            fun validate(car: Car) =
-                car.schema {
-                    car::licensePlate {
+            fun Car.validate() =
+                schema {
+                    ::licensePlate {
                         validateLicensePlate(it)
                     }
                 }
@@ -44,7 +44,7 @@ class ConstraintCompositionTest :
             test("testClassLevelConstraint") {
                 val car = Car("dd-ab-123")
 
-                val result = tryValidate { validate(car) }
+                val result = tryValidate { car.validate() }
 
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
@@ -54,7 +54,7 @@ class ConstraintCompositionTest :
             test("carIsValid") {
                 val car = Car("DD-AB-123")
 
-                val result = tryValidate { validate(car) }
+                val result = tryValidate { car.validate() }
 
                 result.shouldBeSuccess()
             }

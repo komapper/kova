@@ -80,26 +80,26 @@ class ObjectGraphTest :
             )
 
             context(_: Validation)
-            fun validate(person: Person) =
-                person.schema {
-                    person::name {
+            fun Person.validate() =
+                schema {
+                    ::name {
                         it.ensureNotNull()
                     }
                 }
 
             context(_: Validation)
-            fun validate(car: Car) =
-                car.schema {
-                    car::driver {
+            fun Car.validate() =
+                schema {
+                    ::driver {
                         it.ensureNotNull()
-                        validate(it)
+                        it.validate()
                     }
                 }
 
             test("driverIsNull") {
                 val car = Car(null)
 
-                val result = tryValidate { validate(car) }
+                val result = tryValidate { car.validate() }
 
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
@@ -110,7 +110,7 @@ class ObjectGraphTest :
             test("driverNameIsNull") {
                 val car = Car(Person(null))
 
-                val result = tryValidate { validate(car) }
+                val result = tryValidate { car.validate() }
 
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
@@ -121,7 +121,7 @@ class ObjectGraphTest :
             test("carIsValid") {
                 val car = Car(Person("Smith"))
 
-                val result = tryValidate { validate(car) }
+                val result = tryValidate { car.validate() }
 
                 result.shouldBeSuccess()
             }

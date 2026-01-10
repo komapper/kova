@@ -66,24 +66,24 @@ class SimpleTest :
 
         context("kova") {
             context(_: Validation)
-            fun validate(userProfile: UserProfile) =
-                userProfile.schema {
-                    userProfile::fullName {
+            fun UserProfile.validate() =
+                schema {
+                    ::fullName {
                         it.ensureLengthAtLeast(2)
                         it.ensureLengthAtMost(100)
                     }
-                    userProfile::age {
+                    ::age {
                         if (it != null) it.ensureInRange(0..150)
                     }
                 }
 
             test("valid") {
-                val result = tryValidate { validate(validUserProfile) }
+                val result = tryValidate { validUserProfile.validate() }
                 result.shouldBeSuccess()
             }
 
             test("invalid") {
-                val result = tryValidate { validate(invalidUserProfile) }
+                val result = tryValidate { invalidUserProfile.validate() }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 2
                 result.messages[0].let {

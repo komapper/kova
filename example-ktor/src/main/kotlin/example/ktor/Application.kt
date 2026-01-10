@@ -35,22 +35,9 @@ import org.komapper.extension.validator.text
 @Serializable
 data class Customer(val id: Int, val firstName: String, val lastName: String) : Validated {
     context(_: Validation)
-    override fun validate() = validate(this@Customer)
-}
-
-/**
- * Validation schema for Customer.
- *
- * Validates that:
- * - id is ensurePositive (greater than 0) with a custom error message
- *
- * Note: Additional validations could be added for firstName and lastName,
- * but this example focuses on demonstrating custom error messages with the
- * ensurePositive() constraint.
- */
-context(_: Validation)
-fun validate(customer: Customer) = customer.schema {
-    customer::id { it.ensurePositive { text("A customer ID should be greater than 0") } }
+    override fun validate() = schema {
+        ::id { it.ensurePositive { text("A customer ID should be greater than 0") } }
+    }
 }
 
 /**

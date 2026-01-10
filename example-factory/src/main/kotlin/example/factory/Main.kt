@@ -43,9 +43,9 @@ data class Person(
  * Validates that the age property is between 0 and 120.
  */
 context(_: Validation)
-fun validate(user: User) =
-    user.schema {
-        user::age {
+fun User.validate() =
+    schema {
+        ::age {
             it.ensureInRange(0..120)
         } // property validator
     }
@@ -82,7 +82,7 @@ fun buildUser(
     } // argument validator
     val age by bind(age) { it.transformToInt() } // argument validator
     User(name, age)
-}.also { validate(it) } // object validator
+}.also { it.validate() } // object validator
 
 /**
  * Factory function to build an Age object from a string.

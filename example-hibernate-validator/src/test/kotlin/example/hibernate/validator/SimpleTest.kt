@@ -82,20 +82,20 @@ class SimpleTest :
             )
 
             context(_: Validation)
-            fun validate(car: Car) =
-                car.schema {
-                    car::manufacturer { it.ensureNotNull() }
-                    car::licensePlate {
+            fun Car.validate() =
+                schema {
+                    ::manufacturer { it.ensureNotNull() }
+                    ::licensePlate {
                         it.ensureNotNull()
                         it.ensureLengthInRange(2..14)
                     }
-                    car::seatCount { it.ensureAtLeast(2) }
+                    ::seatCount { it.ensureAtLeast(2) }
                 }
 
             test("manufacturerIsNull") {
                 val car = Car(null, "DD-AB-123", 4)
 
-                val result = tryValidate { validate(car) }
+                val result = tryValidate { car.validate() }
 
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
@@ -105,7 +105,7 @@ class SimpleTest :
             test("licensePlateTooShort") {
                 val car = Car("Morris", "D", 4)
 
-                val result = tryValidate { validate(car) }
+                val result = tryValidate { car.validate() }
 
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
@@ -115,7 +115,7 @@ class SimpleTest :
             test("seatCountTooLow") {
                 val car = Car("Morris", "DD-AB-123", 1)
 
-                val result = tryValidate { validate(car) }
+                val result = tryValidate { car.validate() }
 
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
@@ -125,7 +125,7 @@ class SimpleTest :
             test("carIsValid") {
                 val car = Car("Morris", "DD-AB-123", 2)
 
-                val result = tryValidate { validate(car) }
+                val result = tryValidate { car.validate() }
 
                 result.shouldBeSuccess()
             }

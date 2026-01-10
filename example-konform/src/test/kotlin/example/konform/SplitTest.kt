@@ -77,23 +77,23 @@ class SplitTest :
             }
 
             context(_: Validation)
-            fun validate(userProfile: UserProfile) =
-                userProfile.schema {
-                    userProfile::age {
+            fun UserProfile.validate() =
+                schema {
+                    ::age {
                         checkAge(it)
                     }
-                    userProfile.age.name("ageMinus10") {
+                    age.name("ageMinus10") {
                         checkAge(it?.let { age -> age - 10 })
                     }
                 }
 
             test("valid") {
-                val result = tryValidate { validate(validUserProfile) }
+                val result = tryValidate { validUserProfile.validate() }
                 result.shouldBeSuccess()
             }
 
             test("invalid") {
-                val result = tryValidate { validate(invalidUserProfile) }
+                val result = tryValidate { invalidUserProfile.validate() }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 2
                 result.messages[0].let {

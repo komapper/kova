@@ -64,9 +64,9 @@ class CustomValidatorTest :
 
         context("kova") {
             context(_: Validation)
-            fun validate(userProfile: UserProfile) =
-                userProfile.schema {
-                    userProfile::fullName {
+            fun UserProfile.validate() =
+                schema {
+                    ::fullName {
                         it.ensureNotContains("\t") { text("Name cannot contain a tab") }
                         it.ensureNotBlank { text("Name must have a non-whitespace character") }
                         it.ensureLengthAtLeast(5) { text("Must have 5 characters") }
@@ -74,7 +74,7 @@ class CustomValidatorTest :
                 }
 
             test("invalid") {
-                val result = tryValidate { validate(invalidUserProfile) }
+                val result = tryValidate { invalidUserProfile.validate() }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 3
                 result.messages[0].let {
