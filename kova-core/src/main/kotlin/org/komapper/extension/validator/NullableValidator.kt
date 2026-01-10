@@ -5,7 +5,7 @@ import kotlin.contracts.contract
 /**
  * Validates that the input is null.
  *
- * This constraint fails if the input is non-null. Uses the "kova.nullable.ensureNull"
+ * This constraint fails if the input is non-null. Uses the "kova.nullable.null"
  * constraint ID.
  *
  * Example:
@@ -54,7 +54,7 @@ inline fun <T> Validation.ensureNullOr(
 /**
  * Validates that the input is not null.
  *
- * This constraint fails if the input is null. Uses the "kova.nullable.ensureNotNull"
+ * This constraint fails if the input is null. Uses the "kova.nullable.notNull"
  * constraint ID.
  *
  * Example:
@@ -85,7 +85,7 @@ fun <T> Validation.ensureNotNull(
  * This function is primarily used internally by type conversion validators (e.g., [parseInt],
  * [parseLong], [parseEnum]) that need to report errors with their specific constraint IDs
  * (e.g., "kova.string.ensureInt", "kova.string.ensureEnum") rather than the generic
- * "kova.nullable.ensureNotNull".
+ * "kova.nullable.notNull".
  *
  * The function uses [constrain] to properly track the validation path context and returns
  * the accumulated value, ensuring proper error reporting in nested validation scenarios.

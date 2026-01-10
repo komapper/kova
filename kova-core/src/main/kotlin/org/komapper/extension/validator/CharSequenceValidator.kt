@@ -1,7 +1,7 @@
 package org.komapper.extension.validator
 
 /**
- * Validates that the character sequence ensureLength is at least the specified minimum.
+ * Validates that the character sequence length is at least the specified minimum.
  *
  * Example:
  * ```kotlin
@@ -9,7 +9,7 @@ package org.komapper.extension.validator
  * tryValidate { ensureMinLength("hi", 3) }    // Failure
  * ```
  *
- * @param length Minimum ensureLength (inclusive)
+ * @param length Minimum length (inclusive)
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
@@ -20,7 +20,7 @@ fun Validation.ensureMinLength(
 ) = input.constrain("kova.charSequence.minLength") { satisfies(it.length >= length, message) }
 
 /**
- * Validates that the character sequence ensureLength does not exceed the specified maximum.
+ * Validates that the character sequence length does not exceed the specified maximum.
  *
  * Example:
  * ```kotlin
@@ -28,7 +28,7 @@ fun Validation.ensureMinLength(
  * tryValidate { ensureMaxLength("very long string", 10) } // Failure
  * ```
  *
- * @param length Maximum ensureLength (inclusive)
+ * @param length Maximum length (inclusive)
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
@@ -39,7 +39,7 @@ fun Validation.ensureMaxLength(
 ) = input.constrain("kova.charSequence.maxLength") { satisfies(it.length <= length, message) }
 
 /**
- * Validates that the character sequence is not ensureBlank (not ensureEmpty and not only whitespace).
+ * Validates that the character sequence is not blank (not empty and not only whitespace).
  *
  * Example:
  * ```kotlin
@@ -57,7 +57,7 @@ fun Validation.ensureNotBlank(
 ) = input.constrain("kova.charSequence.notBlank") { satisfies(it.isNotBlank(), message) }
 
 /**
- * Validates that the character sequence is ensureBlank (ensureEmpty or only whitespace).
+ * Validates that the character sequence is blank (empty or only whitespace).
  *
  * Example:
  * ```kotlin
@@ -75,12 +75,12 @@ fun Validation.ensureBlank(
 ) = input.constrain("kova.charSequence.blank") { satisfies(it.isBlank(), message) }
 
 /**
- * Validates that the character sequence is not ensureEmpty.
+ * Validates that the character sequence is not empty.
  *
  * Example:
  * ```kotlin
  * tryValidate { ensureNotEmpty("hello") } // Success
- * tryValidate { ensureNotEmpty("   ") }   // Success (ensureContains whitespace)
+ * tryValidate { ensureNotEmpty("   ") }   // Success (contains whitespace)
  * tryValidate { ensureNotEmpty("") }      // Failure
  * ```
  *
@@ -93,12 +93,12 @@ fun Validation.ensureNotEmpty(
 ) = input.constrain("kova.charSequence.notEmpty") { satisfies(it.isNotEmpty(), message) }
 
 /**
- * Validates that the character sequence is ensureEmpty.
+ * Validates that the character sequence is empty.
  *
  * Example:
  * ```kotlin
  * tryValidate { ensureEmpty("") }      // Success
- * tryValidate { ensureEmpty("   ") }   // Failure (ensureContains whitespace)
+ * tryValidate { ensureEmpty("   ") }   // Failure (contains whitespace)
  * tryValidate { ensureEmpty("hello") } // Failure
  * ```
  *
@@ -111,7 +111,7 @@ fun Validation.ensureEmpty(
 ) = input.constrain("kova.charSequence.empty") { satisfies(it.isEmpty(), message) }
 
 /**
- * Validates that the character sequence ensureLength equals exactly the specified value.
+ * Validates that the character sequence length equals exactly the specified value.
  *
  * Example:
  * ```kotlin
@@ -119,7 +119,7 @@ fun Validation.ensureEmpty(
  * tryValidate { ensureLength("hi", 5) }    // Failure
  * ```
  *
- * @param ensureLength Exact ensureLength required
+ * @param length Exact length required
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
