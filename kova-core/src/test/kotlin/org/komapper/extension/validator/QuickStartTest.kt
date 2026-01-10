@@ -18,8 +18,8 @@ class QuickStartTest :
         context("basic") {
             context(_: Validation)
             fun validateProductName(name: String): String {
-                ensureNotBlank(name)
-                ensureLengthInRange(name, 1..100)
+                name.ensureNotBlank()
+                name.ensureLengthInRange(1..100)
                 return name
             }
 
@@ -49,14 +49,14 @@ class QuickStartTest :
         context("multiple") {
             context(_: Validation)
             fun validateProductName(name: String): String {
-                ensureNotBlank(name)
-                ensureLengthInRange(name, 1..100)
+                name.ensureNotBlank()
+                name.ensureLengthInRange(1..100)
                 return name
             }
 
             context(_: Validation)
             fun validatePrice(price: Double): Double {
-                ensureInClosedRange(price, 0.0..1000.0)
+                price.ensureInClosedRange(0.0..1000.0)
                 return price
             }
 
@@ -105,13 +105,13 @@ class QuickStartTest :
             context(_: Validation)
             fun validate(product: Product) =
                 product.schema {
-                    product::id { ensureMin(it, 1) }
+                    product::id { it.ensureMin(1) }
                     product::name {
-                        ensureNotBlank(it)
-                        ensureMinLength(it, 1)
-                        ensureMaxLength(it, 100)
+                        it.ensureNotBlank()
+                        it.ensureMinLength(1)
+                        it.ensureMaxLength(100)
                     }
-                    product::price { ensureMin(it, 0.0) }
+                    product::price { it.ensureMin(0.0) }
                 }
 
             test("test") {
@@ -137,27 +137,27 @@ class QuickStartTest :
             fun validate(address: Address) =
                 address.schema {
                     address::street {
-                        ensureNotBlank(it)
-                        ensureMinLength(it, 1)
+                        it.ensureNotBlank()
+                        it.ensureMinLength(1)
                     }
                     address::city {
-                        ensureNotBlank(it)
-                        ensureMinLength(it, 1)
+                        it.ensureNotBlank()
+                        it.ensureMinLength(1)
                     }
-                    address::zipCode { ensureMatches(it, Regex("^\\d{5}(-\\d{4})?$")) }
+                    address::zipCode { it.ensureMatches(Regex("^\\d{5}(-\\d{4})?$")) }
                 }
 
             context(_: Validation)
             fun validate(customer: Customer) =
                 customer.schema {
                     customer::name {
-                        ensureNotBlank(it)
-                        ensureMinLength(it, 1)
-                        ensureMaxLength(it, 100)
+                        it.ensureNotBlank()
+                        it.ensureMinLength(1)
+                        it.ensureMaxLength(100)
                     }
                     customer::email {
-                        ensureNotBlank(it)
-                        ensureContains(it, "@")
+                        it.ensureNotBlank()
+                        it.ensureContains("@")
                     }
                     customer::address { validate(it) } // Nested validation
                 }
@@ -196,8 +196,8 @@ class QuickStartTest :
             context(_: Validation)
             fun validate(range: PriceRange) =
                 range.schema {
-                    range::minPrice { ensureNotNegative(it) }
-                    range::maxPrice { ensureNotNegative(it) }
+                    range::minPrice { it.ensureNotNegative() }
+                    range::maxPrice { it.ensureNotNegative() }
 
                     // Validate relationship
                     range.constrain("priceRange") {
@@ -217,8 +217,8 @@ class QuickStartTest :
         context("fail fast") {
             context(_: Validation)
             fun validateProductName(name: String) {
-                ensureNotBlank(name)
-                ensureLengthInRange(name, 1..100)
+                name.ensureNotBlank()
+                name.ensureLengthInRange(1..100)
             }
 
             test("test") {
@@ -234,7 +234,7 @@ class QuickStartTest :
         context("custom clock") {
             context(_: Validation)
             fun validateDate(date: LocalDate) {
-                ensureFuture(date)
+                date.ensureFuture()
             }
 
             test("test") {
@@ -242,7 +242,7 @@ class QuickStartTest :
                 val result =
                     tryValidate(config = ValidationConfig(clock = fixedClock)) {
                         val date = LocalDate.of(2024, 6, 20)
-                        ensureFuture(date) // Uses the fixed clock for comparison
+                        date.ensureFuture() // Uses the fixed clock for comparison
                     }
 
                 result.shouldBeSuccess()
@@ -252,8 +252,8 @@ class QuickStartTest :
         context("debug logging") {
             context(_: Validation)
             fun validateUsername(username: String) {
-                ensureMinLength(username, 3)
-                ensureMaxLength(username, 20)
+                username.ensureMinLength(3)
+                username.ensureMaxLength(20)
             }
 
             test("test") {

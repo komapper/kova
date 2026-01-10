@@ -72,8 +72,8 @@ class SplitTest :
 
             context(_: Validation)
             fun checkAge(age: Int?) {
-                ensureNotNull(age)
-                ensureMin(age, 21)
+                age.ensureNotNull()
+                age.ensureMin(21)
             }
 
             context(_: Validation)

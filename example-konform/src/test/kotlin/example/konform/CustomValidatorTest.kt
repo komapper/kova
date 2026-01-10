@@ -67,9 +67,9 @@ class CustomValidatorTest :
             fun validate(userProfile: UserProfile) =
                 userProfile.schema {
                     userProfile::fullName {
-                        ensureNotContains(it, "\t") { text("Name cannot contain a tab") }
-                        ensureNotBlank(it) { text("Name must have a non-whitespace character") }
-                        ensureMinLength(it, 5) { text("Must have 5 characters") }
+                        it.ensureNotContains("\t") { text("Name cannot contain a tab") }
+                        it.ensureNotBlank { text("Name must have a non-whitespace character") }
+                        it.ensureMinLength(5) { text("Must have 5 characters") }
                     }
                 }
 

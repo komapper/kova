@@ -12,11 +12,11 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 import org.komapper.extension.validator.Validation
+import org.komapper.extension.validator.ensurePositive
 import org.komapper.extension.validator.ktor.server.SchemaValidator
 import org.komapper.extension.validator.ktor.server.Validated
-import org.komapper.extension.validator.ensurePositive
 import org.komapper.extension.validator.schema
-import org.komapper.extension.validator.*
+import org.komapper.extension.validator.text
 
 /**
  * Customer data class demonstrating Kova integration with Ktor.
@@ -50,7 +50,7 @@ data class Customer(val id: Int, val firstName: String, val lastName: String) : 
  */
 context(_: Validation)
 fun validate(customer: Customer) = customer.schema {
-    customer::id { ensurePositive(it) { text("A customer ID should be greater than 0") } }
+    customer::id { it.ensurePositive { text("A customer ID should be greater than 0") } }
 }
 
 /**

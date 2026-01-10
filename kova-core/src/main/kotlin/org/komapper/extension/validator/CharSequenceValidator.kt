@@ -5,8 +5,8 @@ package org.komapper.extension.validator
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureMinLength("hello", 3) } // Success
- * tryValidate { ensureMinLength("hi", 3) }    // Failure
+ * tryValidate { "hello".ensureMinLength(3) } // Success
+ * tryValidate { "hi".ensureMinLength(3) }    // Failure
  * ```
  *
  * @param length Minimum length (inclusive)
@@ -14,19 +14,18 @@ package org.komapper.extension.validator
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun ensureMinLength(
-    input: CharSequence,
+fun CharSequence.ensureMinLength(
     length: Int,
     message: MessageProvider = { "kova.charSequence.minLength".resource(length) },
-) = input.constrain("kova.charSequence.minLength") { satisfies(it.length >= length, message) }
+) = this.constrain("kova.charSequence.minLength") { satisfies(it.length >= length, message) }
 
 /**
  * Validates that the character sequence length does not exceed the specified maximum.
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureMaxLength("hello", 10) }           // Success
- * tryValidate { ensureMaxLength("very long string", 10) } // Failure
+ * tryValidate { "hello".ensureMaxLength(10) }           // Success
+ * tryValidate { "very long string".ensureMaxLength(10) } // Failure
  * ```
  *
  * @param length Maximum length (inclusive)
@@ -34,95 +33,86 @@ fun ensureMinLength(
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun ensureMaxLength(
-    input: CharSequence,
+fun CharSequence.ensureMaxLength(
     length: Int,
     message: MessageProvider = { "kova.charSequence.maxLength".resource(length) },
-) = input.constrain("kova.charSequence.maxLength") { satisfies(it.length <= length, message) }
+) = this.constrain("kova.charSequence.maxLength") { satisfies(it.length <= length, message) }
 
 /**
  * Validates that the character sequence is not blank (not empty and not only whitespace).
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureNotBlank("hello") } // Success
- * tryValidate { ensureNotBlank("   ") }   // Failure
- * tryValidate { ensureNotBlank("") }      // Failure
+ * tryValidate { "hello".ensureNotBlank() } // Success
+ * tryValidate { "   ".ensureNotBlank() }   // Failure
+ * tryValidate { "".ensureNotBlank() }      // Failure
  * ```
  *
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun ensureNotBlank(
-    input: CharSequence,
-    message: MessageProvider = { "kova.charSequence.notBlank".resource },
-) = input.constrain("kova.charSequence.notBlank") { satisfies(it.isNotBlank(), message) }
+fun CharSequence.ensureNotBlank(message: MessageProvider = { "kova.charSequence.notBlank".resource }) =
+    this.constrain("kova.charSequence.notBlank") { satisfies(it.isNotBlank(), message) }
 
 /**
  * Validates that the character sequence is blank (empty or only whitespace).
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureBlank("   ") }   // Success
- * tryValidate { ensureBlank("") }      // Success
- * tryValidate { ensureBlank("hello") } // Failure
+ * tryValidate { "   ".ensureBlank() }   // Success
+ * tryValidate { "".ensureBlank() }      // Success
+ * tryValidate { "hello".ensureBlank() } // Failure
  * ```
  *
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun ensureBlank(
-    input: CharSequence,
-    message: MessageProvider = { "kova.charSequence.blank".resource },
-) = input.constrain("kova.charSequence.blank") { satisfies(it.isBlank(), message) }
+fun CharSequence.ensureBlank(message: MessageProvider = { "kova.charSequence.blank".resource }) =
+    this.constrain("kova.charSequence.blank") { satisfies(it.isBlank(), message) }
 
 /**
  * Validates that the character sequence is not empty.
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureNotEmpty("hello") } // Success
- * tryValidate { ensureNotEmpty("   ") }   // Success (contains whitespace)
- * tryValidate { ensureNotEmpty("") }      // Failure
+ * tryValidate { "hello".ensureNotEmpty() } // Success
+ * tryValidate { "   ".ensureNotEmpty() }   // Success (contains whitespace)
+ * tryValidate { "".ensureNotEmpty() }      // Failure
  * ```
  *
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun ensureNotEmpty(
-    input: CharSequence,
-    message: MessageProvider = { "kova.charSequence.notEmpty".resource },
-) = input.constrain("kova.charSequence.notEmpty") { satisfies(it.isNotEmpty(), message) }
+fun CharSequence.ensureNotEmpty(message: MessageProvider = { "kova.charSequence.notEmpty".resource }) =
+    this.constrain("kova.charSequence.notEmpty") { satisfies(it.isNotEmpty(), message) }
 
 /**
  * Validates that the character sequence is empty.
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureEmpty("") }      // Success
- * tryValidate { ensureEmpty("   ") }   // Failure (contains whitespace)
- * tryValidate { ensureEmpty("hello") } // Failure
+ * tryValidate { "".ensureEmpty() }      // Success
+ * tryValidate { "   ".ensureEmpty() }   // Failure (contains whitespace)
+ * tryValidate { "hello".ensureEmpty() } // Failure
  * ```
  *
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun ensureEmpty(
-    input: CharSequence,
-    message: MessageProvider = { "kova.charSequence.empty".resource },
-) = input.constrain("kova.charSequence.empty") { satisfies(it.isEmpty(), message) }
+fun CharSequence.ensureEmpty(message: MessageProvider = { "kova.charSequence.empty".resource }) =
+    this.constrain("kova.charSequence.empty") { satisfies(it.isEmpty(), message) }
 
 /**
  * Validates that the character sequence length equals exactly the specified value.
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureLength("hello", 5) } // Success
- * tryValidate { ensureLength("hi", 5) }    // Failure
+ * tryValidate { "hello".ensureLength(5) } // Success
+ * tryValidate { "hi".ensureLength(5) }    // Failure
  * ```
  *
  * @param length Exact length required
@@ -130,11 +120,10 @@ fun ensureEmpty(
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun ensureLength(
-    input: CharSequence,
+fun CharSequence.ensureLength(
     length: Int,
     message: MessageProvider = { "kova.charSequence.length".resource(length) },
-) = input.constrain("kova.charSequence.length") { satisfies(it.length == length, message) }
+) = this.constrain("kova.charSequence.length") { satisfies(it.length == length, message) }
 
 /**
  * Validates that the character sequence length is within the specified range.
@@ -144,10 +133,10 @@ fun ensureLength(
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureLengthInRange("hello", 1..10) }      // Success
- * tryValidate { ensureLengthInRange("hi", 1..10) }         // Success
- * tryValidate { ensureLengthInRange("", 1..10) }           // Failure (too short)
- * tryValidate { ensureLengthInRange("very long text", 1..<5) }  // Failure (too long)
+ * tryValidate { "hello".ensureLengthInRange(1..10) }      // Success
+ * tryValidate { "hi".ensureLengthInRange(1..10) }         // Success
+ * tryValidate { "".ensureLengthInRange(1..10) }           // Failure (too short)
+ * tryValidate { "very long text".ensureLengthInRange(1..<5) }  // Failure (too long)
  * ```
  *
  * @param range The range for valid lengths (must implement both ClosedRange and OpenEndRange)
@@ -155,20 +144,19 @@ fun ensureLength(
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun <R> ensureLengthInRange(
-    input: CharSequence,
+fun <R> CharSequence.ensureLengthInRange(
     range: R,
     message: MessageProvider = { "kova.charSequence.lengthInRange".resource(range) },
 ) where R : ClosedRange<Int>, R : OpenEndRange<Int> =
-    input.constrain("kova.charSequence.lengthInRange") { satisfies(it.length in range, message) }
+    this.constrain("kova.charSequence.lengthInRange") { satisfies(it.length in range, message) }
 
 /**
  * Validates that the character sequence starts with the specified prefix.
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureStartsWith("Hello World", "Hello") } // Success
- * tryValidate { ensureStartsWith("Goodbye", "Hello") }     // Failure
+ * tryValidate { "Hello World".ensureStartsWith("Hello") } // Success
+ * tryValidate { "Goodbye".ensureStartsWith("Hello") }     // Failure
  * ```
  *
  * @param prefix The required prefix
@@ -176,19 +164,18 @@ fun <R> ensureLengthInRange(
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun ensureStartsWith(
-    input: CharSequence,
+fun CharSequence.ensureStartsWith(
     prefix: CharSequence,
     message: MessageProvider = { "kova.charSequence.startsWith".resource(prefix) },
-) = input.constrain("kova.charSequence.startsWith") { satisfies(it.startsWith(prefix, ignoreCase = false), message) }
+) = this.constrain("kova.charSequence.startsWith") { satisfies(it.startsWith(prefix, ignoreCase = false), message) }
 
 /**
  * Validates that the character sequence does not start with the specified prefix.
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureNotStartsWith("Goodbye", "Hello") }     // Success
- * tryValidate { ensureNotStartsWith("Hello World", "Hello") } // Failure
+ * tryValidate { "Goodbye".ensureNotStartsWith("Hello") }     // Success
+ * tryValidate { "Hello World".ensureNotStartsWith("Hello") } // Failure
  * ```
  *
  * @param prefix The prefix that must not be present
@@ -196,11 +183,10 @@ fun ensureStartsWith(
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun ensureNotStartsWith(
-    input: CharSequence,
+fun CharSequence.ensureNotStartsWith(
     prefix: CharSequence,
     message: MessageProvider = { "kova.charSequence.notStartsWith".resource(prefix) },
-) = input.constrain("kova.charSequence.notStartsWith") {
+) = this.constrain("kova.charSequence.notStartsWith") {
     satisfies(!it.startsWith(prefix, ignoreCase = false), message)
 }
 
@@ -209,8 +195,8 @@ fun ensureNotStartsWith(
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureEndsWith("document.txt", ".txt") } // Success
- * tryValidate { ensureEndsWith("document.pdf", ".txt") } // Failure
+ * tryValidate { "document.txt".ensureEndsWith(".txt") } // Success
+ * tryValidate { "document.pdf".ensureEndsWith(".txt") } // Failure
  * ```
  *
  * @param suffix The required suffix
@@ -218,19 +204,18 @@ fun ensureNotStartsWith(
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun ensureEndsWith(
-    input: CharSequence,
+fun CharSequence.ensureEndsWith(
     suffix: CharSequence,
     message: MessageProvider = { "kova.charSequence.endsWith".resource(suffix) },
-) = input.constrain("kova.charSequence.endsWith") { satisfies(it.endsWith(suffix, ignoreCase = false), message) }
+) = this.constrain("kova.charSequence.endsWith") { satisfies(it.endsWith(suffix, ignoreCase = false), message) }
 
 /**
  * Validates that the character sequence does not end with the specified suffix.
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureNotEndsWith("document.pdf", ".txt") } // Success
- * tryValidate { ensureNotEndsWith("document.txt", ".txt") } // Failure
+ * tryValidate { "document.pdf".ensureNotEndsWith(".txt") } // Success
+ * tryValidate { "document.txt".ensureNotEndsWith(".txt") } // Failure
  * ```
  *
  * @param suffix The suffix that must not be present
@@ -238,19 +223,18 @@ fun ensureEndsWith(
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun ensureNotEndsWith(
-    input: CharSequence,
+fun CharSequence.ensureNotEndsWith(
     suffix: CharSequence,
     message: MessageProvider = { "kova.charSequence.notEndsWith".resource(suffix) },
-) = input.constrain("kova.charSequence.notEndsWith") { satisfies(!it.endsWith(suffix, ignoreCase = false), message) }
+) = this.constrain("kova.charSequence.notEndsWith") { satisfies(!it.endsWith(suffix, ignoreCase = false), message) }
 
 /**
  * Validates that the character sequence ensureContains the specified substring.
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureContains("hello world", "world") } // Success
- * tryValidate { ensureContains("hello", "world") }       // Failure
+ * tryValidate { "hello world".ensureContains("world") } // Success
+ * tryValidate { "hello".ensureContains("world") }       // Failure
  * ```
  *
  * @param infix The required substring
@@ -258,19 +242,18 @@ fun ensureNotEndsWith(
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun ensureContains(
-    input: CharSequence,
+fun CharSequence.ensureContains(
     infix: CharSequence,
     message: MessageProvider = { "kova.charSequence.contains".resource(infix) },
-) = input.constrain("kova.charSequence.contains") { satisfies(infix in it, message) }
+) = this.constrain("kova.charSequence.contains") { satisfies(infix in it, message) }
 
 /**
  * Validates that the character sequence does not contain the specified substring.
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureNotContains("hello", "world") }       // Success
- * tryValidate { ensureNotContains("hello world", "world") } // Failure
+ * tryValidate { "hello".ensureNotContains("world") }       // Success
+ * tryValidate { "hello world".ensureNotContains("world") } // Failure
  * ```
  *
  * @param infix The substring that must not be present
@@ -278,19 +261,18 @@ fun ensureContains(
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun ensureNotContains(
-    input: CharSequence,
+fun CharSequence.ensureNotContains(
     infix: CharSequence,
     message: MessageProvider = { "kova.charSequence.notContains".resource(infix) },
-) = input.constrain("kova.charSequence.notContains") { satisfies(infix !in it, message) }
+) = this.constrain("kova.charSequence.notContains") { satisfies(infix !in it, message) }
 
 /**
  * Validates that the character sequence ensureMatches the specified regular expression pattern.
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureMatches("123-4567", Regex("\\d{3}-\\d{4}")) } // Success
- * tryValidate { ensureMatches("12-34", Regex("\\d{3}-\\d{4}")) }    // Failure
+ * tryValidate { "123-4567".ensureMatches(Regex("\\d{3}-\\d{4}")) } // Success
+ * tryValidate { "12-34".ensureMatches(Regex("\\d{3}-\\d{4}")) }    // Failure
  * ```
  *
  * @param pattern The regex pattern to match
@@ -298,19 +280,18 @@ fun ensureNotContains(
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun ensureMatches(
-    input: CharSequence,
+fun CharSequence.ensureMatches(
     pattern: Regex,
     message: MessageProvider = { "kova.charSequence.matches".resource(pattern) },
-) = input.constrain("kova.charSequence.matches") { satisfies(pattern.matches(it), message) }
+) = this.constrain("kova.charSequence.matches") { satisfies(pattern.matches(it), message) }
 
 /**
  * Validates that the character sequence does not match the specified regular expression pattern.
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureNotMatches("hello", Regex("\\d+")) } // Success
- * tryValidate { ensureNotMatches("123", Regex("\\d+")) }   // Failure
+ * tryValidate { "hello".ensureNotMatches(Regex("\\d+")) } // Success
+ * tryValidate { "123".ensureNotMatches(Regex("\\d+")) }   // Failure
  * ```
  *
  * @param pattern The regex pattern that must not match
@@ -318,8 +299,7 @@ fun ensureMatches(
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun ensureNotMatches(
-    input: CharSequence,
+fun CharSequence.ensureNotMatches(
     pattern: Regex,
     message: MessageProvider = { "kova.charSequence.notMatches".resource(pattern) },
-) = input.constrain("kova.charSequence.notMatches") { satisfies(!pattern.matches(it), message) }
+) = this.constrain("kova.charSequence.notMatches") { satisfies(!pattern.matches(it), message) }

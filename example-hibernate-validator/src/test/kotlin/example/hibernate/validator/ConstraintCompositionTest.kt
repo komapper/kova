@@ -28,9 +28,9 @@ class ConstraintCompositionTest :
 
             context(_: Validation)
             fun validateLicensePlate(s: String?) {
-                ensureNotNull(s)
-                ensureLengthInRange(s, 2..14)
-                ensureUppercase(s)
+                s.ensureNotNull()
+                s.ensureLengthInRange(2..14)
+                s.ensureUppercase()
             }
 
             context(_: Validation)

@@ -55,7 +55,7 @@ class GroupTest :
                 checks: Set<Check> = setOf(Check.DEFAULT),
             ) = person.schema {
                 if (Check.DEFAULT in checks) {
-                    person::name { ensureNotNull(it) }
+                    person::name { it.ensureNotNull() }
                 }
             }
 
@@ -67,10 +67,10 @@ class GroupTest :
                 validate(driver as Person, checks)
                 if (Check.DRIVER in checks) {
                     driver::age {
-                        ensureMin(it, 18) { text("You have to be 18 to drive a car") }
+                        it.ensureMin(18) { text("You have to be 18 to drive a car") }
                     }
                     driver::hasDriverLicense {
-                        ensureEquals(it, true) {
+                        it.ensureEquals(true) {
                             text("You first have to pass the driving test")
                         }
                     }
@@ -84,24 +84,23 @@ class GroupTest :
             ) = car.schema {
                 if (Check.DEFAULT in checks) {
                     car::manufacturer {
-                        ensureNotNull(it)
+                        it.ensureNotNull()
                     }
                     car::licencePlate {
-                        ensureNotNull(it)
-                        ensureMinLength(it, 2)
-                        ensureMaxLength(it, 14)
+                        it.ensureNotNull()
+                        it.ensureMinLength(2)
+                        it.ensureMaxLength(14)
                     }
                     car::seatCount {
-                        ensureMin(it, 2)
+                        it.ensureMin(2)
                     }
                 }
 
                 if (Check.CAR in checks) {
                     car::passedVehicleInspection {
-                        ensureEquals(
-                            it,
-                            true,
-                        ) { text("The car ensureHas to pass the vehicle inspection first") }
+                        it.ensureEquals(true) {
+                            text("The car ensureHas to pass the vehicle inspection first")
+                        }
                     }
                 }
 

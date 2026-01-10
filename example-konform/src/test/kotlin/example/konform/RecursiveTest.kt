@@ -88,8 +88,8 @@ class RecursiveTest :
             fun validate(node: Node) {
                 node.schema {
                     node::children { children ->
-                        ensureMaxSize(children, 2)
-                        ensureEach(children) { validate(it) }
+                        children.ensureMaxSize(2)
+                        children.ensureEach { validate(it) }
                     }
                 }
             }

@@ -83,7 +83,7 @@ class ObjectGraphTest :
             fun validate(person: Person) =
                 person.schema {
                     person::name {
-                        ensureNotNull(it)
+                        it.ensureNotNull()
                     }
                 }
 
@@ -91,7 +91,7 @@ class ObjectGraphTest :
             fun validate(car: Car) =
                 car.schema {
                     car::driver {
-                        ensureNotNull(it)
+                        it.ensureNotNull()
                         validate(it)
                     }
                 }

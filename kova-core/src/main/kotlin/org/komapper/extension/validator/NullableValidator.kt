@@ -10,19 +10,16 @@ import kotlin.contracts.contract
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureNull(null) }    // Success
- * tryValidate { ensureNull("hello") } // Failure
+ * tryValidate { null.ensureNull() }    // Success
+ * tryValidate { "hello".ensureNull() } // Failure
  * ```
  *
- * @param input The nullable input value to validate
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun <T> ensureNull(
-    input: T,
-    message: MessageProvider = { "kova.nullable.null".resource },
-) = input.constrain("kova.nullable.null") { satisfies(it == null, message) }
+fun <T> T.ensureNull(message: MessageProvider = { "kova.nullable.null".resource }) =
+    this.constrain("kova.nullable.null") { satisfies(it == null, message) }
 
 /**
  * Validates that the input is null OR satisfies the given constraints.
@@ -36,22 +33,20 @@ fun <T> ensureNull(
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureNullOr(null) { min(it, 3) } }      // Success (is null)
- * tryValidate { ensureNullOr("hello") { min(it, 3) } }  // Success (satisfies min)
- * tryValidate { ensureNullOr("hi") { min(it, 3) } }     // Failure (too short)
+ * tryValidate { null.ensureNullOr { it.ensureMinLength(3) } }      // Success (is null)
+ * tryValidate { "hello".ensureNullOr { it.ensureMinLength(3) } }  // Success (satisfies min)
+ * tryValidate { "hi".ensureNullOr { it.ensureMinLength(3) } }     // Failure (too short)
  * ```
  *
- * @param input The nullable input value to validate
  * @param message Custom error message provider for the null check
  * @param block Validation block to execute if input is not null
  */
 @IgnorableReturnValue
 context(_: Validation)
-inline fun <T> ensureNullOr(
-    input: T,
+inline fun <T> T.ensureNullOr(
     noinline message: MessageProvider = { "kova.nullable.null".resource },
     block: context(Validation)(T & Any) -> Unit,
-) = or<Unit> { ensureNull(input, message) } orElse { block(input!!) }
+) = or<Unit> { this.ensureNull(message) } orElse { block(this!!) }
 
 /**
  * Validates that the input is not null.
@@ -61,21 +56,17 @@ inline fun <T> ensureNullOr(
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureNotNull("hello") } // Success
- * tryValidate { ensureNotNull(null) }    // Failure
+ * tryValidate { "hello".ensureNotNull() } // Success
+ * tryValidate { null.ensureNotNull() }    // Failure
  * ```
  *
- * @param input The nullable input value to validate
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun <T> ensureNotNull(
-    input: T,
-    message: MessageProvider = { "kova.nullable.notNull".resource },
-): Accumulate.Value<Unit> {
-    contract { returns() implies (input != null) }
-    return raiseIfNull(input, "kova.nullable.notNull", message)
+fun <T> T.ensureNotNull(message: MessageProvider = { "kova.nullable.notNull".resource }): Accumulate.Value<Unit> {
+    contract { returns() implies (this@ensureNotNull != null) }
+    return raiseIfNull(this, "kova.nullable.notNull", message)
 }
 
 /**

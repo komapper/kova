@@ -15,8 +15,8 @@ class ValidatorTest :
         context("tryValidate and validate") {
             context(_: Validation)
             fun validate(i: Int) {
-                ensureMin(i, 1)
-                ensureMax(i, 10)
+                i.ensureMin(1)
+                i.ensureMax(10)
             }
 
             test("tryValidate - success") {
@@ -48,7 +48,7 @@ class ValidatorTest :
         context("map") {
             context(_: Validation)
             fun validate(i: Int): Int {
-                ensureMin(i, 1)
+                i.ensureMin(1)
                 return i * 2
             }
             test("success") {
@@ -67,8 +67,8 @@ class ValidatorTest :
         context("then") {
             context(_: Validation)
             fun validate(i: Int): String {
-                ensureMin(i, 3)
-                return i.toString().also { ensureMaxLength(it, 1) }
+                i.ensureMin(3)
+                return i.toString().also { it.ensureMaxLength(1) }
             }
 
             test("success") {
@@ -92,8 +92,8 @@ class ValidatorTest :
             context(_: Validation)
             fun validate(string: String) =
                 string.trim().let {
-                    ensureMinLength(it, 3)
-                    ensureMaxLength(it, 5)
+                    it.ensureMinLength(3)
+                    it.ensureMaxLength(5)
                 }
 
             test("success") {
@@ -144,8 +144,8 @@ class ValidatorTest :
         context("mapping operation after failure") {
             context(_: Validation)
             fun validate(string: String) =
-                string.trim().also { ensureMinLength(it, 3) }.uppercase().also {
-                    ensureMaxLength(it, 3)
+                string.trim().also { it.ensureMinLength(3) }.uppercase().also {
+                    it.ensureMaxLength(3)
                 }
 
             test("failure") {
@@ -174,8 +174,8 @@ class ValidatorTest :
         context("failFast") {
             context(_: Validation)
             fun validate(string: String) {
-                ensureMinLength(string, 3)
-                ensureLength(string, 4)
+                string.ensureMinLength(3)
+                string.ensureLength(4)
             }
 
             test("failFast = false") {
@@ -195,8 +195,8 @@ class ValidatorTest :
             context(_: Validation)
             fun validate(string: String?) {
                 if (string == null) return
-                ensureMinLength(string, 3)
-                ensureLength(string, 4)
+                string.ensureMinLength(3)
+                string.ensureLength(4)
             }
 
             test("failFast = false") {
@@ -229,13 +229,13 @@ class ValidatorTest :
             }
 
             context(_: Validation)
-            fun requestKeyIsNotNull(request: Request) = requestKey(request) { ensureNotNull(it) }
+            fun requestKeyIsNotNull(request: Request) = requestKey(request) { it.ensureNotNull() }
 
             context(_: Validation)
             fun requestKeyIsNotNullAndMin3(request: Request) =
                 requestKey(request) {
-                    ensureNotNull(it)
-                    if (it != null) ensureMinLength(it, 3)
+                    it.ensureNotNull()
+                    if (it != null) it.ensureMinLength(3)
                 }
 
             test("success when requestKey is not null") {
@@ -319,8 +319,8 @@ class ValidatorTest :
             context(_: Validation)
             fun validate(string: String) =
                 withMessage({ messages -> text("Invalid: consolidates messages=(${messages.joinToString { it.text }})") }) {
-                    ensureUppercase(string)
-                    ensureMinLength(string, 3)
+                    string.ensureUppercase()
+                    string.ensureMinLength(3)
                     Unit
                 }
 
@@ -343,8 +343,8 @@ class ValidatorTest :
             context(_: Validation)
             fun validate(string: String) =
                 withMessage {
-                    ensureUppercase(string)
-                    ensureMinLength(string, 3)
+                    string.ensureUppercase()
+                    string.ensureMinLength(3)
                     Unit
                 }
 
@@ -375,8 +375,8 @@ class ValidatorTest :
                     user::id { }
                     user::name {
                         withMessage({ text("Must be uppercase and at least 3 characters long") }) {
-                            ensureUppercase(it)
-                            ensureMinLength(it, 3)
+                            it.ensureUppercase()
+                            it.ensureMinLength(3)
                         }
                     }
                 }

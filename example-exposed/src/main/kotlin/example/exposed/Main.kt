@@ -100,7 +100,7 @@ class User(
 context(_: Validation)
 fun validate(city: City) =
     city.schema {
-        city::name { ensureNotEmpty(it) }
+        city::name { it.ensureNotEmpty() }
     }
 
 /**
@@ -113,12 +113,12 @@ context(_: Validation)
 fun validate(user: User) =
     user.schema {
         user::name {
-            ensureMinLength(it, 1)
-            ensureNotBlank(it)
+            it.ensureMinLength(1)
+            it.ensureNotBlank()
         }
         user::age {
-            ensureMin(it, 0)
-            ensureMax(it, 120)
+            it.ensureMin(0)
+            it.ensureMax(120)
         }
     }
 

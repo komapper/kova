@@ -22,7 +22,7 @@ class FactoryTest :
             fun buildUser(name: String) =
                 factory {
                     val name by bind(name) {
-                        ensureNotBlank(it)
+                        it.ensureNotBlank()
                         it
                     }
                     User(name)
@@ -83,7 +83,7 @@ class FactoryTest :
             fun buildName(value: String) =
                 factory {
                     val value by bind(value) {
-                        ensureNotBlank(it)
+                        it.ensureNotBlank()
                         it
                     }
                     Name(value)

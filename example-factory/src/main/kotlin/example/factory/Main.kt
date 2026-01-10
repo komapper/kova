@@ -46,7 +46,7 @@ context(_: Validation)
 fun validate(user: User) =
     user.schema {
         user::age {
-            ensureInRange(it, 0..120)
+            it.ensureInRange(0..120)
         } // property validator
     }
 
@@ -76,8 +76,8 @@ fun buildUser(
     age: String,
 ) = factory {
     val name by bind(name) {
-        ensureMinLength(it, 1)
-        ensureNotBlank(it)
+        it.ensureMinLength(1)
+        it.ensureNotBlank()
         it
     } // argument validator
     val age by bind(age) { parseInt(it) } // argument validator
@@ -113,8 +113,8 @@ fun buildPerson(
     age: String,
 ) = factory {
     val name by bind(name) {
-        ensureMinLength(it, 1)
-        ensureNotBlank(it)
+        it.ensureMinLength(1)
+        it.ensureNotBlank()
         it
     } // argument validator
     val age by bind { buildAge(age) } // nested object validator

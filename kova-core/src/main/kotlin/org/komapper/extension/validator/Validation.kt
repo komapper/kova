@@ -699,7 +699,7 @@ sealed interface LogEntry {
     ) : LogEntry
 }
 
-object Schema  {
+object Schema {
     /**
      * Validates a property value within a schema using the invoke operator.
      *

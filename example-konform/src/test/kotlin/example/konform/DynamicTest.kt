@@ -57,8 +57,8 @@ class DynamicTest :
                 address.schema {
                     address::postalCode {
                         when (address.countryCode) {
-                            "US" -> ensureMatches(it, Regex("[0-9]{5}"))
-                            else -> ensureMatches(it, Regex("[A-Z]+"))
+                            "US" -> it.ensureMatches(Regex("[0-9]{5}"))
+                            else -> it.ensureMatches(Regex("[A-Z]+"))
                         }
                     }
                 }

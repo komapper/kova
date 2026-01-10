@@ -123,20 +123,19 @@ class CollectionTest :
             fun validateOrganizer(person: Person) =
                 person.schema {
                     person::email {
-                        ensureNotNull(it) { text("Email address must be given") }
-                        ensureMatches(it, Regex(".+@bigcorp.com")) { text("Organizers must have a BigCorp email address") }
+                        it.ensureNotNull { text("Email address must be given") }
+                        it.ensureMatches(Regex(".+@bigcorp.com")) { text("Organizers must have a BigCorp email address") }
                     }
                 }
 
             context(_: Validation)
             fun validateAttendee(person: Person) =
                 person.schema {
-                    person::name { ensureMinLength(it, 2) }
-                    person::age { ensureMin(it, 18) { text("Attendees must be 18 years or older") } }
+                    person::name { it.ensureMinLength(2) }
+                    person::age { it.ensureMin(18) { text("Attendees must be 18 years or older") } }
                     person::email {
                         if (it != null) {
-                            ensureMatches(
-                                it,
+                            it.ensureMatches(
                                 Regex(".+@.+\\..+"),
                             ) { text("Please provide a valid email address (optional)") }
                         }
@@ -148,13 +147,13 @@ class CollectionTest :
                 event.schema {
                     event::organizer { validateOrganizer(it) }
                     event::attendees {
-                        ensureMaxSize(it, 100)
-                        ensureEach(it) { validateAttendee(it) }
+                        it.ensureMaxSize(100)
+                        it.ensureEach { validateAttendee(it) }
                     }
                     event::ticketPrices {
-                        ensureMinSize(it, 1) { text("Provide at least one ticket price") }
-                        ensureEachValue(it) { price ->
-                            if (price != null) ensureMin(price, 0.01)
+                        it.ensureMinSize(1) { text("Provide at least one ticket price") }
+                        it.ensureEachValue { price ->
+                            if (price != null) price.ensureMin(0.01)
                         }
                     }
                 }

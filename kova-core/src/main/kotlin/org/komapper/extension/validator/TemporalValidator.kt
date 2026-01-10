@@ -21,9 +21,9 @@ import kotlin.reflect.KClass
  * Example:
  * ```kotlin
  * // Assuming today is 2025-01-15
- * tryValidate { ensureFuture(LocalDate.of(2025, 1, 16)) }  // Success
- * tryValidate { ensureFuture(LocalDate.of(2025, 1, 15)) }  // Failure (present)
- * tryValidate { ensureFuture(LocalDate.of(2025, 1, 14)) }  // Failure (ensurePast)
+ * tryValidate { LocalDate.of(2025, 1, 16).ensureFuture() }  // Success
+ * tryValidate { LocalDate.of(2025, 1, 15).ensureFuture() }  // Failure (present)
+ * tryValidate { LocalDate.of(2025, 1, 14).ensureFuture() }  // Failure (ensurePast)
  * ```
  *
  * @param S The temporal type (LocalDate, LocalTime, LocalDateTime, Instant, etc.)
@@ -31,10 +31,9 @@ import kotlin.reflect.KClass
  */
 @IgnorableReturnValue
 context(_: Validation)
-inline fun <reified S> ensureFuture(
-    input: S,
+inline fun <reified S> S.ensureFuture(
     noinline message: MessageProvider = { "kova.temporal.future".resource },
-) where S : Temporal, S : Comparable<S> = input.constrain("kova.temporal.future") { satisfies(it > now(clock), message) }
+) where S : Temporal, S : Comparable<S> = this.constrain("kova.temporal.future") { satisfies(it > now(clock), message) }
 
 /**
  * Validates that the temporal value is in the ensureFuture or present (greater than or equal to now).
@@ -44,9 +43,9 @@ inline fun <reified S> ensureFuture(
  * Example:
  * ```kotlin
  * // Assuming today is 2025-01-15
- * tryValidate { ensureFutureOrPresent(LocalDate.of(2025, 1, 16)) }  // Success (ensureFuture)
- * tryValidate { ensureFutureOrPresent(LocalDate.of(2025, 1, 15)) }  // Success (present)
- * tryValidate { ensureFutureOrPresent(LocalDate.of(2025, 1, 14)) }  // Failure (ensurePast)
+ * tryValidate { LocalDate.of(2025, 1, 16).ensureFutureOrPresent() }  // Success (ensureFuture)
+ * tryValidate { LocalDate.of(2025, 1, 15).ensureFutureOrPresent() }  // Success (present)
+ * tryValidate { LocalDate.of(2025, 1, 14).ensureFutureOrPresent() }  // Failure (ensurePast)
  * ```
  *
  * @param S The temporal type (LocalDate, LocalTime, LocalDateTime, Instant, etc.)
@@ -54,10 +53,9 @@ inline fun <reified S> ensureFuture(
  */
 @IgnorableReturnValue
 context(_: Validation)
-inline fun <reified S> ensureFutureOrPresent(
-    input: S,
+inline fun <reified S> S.ensureFutureOrPresent(
     noinline message: MessageProvider = { "kova.temporal.futureOrPresent".resource },
-) where S : Temporal, S : Comparable<S> = input.constrain("kova.temporal.futureOrPresent") { satisfies(it >= now(clock), message) }
+) where S : Temporal, S : Comparable<S> = this.constrain("kova.temporal.futureOrPresent") { satisfies(it >= now(clock), message) }
 
 /**
  * Validates that the temporal value is in the ensurePast (strictly less than now).
@@ -67,9 +65,9 @@ inline fun <reified S> ensureFutureOrPresent(
  * Example:
  * ```kotlin
  * // Assuming today is 2025-01-15
- * tryValidate { ensurePast(LocalDate.of(2025, 1, 14)) }  // Success
- * tryValidate { ensurePast(LocalDate.of(2025, 1, 15)) }  // Failure (present)
- * tryValidate { ensurePast(LocalDate.of(2025, 1, 16)) }  // Failure (ensureFuture)
+ * tryValidate { LocalDate.of(2025, 1, 14).ensurePast() }  // Success
+ * tryValidate { LocalDate.of(2025, 1, 15).ensurePast() }  // Failure (present)
+ * tryValidate { LocalDate.of(2025, 1, 16).ensurePast() }  // Failure (ensureFuture)
  * ```
  *
  * @param S The temporal type (LocalDate, LocalTime, LocalDateTime, Instant, etc.)
@@ -77,10 +75,9 @@ inline fun <reified S> ensureFutureOrPresent(
  */
 @IgnorableReturnValue
 context(_: Validation)
-inline fun <reified S> ensurePast(
-    input: S,
+inline fun <reified S> S.ensurePast(
     noinline message: MessageProvider = { "kova.temporal.past".resource },
-)where S : Temporal, S : Comparable<S> = input.constrain("kova.temporal.past") { satisfies(it < now(clock), message) }
+)where S : Temporal, S : Comparable<S> = this.constrain("kova.temporal.past") { satisfies(it < now(clock), message) }
 
 /**
  * Validates that the temporal value is in the ensurePast or present (less than or equal to now).
@@ -90,9 +87,9 @@ inline fun <reified S> ensurePast(
  * Example:
  * ```kotlin
  * // Assuming today is 2025-01-15
- * tryValidate { ensurePastOrPresent(LocalDate.of(2025, 1, 14)) }  // Success (ensurePast)
- * tryValidate { ensurePastOrPresent(LocalDate.of(2025, 1, 15)) }  // Success (present)
- * tryValidate { ensurePastOrPresent(LocalDate.of(2025, 1, 16)) }  // Failure (ensureFuture)
+ * tryValidate { LocalDate.of(2025, 1, 14).ensurePastOrPresent() }  // Success (ensurePast)
+ * tryValidate { LocalDate.of(2025, 1, 15).ensurePastOrPresent() }  // Success (present)
+ * tryValidate { LocalDate.of(2025, 1, 16).ensurePastOrPresent() }  // Failure (ensureFuture)
  * ```
  *
  * @param S The temporal type (LocalDate, LocalTime, LocalDateTime, Instant, etc.)
@@ -101,10 +98,9 @@ inline fun <reified S> ensurePast(
  */
 @IgnorableReturnValue
 context(_: Validation)
-inline fun <reified S> ensurePastOrPresent(
-    input: S,
+inline fun <reified S> S.ensurePastOrPresent(
     noinline message: MessageProvider = { "kova.temporal.pastOrPresent".resource },
-) where S : Temporal, S : Comparable<S> = input.constrain("kova.temporal.pastOrPresent") { satisfies(it <= now(clock), message) }
+) where S : Temporal, S : Comparable<S> = this.constrain("kova.temporal.pastOrPresent") { satisfies(it <= now(clock), message) }
 
 /**
  * Obtains the current temporal value for the specified type using the provided clock.

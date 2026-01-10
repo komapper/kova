@@ -14,7 +14,7 @@ class CharSequenceValidatorTest :
             context(_: Validation)
             fun validate(string: String) =
                 string.trim().let { trimmed ->
-                    ensureLength(trimmed, 3)
+                    trimmed.ensureLength(3)
                     trimmed.uppercase()
                 }
 
@@ -34,12 +34,12 @@ class CharSequenceValidatorTest :
 
         context("ensureMinLength") {
             test("success") {
-                val result = tryValidate { ensureMinLength("abc", 3) }
+                val result = tryValidate { "abc".ensureMinLength(3) }
                 result.shouldBeSuccess()
             }
 
             test("failure") {
-                val result = tryValidate { ensureMinLength("ab", 3) }
+                val result = tryValidate { "ab".ensureMinLength(3) }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.charSequence.minLength"
             }
@@ -47,12 +47,12 @@ class CharSequenceValidatorTest :
 
         context("ensureMaxLength") {
             test("success") {
-                val result = tryValidate { ensureMaxLength("a", 1) }
+                val result = tryValidate { "a".ensureMaxLength(1) }
                 result.shouldBeSuccess()
             }
 
             test("failure") {
-                val result = tryValidate { ensureMaxLength("ab", 1) }
+                val result = tryValidate { "ab".ensureMaxLength(1) }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.charSequence.maxLength"
             }
@@ -60,12 +60,12 @@ class CharSequenceValidatorTest :
 
         context("length") {
             test("success") {
-                val result = tryValidate { ensureLength("a", 1) }
+                val result = tryValidate { "a".ensureLength(1) }
                 result.shouldBeSuccess()
             }
 
             test("failure") {
-                val result = tryValidate { ensureLength("ab", 1) }
+                val result = tryValidate { "ab".ensureLength(1) }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.charSequence.length"
             }
@@ -73,36 +73,36 @@ class CharSequenceValidatorTest :
 
         context("ensureLengthInRange") {
             test("success with closed range") {
-                val result = tryValidate { ensureLengthInRange("hello", 1..10) }
+                val result = tryValidate { "hello".ensureLengthInRange(1..10) }
                 result.shouldBeSuccess()
             }
 
             test("success with range boundaries") {
-                val result = tryValidate { ensureLengthInRange("a", 1..10) }
+                val result = tryValidate { "a".ensureLengthInRange(1..10) }
                 result.shouldBeSuccess()
-                val result2 = tryValidate { ensureLengthInRange("1234567890", 1..10) }
+                val result2 = tryValidate { "1234567890".ensureLengthInRange(1..10) }
                 result2.shouldBeSuccess()
             }
 
             test("success with open-ended range") {
-                val result = tryValidate { ensureLengthInRange("hello", 1..<10) }
+                val result = tryValidate { "hello".ensureLengthInRange(1..<10) }
                 result.shouldBeSuccess()
             }
 
             test("failure - too short") {
-                val result = tryValidate { ensureLengthInRange("", 1..10) }
+                val result = tryValidate { "".ensureLengthInRange(1..10) }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.charSequence.lengthInRange"
             }
 
             test("failure - too long") {
-                val result = tryValidate { ensureLengthInRange("this is too long", 1..10) }
+                val result = tryValidate { "this is too long".ensureLengthInRange(1..10) }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.charSequence.lengthInRange"
             }
 
             test("failure - open-ended range exclusive end") {
-                val result = tryValidate { ensureLengthInRange("12345", 1..<5) }
+                val result = tryValidate { "12345".ensureLengthInRange(1..<5) }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.charSequence.lengthInRange"
             }
@@ -110,11 +110,11 @@ class CharSequenceValidatorTest :
 
         context("ensureNotBlank") {
             test("success") {
-                val result = tryValidate { ensureNotBlank("ab") }
+                val result = tryValidate { "ab".ensureNotBlank() }
                 result.shouldBeSuccess()
             }
             test("failure") {
-                val result = tryValidate { ensureNotBlank("") }
+                val result = tryValidate { "".ensureNotBlank() }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.charSequence.notBlank"
             }
@@ -122,15 +122,15 @@ class CharSequenceValidatorTest :
 
         context("ensureBlank") {
             test("success with ensureEmpty string") {
-                val result = tryValidate { ensureBlank("") }
+                val result = tryValidate { "".ensureBlank() }
                 result.shouldBeSuccess()
             }
             test("success with whitespace only") {
-                val result = tryValidate { ensureBlank("   ") }
+                val result = tryValidate { "   ".ensureBlank() }
                 result.shouldBeSuccess()
             }
             test("failure") {
-                val result = tryValidate { ensureBlank("ab") }
+                val result = tryValidate { "ab".ensureBlank() }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.charSequence.blank"
             }
@@ -138,12 +138,12 @@ class CharSequenceValidatorTest :
 
         context("ensureNotEmpty") {
             test("success") {
-                val result = tryValidate { ensureNotEmpty("ab") }
+                val result = tryValidate { "ab".ensureNotEmpty() }
                 result.shouldBeSuccess()
             }
 
             test("failure") {
-                val result = tryValidate { ensureNotEmpty("") }
+                val result = tryValidate { "".ensureNotEmpty() }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.charSequence.notEmpty"
             }
@@ -151,16 +151,16 @@ class CharSequenceValidatorTest :
 
         context("empty") {
             test("success") {
-                val result = tryValidate { ensureEmpty("") }
+                val result = tryValidate { "".ensureEmpty() }
                 result.shouldBeSuccess()
             }
             test("failure with content") {
-                val result = tryValidate { ensureEmpty("ab") }
+                val result = tryValidate { "ab".ensureEmpty() }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.charSequence.empty"
             }
             test("failure with whitespace only") {
-                val result = tryValidate { ensureEmpty("   ") }
+                val result = tryValidate { "   ".ensureEmpty() }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.charSequence.empty"
             }
@@ -168,11 +168,11 @@ class CharSequenceValidatorTest :
 
         context("ensureStartsWith") {
             test("success") {
-                val result = tryValidate { ensureStartsWith("abcde", "ab") }
+                val result = tryValidate { "abcde".ensureStartsWith("ab") }
                 result.shouldBeSuccess()
             }
             test("failure") {
-                val result = tryValidate { ensureStartsWith("cde", "ab") }
+                val result = tryValidate { "cde".ensureStartsWith("ab") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.charSequence.startsWith"
             }
@@ -180,11 +180,11 @@ class CharSequenceValidatorTest :
 
         context("ensureNotStartsWith") {
             test("success") {
-                val result = tryValidate { ensureNotStartsWith("cde", "ab") }
+                val result = tryValidate { "cde".ensureNotStartsWith("ab") }
                 result.shouldBeSuccess()
             }
             test("failure") {
-                val result = tryValidate { ensureNotStartsWith("abcde", "ab") }
+                val result = tryValidate { "abcde".ensureNotStartsWith("ab") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.charSequence.notStartsWith"
             }
@@ -192,11 +192,11 @@ class CharSequenceValidatorTest :
 
         context("ensureEndsWith") {
             test("success") {
-                val result = tryValidate { ensureEndsWith("abcde", "de") }
+                val result = tryValidate { "abcde".ensureEndsWith("de") }
                 result.shouldBeSuccess()
             }
             test("failure") {
-                val result = tryValidate { ensureEndsWith("ab", "de") }
+                val result = tryValidate { "ab".ensureEndsWith("de") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.charSequence.endsWith"
             }
@@ -204,11 +204,11 @@ class CharSequenceValidatorTest :
 
         context("ensureNotEndsWith") {
             test("success") {
-                val result = tryValidate { ensureNotEndsWith("ab", "de") }
+                val result = tryValidate { "ab".ensureNotEndsWith("de") }
                 result.shouldBeSuccess()
             }
             test("failure") {
-                val result = tryValidate { ensureNotEndsWith("abcde", "de") }
+                val result = tryValidate { "abcde".ensureNotEndsWith("de") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.charSequence.notEndsWith"
             }
@@ -216,11 +216,11 @@ class CharSequenceValidatorTest :
 
         context("ensureContains") {
             test("success") {
-                val result = tryValidate { ensureContains("abcde", "cd") }
+                val result = tryValidate { "abcde".ensureContains("cd") }
                 result.shouldBeSuccess()
             }
             test("failure") {
-                val result = tryValidate { ensureContains("fg", "cd") }
+                val result = tryValidate { "fg".ensureContains("cd") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.charSequence.contains"
             }
@@ -228,11 +228,11 @@ class CharSequenceValidatorTest :
 
         context("ensureNotContains") {
             test("success") {
-                val result = tryValidate { ensureNotContains("fg", "cd") }
+                val result = tryValidate { "fg".ensureNotContains("cd") }
                 result.shouldBeSuccess()
             }
             test("failure") {
-                val result = tryValidate { ensureNotContains("abcde", "cd") }
+                val result = tryValidate { "abcde".ensureNotContains("cd") }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.charSequence.notContains"
             }
@@ -242,11 +242,11 @@ class CharSequenceValidatorTest :
             val emailPattern = Regex("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}\$")
 
             test("success") {
-                val result = tryValidate { ensureMatches("user@example.com", emailPattern) }
+                val result = tryValidate { "user@example.com".ensureMatches(emailPattern) }
                 result.shouldBeSuccess()
             }
             test("failure") {
-                val result = tryValidate { ensureMatches("invalid-email", emailPattern) }
+                val result = tryValidate { "invalid-email".ensureMatches(emailPattern) }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.charSequence.matches"
             }
@@ -256,11 +256,11 @@ class CharSequenceValidatorTest :
             val digitPattern = Regex("^\\d+\$")
 
             test("success") {
-                val result = tryValidate { ensureNotMatches("hello", digitPattern) }
+                val result = tryValidate { "hello".ensureNotMatches(digitPattern) }
                 result.shouldBeSuccess()
             }
             test("failure") {
-                val result = tryValidate { ensureNotMatches("12345", digitPattern) }
+                val result = tryValidate { "12345".ensureNotMatches(digitPattern) }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.charSequence.notMatches"
             }
@@ -269,8 +269,8 @@ class CharSequenceValidatorTest :
         context("nullableString") {
             context(_: Validation)
             fun max1(string: String?) {
-                ensureNotNull(string)
-                ensureMaxLength(string, 1)
+                string.ensureNotNull()
+                string.ensureMaxLength(1)
             }
 
             test("success") {

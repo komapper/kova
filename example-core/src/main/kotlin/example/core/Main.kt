@@ -56,11 +56,11 @@ context(_: Validation)
 fun validate(user: User) =
     user.schema {
         user::name {
-            ensureMinLength(it, 1)
-            ensureNotBlank(it)
+            it.ensureMinLength(1)
+            it.ensureNotBlank()
         }
         user::age {
-            ensureInRange(it, 0..120)
+            it.ensureInRange(0..120)
         }
     }
 
@@ -72,7 +72,7 @@ context(_: Validation)
 fun validate(age: Age) =
     age.schema {
         age::value {
-            ensureInRange(it, 0..120)
+            it.ensureInRange(0..120)
         }
     }
 
@@ -85,8 +85,8 @@ context(_: Validation)
 fun validate(person: Person) =
     person.schema {
         person::name {
-            ensureMinLength(it, 1)
-            ensureNotBlank(it)
+            it.ensureMinLength(1)
+            it.ensureNotBlank()
         }
         person::age { validate(it) }
     }
@@ -99,8 +99,8 @@ fun validate(person: Person) =
 context(_: Validation)
 fun validate(range: PriceRange) =
     range.schema {
-        range::minPrice { ensureNotNegative(it) }
-        range::maxPrice { ensureNotNegative(it) }
+        range::minPrice { it.ensureNotNegative() }
+        range::maxPrice { it.ensureNotNegative() }
         // Validate relationship: minPrice must be less than or equal to maxPrice
         range.constrain("priceRange") {
             satisfies(it.minPrice <= it.maxPrice) {

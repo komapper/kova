@@ -12,12 +12,12 @@ class BooleanValidatorTest :
 
         context("ensureTrue") {
             test("success with true value") {
-                val result = tryValidate { ensureTrue(true) }
+                val result = tryValidate { true.ensureTrue() }
                 result.shouldBeSuccess()
             }
 
             test("failure with false value") {
-                val result = tryValidate { ensureTrue(false) }
+                val result = tryValidate { false.ensureTrue() }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.boolean.true"
@@ -27,12 +27,12 @@ class BooleanValidatorTest :
 
         context("ensureFalse") {
             test("success with false value") {
-                val result = tryValidate { ensureFalse(false) }
+                val result = tryValidate { false.ensureFalse() }
                 result.shouldBeSuccess()
             }
 
             test("failure with true value") {
-                val result = tryValidate { ensureFalse(true) }
+                val result = tryValidate { true.ensureFalse() }
                 result.shouldBeFailure()
                 result.messages.size shouldBe 1
                 result.messages[0].constraintId shouldBe "kova.boolean.false"

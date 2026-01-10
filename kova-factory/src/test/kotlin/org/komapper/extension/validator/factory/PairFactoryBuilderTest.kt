@@ -25,12 +25,12 @@ class PairFactoryBuilderTest :
                 second: Int,
             ) = buildPair(
                 bind(first) {
-                    ensureNotBlank(it)
-                    ensureMaxLength(it, 10)
+                    it.ensureNotBlank()
+                    it.ensureMaxLength(10)
                     it
                 },
                 bind(second) {
-                    ensurePositive(it)
+                    it.ensurePositive()
                     it
                 },
             )
@@ -109,14 +109,14 @@ class PairFactoryBuilderTest :
                 age: Int,
             ) = buildPair(
                 bind(name) {
-                    ensureNotBlank(it)
-                    ensureMinLength(it, 1)
-                    ensureMaxLength(it, 50)
+                    it.ensureNotBlank()
+                    it.ensureMinLength(1)
+                    it.ensureMaxLength(50)
                     it
                 },
                 bind(age) {
-                    ensureMin(it, 0)
-                    ensureMax(it, 120)
+                    it.ensureMin(0)
+                    it.ensureMax(120)
                     it
                 },
             )

@@ -5,8 +5,8 @@ package org.komapper.extension.validator
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureMinSize(mapOf("a" to 1, "b" to 2, "c" to 3), 2) } // Success
- * tryValidate { ensureMinSize(mapOf("a" to 1), 2) }                     // Failure
+ * tryValidate { mapOf("a" to 1, "b" to 2, "c" to 3).ensureMinSize(2) } // Success
+ * tryValidate { mapOf("a" to 1).ensureMinSize(2) }                     // Failure
  * ```
  *
  * @param size Minimum map ensureSize (inclusive)
@@ -15,19 +15,18 @@ package org.komapper.extension.validator
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun ensureMinSize(
-    input: Map<*, *>,
+fun Map<*, *>.ensureMinSize(
     size: Int,
     message: SizeMessageProvider = { "kova.map.minSize".resource(it, size) },
-) = input.constrain("kova.map.minSize") { satisfies(it.size >= size) { message(it.size) } }
+) = this.constrain("kova.map.minSize") { satisfies(it.size >= size) { message(it.size) } }
 
 /**
  * Validates that the map ensureSize does not exceed the specified maximum.
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureMaxSize(mapOf("a" to 1, "b" to 2), 3) }                   // Success
- * tryValidate { ensureMaxSize(mapOf("a" to 1, "b" to 2, "c" to 3, "d" to 4), 3) } // Failure
+ * tryValidate { mapOf("a" to 1, "b" to 2).ensureMaxSize(3) }                   // Success
+ * tryValidate { mapOf("a" to 1, "b" to 2, "c" to 3, "d" to 4).ensureMaxSize(3) } // Failure
  * ```
  *
  * @param size Maximum map ensureSize (inclusive)
@@ -36,19 +35,18 @@ fun ensureMinSize(
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun ensureMaxSize(
-    input: Map<*, *>,
+fun Map<*, *>.ensureMaxSize(
     size: Int,
     message: SizeMessageProvider = { "kova.map.maxSize".resource(it, size) },
-) = input.constrain("kova.map.maxSize") { satisfies(it.size <= size) { message(it.size) } }
+) = this.constrain("kova.map.maxSize") { satisfies(it.size <= size) { message(it.size) } }
 
 /**
  * Validates that the map is not ensureEmpty.
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureNotEmpty(mapOf("a" to 1)) } // Success
- * tryValidate { ensureNotEmpty(mapOf()) }         // Failure
+ * tryValidate { mapOf("a" to 1).ensureNotEmpty() } // Success
+ * tryValidate { mapOf<String, Int>().ensureNotEmpty() }         // Failure
  * ```
  *
  * @param message Custom error message provider
@@ -56,40 +54,37 @@ fun ensureMaxSize(
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun ensureNotEmpty(
-    input: Map<*, *>,
-    message: MessageProvider = { "kova.map.notEmpty".resource },
-) = input.constrain("kova.map.notEmpty") { satisfies(it.isNotEmpty(), message) }
+fun Map<*, *>.ensureNotEmpty(message: MessageProvider = { "kova.map.notEmpty".resource }) =
+    this.constrain("kova.map.notEmpty") { satisfies(it.isNotEmpty(), message) }
 
 /**
  * Validates that the map ensureSize equals exactly the specified value.
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureSize(mapOf("a" to 1, "b" to 2, "c" to 3), 3) } // Success
- * tryValidate { ensureSize(mapOf("a" to 1, "b" to 2), 3) }           // Failure
+ * tryValidate { mapOf("a" to 1, "b" to 2, "c" to 3).ensureSize(3) } // Success
+ * tryValidate { mapOf("a" to 1, "b" to 2).ensureSize(3) }           // Failure
  * ```
  *
- * @param ensureSize Exact map ensureSize required
+ * @param size Exact map ensureSize required
  * @param message Custom error message provider
  * @return A new validator with the exact ensureSize constraint
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun ensureSize(
-    input: Map<*, *>,
+fun Map<*, *>.ensureSize(
     size: Int,
     message: SizeMessageProvider = { "kova.map.size".resource(it, size) },
-) = input.constrain("kova.map.size") { satisfies(it.size == size) { message(it.size) } }
+) = this.constrain("kova.map.size") { satisfies(it.size == size) { message(it.size) } }
 
 /**
  * Validates that the map size is within the specified range.
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureSizeInRange(mapOf("a" to 1, "b" to 2, "c" to 3), 2..5) } // Success
- * tryValidate { ensureSizeInRange(mapOf("a" to 1), 2..5) }                     // Failure
- * tryValidate { ensureSizeInRange(mapOf("a" to 1, "b" to 2, "c" to 3), 1..<3) } // Failure (open-ended range)
+ * tryValidate { mapOf("a" to 1, "b" to 2, "c" to 3).ensureSizeInRange(2..5) } // Success
+ * tryValidate { mapOf("a" to 1).ensureSizeInRange(2..5) }                     // Failure
+ * tryValidate { mapOf("a" to 1, "b" to 2, "c" to 3).ensureSizeInRange(1..<3) } // Failure (open-ended range)
  * ```
  *
  * @param range The allowed size range (supports both ClosedRange and OpenEndRange)
@@ -97,19 +92,18 @@ fun ensureSize(
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun <R> ensureSizeInRange(
-    input: Map<*, *>,
+fun <R> Map<*, *>.ensureSizeInRange(
     range: R,
     message: MessageProvider = { "kova.map.sizeInRange".resource(range) },
-) where R : ClosedRange<Int>, R : OpenEndRange<Int> = input.constrain("kova.map.sizeInRange") { satisfies(it.size in range, message) }
+) where R : ClosedRange<Int>, R : OpenEndRange<Int> = this.constrain("kova.map.sizeInRange") { satisfies(it.size in range, message) }
 
 /**
  * Validates that the map ensureContains the specified key.
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureHasKey(mapOf("foo" to 1, "bar" to 2), "foo") }  // Success
- * tryValidate { ensureHasKey(mapOf("bar" to 2, "baz" to 3), "foo") }  // Failure
+ * tryValidate { mapOf("foo" to 1, "bar" to 2).ensureHasKey("foo") }  // Success
+ * tryValidate { mapOf("bar" to 2, "baz" to 3).ensureHasKey("foo") }  // Failure
  * ```
  *
  * @param key The key that must be present in the map
@@ -117,19 +111,18 @@ fun <R> ensureSizeInRange(
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun <K> ensureHasKey(
-    input: Map<K, *>,
+fun <K> Map<K, *>.ensureHasKey(
     key: K,
     message: MessageProvider = { "kova.map.containsKey".resource(key) },
-) = ensureContainsKey(input, key, message)
+) = ensureContainsKey(key, message)
 
 /**
  * Validates that the map ensureContains the specified key.
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureContainsKey(mapOf("foo" to 1, "bar" to 2), "foo") }  // Success
- * tryValidate { ensureContainsKey(mapOf("bar" to 2, "baz" to 3), "foo") }  // Failure
+ * tryValidate { mapOf("foo" to 1, "bar" to 2).ensureContainsKey("foo") }  // Success
+ * tryValidate { mapOf("bar" to 2, "baz" to 3).ensureContainsKey("foo") }  // Failure
  * ```
  *
  * @param key The key that must be present in the map
@@ -137,19 +130,18 @@ fun <K> ensureHasKey(
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun <K> ensureContainsKey(
-    input: Map<K, *>,
+fun <K> Map<K, *>.ensureContainsKey(
     key: K,
     message: MessageProvider = { "kova.map.containsKey".resource(key) },
-) = input.constrain("kova.map.containsKey") { satisfies(it.containsKey(key), message) }
+) = this.constrain("kova.map.containsKey") { satisfies(it.containsKey(key), message) }
 
 /**
  * Validates that the map does not contain the specified key.
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureNotContainsKey(mapOf("bar" to 2, "baz" to 3), "foo") }  // Success
- * tryValidate { ensureNotContainsKey(mapOf("foo" to 1, "bar" to 2), "foo") }  // Failure
+ * tryValidate { mapOf("bar" to 2, "baz" to 3).ensureNotContainsKey("foo") }  // Success
+ * tryValidate { mapOf("foo" to 1, "bar" to 2).ensureNotContainsKey("foo") }  // Failure
  * ```
  *
  * @param key The key that must not be present in the map
@@ -157,19 +149,18 @@ fun <K> ensureContainsKey(
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun <K> ensureNotContainsKey(
-    input: Map<K, *>,
+fun <K> Map<K, *>.ensureNotContainsKey(
     key: K,
     message: MessageProvider = { "kova.map.notContainsKey".resource(key) },
-) = input.constrain("kova.map.notContainsKey") { satisfies(!it.containsKey(key), message) }
+) = this.constrain("kova.map.notContainsKey") { satisfies(!it.containsKey(key), message) }
 
 /**
  * Validates that the map does not contain the specified key.
  *
  * Example:
  * ```kotlin
- * tryValidate { notContainsKey(mapOf("bar" to 2, "baz" to 3), "foo") }  // Success
- * tryValidate { notContainsKey(mapOf("foo" to 1, "bar" to 2), "foo") }  // Failure
+ * tryValidate { mapOf("bar" to 2, "baz" to 3).notContainsKey("foo") }  // Success
+ * tryValidate { mapOf("foo" to 1, "bar" to 2).notContainsKey("foo") }  // Failure
  * ```
  *
  * @param key The key that must not be present in the map
@@ -177,23 +168,22 @@ fun <K> ensureNotContainsKey(
  */
 @Deprecated(
     "Use ensureNotContainsKey for naming consistency",
-    ReplaceWith("ensureNotContainsKey(input, key, message)"),
+    ReplaceWith("ensureNotContainsKey(key, message)"),
 )
 @IgnorableReturnValue
 context(_: Validation)
-fun <K> notContainsKey(
-    input: Map<K, *>,
+fun <K> Map<K, *>.notContainsKey(
     key: K,
     message: MessageProvider = { "kova.map.notContainsKey".resource(key) },
-) = ensureNotContainsKey(input, key, message)
+) = ensureNotContainsKey(key, message)
 
 /**
  * Validates that the map ensureContains the specified value.
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureHasValue(mapOf("foo" to 42, "bar" to 2), 42) }  // Success
- * tryValidate { ensureHasValue(mapOf("foo" to 1, "bar" to 2), 42) }   // Failure
+ * tryValidate { mapOf("foo" to 42, "bar" to 2).ensureHasValue(42) }  // Success
+ * tryValidate { mapOf("foo" to 1, "bar" to 2).ensureHasValue(42) }   // Failure
  * ```
  *
  * @param value The value that must be present in the map
@@ -201,19 +191,18 @@ fun <K> notContainsKey(
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun <V> ensureHasValue(
-    input: Map<*, V>,
+fun <V> Map<*, V>.ensureHasValue(
     value: V,
     message: MessageProvider = { "kova.map.containsValue".resource(value) },
-) = ensureContainsValue(input, value, message)
+) = ensureContainsValue(value, message)
 
 /**
  * Validates that the map contains the specified value.
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureContainsValue(mapOf("foo" to 42, "bar" to 2), 42) }  // Success
- * tryValidate { ensureContainsValue(mapOf("foo" to 1, "bar" to 2), 42) }   // Failure
+ * tryValidate { mapOf("foo" to 42, "bar" to 2).ensureContainsValue(42) }  // Success
+ * tryValidate { mapOf("foo" to 1, "bar" to 2).ensureContainsValue(42) }   // Failure
  * ```
  *
  * @param value The value that must be present in the map
@@ -221,19 +210,18 @@ fun <V> ensureHasValue(
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun <V> ensureContainsValue(
-    input: Map<*, V>,
+fun <V> Map<*, V>.ensureContainsValue(
     value: V,
     message: MessageProvider = { "kova.map.containsValue".resource(value) },
-) = input.constrain("kova.map.containsValue") { satisfies(it.containsValue(value), message) }
+) = this.constrain("kova.map.containsValue") { satisfies(it.containsValue(value), message) }
 
 /**
  * Validates that the map ensureContains the specified value.
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureCcontainsValue(mapOf("foo" to 42, "bar" to 2), 42) }  // Success
- * tryValidate { ensureCcontainsValue(mapOf("foo" to 1, "bar" to 2), 42) }   // Failure
+ * tryValidate { mapOf("foo" to 42, "bar" to 2).ensureCcontainsValue(42) }  // Success
+ * tryValidate { mapOf("foo" to 1, "bar" to 2).ensureCcontainsValue(42) }   // Failure
  * ```
  *
  * @param value The value that must be present in the map
@@ -241,23 +229,22 @@ fun <V> ensureContainsValue(
  */
 @Deprecated(
     "Use ensureContainsValue (fixed typo)",
-    ReplaceWith("ensureContainsValue(input, value, message)"),
+    ReplaceWith("ensureContainsValue(value, message)"),
 )
 @IgnorableReturnValue
 context(_: Validation)
-fun <V> ensureCcontainsValue(
-    input: Map<*, V>,
+fun <V> Map<*, V>.ensureCcontainsValue(
     value: V,
     message: MessageProvider = { "kova.map.containsValue".resource(value) },
-) = ensureContainsValue(input, value, message)
+) = ensureContainsValue(value, message)
 
 /**
  * Validates that the map does not contain the specified value.
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureNotContainsValue(mapOf("foo" to 1, "bar" to 2), 42) }   // Success
- * tryValidate { ensureNotContainsValue(mapOf("foo" to 42, "bar" to 2), 42) }  // Failure
+ * tryValidate { mapOf("foo" to 1, "bar" to 2).ensureNotContainsValue(42) }   // Success
+ * tryValidate { mapOf("foo" to 42, "bar" to 2).ensureNotContainsValue(42) }  // Failure
  * ```
  *
  * @param value The value that must not be present in the map
@@ -265,11 +252,10 @@ fun <V> ensureCcontainsValue(
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun <V> ensureNotContainsValue(
-    input: Map<*, V>,
+fun <V> Map<*, V>.ensureNotContainsValue(
     value: V,
     message: MessageProvider = { "kova.map.notContainsValue".resource(value) },
-) = input.constrain("kova.map.notContainsValue") { satisfies(!it.containsValue(value), message) }
+) = this.constrain("kova.map.notContainsValue") { satisfies(!it.containsValue(value), message) }
 
 /**
  * Validates each entry (key-value pair) of the map using the specified validator.
@@ -280,8 +266,8 @@ fun <V> ensureNotContainsValue(
  * Example:
  * ```kotlin
  * tryValidate {
- *     ensureEach(mapOf("foo" to 42, "bar" to 10)) { entry ->
- *         if (entry.key.ensureLength >= 2 && entry.value >= 0) {
+ *     mapOf("foo" to 42, "bar" to 10).ensureEach { entry ->
+ *         if (entry.key.length >= 2 && entry.value >= 0) {
  *             // Success
  *         } else {
  *             // Failure
@@ -295,16 +281,14 @@ fun <V> ensureNotContainsValue(
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun <K, V> ensureEach(
-    input: Map<K, V>,
-    validator: context(Validation)(Map.Entry<K, V>) -> Unit,
-) = input.constrain("kova.map.each") {
-    context(validation) {
-        validateOnEach(input, "kova.map.each") { entry ->
-            appendPath(text = "<map entry>") { validator(entry) }
+fun <K, V> Map<K, V>.ensureEach(validator: context(Validation)(Map.Entry<K, V>) -> Unit) =
+    this.constrain("kova.map.each") {
+        context(validation) {
+            validateOnEach(this@ensureEach, "kova.map.each") { entry ->
+                appendPath(text = "<map entry>") { validator(entry) }
+            }
         }
     }
-}
 
 /**
  * Validates each key of the map using the specified validator.
@@ -315,11 +299,11 @@ fun <K, V> ensureEach(
  * Example:
  * ```kotlin
  * tryValidate {
- *     ensureEachKey(mapOf("abc" to 1, "def" to 2)) { min(it, 2); max(it, 10) }
+ *     mapOf("abc" to 1, "def" to 2).ensureEachKey { it.ensureMinLength(2); it.ensureMaxLength(10) }
  * } // Success
  *
  * tryValidate {
- *     ensureEachKey(mapOf("a" to 1, "b" to 2)) { min(it, 2); max(it, 10) }
+ *     mapOf("a" to 1, "b" to 2).ensureEachKey { it.ensureMinLength(2); it.ensureMaxLength(10) }
  * } // Failure: keys too short
  * ```
  *
@@ -328,16 +312,14 @@ fun <K, V> ensureEach(
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun <K> ensureEachKey(
-    input: Map<K, *>,
-    validator: context(Validation)(K) -> Unit,
-) = input.constrain("kova.map.eachKey") {
-    context(validation) {
-        validateOnEach(input, "kova.map.eachKey") { entry ->
-            appendPath(text = "<map key>") { validator(entry.key) }
+fun <K> Map<K, *>.ensureEachKey(validator: context(Validation)(K) -> Unit) =
+    this.constrain("kova.map.eachKey") {
+        context(validation) {
+            validateOnEach(this@ensureEachKey, "kova.map.eachKey") { entry ->
+                appendPath(text = "<map key>") { validator(entry.key) }
+            }
         }
     }
-}
 
 /**
  * Validates each value of the map using the specified validator.
@@ -348,11 +330,11 @@ fun <K> ensureEachKey(
  * Example:
  * ```kotlin
  * tryValidate {
- *     ensureEachValue(mapOf("a" to 10, "b" to 20)) { min(it, 0); max(it, 100) }
+ *     mapOf("a" to 10, "b" to 20).ensureEachValue { it.ensureMin(0); it.ensureMax(100) }
  * } // Success
  *
  * tryValidate {
- *     ensureEachValue(mapOf("a" to -1, "b" to 150)) { min(it, 0); max(it, 100) }
+ *     mapOf("a" to -1, "b" to 150).ensureEachValue { it.ensureMin(0); it.ensureMax(100) }
  * } // Failure: values out of range
  * ```
  *
@@ -361,16 +343,14 @@ fun <K> ensureEachKey(
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun <V> ensureEachValue(
-    input: Map<*, V>,
-    validator: context(Validation)(V) -> Unit,
-) = input.constrain("kova.map.eachValue") {
-    context(validation) {
-        validateOnEach(input, "kova.map.eachValue") { entry ->
-            appendPath(text = "[${entry.key}]<map value>") { validator(entry.value) }
+fun <V> Map<*, V>.ensureEachValue(validator: context(Validation)(V) -> Unit) =
+    this.constrain("kova.map.eachValue") {
+        context(validation) {
+            validateOnEach(this@ensureEachValue, "kova.map.eachValue") { entry ->
+                appendPath(text = "[${entry.key}]<map value>") { validator(entry.value) }
+            }
         }
     }
-}
 
 context(_: Validation)
 private fun <K, V> validateOnEach(

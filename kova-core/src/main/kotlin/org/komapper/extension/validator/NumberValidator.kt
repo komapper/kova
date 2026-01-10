@@ -5,73 +5,65 @@ package org.komapper.extension.validator
  *
  * Example:
  * ```kotlin
- * tryValidate { ensurePositive(1) }   // Success
- * tryValidate { ensurePositive(0) }   // Failure
- * tryValidate { ensurePositive(-1) }  // Failure
+ * tryValidate { 1.ensurePositive() }   // Success
+ * tryValidate { 0.ensurePositive() }   // Failure
+ * tryValidate { (-1).ensurePositive() }  // Failure
  * ```
  *
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun ensurePositive(
-    input: Number,
-    message: MessageProvider = { "kova.number.positive".resource },
-) = input.constrain("kova.number.positive") { satisfies(it.toDouble() > 0.0, message) }
+fun Number.ensurePositive(message: MessageProvider = { "kova.number.positive".resource }) =
+    this.constrain("kova.number.positive") { satisfies(it.toDouble() > 0.0, message) }
 
 /**
  * Validates that the number is ensureNegative (less than zero).
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureNegative(-1) }  // Success
- * tryValidate { ensureNegative(0) }   // Failure
- * tryValidate { ensureNegative(1) }   // Failure
+ * tryValidate { (-1).ensureNegative() }  // Success
+ * tryValidate { 0.ensureNegative() }   // Failure
+ * tryValidate { 1.ensureNegative() }   // Failure
  * ```
  *
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun ensureNegative(
-    input: Number,
-    message: MessageProvider = { "kova.number.negative".resource },
-) = input.constrain("kova.number.negative") { satisfies(it.toDouble() < 0.0, message) }
+fun Number.ensureNegative(message: MessageProvider = { "kova.number.negative".resource }) =
+    this.constrain("kova.number.negative") { satisfies(it.toDouble() < 0.0, message) }
 
 /**
  * Validates that the number is not ensurePositive (less than or equal to zero).
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureNotPositive(-1) }  // Success
- * tryValidate { ensureNotPositive(0) }   // Success
- * tryValidate { ensureNotPositive(1) }   // Failure
+ * tryValidate { (-1).ensureNotPositive() }  // Success
+ * tryValidate { 0.ensureNotPositive() }   // Success
+ * tryValidate { 1.ensureNotPositive() }   // Failure
  * ```
  *
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun ensureNotPositive(
-    input: Number,
-    message: MessageProvider = { "kova.number.notPositive".resource },
-) = input.constrain("kova.number.notPositive") { satisfies(it.toDouble() <= 0.0, message) }
+fun Number.ensureNotPositive(message: MessageProvider = { "kova.number.notPositive".resource }) =
+    this.constrain("kova.number.notPositive") { satisfies(it.toDouble() <= 0.0, message) }
 
 /**
  * Validates that the number is not ensureNegative (greater than or equal to zero).
  *
  * Example:
  * ```kotlin
- * tryValidate { ensureNotNegative(0) }   // Success
- * tryValidate { ensureNotNegative(1) }   // Success
- * tryValidate { ensureNotNegative(-1) }  // Failure
+ * tryValidate { 0.ensureNotNegative() }   // Success
+ * tryValidate { 1.ensureNotNegative() }   // Success
+ * tryValidate { (-1).ensureNotNegative() }  // Failure
  * ```
  *
  * @param message Custom error message provider
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun ensureNotNegative(
-    input: Number,
-    message: MessageProvider = { "kova.number.notNegative".resource },
-) = input.constrain("kova.number.notNegative") { satisfies(it.toDouble() >= 0.0, message) }
+fun Number.ensureNotNegative(message: MessageProvider = { "kova.number.notNegative".resource }) =
+    this.constrain("kova.number.notNegative") { satisfies(it.toDouble() >= 0.0, message) }

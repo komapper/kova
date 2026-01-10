@@ -84,12 +84,12 @@ class SimpleTest :
             context(_: Validation)
             fun validate(car: Car) =
                 car.schema {
-                    car::manufacturer { ensureNotNull(it) }
+                    car::manufacturer { it.ensureNotNull() }
                     car::licensePlate {
-                        ensureNotNull(it)
-                        ensureLengthInRange(it, 2..14)
+                        it.ensureNotNull()
+                        it.ensureLengthInRange(2..14)
                     }
-                    car::seatCount { ensureMin(it, 2) }
+                    car::seatCount { it.ensureMin(2) }
                 }
 
             test("manufacturerIsNull") {

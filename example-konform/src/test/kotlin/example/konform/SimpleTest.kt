@@ -69,11 +69,11 @@ class SimpleTest :
             fun validate(userProfile: UserProfile) =
                 userProfile.schema {
                     userProfile::fullName {
-                        ensureMinLength(it, 2)
-                        ensureMaxLength(it, 100)
+                        it.ensureMinLength(2)
+                        it.ensureMaxLength(100)
                     }
                     userProfile::age {
-                        if (it != null) ensureInRange(it, 0..150)
+                        if (it != null) it.ensureInRange(0..150)
                     }
                 }
 
