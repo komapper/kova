@@ -10,8 +10,12 @@ package org.komapper.extension.validator
  * tryValidate { 43.ensureEquals(42) }  // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver S The value to validate
+ * @param S The type of the value being validated
  * @param value The value to compare against
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -30,8 +34,12 @@ public fun <S> S.ensureEquals(
  * tryValidate { 0.ensureNotEquals(0) }   // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver S The value to validate
+ * @param S The type of the value being validated
  * @param value The value to compare against
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -53,8 +61,12 @@ public fun <S> S.ensureNotEquals(
  * tryValidate { "ddd".ensureIn(listOf("aaa", "bbb", "ccc")) }  // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver S The value to validate
+ * @param S The type of the value being validated
  * @param iterable The iterable that must contain the value
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)

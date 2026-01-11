@@ -11,8 +11,12 @@ public typealias SizeMessageProvider = (actualSize: Int) -> Message
  * tryValidate { listOf("a", "b").ensureSize(3) }      // Failure
  * ```
  *
- * @param size Exact collection ensureSize required
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param T The collection type being validated
+ * @receiver The collection to validate
+ * @param size Exact collection size required
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -30,8 +34,12 @@ public fun <T : Collection<*>> T.ensureSize(
  * tryValidate { listOf("a").ensureSizeAtLeast(2) }           // Failure
  * ```
  *
- * @param size Minimum collection ensureSize (inclusive)
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param T The collection type being validated
+ * @receiver The collection to validate
+ * @param size Minimum collection size (inclusive)
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -49,8 +57,12 @@ public fun <T : Collection<*>> T.ensureSizeAtLeast(
  * tryValidate { listOf("a", "b", "c", "d").ensureSizeAtMost(3) }  // Failure
  * ```
  *
- * @param size Maximum collection ensureSize (inclusive)
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param T The collection type being validated
+ * @receiver The collection to validate
+ * @param size Maximum collection size (inclusive)
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -69,8 +81,13 @@ public fun <T : Collection<*>> T.ensureSizeAtMost(
  * tryValidate { listOf("a", "b", "c").ensureSizeInRange(1..<3) }  // Failure (open-ended range)
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param T The collection type being validated
+ * @param R The range type (must implement both ClosedRange and OpenEndRange)
+ * @receiver The collection to validate
  * @param range The allowed size range (supports both ClosedRange and OpenEndRange)
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)

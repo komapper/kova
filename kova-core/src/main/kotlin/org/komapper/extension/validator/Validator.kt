@@ -34,6 +34,7 @@ import org.komapper.extension.validator.ValidationResult.Success
  * }
  * ```
  *
+ * @param R The type of the validated value
  * @param config Configuration options for validation (failFast, clock, logger)
  * @param validator The validation logic to execute within a Validation context
  * @return A [ValidationResult] containing either the validated value or failure messages
@@ -65,6 +66,7 @@ public fun <R> tryValidate(
  * }
  * ```
  *
+ * @param R The type of the validated value
  * @param config Configuration options for validation (failFast, clock, logger)
  * @param validator The validation logic to execute within a Validation context
  * @return The validated value of type [R]
@@ -89,6 +91,8 @@ public fun <R> validate(
  *
  * This is typically used internally by [tryValidate] and other validation combinators.
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param R The type of the validation result
  * @param block The validation logic to execute
  * @return A [ValidationIor] containing the result and/or accumulated error messages
  */
@@ -125,6 +129,8 @@ public inline fun <R> or(block: context(Validation)() -> R): ValidationIor<R> {
  * }
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param R The type of the validation result
  * @param transform Function to transform the list of error messages into a single message
  * @param block The validation logic to execute
  * @return The validated result
@@ -152,6 +158,8 @@ public inline fun <R> withMessage(
  * }
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param R The type of the validation result
  * @param message The error message text to use if validation fails
  * @param block The validation logic to execute
  * @return The validated result

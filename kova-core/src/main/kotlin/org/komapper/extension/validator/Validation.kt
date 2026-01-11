@@ -47,8 +47,12 @@ public data class Validation(
  * tryValidate { "abc-123".alphanumeric() } // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver T The value to validate
+ * @param T The type of the value being validated
  * @param id Unique identifier for the constraint (used in error messages and logging)
  * @param check Constraint logic that validates the input value
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -94,8 +98,10 @@ internal inline fun <T> T.accumulatingThenCheck(
  * val value: String = result.bind()  // Extracts or raises
  * ```
  *
- * @param T the type of the value
- * @return the validated value
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver ValidationIor<T> The validation result to extract from
+ * @param T The type of the value
+ * @return The validated value
  * @throws ValidationCancellationException if this is a [Failure]
  */
 context(_: Validation)
@@ -124,8 +130,10 @@ public fun <T> ValidationIor<T>.bind(): T =
  * }
  * ```
  *
- * @param R the type of the validation result
- * @param block the fallback validation logic to try if this fails
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver ValidationIor<R> The current validation result
+ * @param R The type of the validation result
+ * @param block The fallback validation logic to try if this fails
  * @return [ValidationIor] representing the combined validation result
  */
 context(v: Validation)
@@ -155,9 +163,11 @@ internal inline fun <R> eval(block: context(Validation)() -> R): ValidationIor<R
  * }
  * ```
  *
- * @param R the type of the validation result
- * @param block the fallback validation logic to try if this fails
- * @return the validated value
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver ValidationIor<R> The current validation result
+ * @param R The type of the validation result
+ * @param block The fallback validation logic to try if this fails
+ * @return The validated value
  * @throws ValidationCancellationException if both validations fail
  */
 context(_: Validation)
@@ -183,11 +193,13 @@ public inline infix fun <R> ValidationIor<R>.orElse(block: context(Validation)()
  * }
  * ```
  *
- * @param T the type of the value being validated
- * @param R the type of the validation result
- * @param name the name for this path segment (typically a property name)
- * @param block the validation logic to execute in this path context
- * @return the result of executing the validation block
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver T The value being validated
+ * @param T The type of the value being validated
+ * @param R The type of the validation result
+ * @param name The name for this path segment (typically a property name)
+ * @param block The validation logic to execute in this path context
+ * @return The result of executing the validation block
  */
 context(_: Validation)
 public inline fun <T, R> T.named(
@@ -216,8 +228,10 @@ public inline fun <T, R> T.named(
  * tryValidate { validate(User("Alice", 30)) }
  * ```
  *
- * @param T the type of the object being validated (must be Any for reflection)
- * @param block the validation logic that defines constraints for object properties
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver T The object to validate
+ * @param T The type of the object being validated (must be Any for reflection)
+ * @param block The validation logic that defines constraints for object properties
  */
 context(_: Validation)
 public inline fun <T : Any> T.schema(block: context(Validation) Schema<T>.() -> Unit) {
@@ -259,6 +273,7 @@ public inline fun <T : Any> T.schema(block: context(Validation) Schema<T>.() -> 
  * }
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
  * @param content The text content of the error message
  * @return A [Message.Text] instance with the given content
  */
@@ -315,12 +330,29 @@ public fun text(content: String): Message = Message.Text("", v.root, v.path, con
  * kova.number.range=The value must be between {0} and {1}.
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver String The resource key (typically a constraint ID like "kova.number.min")
  * @param args Arguments to be interpolated into the message template using MessageFormat
  * @return A [Message.Resource] instance configured with the provided arguments
  */
 context(v: Validation)
 public fun String.resource(vararg args: Any?): Message.Resource = Message.Resource(this, this, v.root, v.path, null, args = args.toList())
 
+/**
+ * Creates a resource-based validation message without arguments.
+ *
+ * This is a convenience property that calls [resource] with no arguments.
+ * Use this for simple messages that don't require parameter interpolation.
+ *
+ * Example:
+ * ```kotlin
+ * satisfies(condition) { "kova.string.notBlank".resource }
+ * ```
+ *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver String The resource key (typically a constraint ID like "kova.string.notBlank")
+ * @return A [Message.Resource] instance with no interpolation arguments
+ */
 context(_: Validation)
 public val String.resource: Message.Resource get() = resource()
 
@@ -328,6 +360,9 @@ public val String.resource: Message.Resource get() = resource()
  * The clock used for temporal validation constraints (ensurePast, ensureFuture, etc.).
  *
  * Delegates to [ValidationConfig.clock].
+ *
+ * @param Validation (context parameter) The validation context containing the clock configuration
+ * @return The configured [Clock] instance
  */
 context(v: Validation)
 public val clock: Clock get() = v.config.clock
@@ -383,6 +418,8 @@ public data class ValidationConfig(
  * }
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param R The type of the result from executing the block
  * @param name The qualified name of the root object (typically class name)
  * @param obj The root object instance (used for circular reference detection)
  * @param block The validation logic to execute with the initialized context
@@ -418,6 +455,8 @@ public inline fun <R> addRoot(
  * }
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param R The type of the result from executing the block
  * @param name The name of the property or field being validated
  * @param obj The object at this path (used for circular reference detection)
  * @param block The validation logic to execute with the extended path
@@ -447,6 +486,8 @@ public inline fun <R> addPath(
  * to the path for circular reference detection. After updating the object reference,
  * the block is executed.
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param R The type of the result from executing the block
  * @param obj The object to bind to the current path
  * @param block The validation logic to execute with the updated context
  * @return The result of executing the block
@@ -482,6 +523,9 @@ public inline fun <R> bindObject(
  * // Returns null, which the property invoke operator uses to skip validation
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param T The type of the object being validated
+ * @param R The type of the result from executing the block
  * @param name The name of the property or field being validated
  * @param obj The object at this path (checked for circular references)
  * @param block The validation logic to execute if no circular reference is detected
@@ -514,6 +558,8 @@ public inline fun <T, R> addPathChecked(
  * }
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param R The type of the result from executing the block
  * @param text The text to append to the current path name
  * @param block The validation logic to execute with the modified path
  * @return The result of executing the block
@@ -549,6 +595,7 @@ public inline fun <R> appendPath(
  * // The lambda is only evaluated if config.logger is non-null
  * ```
  *
+ * @param Validation (context parameter) The validation context containing the logger configuration
  * @param block Lambda that generates the log entry (only called if logger is configured)
  */
 context(v: Validation)
@@ -708,6 +755,16 @@ public sealed interface LogEntry {
     ) : LogEntry
 }
 
+/**
+ * Schema validation context that provides property-based validation operators.
+ *
+ * This class is used internally by [schema] to enable property validation syntax.
+ * It provides the [invoke] operator for [KProperty0] that allows validating properties
+ * using the `property { constraints }` syntax.
+ *
+ * @param T The type of the object being validated
+ * @property obj The object being validated
+ */
 public class Schema<T>(
     private val obj: T,
 ) {
@@ -738,9 +795,11 @@ public class Schema<T>(
      * If a circular reference is detected (the object already appears in the validation
      * path), the validation is skipped and returns [Accumulate.Ok] to prevent stack overflow.
      *
-     * @param T the type of the property value
-     * @param block the validation logic to apply to the property value
-     * @return [Accumulate.Value] wrapping Unit, or null if circular reference detected
+     * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+     * @receiver KProperty0<T> The property reference to validate
+     * @param T The type of the property value
+     * @param block The validation logic to apply to the property value
+     * @return [Accumulate.Value] wrapping Unit, or [Accumulate.Ok] if circular reference detected
      */
     @IgnorableReturnValue
     context(_: Validation)
@@ -749,6 +808,31 @@ public class Schema<T>(
         return addPathChecked(name, value) { accumulating { block(value) } } ?: Accumulate.Ok(Unit)
     }
 
+    /**
+     * Adds a custom constraint to the schema object.
+     *
+     * This is a convenience method that delegates to the top-level [constrain] function,
+     * allowing you to add object-level constraints within a schema block.
+     *
+     * Example:
+     * ```kotlin
+     * data class Period(val startDate: LocalDate, val endDate: LocalDate)
+     *
+     * context(_: Validation)
+     * fun validate(period: Period) = period.schema {
+     *     period::startDate { it.ensurePastOrPresent() }
+     *     period::endDate { it.ensureFutureOrPresent() }
+     *     constrain("period.dateOrder") {
+     *         satisfies(it.startDate <= it.endDate) { text("Start date must be before end date") }
+     *     }
+     * }
+     * ```
+     *
+     * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+     * @param id Unique identifier for the constraint (used in error messages and logging)
+     * @param check Constraint logic that validates the schema object
+     * @return The validated schema object (allows method chaining)
+     */
     @IgnorableReturnValue
     context(_: Validation)
     public fun constrain(

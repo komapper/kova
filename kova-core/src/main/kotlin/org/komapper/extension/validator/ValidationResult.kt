@@ -11,16 +11,27 @@ import kotlin.contracts.contract
  * This sealed interface is used internally to represent validation results that can have
  * both a value and error messages simultaneously ([Both]), or just errors ([FailureLike]).
  * [ValidationResult] extends this to provide the public Success/Failure API.
+ *
+ * @param T The type of the validated value
  */
 public sealed interface ValidationIor<out T> {
     /**
-     * Represents a validation result that ensureContains error messages.
+     * Represents a validation result that contains error messages.
      *
      * This can be either a [Failure] (only errors, no value) or [Both] (value with errors).
+     *
+     * @param T The type of the validated value
+     * @property messages The list of error messages from validation failures
      */
     public sealed interface FailureLike<out T> : ValidationIor<T> {
         public val messages: List<Message>
 
+        /**
+         * Creates a new [FailureLike] with the specified message replacing existing messages.
+         *
+         * @param message The message to use as the sole error message
+         * @return A new [FailureLike] instance with only the specified message
+         */
         public fun withMessage(message: Message): FailureLike<T>
     }
 
@@ -29,11 +40,21 @@ public sealed interface ValidationIor<out T> {
      *
      * This is used internally during validation to track partial successes. When converted
      * to [ValidationResult], this becomes a [Failure] containing the accumulated messages.
+     *
+     * @param T The type of the validated value
+     * @property value The validated value that was produced despite errors
+     * @property messages The list of error messages accumulated during validation
      */
     public data class Both<out T>(
         val value: T,
         override val messages: List<Message>,
     ) : FailureLike<T> {
+        /**
+         * Creates a new [Both] with the specified message replacing existing messages.
+         *
+         * @param message The message to use as the sole error message
+         * @return A new [Both] instance with the same value but only the specified message
+         */
         override fun withMessage(message: Message): Both<T> = Both(value, listOf(message))
     }
 }
@@ -56,6 +77,7 @@ public sealed interface ValidationResult<out T> : ValidationIor<T> {
     /**
      * Represents a successful validation with the validated value.
      *
+     * @param T The type of the validated value
      * @property value The validated value that passed all constraints
      */
     public data class Success<out T>(
@@ -71,6 +93,12 @@ public sealed interface ValidationResult<out T> : ValidationIor<T> {
         override val messages: List<Message>,
     ) : FailureLike<Nothing>,
         ValidationResult<Nothing> {
+        /**
+         * Creates a new [Failure] with the specified message replacing existing messages.
+         *
+         * @param message The message to use as the sole error message
+         * @return A new [Failure] instance with only the specified message
+         */
         override fun withMessage(message: Message): Failure = Failure(listOf(message))
     }
 }
@@ -93,6 +121,10 @@ public sealed interface ValidationResult<out T> : ValidationIor<T> {
  *     println("Errors: ${result.messages}")
  * }
  * ```
+ *
+ * @param T The type of the validated value
+ * @receiver The validation result to check
+ * @return `true` if this result is a [Success], `false` if it is a [Failure]
  */
 public fun <T> ValidationResult<T>.isSuccess(): Boolean {
     contract {
@@ -120,6 +152,10 @@ public fun <T> ValidationResult<T>.isSuccess(): Boolean {
  *     println("Value: ${result.value}")
  * }
  * ```
+ *
+ * @param T The type of the validated value
+ * @receiver The validation result to check
+ * @return `true` if this result is a [Failure], `false` if it is a [Success]
  */
 public fun <T> ValidationResult<T>.isFailure(): Boolean {
     contract {

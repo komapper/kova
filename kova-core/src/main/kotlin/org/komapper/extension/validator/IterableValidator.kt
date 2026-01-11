@@ -3,7 +3,7 @@ package org.komapper.extension.validator
 public typealias CountMessageProvider = (actualCount: Int) -> Message
 
 /**
- * Validates that the iterable is not ensureEmpty.
+ * Validates that the iterable is not empty.
  *
  * Example:
  * ```kotlin
@@ -11,7 +11,11 @@ public typealias CountMessageProvider = (actualCount: Int) -> Message
  * tryValidate { listOf<String>().ensureNotEmpty() }    // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param T The type of iterable being validated
+ * @receiver The iterable to validate
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -19,7 +23,7 @@ public fun <T : Iterable<*>> T.ensureNotEmpty(message: MessageProvider = { "kova
     constrain("kova.iterable.notEmpty") { satisfies(it.iterator().hasNext(), message) }
 
 /**
- * Validates that the iterable ensureContains the specified element.
+ * Validates that the iterable contains the specified element.
  *
  * Example:
  * ```kotlin
@@ -27,8 +31,13 @@ public fun <T : Iterable<*>> T.ensureNotEmpty(message: MessageProvider = { "kova
  * tryValidate { listOf("bar", "baz").ensureHas("foo") }  // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param T The type of iterable being validated
+ * @param E The type of elements in the iterable
+ * @receiver The iterable to validate
  * @param element The element that must be present in the iterable
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -38,7 +47,7 @@ public fun <T : Iterable<E>, E> T.ensureHas(
 ): T = ensureContains(element, message)
 
 /**
- * Validates that the iterable ensureContains the specified element.
+ * Validates that the iterable contains the specified element.
  *
  * Example:
  * ```kotlin
@@ -46,8 +55,13 @@ public fun <T : Iterable<E>, E> T.ensureHas(
  * tryValidate { listOf("bar", "baz").ensureContains("foo") }  // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param T The type of iterable being validated
+ * @param E The type of elements in the iterable
+ * @receiver The iterable to validate
  * @param element The element that must be present in the iterable
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -65,8 +79,13 @@ public fun <T : Iterable<E>, E> T.ensureContains(
  * tryValidate { listOf("foo", "bar").ensureNotContains("foo") }  // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param T The type of iterable being validated
+ * @param E The type of elements in the iterable
+ * @receiver The iterable to validate
  * @param element The element that must not be present in the iterable
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -92,7 +111,12 @@ public fun <T : Iterable<E>, E> T.ensureNotContains(
  * } // Failure: elements too short
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param T The type of iterable being validated
+ * @param E The type of elements in the iterable
+ * @receiver The iterable to validate
  * @param validate The validator to apply to each element
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)

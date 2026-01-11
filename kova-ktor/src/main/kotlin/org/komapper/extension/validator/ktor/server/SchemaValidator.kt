@@ -52,12 +52,33 @@ import org.komapper.extension.validator.tryValidate
 public class SchemaValidator(
     private val errorFormatter: (List<Message>) -> String = ::defaultErrorFormatter
 ): Validator {
+    /**
+     * Validates the given request body value using Kova's schema validation.
+     *
+     * If the value implements [Validated], its `validate()` method is called within
+     * a Kova validation context. The result is then converted to Ktor's [io.ktor.server.plugins.requestvalidation.ValidationResult].
+     *
+     * @param value The request body value to validate.
+     * @return [io.ktor.server.plugins.requestvalidation.ValidationResult.Valid] if validation passes,
+     *   or [io.ktor.server.plugins.requestvalidation.ValidationResult.Invalid] with formatted error messages if validation fails.
+     */
     override suspend fun validate(value: Any): io.ktor.server.plugins.requestvalidation.ValidationResult = tryValidate {
         if (value is Validated) value.validate()
     }.toKtor()
 
+    /**
+     * Determines whether this validator should process the given value.
+     *
+     * @param value The request body value to check.
+     * @return `true` if the value implements [Validated] and should be validated, `false` otherwise.
+     */
     override fun filter(value: Any): Boolean = value is Validated
 
+    /**
+     * Converts a Kova [org.komapper.extension.validator.ValidationResult] to a Ktor [io.ktor.server.plugins.requestvalidation.ValidationResult].
+     *
+     * @return [Valid] if the Kova result is [Success], or [Invalid] with formatted error messages if it is [Failure].
+     */
     private fun org.komapper.extension.validator.ValidationResult<*>.toKtor() = when (this) {
         is Success -> Valid
         is Failure -> Invalid(errorFormatter(messages))
@@ -68,6 +89,9 @@ public class SchemaValidator(
          * Default error formatter that formats error messages as plain text.
          *
          * Multiple errors are joined with newlines.
+         *
+         * @param messages The list of validation error messages to format.
+         * @return A string with all message texts joined by newlines.
          */
         public fun defaultErrorFormatter(messages: List<Message>): String {
             return messages.joinToString("\n") { it.text }

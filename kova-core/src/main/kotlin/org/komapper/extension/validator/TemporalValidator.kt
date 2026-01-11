@@ -26,8 +26,11 @@ import kotlin.reflect.KClass
  * tryValidate { LocalDate.of(2025, 1, 14).ensureFuture() }  // Failure (ensurePast)
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver S The temporal value to validate
  * @param S The temporal type (LocalDate, LocalTime, LocalDateTime, Instant, etc.)
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -48,8 +51,11 @@ public inline fun <reified S> S.ensureFuture(
  * tryValidate { LocalDate.of(2025, 1, 14).ensureFutureOrPresent() }  // Failure (ensurePast)
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver S The temporal value to validate
  * @param S The temporal type (LocalDate, LocalTime, LocalDateTime, Instant, etc.)
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -70,8 +76,11 @@ public inline fun <reified S> S.ensureFutureOrPresent(
  * tryValidate { LocalDate.of(2025, 1, 16).ensurePast() }  // Failure (ensureFuture)
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver S The temporal value to validate
  * @param S The temporal type (LocalDate, LocalTime, LocalDateTime, Instant, etc.)
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -92,9 +101,11 @@ public inline fun <reified S> S.ensurePast(
  * tryValidate { LocalDate.of(2025, 1, 16).ensurePastOrPresent() }  // Failure (ensureFuture)
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver S The temporal value to validate
  * @param S The temporal type (LocalDate, LocalTime, LocalDateTime, Instant, etc.)
  * @param message Custom error message provider
- * @return A new validator with the ensurePast-or-present constraint
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)

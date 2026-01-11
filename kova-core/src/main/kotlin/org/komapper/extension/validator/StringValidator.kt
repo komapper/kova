@@ -13,7 +13,10 @@ import kotlin.reflect.KClass
  * tryValidate { "abc".ensureInt() }  // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver String The string to validate
  * @param message Custom error message provider
+ * @return The validated string value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -30,7 +33,10 @@ public fun String.ensureInt(
  * tryValidate { "abc".ensureLong() }       // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver String The string to validate
  * @param message Custom error message provider
+ * @return The validated string value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -47,7 +53,10 @@ public fun String.ensureLong(
  * tryValidate { "abc".ensureShort() } // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver String The string to validate
  * @param message Custom error message provider
+ * @return The validated string value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -64,7 +73,10 @@ public fun String.ensureShort(
  * tryValidate { "abc".ensureByte() } // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver String The string to validate
  * @param message Custom error message provider
+ * @return The validated string value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -81,7 +93,10 @@ public fun String.ensureByte(
  * tryValidate { "abc".ensureDouble() }  // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver String The string to validate
  * @param message Custom error message provider
+ * @return The validated string value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -98,7 +113,10 @@ public fun String.ensureDouble(
  * tryValidate { "abc".ensureFloat() }  // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver String The string to validate
  * @param message Custom error message provider
+ * @return The validated string value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -115,7 +133,10 @@ public fun String.ensureFloat(
  * tryValidate { "abc".ensureBigDecimal() }        // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver String The string to validate
  * @param message Custom error message provider
+ * @return The validated string value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -132,7 +153,10 @@ public fun String.ensureBigDecimal(
  * tryValidate { "abc".ensureBigInteger() }             // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver String The string to validate
  * @param message Custom error message provider
+ * @return The validated string value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -152,7 +176,10 @@ public fun String.ensureBigInteger(
  * tryValidate { "yes".ensureBoolean() }   // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver String The string to validate
  * @param message Custom error message provider
+ * @return The validated string value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -170,8 +197,12 @@ public fun String.ensureBoolean(
  * tryValidate { "OTHER".ensureEnum(Role::class) } // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver String The string to validate
+ * @param E The enum type
  * @param klass The enum class to validate against
- * @param message Custom error message provider
+ * @param message Custom error message provider that receives the list of valid enum names
+ * @return The validated string value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -190,7 +221,11 @@ public fun <E : Enum<E>> String.ensureEnum(
  * tryValidate { "OTHER".ensureEnum<Role>() } // Failure
  * ```
  *
- * @param message Custom error message provider
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver String The string to validate
+ * @param E The enum type
+ * @param message Custom error message provider that receives the list of valid enum names
+ * @return The validated string value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -207,7 +242,10 @@ public inline fun <reified E : Enum<E>> String.ensureEnum(
  * tryValidate { "hello".ensureUppercase() } // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver String The string to validate
  * @param message Custom error message provider
+ * @return The validated string value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -224,7 +262,10 @@ public fun String.ensureUppercase(
  * tryValidate { "HELLO".ensureLowercase() } // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver String The string to validate
  * @param message Custom error message provider
+ * @return The validated string value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -242,6 +283,11 @@ public fun String.ensureLowercase(
  * tryValidate { "123".transformToInt() } // Success: 123
  * tryValidate { "abc".transformToInt() } // Failure
  * ```
+ *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver String The string to validate and convert
+ * @param message Custom error message provider
+ * @return The converted Int value
  */
 context(_: Validation)
 public fun String.transformToInt(
@@ -258,6 +304,11 @@ public fun String.transformToInt(
  * tryValidate { "123456789".transformToLong() } // Success: 123456789L
  * tryValidate { "abc".transformToLong() }       // Failure
  * ```
+ *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver String The string to validate and convert
+ * @param message Custom error message provider
+ * @return The converted Long value
  */
 context(_: Validation)
 public fun String.transformToLong(
@@ -274,6 +325,11 @@ public fun String.transformToLong(
  * tryValidate { "123".transformToShort() } // Success: 123.toShort()
  * tryValidate { "abc".transformToShort() } // Failure
  * ```
+ *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver String The string to validate and convert
+ * @param message Custom error message provider
+ * @return The converted Short value
  */
 context(_: Validation)
 public fun String.transformToShort(
@@ -290,6 +346,11 @@ public fun String.transformToShort(
  * tryValidate { "12".transformToByte() }  // Success: 12.toByte()
  * tryValidate { "abc".transformToByte() } // Failure
  * ```
+ *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver String The string to validate and convert
+ * @param message Custom error message provider
+ * @return The converted Byte value
  */
 context(_: Validation)
 public fun String.transformToByte(
@@ -306,6 +367,11 @@ public fun String.transformToByte(
  * tryValidate { "12.5".transformToDouble() } // Success: 12.5
  * tryValidate { "abc".transformToDouble() }  // Failure
  * ```
+ *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver String The string to validate and convert
+ * @param message Custom error message provider
+ * @return The converted Double value
  */
 context(_: Validation)
 public fun String.transformToDouble(
@@ -322,6 +388,11 @@ public fun String.transformToDouble(
  * tryValidate { "12.5".transformToFloat() } // Success: 12.5f
  * tryValidate { "abc".transformToFloat() }  // Failure
  * ```
+ *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver String The string to validate and convert
+ * @param message Custom error message provider
+ * @return The converted Float value
  */
 context(_: Validation)
 public fun String.transformToFloat(
@@ -338,6 +409,11 @@ public fun String.transformToFloat(
  * tryValidate { "123.456789".transformToBigDecimal() } // Success: BigDecimal("123.456789")
  * tryValidate { "abc".transformToBigDecimal() }        // Failure
  * ```
+ *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver String The string to validate and convert
+ * @param message Custom error message provider
+ * @return The converted BigDecimal value
  */
 context(_: Validation)
 public fun String.transformToBigDecimal(
@@ -354,6 +430,11 @@ public fun String.transformToBigDecimal(
  * tryValidate { "123456789012345".transformToBigInteger() } // Success: BigInteger("123456789012345")
  * tryValidate { "abc".transformToBigInteger() }             // Failure
  * ```
+ *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver String The string to validate and convert
+ * @param message Custom error message provider
+ * @return The converted BigInteger value
  */
 context(_: Validation)
 public fun String.transformToBigInteger(
@@ -371,6 +452,11 @@ public fun String.transformToBigInteger(
  * tryValidate { "false".transformToBoolean() } // Success: false
  * tryValidate { "yes".transformToBoolean() }   // Failure
  * ```
+ *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver String The string to validate and convert
+ * @param message Custom error message provider
+ * @return The converted Boolean value
  */
 context(_: Validation)
 public fun String.transformToBoolean(
@@ -378,7 +464,7 @@ public fun String.transformToBoolean(
 ): Boolean = toBooleanStrictOrNull().toNonNullable("kova.string.boolean", message)
 
 /**
- * Validates that the string is a valid enum name and converts it to the enum value.
+ * Validates that the string is a valid enum name and converts it to the enum value (reified version).
  *
  * This is a type-transforming validator that outputs the enum type.
  *
@@ -388,12 +474,37 @@ public fun String.transformToBoolean(
  * tryValidate { "ADMIN".transformToEnum<Role>() } // Success: Role.ADMIN
  * tryValidate { "OTHER".transformToEnum<Role>() } // Failure
  * ```
+ *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver String The string to validate and convert
+ * @param E The enum type
+ * @param message Custom error message provider that receives the list of valid enum names
+ * @return The converted enum value
  */
 context(_: Validation)
 public inline fun <reified E : Enum<E>> String.transformToEnum(
     noinline message: (validNames: List<String>) -> Message = { "kova.string.enum".resource(it) },
 ): E = transformToEnum(E::class, message)
 
+/**
+ * Validates that the string is a valid enum name and converts it to the enum value.
+ *
+ * This is a type-transforming validator that outputs the enum type.
+ *
+ * Example:
+ * ```kotlin
+ * enum class Role { ADMIN, USER, GUEST }
+ * tryValidate { "ADMIN".transformToEnum(Role::class) } // Success: Role.ADMIN
+ * tryValidate { "OTHER".transformToEnum(Role::class) } // Failure
+ * ```
+ *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver String The string to validate and convert
+ * @param E The enum type
+ * @param klass The enum class to convert to
+ * @param message Custom error message provider that receives the list of valid enum names
+ * @return The converted enum value
+ */
 context(_: Validation)
 public fun <E : Enum<E>> String.transformToEnum(
     klass: KClass<E>,

@@ -8,7 +8,7 @@ import kotlin.contracts.contract
  *
  * This class is typically accessed through the `constrain()` extension function, which
  * creates a constraint context for a given input value and constraint ID. Within this context,
- * you can use the `satisfies()` method to define validation rules.
+ * you can use the [satisfies] method to define validation rules.
  *
  * Example:
  * ```kotlin
@@ -18,8 +18,9 @@ import kotlin.contracts.contract
  * }
  * ```
  *
- * @property validation The validation context that accumulates errors and manages validation state
+ * @param validation The validation context that accumulates errors and manages validation state
  * @see satisfies
+ * @see constrain
  */
 public data class Constraint(
     val validation: Validation,
@@ -30,6 +31,9 @@ public data class Constraint(
      * This accepts a [MessageProvider]
      * lambda that is only evaluated when the condition is false, enabling lazy message construction.
      * This is beneficial when message creation involves resource lookups or formatting.
+     *
+     * This function uses a Kotlin contract to enable smart casting: when it returns normally,
+     * the compiler knows the condition was true.
      *
      * Example:
      * ```kotlin
@@ -44,8 +48,9 @@ public data class Constraint(
      * tryValidate { (-1).ensurePositive() } // Failure (message provider evaluated)
      * ```
      *
-     * @param condition The condition to evaluate
-     * @param message A MessageProvider lambda that produces the error message if the condition is false
+     * @param condition The condition to evaluate; if false, the message provider is invoked and an error is raised
+     * @param message A [MessageProvider] lambda that produces the error message if the condition is false
+     * @return Unit. This function returns normally only when the condition is true; otherwise, it raises an error
      */
     public fun satisfies(
         condition: Boolean,

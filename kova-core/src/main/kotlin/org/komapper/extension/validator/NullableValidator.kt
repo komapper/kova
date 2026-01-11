@@ -14,7 +14,11 @@ import kotlin.contracts.contract
  * tryValidate { "hello".ensureNull() } // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param T The type of the nullable value being validated
+ * @receiver The nullable value to validate
  * @param message Custom error message provider
+ * @return The validated input value (unchanged)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -38,8 +42,12 @@ public fun <T> T.ensureNull(message: MessageProvider = { "kova.nullable.null".re
  * tryValidate { "hi".ensureNullOr { it.ensureLengthAtLeast(3) } }     // Failure (too short)
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param T The type of the nullable value being validated
+ * @receiver The nullable value to validate
  * @param message Custom error message provider for the null check
  * @param block Validation block to execute if input is not null
+ * @return The validated input value (unchanged)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -60,7 +68,11 @@ public inline fun <T> T.ensureNullOr(
  * tryValidate { null.ensureNotNull() }    // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param T The type of the nullable value being validated
+ * @receiver The nullable value to validate
  * @param message Custom error message provider
+ * @return The validated non-null input value with type `T & Any`
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -84,9 +96,12 @@ public fun <T> T.ensureNotNull(message: MessageProvider = { "kova.nullable.notNu
  * The function uses [constrain] to properly track the validation path context and returns
  * the accumulated value, ensuring proper error reporting in nested validation scenarios.
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param T The type of the nullable value being validated
+ * @receiver The nullable value to validate
  * @param constraintId Custom constraint ID for the validation error (e.g., "kova.string.ensureInt")
  * @param message Custom error message provider for the validation error
- * @return The non-null input value with type `T & Any`
+ * @return The validated non-null input value with type `T & Any`
  */
 @IgnorableReturnValue
 context(_: Validation)
