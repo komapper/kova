@@ -21,10 +21,7 @@ class FactoryTest :
             context(_: Validation)
             fun buildUser(name: String) =
                 factory {
-                    val name by bind(name) {
-                        it.ensureNotBlank()
-                        it
-                    }
+                    val name by bind(name) { it.ensureNotBlank() }
                     User(name)
                 }
 
@@ -82,10 +79,7 @@ class FactoryTest :
             context(_: Validation)
             fun buildName(value: String) =
                 factory {
-                    val value by bind(value) {
-                        it.ensureNotBlank()
-                        it
-                    }
+                    val value by bind(value) { it.ensureNotBlank() }
                     Name(value)
                 }
 
