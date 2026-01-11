@@ -33,7 +33,7 @@ import kotlin.reflect.KClass
 context(_: Validation)
 public inline fun <reified S> S.ensureFuture(
     noinline message: MessageProvider = { "kova.temporal.future".resource },
-): S where S : Temporal, S : Comparable<S> = apply { constrain("kova.temporal.future") { satisfies(it > now(clock), message) } }
+): S where S : Temporal, S : Comparable<S> = constrain("kova.temporal.future") { satisfies(it > now(clock), message) }
 
 /**
  * Validates that the temporal value is in the ensureFuture or present (greater than or equal to now).
@@ -55,7 +55,7 @@ public inline fun <reified S> S.ensureFuture(
 context(_: Validation)
 public inline fun <reified S> S.ensureFutureOrPresent(
     noinline message: MessageProvider = { "kova.temporal.futureOrPresent".resource },
-): S where S : Temporal, S : Comparable<S> = apply { constrain("kova.temporal.futureOrPresent") { satisfies(it >= now(clock), message) } }
+): S where S : Temporal, S : Comparable<S> = constrain("kova.temporal.futureOrPresent") { satisfies(it >= now(clock), message) }
 
 /**
  * Validates that the temporal value is in the ensurePast (strictly less than now).
@@ -77,7 +77,7 @@ public inline fun <reified S> S.ensureFutureOrPresent(
 context(_: Validation)
 public inline fun <reified S> S.ensurePast(
     noinline message: MessageProvider = { "kova.temporal.past".resource },
-): S where S : Temporal, S : Comparable<S> = apply { constrain("kova.temporal.past") { satisfies(it < now(clock), message) } }
+): S where S : Temporal, S : Comparable<S> = constrain("kova.temporal.past") { satisfies(it < now(clock), message) }
 
 /**
  * Validates that the temporal value is in the ensurePast or present (less than or equal to now).

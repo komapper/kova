@@ -15,7 +15,7 @@ package org.komapper.extension.validator
 @IgnorableReturnValue
 context(_: Validation)
 public fun <T : Number> T.ensurePositive(message: MessageProvider = { "kova.number.positive".resource }): T =
-    apply { constrain("kova.number.positive") { satisfies(it.toDouble() > 0.0, message) } }
+    constrain("kova.number.positive") { satisfies(it.toDouble() > 0.0, message) }
 
 /**
  * Validates that the number is ensureNegative (less than zero).
@@ -32,7 +32,7 @@ public fun <T : Number> T.ensurePositive(message: MessageProvider = { "kova.numb
 @IgnorableReturnValue
 context(_: Validation)
 public fun <T : Number> T.ensureNegative(message: MessageProvider = { "kova.number.negative".resource }): T =
-    apply { constrain("kova.number.negative") { satisfies(it.toDouble() < 0.0, message) } }
+    constrain("kova.number.negative") { satisfies(it.toDouble() < 0.0, message) }
 
 /**
  * Validates that the number is not ensurePositive (less than or equal to zero).
@@ -49,7 +49,7 @@ public fun <T : Number> T.ensureNegative(message: MessageProvider = { "kova.numb
 @IgnorableReturnValue
 context(_: Validation)
 public fun <T : Number> T.ensureNotPositive(message: MessageProvider = { "kova.number.notPositive".resource }): T =
-    apply { constrain("kova.number.notPositive") { satisfies(it.toDouble() <= 0.0, message) } }
+    constrain("kova.number.notPositive") { satisfies(it.toDouble() <= 0.0, message) }
 
 /**
  * Validates that the number is not ensureNegative (greater than or equal to zero).
@@ -66,4 +66,4 @@ public fun <T : Number> T.ensureNotPositive(message: MessageProvider = { "kova.n
 @IgnorableReturnValue
 context(_: Validation)
 public fun <T : Number> T.ensureNotNegative(message: MessageProvider = { "kova.number.notNegative".resource }): T =
-    apply { constrain("kova.number.notNegative") { satisfies(it.toDouble() >= 0.0, message) } }
+    constrain("kova.number.notNegative") { satisfies(it.toDouble() >= 0.0, message) }

@@ -102,6 +102,9 @@ private fun <T> T.raiseIfNull(
     message: MessageProvider,
 ) {
     contract { returns() implies (this@raiseIfNull != null) }
-    val result = constrain(constraintId) { satisfies(it != null, message) }
-    if (result is Accumulate.Error) result.raise()
+    val result = accumulatingThenCheck(constraintId) { satisfies(it != null, message) }
+    when (result) {
+        is Accumulate.Ok -> {}
+        is Accumulate.Error -> result.raise()
+    }
 }
