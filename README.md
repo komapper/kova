@@ -133,7 +133,7 @@ println(result.value)  // (Alice, 25)
 
 // Invalid input - returns Failure with ALL errors, not just the first one
 val result = tryValidate { validateUser("", -5) }
-if (!result.isSuccess()) {
+if (result.isFailure()) {
     result.messages.forEach { println(it.text) }
     // Output:
     //   "must not be blank"
