@@ -95,10 +95,11 @@ fun main() {
     // Invalid user - collects ALL errors
     val invalidResult = tryValidate { User("", "invalid", -5).validate() }
     if (invalidResult.isFailure()) {
-        invalidResult.messages.forEach { println("${it.path}: ${it.text}") }
-        // name: must not be blank
-        // email: must contain '@'
-        // age: must be in range 0..150
+        invalidResult.messages.forEach { println(it) }
+        // Message(constraintId=kova.charSequence.notBlank, text='must not be blank', root=User, path=name, input=, args=[])
+        // Message(constraintId=kova.charSequence.lengthInRange, text='must have length within range 1..50', root=User, path=name, input=, args=[1..50])
+        // Message(constraintId=kova.charSequence.contains, text='must contain "@"', root=User, path=email, input=invalid, args=[@])
+        // Message(constraintId=kova.comparable.inRange, text='must be within range 0..150', root=User, path=age, input=-5, args=[0..150])
     }
 }
 ```
