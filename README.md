@@ -1,99 +1,14 @@
 # Kova
 
+[![Build](https://github.com/komapper/kova/actions/workflows/ci.yml/badge.svg)](https://github.com/komapper/kova/actions/workflows/ci.yml)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.3.0+-purple.svg)](https://kotlinlang.org)
+
 A type-safe Kotlin validation library with composable validators and detailed error reporting.
 
 > **⚠️ Note**: This project is currently under active development. The API may change until a stable 1.0.0 release.
 
-## Setup
-
-Add Kova to your Gradle project:
-
-### Gradle Kotlin DSL (build.gradle.kts)
-
-```kotlin
-dependencies {
-    // Core validation library
-    implementation("org.komapper:kova-core:0.1.0")
-
-    // Factory validation (optional)
-    implementation("org.komapper:kova-factory:0.1.0")
-
-    // Ktor integration (optional)
-    implementation("org.komapper:kova-ktor:0.1.0")
-}
-```
-
-### Enable Context Parameters (Required)
-
-Kova uses Kotlin's context parameters feature, which must be enabled in your project:
-
-```kotlin
-kotlin {
-    compilerOptions {
-        freeCompilerArgs.add("-Xcontext-parameters")
-    }
-}
-```
-
-**Note**: Context parameters are an experimental Kotlin feature. This compiler flag is required to use Kova's validation functions.
-
-## Features
-
-- **Type-Safe**: Leverages Kotlin's type system for compile-time safety
-- **Composable**: Build complex validation logic by composing reusable validation functions, chaining constraints, and using conditional operators (`or`, `orElse`)
-- **Immutable**: All validators are immutable and thread-safe
-- **Detailed Error Reporting**: Get precise error messages with path tracking for nested validations
-- **Internationalization**: Built-in support for localized error messages
-- **Fail-Fast Support**: Option to stop validation at the first error or collect all errors
-- **Ktor Integration**: Automatic request validation with Ktor's RequestValidation plugin
-- **Zero Dependencies**: No external runtime dependencies, only requires Kotlin standard library
-
-## Table of Contents
-
-- [Setup](#setup)
-- [Features](#features)
-- [Quick Start](#quick-start)
-  - [Basic Validation](#basic-validation)
-  - [Multiple Validators](#multiple-validators)
-  - [Object Validation](#object-validation)
-- [Factory Validation](#factory-validation)
-- [Ktor Integration](#ktor-integration)
-- [Available Validators](#available-validators)
-  - [String & CharSequence](#string--charsequence)
-  - [Numbers](#numbers)
-  - [Temporal Types](#temporal-types)
-  - [Iterables](#iterables)
-  - [Collections](#collections)
-  - [Maps](#maps)
-  - [Nullable](#nullable)
-  - [Boolean](#boolean)
-  - [Comparable Types](#comparable-types)
-  - [Any Type Validators](#any-type-validators)
-- [Error Handling](#error-handling)
-  - [Basic Error Handling](#basic-error-handling)
-  - [Message Properties](#message-properties)
-  - [Custom Error Messages](#custom-error-messages)
-- [Validation Configuration](#validation-configuration)
-  - [Fail-Fast Mode](#fail-fast-mode)
-  - [Custom Clock for Temporal Validation](#custom-clock-for-temporal-validation)
-  - [Debug Logging](#debug-logging)
-  - [Combined Configuration](#combined-configuration)
-- [Advanced Topics](#advanced-topics)
-  - [Custom Constraints](#custom-constraints)
-  - [Nullable Validation](#nullable-validation)
-  - [Conditional Validation with `or` and `orElse`](#conditional-validation-with-or-and-orelse)
-  - [Wrapping Errors with `withMessage`](#wrapping-errors-with-withmessage)
-  - [Circular Reference Detection](#circular-reference-detection)
-  - [Internationalization](#internationalization)
-- [Examples](#examples)
-- [Building and Testing](#building-and-testing)
-- [Requirements](#requirements)
-- [License](#license)
-- [Contributing](#contributing)
-
 ## Quick Start
-
-### Basic Validation
 
 Kova lets you write validation rules that are readable, composable, and type-safe.
 
@@ -155,6 +70,175 @@ val value = validate { validateUser("", -5) }  // Throws ValidationException wit
 ```
 
 > **Note**: The `context(_: Validation)` declaration is required for validator functions. This uses Kotlin's [context parameters](https://kotlinlang.org/docs/whatsnew2020.html#context-parameters) feature, which must be enabled in your build (see [Setup](#setup)).
+
+### Complete Example
+
+Here's a complete, runnable example you can copy and paste:
+
+```kotlin
+import org.komapper.extension.validator.*
+
+data class User(val name: String, val email: String, val age: Int)
+
+context(_: Validation)
+fun User.validate() = schema {
+    ::name { it.ensureNotBlank().ensureLengthInRange(1..50) }
+    ::email { it.ensureNotBlank().ensureContains("@") }
+    ::age { it.ensureInRange(0..150) }
+}
+
+fun main() {
+    // Valid user
+    val validResult = tryValidate { User("Alice", "alice@example.com", 25).validate() }
+    println("Valid: ${validResult.isSuccess()}")  // Valid: true
+
+    // Invalid user - collects ALL errors
+    val invalidResult = tryValidate { User("", "invalid", -5).validate() }
+    if (invalidResult.isFailure()) {
+        invalidResult.messages.forEach { println("${it.path}: ${it.text}") }
+        // name: must not be blank
+        // email: must contain '@'
+        // age: must be in range 0..150
+    }
+}
+```
+
+## Why Kova?
+
+There are several validation libraries for Kotlin. Here's why you might choose Kova:
+
+| Feature | Kova | Hibernate Validator | Konform |
+|---------|------|---------------------|---------|
+| **Approach** | Function-based | Annotation-based | DSL-based |
+| **Type safety** | Compile-time (context parameters) | Runtime (reflection) | Compile-time |
+| **Value transformation** | Yes (`transformToInt()`, etc.) | No | No |
+| **Smart cast support** | Yes (`ensureNotNull()`) | No | No |
+| **Dependencies** | Zero | Jakarta EE | Zero |
+| **Error collection** | All errors or fail-fast | All errors | All errors or fail-fast |
+
+### Function-Based Validation
+
+Unlike annotation-based approaches, Kova validators are regular Kotlin functions. This means you can:
+
+- **Compose freely**: Combine validators using standard function composition
+- **Parameterize easily**: Pass arguments to customize validation behavior
+- **Reuse across types**: Apply the same validator to different properties or classes
+- **Test simply**: Unit test validators like any other function
+
+```kotlin
+// Reusable, parameterized validator
+context(_: Validation)
+fun validateLength(value: String, min: Int, max: Int): String {
+    return value.ensureLengthAtLeast(min).ensureLengthAtMost(max)
+}
+
+// Use it anywhere
+context(_: Validation)
+fun User.validate() = schema {
+    ::name { validateLength(it, 1, 100) }
+    ::bio { validateLength(it, 0, 500) }
+}
+```
+
+### Type-Safe Transformations
+
+Kova can validate and transform values in a single operation—useful for handling raw input:
+
+```kotlin
+context(_: Validation)
+fun buildProduct(rawPrice: String, rawQuantity: String) = factory {
+    val price by bind(rawPrice) { it.transformToDouble().ensureNotNegative() }
+    val quantity by bind(rawQuantity) { it.transformToInt().ensurePositive() }
+    Product(price, quantity)
+}
+```
+
+### Smart Cast Support
+
+`ensureNotNull()` uses Kotlin contracts, enabling smart casts in subsequent code:
+
+```kotlin
+context(_: Validation)
+fun processEmail(email: String?): String {
+    email.ensureNotNull()  // Validates and enables smart cast
+    return email.ensureContains("@").ensureLengthAtMost(254)  // email is now String, not String?
+}
+```
+
+## Features
+
+- **Type-Safe**: Leverages Kotlin's type system for compile-time safety
+- **Composable**: Build complex validation logic by composing reusable validation functions, chaining constraints, and using conditional operators (`or`, `orElse`)
+- **Immutable**: All validators are immutable and thread-safe
+- **Detailed Error Reporting**: Get precise error messages with path tracking for nested validations
+- **Internationalization**: Built-in support for localized error messages
+- **Fail-Fast Support**: Option to stop validation at the first error or collect all errors
+- **Ktor Integration**: Automatic request validation with Ktor's RequestValidation plugin
+- **Zero Dependencies**: No external runtime dependencies, only requires Kotlin standard library
+
+## Setup
+
+Add Kova to your Gradle project:
+
+### Gradle Kotlin DSL (build.gradle.kts)
+
+```kotlin
+dependencies {
+    // Core validation library
+    implementation("org.komapper:kova-core:0.1.0")
+
+    // Factory validation (optional)
+    implementation("org.komapper:kova-factory:0.1.0")
+
+    // Ktor integration (optional)
+    implementation("org.komapper:kova-ktor:0.1.0")
+}
+```
+
+### Enable Context Parameters (Required)
+
+Kova uses Kotlin's context parameters feature, which must be enabled in your project:
+
+```kotlin
+kotlin {
+    compilerOptions {
+        freeCompilerArgs.add("-Xcontext-parameters")
+    }
+}
+```
+
+**Note**: Context parameters are an experimental Kotlin feature. This compiler flag is required to use Kova's validation functions.
+
+## Table of Contents
+
+- [Quick Start](#quick-start)
+- [Why Kova?](#why-kova)
+- [Features](#features)
+- [Setup](#setup)
+- [Basic Usage](#basic-usage)
+  - [Multiple Validators](#multiple-validators)
+  - [Object Validation](#object-validation)
+- [Factory Validation](#factory-validation)
+- [Ktor Integration](#ktor-integration)
+- [Available Validators](#available-validators)
+- [Error Handling](#error-handling)
+  - [Basic Error Handling](#basic-error-handling)
+  - [Message Properties](#message-properties)
+  - [Custom Error Messages](#custom-error-messages)
+- [Validation Configuration](#validation-configuration)
+  - [Fail-Fast Mode](#fail-fast-mode)
+  - [Custom Clock for Temporal Validation](#custom-clock-for-temporal-validation)
+  - [Debug Logging](#debug-logging)
+  - [Combined Configuration](#combined-configuration)
+- [Advanced Topics](#advanced-topics)
+- [Examples](#examples)
+- [FAQ](#faq)
+- [Building and Testing](#building-and-testing)
+- [Requirements](#requirements)
+- [License](#license)
+- [Contributing](#contributing)
+
+## Basic Usage
 
 ### Multiple Validators
 
@@ -347,196 +431,9 @@ For detailed documentation, see **[kova-ktor/README.md](kova-ktor/README.md)**.
 
 ## Available Validators
 
-All validators are extension functions on the input type with a `Validation` context receiver.
+Kova provides validators for many types including String, Numbers, Temporal types, Collections, Maps, and more.
 
-### String & CharSequence
-
-Supported types: `String`, `CharSequence`
-
-```kotlin
-// Length validation
-input.ensureLength(10)                   // Exact length
-input.ensureLengthAtLeast(1)             // Minimum length
-input.ensureLengthAtMost(100)            // Maximum length
-input.ensureLengthInRange(1..100)        // Length within range (supports both 1..100 and 1..<100)
-
-// Content validation
-input.ensureBlank()                      // Must be blank (empty or whitespace only)
-input.ensureNotBlank()                   // Must not be blank
-input.ensureEmpty()                      // Must be empty
-input.ensureNotEmpty()                   // Must not be empty
-input.ensureStartsWith("prefix")         // Must start with prefix
-input.ensureNotStartsWith("prefix")      // Must not start with prefix
-input.ensureEndsWith("suffix")           // Must end with suffix
-input.ensureNotEndsWith("suffix")        // Must not end with suffix
-input.ensureContains("substring")        // Must contain substring
-input.ensureNotContains("substring")     // Must not contain substring
-input.ensureMatches(Regex("\\d+"))       // Must match regex
-input.ensureNotMatches(Regex("\\d+"))    // Must not match regex
-input.ensureUppercase()                  // Must be uppercase
-input.ensureLowercase()                  // Must be lowercase
-
-// Comparable validation
-input.ensureAtLeast("a")                 // At least "a" (>= "a")
-input.ensureAtMost("z")                  // At most "z" (<= "z")
-input.ensureGreaterThan("a")             // Greater than "a" (> "a")
-input.ensureGreaterThanOrEqual("a")      // Greater than or equal to "a" (>= "a")
-input.ensureLessThan("z")                // Less than "z" (< "z")
-input.ensureLessThanOrEqual("z")         // Less than or equal to "z" (<= "z")
-input.ensureEquals("value")              // Equal to "value" (==)
-input.ensureNotEquals("value")           // Not equal to "value" (!=)
-
-// String-specific validation
-input.ensureInt()                        // Validates string is valid Int
-input.ensureLong()                       // Validates string is valid Long
-input.ensureShort()                      // Validates string is valid Short
-input.ensureByte()                       // Validates string is valid Byte
-input.ensureDouble()                     // Validates string is valid Double
-input.ensureFloat()                      // Validates string is valid Float
-input.ensureBigDecimal()                 // Validates string is valid BigDecimal
-input.ensureBigInteger()                 // Validates string is valid BigInteger
-input.ensureBoolean()                    // Validates string is valid Boolean
-input.ensureEnum<Status>()               // Validates string is valid enum value
-
-// Conversions
-input.transformToInt()                   // Validate and convert to Int
-input.transformToLong()                  // Validate and convert to Long
-input.transformToShort()                 // Validate and convert to Short
-input.transformToByte()                  // Validate and convert to Byte
-input.transformToDouble()                // Validate and convert to Double
-input.transformToFloat()                 // Validate and convert to Float
-input.transformToBigDecimal()            // Validate and convert to BigDecimal
-input.transformToBigInteger()            // Validate and convert to BigInteger
-input.transformToBoolean()               // Validate and convert to Boolean
-input.transformToEnum<Status>()          // Validate and convert to enum
-```
-
-### Numbers
-
-Supported types: `Int`, `Long`, `Double`, `Float`, `Byte`, `Short`, `BigDecimal`, `BigInteger`
-
-```kotlin
-input.ensureAtLeast(0)                 // At least 0 (>= 0)
-input.ensureAtMost(100)                // At most 100 (<= 100)
-input.ensureGreaterThan(0)             // Greater than 0 (> 0)
-input.ensureGreaterThanOrEqual(0)      // Greater than or equal to 0 (>= 0)
-input.ensureLessThan(100)              // Less than 100 (< 100)
-input.ensureLessThanOrEqual(100)       // Less than or equal to 100 (<= 100)
-input.ensureEquals(42)                 // Equal to 42 (==)
-input.ensureNotEquals(0)               // Not equal to 0 (!=)
-input.ensurePositive()                 // Positive (> 0)
-input.ensureNegative()                 // Negative (< 0)
-input.ensureNotPositive()              // Not positive (<= 0)
-input.ensureNotNegative()              // Not negative (>= 0)
-```
-
-### Temporal Types
-
-Supported types: `LocalDate`, `LocalTime`, `LocalDateTime`, `Instant`, `OffsetDateTime`, `OffsetTime`, `ZonedDateTime`, `Year`, `YearMonth`, `MonthDay`
-
-```kotlin
-input.ensureAtLeast(LocalDate.of(2024, 1, 1))                 // At least 2024-01-01 (>=)
-input.ensureAtMost(LocalDate.of(2024, 12, 31))                // At most 2024-12-31 (<=)
-input.ensureGreaterThan(LocalDate.of(2024, 6, 1))             // Greater than 2024-06-01 (>)
-input.ensureGreaterThanOrEqual(LocalDate.of(2024, 1, 1))      // Greater than or equal to 2024-01-01 (>=)
-input.ensureLessThan(LocalDate.of(2025, 1, 1))                // Less than 2025-01-01 (<)
-input.ensureLessThanOrEqual(LocalDate.of(2024, 12, 31))       // Less than or equal to 2024-12-31 (<=)
-input.ensureEquals(LocalDate.of(2024, 6, 15))                 // Equal to 2024-06-15 (==)
-input.ensureNotEquals(LocalDate.of(2024, 1, 1))               // Not equal to 2024-01-01 (!=)
-input.ensureFuture()                                          // In the future
-input.ensureFutureOrPresent()                                 // In the future or present
-input.ensurePast()                                            // In the past
-input.ensurePastOrPresent()                                   // In the past or present
-```
-
-### Iterables
-
-Supported types: Any `Iterable` (including `List`, `Set`, `Collection`)
-
-```kotlin
-input.ensureNotEmpty()                     // Must not be empty
-input.ensureContains("foo")                // Must contain element (alias: ensureHas)
-input.ensureNotContains("bar")             // Must not contain element
-input.ensureEach { element ->              // Validate each element
-    element.ensureAtLeast(1)
-}
-```
-
-### Collections
-
-Supported types: `List`, `Set`, `Collection`
-
-```kotlin
-input.ensureSize(5)                        // Exact size
-input.ensureSizeAtLeast(1)                 // Minimum size
-input.ensureSizeAtMost(10)                 // Maximum size
-input.ensureSizeInRange(1..10)             // Size within range (supports both 1..10 and 1..<10)
-```
-
-### Maps
-
-```kotlin
-input.ensureSize(5)                        // Exact size
-input.ensureSizeAtLeast(1)                 // Minimum size
-input.ensureSizeAtMost(10)                 // Maximum size
-input.ensureSizeInRange(1..10)             // Size within range (supports both 1..10 and 1..<10)
-input.ensureNotEmpty()                     // Must not be empty
-input.ensureContainsKey("foo")             // Must contain key (alias: ensureHasKey)
-input.ensureNotContainsKey("bar")          // Must not contain key
-input.ensureContainsValue(42)              // Must contain value (alias: ensureHasValue)
-input.ensureNotContainsValue(0)            // Must not contain value
-input.ensureEachKey { key ->               // Validate each key
-    key.ensureAtLeast(1)
-}
-input.ensureEachValue { value ->           // Validate each value
-    value.ensureAtLeast(0)
-}
-```
-
-### Nullable
-
-```kotlin
-input.ensureNull()                         // Must be null
-input.ensureNotNull()                      // Must not be null (enables smart casting, stops on failure)
-input.ensureNullOr { block }               // Accept null or validate non-null
-```
-
-### Boolean
-
-```kotlin
-input.ensureTrue()                         // Must be true
-input.ensureFalse()                        // Must be false
-```
-
-### Comparable Types
-
-Supports all `Comparable` types, such as `UInt`, `ULong`, `UByte`, and `UShort`.
-
-```kotlin
-input.ensureAtLeast(0u)                    // At least 0u (>= 0u)
-input.ensureAtMost(100u)                   // At most 100u (<= 100u)
-input.ensureGreaterThan(0u)                // Greater than 0u (> 0u)
-input.ensureGreaterThanOrEqual(0u)         // Greater than or equal to 0u (>= 0u)
-input.ensureLessThan(100u)                 // Less than 100u (< 100u)
-input.ensureLessThanOrEqual(100u)          // Less than or equal to 100u (<= 100u)
-input.ensureEquals(42u)                    // Equal to 42u (==)
-input.ensureNotEquals(0u)                  // Not equal to 0u (!=)
-
-// Range validation
-input.ensureInRange(1..10)                 // In range 1..10 (supports both 1..10 and 1..<10)
-input.ensureInClosedRange(1.0..10.0)       // In closed range 1.0..10.0 (inclusive)
-input.ensureInOpenEndRange(1..<10)         // In open-end range 1..<10 (inclusive start, exclusive end)
-```
-
-### Any Type Validators
-
-Works with any type:
-
-```kotlin
-input.ensureEquals("completed")                    // Equal to "completed"
-input.ensureNotEquals("rejected")                  // Not equal to "rejected"
-input.ensureInIterable(listOf("a", "b", "c"))      // One of the allowed values
-```
+For the complete list, see **[docs/VALIDATORS.md](docs/VALIDATORS.md)**.
 
 ## Error Handling
 
@@ -691,143 +588,7 @@ val result = tryValidate(config = ValidationConfig(
 
 ## Advanced Topics
 
-### Custom Constraints
-
-Create custom validators using `constrain` and `satisfies`. The `constrain()` function automatically populates the constraint ID and input value in error messages:
-
-```kotlin
-context(_: Validation)
-fun String.ensureUrlPath() = apply {
-    constrain("custom.urlPath") {
-        satisfies(it.startsWith("/") && !it.contains("..")) {
-            text("Must be a valid URL path")
-        }
-    }
-}
-
-val result = tryValidate { "/a/../b".ensureUrlPath() }
-if (!result.isSuccess()) {
-    result.messages.forEach(::println)
-    // Message(text='Must be a valid URL path', root=, path=, input=/a/../b)
-}
-```
-
-The `satisfies()` method uses a `MessageProvider` lambda for lazy message construction—the message is only created when validation fails:
-
-```kotlin
-context(_: Validation)
-fun String.ensureAlphanumeric(
-    message: MessageProvider = { "kova.string.alphanumeric".resource }
-) = apply {
-    constrain("kova.string.alphanumeric") {
-        satisfies(it.all { c -> c.isLetterOrDigit() }, message)
-    }
-}
-```
-
-### Nullable Validation
-
-```kotlin
-// Accept or reject null
-value.ensureNull()
-value.ensureNotNull()
-
-// Validate only if non-null
-email.ensureNullOr { it.ensureContains("@") }
-
-// ensureNotNull enables smart casting - subsequent validators work on non-null type
-context(_: Validation)
-fun validateName(name: String?): String {
-    name.ensureNotNull()           // Validates and enables smart cast
-    return name.ensureLengthInRange(1..100)  // Compiler knows name is non-null
-}
-```
-
-### Conditional Validation with `or` and `orElse`
-
-Try the first validation; if it fails, try the next. Useful for alternative validation rules.
-
-```kotlin
-// Accept either domestic or international phone format
-context(_: Validation)
-fun validatePhone(phone: String) =
-    or { phone.ensureMatches(Regex("^\\d{3}-\\d{4}$")) }      // Domestic format: 123-4567
-        .orElse { phone.ensureMatches(Regex("^\\+\\d{1,3}-\\d+$")) }  // International format: +1-1234567
-
-val result = tryValidate { validatePhone("123-abc-456") }
-if (!result.isSuccess()) {
-    result.messages.map { it.text }.forEach { println(it) }
-    // at least one constraint must be satisfied: [[must match pattern: ^\d{3}-\d{4}$], [must match pattern: ^\+\d{1,3}-\d+$]]
-}
-
-// Chain multiple alternatives
-or { id.ensureMatches(Regex("^[a-z]+$")) }    // Lowercase letters only
-    .or { id.ensureMatches(Regex("^\\d+$")) }  // Digits only
-    .orElse { id.ensureMatches(Regex("^[A-Z]+$")) }  // Uppercase letters only
-```
-
-### Wrapping Errors with `withMessage`
-
-The `withMessage` function wraps validation logic and consolidates multiple errors into a single custom message. This is useful when you want to present a higher-level error message instead of detailed field-level errors:
-
-```kotlin
-data class Address(val street: String, val city: String, val zipCode: String)
-
-context(_: Validation)
-fun Address.validate() = schema {
-    ::zipCode {
-        withMessage("Invalid ZIP code format") {
-            it.ensureMatches(Regex("^\\d{5}(-\\d{4})?$")).ensureLengthAtLeast(5)
-        }
-    }
-}
-
-val result = tryValidate { Address("Eitai", "Tokyo", "123-456").validate() }
-if (!result.isSuccess()) {
-    result.messages.forEach { println(it) }
-    // Message(text='Invalid ZIP code format', root=Address, path=zipCode, input=null)
-}
-```
-
-You can also use a transform function to customize how multiple errors are consolidated:
-
-```kotlin
-context(_: Validation)
-fun validatePassword(password: String) =
-    withMessage({ messages ->
-        text("Password validation failed: ${messages.size} errors found")
-    }) {
-        password.ensureLengthAtLeast(8).ensureMatches(Regex(".*[A-Z].*")).ensureMatches(Regex(".*[0-9].*"))
-    }
-```
-
-### Circular Reference Detection
-
-Kova automatically detects and handles circular references in nested object validation to prevent infinite loops.
-
-### Internationalization
-
-Error messages use resource bundles from `kova.properties`. The `resource()` function creates internationalized messages with parameter substitution (using MessageFormat syntax where {0}, {1}, etc. are replaced with the provided arguments):
-
-```kotlin
-// Using resource keys from kova.properties
-str.ensureLengthAtLeast(5, message = { "custom.message.key".resource(5) })
-
-// Multiple parameters
-context(_: Validation)
-fun Int.range(
-    minValue: Int,
-    maxValue: Int,
-    message: MessageProvider = { "kova.number.range".resource(minValue, maxValue) }
-) = constrain("kova.number.range") {
-    satisfies(it in minValue..maxValue, message)
-}
-```
-
-Corresponding entry in `kova.properties`:
-```properties
-kova.number.range=The value must be between {0} and {1}.
-```
+For advanced usage including custom constraints, nullable validation, conditional validation (`or`/`orElse`), error wrapping, circular reference detection, and internationalization, see **[docs/ADVANCED.md](docs/ADVANCED.md)**.
 
 ## Examples
 
@@ -841,6 +602,49 @@ The project includes several example modules demonstrating different use cases:
 - **[example-konform](example-konform/)** - Side-by-side comparison of Kova and Konform validation approaches
 
 Each example module contains complete, runnable code that you can use as a reference for your own projects.
+
+## FAQ
+
+### Why does Kova use context parameters?
+
+Context parameters allow validators to access the `Validation` context without explicitly passing it as an argument. This makes the API cleaner and enables fluent chaining like `name.ensureNotBlank().ensureLengthAtMost(100)`. While context parameters are still experimental in Kotlin, they are stable enough for production use and represent the future direction of Kotlin's context-aware programming.
+
+### How is Kova different from Konform?
+
+Both libraries are type-safe and have zero dependencies, but they take different approaches:
+
+- **Kova** uses function-based validators with context parameters. Validators are regular Kotlin functions that can be composed, parameterized, and reused freely.
+- **Konform** uses a DSL-based approach where you define validation rules declaratively.
+
+Kova also supports value transformation (`transformToInt()`, etc.) and smart casting with `ensureNotNull()`, which Konform does not.
+
+### How do I display error messages in my language?
+
+Kova uses Java's `ResourceBundle` for internationalization. Create a `kova.properties` file for your locale (e.g., `kova_ja.properties` for Japanese) in your resources directory:
+
+```properties
+kova.charSequence.notBlank=空白にできません
+kova.number.positive=正の数である必要があります
+```
+
+The appropriate locale is selected automatically based on `Locale.getDefault()`.
+
+### Should I use fail-fast mode or collect all errors?
+
+- **Collect all errors** (default): Best for form validation where you want to show all problems at once
+- **Fail-fast mode**: Best for performance-critical paths or when the first error makes subsequent validation meaningless
+
+```kotlin
+// Collect all errors (default)
+tryValidate { /* ... */ }
+
+// Stop at first error
+tryValidate(ValidationConfig(failFast = true)) { /* ... */ }
+```
+
+### Can I use Kova without the context parameters compiler flag?
+
+No. The `-Xcontext-parameters` flag is required because Kova's API is built around context parameters. This is a deliberate design choice that enables the clean, fluent API.
 
 ## Building and Testing
 
@@ -857,7 +661,7 @@ Each example module contains complete, runnable code that you can use as a refer
 
 ## Requirements
 
-- Kotlin 2.1.0+ (for context parameters support)
+- Kotlin 2.3.0+ (for context parameters support)
 - Java 17+
 - Gradle 8.14+
 - Context parameters compiler flag: `-Xcontext-parameters` (see [Setup](#setup))
