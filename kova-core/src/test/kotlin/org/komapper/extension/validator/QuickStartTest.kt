@@ -17,11 +17,7 @@ class QuickStartTest :
 
         context("basic") {
             context(_: Validation)
-            fun validateProductName(name: String): String {
-                name.ensureNotBlank()
-                name.ensureLengthInRange(1..100)
-                return name
-            }
+            fun validateProductName(name: String): String = name.ensureNotBlank().ensureLengthInRange(1..100)
 
             test("tryValidate") {
                 val result = tryValidate { validateProductName("Wireless Mouse") }
@@ -48,17 +44,10 @@ class QuickStartTest :
 
         context("multiple") {
             context(_: Validation)
-            fun validateProductName(name: String): String {
-                name.ensureNotBlank()
-                name.ensureLengthInRange(1..100)
-                return name
-            }
+            fun validateProductName(name: String): String = name.ensureNotBlank().ensureLengthInRange(1..100)
 
             context(_: Validation)
-            fun validatePrice(price: Double): Double {
-                price.ensureInClosedRange(0.0..1000.0)
-                return price
-            }
+            fun validatePrice(price: Double): Double = price.ensureInClosedRange(0.0..1000.0)
 
             test("success") {
                 val result =
@@ -106,11 +95,7 @@ class QuickStartTest :
             fun Product.validate() =
                 schema {
                     ::id { it.ensureAtLeast(1) }
-                    ::name {
-                        it.ensureNotBlank()
-                        it.ensureLengthAtLeast(1)
-                        it.ensureLengthAtMost(100)
-                    }
+                    ::name { it.ensureNotBlank().ensureLengthInRange(1..100) }
                     ::price { it.ensureAtLeast(0.0) }
                 }
 
@@ -136,29 +121,16 @@ class QuickStartTest :
             context(_: Validation)
             fun Address.validate() =
                 schema {
-                    ::street {
-                        it.ensureNotBlank()
-                        it.ensureLengthAtLeast(1)
-                    }
-                    ::city {
-                        it.ensureNotBlank()
-                        it.ensureLengthAtLeast(1)
-                    }
+                    ::street { it.ensureNotBlank().ensureLengthAtLeast(1) }
+                    ::city { it.ensureNotBlank().ensureLengthAtLeast(1) }
                     ::zipCode { it.ensureMatches(Regex("^\\d{5}(-\\d{4})?$")) }
                 }
 
             context(_: Validation)
             fun Customer.validate() =
                 schema {
-                    ::name {
-                        it.ensureNotBlank()
-                        it.ensureLengthAtLeast(1)
-                        it.ensureLengthAtMost(100)
-                    }
-                    ::email {
-                        it.ensureNotBlank()
-                        it.ensureContains("@")
-                    }
+                    ::name { it.ensureNotBlank().ensureLengthInRange(1..100) }
+                    ::email { it.ensureNotBlank().ensureContains("@") }
                     ::address { it.validate() } // Nested validation
                 }
 
@@ -217,8 +189,7 @@ class QuickStartTest :
         context("fail fast") {
             context(_: Validation)
             fun validateProductName(name: String) {
-                name.ensureNotBlank()
-                name.ensureLengthInRange(1..100)
+                name.ensureNotBlank().ensureLengthInRange(1..100)
             }
 
             test("test") {
@@ -242,7 +213,7 @@ class QuickStartTest :
                 val result =
                     tryValidate(config = ValidationConfig(clock = fixedClock)) {
                         val date = LocalDate.of(2024, 6, 20)
-                        date.ensureFuture() // Uses the fixed clock for comparison
+                        validateDate(date) // Uses the fixed clock for comparison
                     }
 
                 result.shouldBeSuccess()
@@ -252,8 +223,7 @@ class QuickStartTest :
         context("debug logging") {
             context(_: Validation)
             fun validateUsername(username: String) {
-                username.ensureLengthAtLeast(3)
-                username.ensureLengthAtMost(20)
+                username.ensureLengthInRange(3..20)
             }
 
             test("test") {

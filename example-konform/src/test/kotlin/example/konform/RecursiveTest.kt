@@ -88,8 +88,7 @@ class RecursiveTest :
             fun Node.validate() {
                 schema {
                     ::children { children ->
-                        children.ensureSizeAtMost(2)
-                        children.ensureEach { it.validate() }
+                        children.ensureSizeAtMost(2).ensureEach { it.validate() }
                     }
                 }
             }

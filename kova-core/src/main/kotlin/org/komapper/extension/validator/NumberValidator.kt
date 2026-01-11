@@ -14,8 +14,8 @@ package org.komapper.extension.validator
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun Number.ensurePositive(message: MessageProvider = { "kova.number.positive".resource }) =
-    this.constrain("kova.number.positive") { satisfies(it.toDouble() > 0.0, message) }
+fun <T : Number> T.ensurePositive(message: MessageProvider = { "kova.number.positive".resource }) =
+    apply { constrain("kova.number.positive") { satisfies(it.toDouble() > 0.0, message) } }
 
 /**
  * Validates that the number is ensureNegative (less than zero).
@@ -31,8 +31,8 @@ fun Number.ensurePositive(message: MessageProvider = { "kova.number.positive".re
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun Number.ensureNegative(message: MessageProvider = { "kova.number.negative".resource }) =
-    this.constrain("kova.number.negative") { satisfies(it.toDouble() < 0.0, message) }
+fun <T : Number> T.ensureNegative(message: MessageProvider = { "kova.number.negative".resource }) =
+    apply { constrain("kova.number.negative") { satisfies(it.toDouble() < 0.0, message) } }
 
 /**
  * Validates that the number is not ensurePositive (less than or equal to zero).
@@ -48,8 +48,8 @@ fun Number.ensureNegative(message: MessageProvider = { "kova.number.negative".re
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun Number.ensureNotPositive(message: MessageProvider = { "kova.number.notPositive".resource }) =
-    this.constrain("kova.number.notPositive") { satisfies(it.toDouble() <= 0.0, message) }
+fun <T : Number> T.ensureNotPositive(message: MessageProvider = { "kova.number.notPositive".resource }) =
+    apply { constrain("kova.number.notPositive") { satisfies(it.toDouble() <= 0.0, message) } }
 
 /**
  * Validates that the number is not ensureNegative (greater than or equal to zero).
@@ -65,5 +65,5 @@ fun Number.ensureNotPositive(message: MessageProvider = { "kova.number.notPositi
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun Number.ensureNotNegative(message: MessageProvider = { "kova.number.notNegative".resource }) =
-    this.constrain("kova.number.notNegative") { satisfies(it.toDouble() >= 0.0, message) }
+fun <T : Number> T.ensureNotNegative(message: MessageProvider = { "kova.number.notNegative".resource }) =
+    apply { constrain("kova.number.notNegative") { satisfies(it.toDouble() >= 0.0, message) } }

@@ -17,7 +17,7 @@ context(_: Validation)
 fun <S : Comparable<S>> S.ensureAtLeast(
     value: S,
     message: MessageProvider = { "kova.comparable.atLeast".resource(value) },
-) = this.constrain("kova.comparable.atLeast") { satisfies(it >= value, message) }
+) = apply { constrain("kova.comparable.atLeast") { satisfies(it >= value, message) } }
 
 /**
  * Validates that the value is less than or equal to the specified maximum value.
@@ -36,7 +36,7 @@ context(_: Validation)
 fun <S : Comparable<S>> S.ensureAtMost(
     value: S,
     message: MessageProvider = { "kova.comparable.atMost".resource(value) },
-) = this.constrain("kova.comparable.atMost") { satisfies(it <= value, message) }
+) = apply { constrain("kova.comparable.atMost") { satisfies(it <= value, message) } }
 
 /**
  * Validates that the value is strictly greater than the specified value.
@@ -56,7 +56,7 @@ context(_: Validation)
 fun <S : Comparable<S>> S.ensureGreaterThan(
     value: S,
     message: MessageProvider = { "kova.comparable.greaterThan".resource(value) },
-) = this.constrain("kova.comparable.greaterThan") { satisfies(it > value, message) }
+) = apply { constrain("kova.comparable.greaterThan") { satisfies(it > value, message) } }
 
 /**
  * Validates that the value is greater than or equal to the specified value.
@@ -76,7 +76,7 @@ context(_: Validation)
 fun <S : Comparable<S>> S.ensureGreaterThanOrEqual(
     value: S,
     message: MessageProvider = { "kova.comparable.greaterThanOrEqual".resource(value) },
-) = this.constrain("kova.comparable.greaterThanOrEqual") { satisfies(it >= value, message) }
+) = apply { constrain("kova.comparable.greaterThanOrEqual") { satisfies(it >= value, message) } }
 
 /**
  * Validates that the value is strictly less than the specified value.
@@ -96,7 +96,7 @@ context(_: Validation)
 fun <S : Comparable<S>> S.ensureLessThan(
     value: S,
     message: MessageProvider = { "kova.comparable.lessThan".resource(value) },
-) = this.constrain("kova.comparable.lessThan") { satisfies(it < value, message) }
+) = apply { constrain("kova.comparable.lessThan") { satisfies(it < value, message) } }
 
 /**
  * Validates that the value is less than or equal to the specified value.
@@ -116,7 +116,7 @@ context(_: Validation)
 fun <S : Comparable<S>> S.ensureLessThanOrEqual(
     value: S,
     message: MessageProvider = { "kova.comparable.lessThanOrEqual".resource(value) },
-) = this.constrain("kova.comparable.lessThanOrEqual") { satisfies(it <= value, message) }
+) = apply { constrain("kova.comparable.lessThanOrEqual") { satisfies(it <= value, message) } }
 
 /**
  * Validates that the value is within the specified range.
@@ -151,7 +151,7 @@ context(_: Validation)
 fun <S : Comparable<S>, R> S.ensureInRange(
     range: R,
     message: MessageProvider = { "kova.comparable.inRange".resource(range) },
-) where R : ClosedRange<S>, R : OpenEndRange<S> = this.constrain("kova.comparable.inRange") { satisfies(it in range, message) }
+) where R : ClosedRange<S>, R : OpenEndRange<S> = apply { constrain("kova.comparable.inRange") { satisfies(it in range, message) } }
 
 /**
  * Validates that the value is within the specified closed range.
@@ -175,7 +175,7 @@ context(_: Validation)
 fun <S : Comparable<S>> S.ensureInClosedRange(
     range: ClosedRange<S>,
     message: MessageProvider = { "kova.comparable.inClosedRange".resource(range) },
-) = this.constrain("kova.comparable.inClosedRange") { satisfies(it in range, message) }
+) = apply { constrain("kova.comparable.inClosedRange") { satisfies(it in range, message) } }
 
 /**
  * Validates that the value is within the specified open-ended range.
@@ -199,4 +199,4 @@ context(_: Validation)
 fun <S : Comparable<S>> S.ensureInOpenEndRange(
     range: OpenEndRange<S>,
     message: MessageProvider = { "kova.comparable.inOpenEndRange".resource(range) },
-) = this.constrain("kova.comparable.inOpenEndRange") { satisfies(it in range, message) }
+) = apply { constrain("kova.comparable.inOpenEndRange") { satisfies(it in range, message) } }

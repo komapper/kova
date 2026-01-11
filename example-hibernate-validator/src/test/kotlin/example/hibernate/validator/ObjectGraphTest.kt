@@ -82,18 +82,13 @@ class ObjectGraphTest :
             context(_: Validation)
             fun Person.validate() =
                 schema {
-                    ::name {
-                        it.ensureNotNull()
-                    }
+                    ::name { it.ensureNotNull() }
                 }
 
             context(_: Validation)
             fun Car.validate() =
                 schema {
-                    ::driver {
-                        it.ensureNotNull()
-                        it.validate()
-                    }
+                    ::driver { it.ensureNotNull().validate() }
                 }
 
             test("driverIsNull") {

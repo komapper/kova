@@ -28,11 +28,7 @@ data class Customer(val id: Int, val name: String) : Validated {
     context(_: Validation)
     override fun validate() = schema {
         ::id { it.ensurePositive() }
-        ::name {
-            it.ensureNotBlank()
-            it.ensureLengthAtLeast(1)
-            it.ensureLengthAtMost(50)
-        }
+        ::name { it.ensureNotBlank().ensureLengthInRange(1..50) }
     }
 }
 ```
@@ -133,14 +129,8 @@ install(StatusPages) {
 data class Address(val street: String, val city: String) : Validated {
     context(_: Validation)
     override fun validate() = schema {
-        ::street {
-            it.ensureNotBlank()
-            it.ensureLengthAtLeast(1)
-        }
-        ::city {
-            it.ensureNotBlank()
-            it.ensureLengthAtLeast(1)
-        }
+        ::street { it.ensureNotBlank().ensureLengthAtLeast(1) }
+        ::city { it.ensureNotBlank().ensureLengthAtLeast(1) }
     }
 }
 
@@ -148,10 +138,7 @@ data class Address(val street: String, val city: String) : Validated {
 data class User(val name: String, val address: Address) : Validated {
     context(_: Validation)
     override fun validate() = schema {
-        ::name {
-            it.ensureNotBlank()
-            it.ensureLengthAtLeast(1)
-        }
+        ::name { it.ensureNotBlank().ensureLengthAtLeast(1) }
         ::address { it.validate() }  // Reuse validation
     }
 }
@@ -178,10 +165,7 @@ data class Customer(val id: Int, val name: String) : Validated {
     context(_: Validation)
     override fun validate() = schema {
         ::id { it.ensurePositive() }
-        ::name {
-            it.ensureNotBlank()
-            it.ensureLengthInRange(1..50)
-        }
+        ::name { it.ensureNotBlank().ensureLengthInRange(1..50) }
     }
 }
 

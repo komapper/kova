@@ -27,7 +27,7 @@ class NullableValidatorTest :
         context("nullable with constraint") {
             context(_: Validation)
             fun nullableMin3(i: Int?) {
-                if (i != null) i.ensureAtLeast(3)
+                i?.ensureAtLeast(3)
             }
 
             test("success with non-null value") {
@@ -51,7 +51,7 @@ class NullableValidatorTest :
         context("nullable with constraint - for each List element") {
             context(_: Validation)
             fun nullableMin3(i: Int?) {
-                if (i != null) i.ensureAtLeast(3)
+                i?.ensureAtLeast(3)
             }
 
             test("success with non-null value") {

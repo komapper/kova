@@ -103,9 +103,7 @@ import org.komapper.extension.validator.*
 // Define validator function
 context(_: Validation)
 fun validateProductName(name: String): String {
-    name.ensureNotBlank()
-    name.ensureLengthInRange(1..100)
-    return name
+    return name.ensureNotBlank().ensureLengthInRange(1..100)
 }
 
 // in this case, the return type is ValidationResult.Success<String>
@@ -136,15 +134,12 @@ You can execute multiple validators together by calling them sequentially within
 ```kotlin
 context(_: Validation)
 fun validateProductName(name: String): String {
-    name.ensureNotBlank()
-    name.ensureLengthInRange(1..100)
-    return name
+    return name.ensureNotBlank().ensureLengthInRange(1..100)
 }
 
 context(_: Validation)
 fun validatePrice(price: Double): Double {
-    price.ensureInClosedRange(0.0..1000.0)
-    return price
+    return price.ensureInClosedRange(0.0..1000.0)
 }
 
 val result = tryValidate {
@@ -170,11 +165,7 @@ data class Product(val id: Int, val name: String, val price: Double)
 context(_: Validation)
 fun Product.validate() = schema {
     ::id { it.ensureAtLeast(1) }
-    ::name {
-        it.ensureNotBlank()
-        it.ensureLengthAtLeast(1)
-        it.ensureLengthAtMost(100)
-    }
+    ::name { it.ensureNotBlank().ensureLengthInRange(1..100) }
     ::price { it.ensureAtLeast(0.0) }
 }
 
@@ -188,16 +179,12 @@ Extract common validation logic into reusable validator functions:
 ```kotlin
 context(_: Validation)
 fun validateName(name: String, maxLength: Int = 100): String {
-    name.ensureNotBlank()
-    name.ensureLengthInRange(1..maxLength)
-    return name
+    return name.ensureNotBlank().ensureLengthInRange(1..maxLength)
 }
 
 context(_: Validation)
 fun validatePrice(price: Double): Double {
-    price.ensureAtLeast(0.0)
-    price.ensureAtMost(1000000.0)
-    return price
+    return price.ensureAtLeast(0.0).ensureAtMost(1000000.0)
 }
 
 data class Product(val name: String, val price: Double)
@@ -230,28 +217,15 @@ data class Customer(val name: String, val email: String, val address: Address)
 
 context(_: Validation)
 fun Address.validate() = schema {
-    ::street {
-        it.ensureNotBlank()
-        it.ensureLengthAtLeast(1)
-    }
-    ::city {
-        it.ensureNotBlank()
-        it.ensureLengthAtLeast(1)
-    }
+    ::street { it.ensureNotBlank().ensureLengthAtLeast(1) }
+    ::city { it.ensureNotBlank().ensureLengthAtLeast(1) }
     ::zipCode { it.ensureMatches(Regex("^\\d{5}(-\\d{4})?$")) }
 }
 
 context(_: Validation)
 fun Customer.validate() = schema {
-    ::name {
-        it.ensureNotBlank()
-        it.ensureLengthAtLeast(1)
-        it.ensureLengthAtMost(100)
-    }
-    ::email {
-        it.ensureNotBlank()
-        it.ensureContains("@")
-    }
+    ::name { it.ensureNotBlank().ensureLengthInRange(1..100) }
+    ::email { it.ensureNotBlank().ensureContains("@") }
     ::address { it.validate() }  // Nested validation
 }
 
@@ -300,11 +274,7 @@ data class User(val name: String, val age: Int)
 
 context(_: Validation)
 fun buildUser(name: String, age: String) = factory {
-    val name by bind(name) {
-        it.ensureNotBlank()
-        it.ensureLengthAtLeast(1)
-        it
-    }
+    val name by bind(name) { it.ensureNotBlank().ensureLengthAtLeast(1) }
     val age by bind(age) { it.transformToInt() }
     User(name, age)
 }
@@ -324,10 +294,7 @@ data class Customer(val id: Int, val name: String) : Validated {
     context(_: Validation)
     override fun validate() = schema {
         ::id { it.ensurePositive() }
-        ::name {
-            it.ensureNotBlank()
-            it.ensureLengthInRange(1..50)
-        }
+        ::name { it.ensureNotBlank().ensureLengthInRange(1..50) }
     }
 }
 
@@ -588,11 +555,7 @@ data class Product(val id: Int, val name: String, val price: Double)
 context(_: Validation)
 fun Product.validate() = schema {
     ::id { it.ensureAtLeast(1) }
-    ::name {
-        it.ensureNotBlank()
-        it.ensureLengthAtLeast(3)
-        it.ensureLengthAtMost(100)
-    }
+    ::name { it.ensureNotBlank().ensureLengthInRange(3..100) }
     ::price { it.ensureAtLeast(0.0) }
 }
 
@@ -640,8 +603,7 @@ Stop at the first error instead of collecting all errors:
 ```kotlin
 context(_: Validation)
 fun validateProductName(name: String) {
-    name.ensureNotBlank()
-    name.ensureLengthInRange(1..100)
+    name.ensureNotBlank().ensureLengthInRange(1..100)
 }
 
 // Stops at first error
@@ -668,7 +630,7 @@ val fixedClock = Clock.fixed(Instant.parse("2024-06-15T10:00:00Z"), ZoneId.of("U
 
 val result = tryValidate(config = ValidationConfig(clock = fixedClock)) {
     val date = LocalDate.of(2024, 6, 20)
-    date.ensureFuture()  // Uses the fixed clock for comparison
+    validateDate(date)  // Uses the fixed clock for comparison
 }
 ```
 
@@ -680,8 +642,7 @@ Enable logging to debug validation flow:
 val result = tryValidate(config = ValidationConfig(
     logger = { logEntry -> println("[Validation] $logEntry") }
 )) {
-    username.ensureLengthAtLeast(3)
-    username.ensureLengthAtMost(20)
+    username.ensureLengthInRange(3..20)
 }
 ```
 
@@ -707,15 +668,15 @@ Create custom validators using `constrain` and `satisfies`. The `constrain()` fu
 
 ```kotlin
 context(_: Validation)
-fun isUrlPath(input: String) {
-    input.constrain("custom.urlPath") {
+fun String.ensureUrlPath() = apply {
+    constrain("custom.urlPath") {
         satisfies(it.startsWith("/") && !it.contains("..")) {
             text("Must be a valid URL path")
         }
     }
 }
 
-val result = tryValidate { isUrlPath("/a/../b") }
+val result = tryValidate { "/a/../b".ensureUrlPath() }
 if (!result.isSuccess()) {
     result.messages.forEach(::println)
     // Message(text='Must be a valid URL path', root=, path=, input=/a/../b)
@@ -726,10 +687,12 @@ The `satisfies()` method uses a `MessageProvider` lambda for lazy message constr
 
 ```kotlin
 context(_: Validation)
-fun String.alphanumeric(
+fun String.ensureAlphanumeric(
     message: MessageProvider = { "kova.string.alphanumeric".resource }
-) = constrain("kova.string.alphanumeric") {
-    satisfies(it.all { c -> c.isLetterOrDigit() }, message)
+) = apply {
+    constrain("kova.string.alphanumeric") {
+        satisfies(it.all { c -> c.isLetterOrDigit() }, message)
+    }
 }
 ```
 
@@ -747,9 +710,7 @@ email.ensureNullOr { it.ensureContains("@") }
 context(_: Validation)
 fun validateName(name: String?): String {
     name.ensureNotNull()           // Validates and enables smart cast
-    name.ensureLengthAtLeast(1)    // Compiler knows name is non-null
-    name.ensureLengthAtMost(100)
-    return name                    // Return type is String (non-nullable)
+    return name.ensureLengthInRange(1..100)  // Compiler knows name is non-null
 }
 ```
 
@@ -787,8 +748,7 @@ context(_: Validation)
 fun Address.validate() = schema {
     ::zipCode {
         withMessage("Invalid ZIP code format") {
-            it.ensureMatches(Regex("^\\d{5}(-\\d{4})?$"))
-            it.ensureLengthAtLeast(5)
+            it.ensureMatches(Regex("^\\d{5}(-\\d{4})?$")).ensureLengthAtLeast(5)
         }
     }
 }
@@ -808,9 +768,7 @@ fun validatePassword(password: String) =
     withMessage({ messages ->
         text("Password validation failed: ${messages.size} errors found")
     }) {
-        password.ensureLengthAtLeast(8)
-        password.ensureMatches(Regex(".*[A-Z].*"))
-        password.ensureMatches(Regex(".*[0-9].*"))
+        password.ensureLengthAtLeast(8).ensureMatches(Regex(".*[A-Z].*")).ensureMatches(Regex(".*[0-9].*"))
     }
 ```
 

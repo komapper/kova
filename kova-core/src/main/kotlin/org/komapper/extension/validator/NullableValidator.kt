@@ -19,7 +19,7 @@ import kotlin.contracts.contract
 @IgnorableReturnValue
 context(_: Validation)
 fun <T> T.ensureNull(message: MessageProvider = { "kova.nullable.null".resource }) =
-    this.constrain("kova.nullable.null") { satisfies(it == null, message) }
+    apply { constrain("kova.nullable.null") { satisfies(it == null, message) } }
 
 /**
  * Validates that the input is null OR satisfies the given constraints.
@@ -46,7 +46,7 @@ context(_: Validation)
 inline fun <T> T.ensureNullOr(
     noinline message: MessageProvider = { "kova.nullable.null".resource },
     block: context(Validation)(T & Any) -> Unit,
-) = or<Unit> { this.ensureNull(message) } orElse { block(this!!) }
+) = apply { or<Unit> { this.ensureNull(message) } orElse { block(this!!) } }
 
 /**
  * Validates that the input is not null.
@@ -64,9 +64,9 @@ inline fun <T> T.ensureNullOr(
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun <T> T.ensureNotNull(message: MessageProvider = { "kova.nullable.notNull".resource }): Accumulate.Value<Unit> {
+fun <T> T.ensureNotNull(message: MessageProvider = { "kova.nullable.notNull".resource }): T & Any {
     contract { returns() implies (this@ensureNotNull != null) }
-    return raiseIfNull(this, "kova.nullable.notNull", message)
+    return toNonNullable("kova.nullable.notNull", message)
 }
 
 /**
@@ -84,28 +84,24 @@ fun <T> T.ensureNotNull(message: MessageProvider = { "kova.nullable.notNull".res
  * The function uses [constrain] to properly track the validation path context and returns
  * the accumulated value, ensuring proper error reporting in nested validation scenarios.
  *
- * @param input The nullable input value to validate and convert
  * @param constraintId Custom constraint ID for the validation error (e.g., "kova.string.ensureInt")
  * @param message Custom error message provider for the validation error
  * @return The non-null input value with type `T & Any`
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun <T> toNonNullable(
-    input: T,
+fun <T> T.toNonNullable(
     constraintId: String,
     message: MessageProvider,
-): T & Any = raiseIfNull(input, constraintId, message).let { input }
+): T & Any = raiseIfNull(constraintId, message).let { this }
 
 @IgnorableReturnValue
 context(_: Validation)
-private fun <T> raiseIfNull(
-    input: T,
+private fun <T> T.raiseIfNull(
     constraintId: String,
     message: MessageProvider,
-): Accumulate.Value<Unit> {
-    contract { returns() implies (input != null) }
-    return input.constrain(constraintId) { satisfies(it != null, message) }.also {
-        if (it is Accumulate.Error) it.raise()
-    }
+) {
+    contract { returns() implies (this@raiseIfNull != null) }
+    val result = constrain(constraintId) { satisfies(it != null, message) }
+    if (result is Accumulate.Error) result.raise()
 }

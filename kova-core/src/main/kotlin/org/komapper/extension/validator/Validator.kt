@@ -15,7 +15,7 @@ import org.komapper.extension.validator.ValidationResult.Success
  * Example using when expression:
  * ```kotlin
  * val text = getUserInput()
- * when (val result = tryValidate { ensureLengthAtLeast(text, 1); ensureLengthAtMost(text, 10); text }) {
+ * when (val result = tryValidate { text.ensureLengthInRange(1..10) }) {
  *     is ValidationResult.Success -> println("Valid: ${result.value}")
  *     is ValidationResult.Failure -> println("Errors: ${result.messages}")
  * }
@@ -24,7 +24,7 @@ import org.komapper.extension.validator.ValidationResult.Success
  * Example using isSuccess():
  * ```kotlin
  * val text = getUserInput()
- * val result = tryValidate { ensureLengthAtLeast(text, 1); ensureLengthAtMost(text, 10); text }
+ * val result = tryValidate { text.ensureLengthInRange(1..10) }
  * if (result.isSuccess()) {
  *     // result is automatically smart-cast to Success here
  *     println("Valid: ${result.value}")
@@ -58,7 +58,7 @@ fun <R> tryValidate(
  * ```kotlin
  * val text = getUserInput()
  * try {
- *     val validated = validate { ensureLengthAtLeast(text, 1); ensureLengthAtMost(text, 10); text }
+ *     val validated = validate { text.ensureLengthInRange(1..10) }
  *     println("Valid: $validated")
  * } catch (e: ValidationException) {
  *     println("Errors: ${e.messages}")

@@ -47,53 +47,39 @@ data class PriceRange(
 
 /**
  * Schema validation for User.
- * Validates that:
- * - name is not ensureBlank and ensureHas minimum ensureLength of 1
- * - age is between 0 and 120
+ * Validates name (minimum length 1, not blank) and age (0-120).
  */
 context(_: Validation)
 fun User.validate() =
     schema {
-        ::name {
-            it.ensureLengthAtLeast(1)
-            it.ensureNotBlank()
-        }
-        ::age {
-            it.ensureInRange(0..120)
-        }
+        ::name { it.ensureLengthAtLeast(1).ensureNotBlank() }
+        ::age { it.ensureInRange(0..120) }
     }
 
 /**
- * Schema validation for Age value object.
- * Validates that the value is between 0 and 120.
+ * Schema validation for Age.
+ * Validates value is between 0 and 120.
  */
 context(_: Validation)
 fun Age.validate() =
     schema {
-        ::value {
-            it.ensureInRange(0..120)
-        }
+        ::value { it.ensureInRange(0..120) }
     }
 
 /**
  * Schema validation for Person with nested object.
- * Demonstrates how to reuse validators - the age property uses validate(Age).
- * This creates a nested validation path (e.g., "age.value").
+ * The age property reuses Age.validate(), creating nested paths like "age.value".
  */
 context(_: Validation)
 fun Person.validate() =
     schema {
-        ::name {
-            it.ensureLengthAtLeast(1)
-            it.ensureNotBlank()
-        }
+        ::name { it.ensureLengthAtLeast(1).ensureNotBlank() }
         ::age { it.validate() }
     }
 
 /**
  * Schema validation with cross-property constraint.
- * Validates individual properties first, then checks the relationship
- * between minPrice and maxPrice using a custom constraint.
+ * Validates individual properties, then checks minPrice <= maxPrice.
  */
 context(_: Validation)
 fun PriceRange.validate() =
@@ -109,33 +95,24 @@ fun PriceRange.validate() =
     }
 
 /**
- * Main function demonstrating various Kova validation scenarios.
- *
- * This example demonstrates:
- * 1. Basic schema validation - validating primitive properties
- * 2. Nested schema validation - validating objects containing other objects
- * 3. Cross-property validation - validating relationships between properties
- *
- * All examples use tryValidate() which returns ValidationResult (Success or Failure).
- * For each scenario, both successful and failing cases are shown.
+ * Demonstrates basic schema validation, nested validation, and cross-property validation.
+ * Uses tryValidate() which returns ValidationResult (Success or Failure).
  */
 fun main() {
     println("\n# Example 1: Basic schema validation")
 
-    // Valid user - name is not ensureBlank and age is within range
+    // Valid user - name is not blank and age is within range
     tryValidate { User("a", 10).validate() }.printResult()
 
-    // Invalid user - name is ensureBlank and age is ensureNegative
-    // Shows how multiple validation errors are collected
+    // Invalid user - name is blank and age is negative
     tryValidate { User("  ", -1).validate() }.printResult()
 
     println("\n# Example 2: Nested schema validation")
 
-    // Valid person - both name and nested age object are valid
+    // Valid person
     tryValidate { Person("a", Age(10)).validate() }.printResult()
 
-    // Invalid person - demonstrates nested validation path
-    // Notice how the path "age.value" shows the nested property location
+    // Invalid person - error path "age.value" shows nested property location
     tryValidate { Person("  ", Age(-1)).validate() }.printResult()
 
     println("\n# Example 3: Cross-property validation")
@@ -148,15 +125,8 @@ fun main() {
 }
 
 /**
- * Helper function to print validation results in a readable format.
- * Displays "Success" for valid data or "Failure" with detailed error messages.
- *
- * Error messages include:
- * - constraintId: the validation rule that failed
- * - text: human-readable error message
- * - path: the property path where the error occurred
- * - input: the actual value that failed validation
- * - args: arguments passed to the constraint (e.g., min/max values)
+ * Prints validation results.
+ * Error messages include constraintId, text, path, input, and args.
  */
 private fun ValidationResult<*>.printResult() {
     if (isSuccess()) {

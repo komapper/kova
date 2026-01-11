@@ -28,14 +28,8 @@ fun City.validate() = schema {
 
 context(_: Validation)
 fun User.validate() = schema {
-    ::name {
-        it.ensureLengthAtLeast(1)
-        it.ensureNotBlank()
-    }
-    ::age {
-        it.ensureAtLeast(0)
-        it.ensureAtMost(120)
-    }
+    ::name { it.ensureLengthAtLeast(1).ensureNotBlank() }
+    ::age { it.ensureAtLeast(0).ensureAtMost(120) }
 }
 ```
 
