@@ -288,13 +288,9 @@ public fun <T : Map<*, V>, V> T.ensureNotContainsValue(
 @IgnorableReturnValue
 context(_: Validation)
 public fun <T : Map<K, V>, K, V> T.ensureEach(validator: context(Validation)(Map.Entry<K, V>) -> Unit): T =
-    apply {
-        constrain("kova.map.each") {
-            context(validation) {
-                validateOnEach(this@ensureEach, "kova.map.each") { entry ->
-                    appendPath(text = "<map entry>") { validator(entry) }
-                }
-            }
+    constrain("kova.map.each") {
+        validateOnEach(this@ensureEach, "kova.map.each") { entry ->
+            appendPath(text = "<map entry>") { validator(entry) }
         }
     }
 
@@ -325,13 +321,9 @@ public fun <T : Map<K, V>, K, V> T.ensureEach(validator: context(Validation)(Map
 @IgnorableReturnValue
 context(_: Validation)
 public fun <T : Map<K, *>, K> T.ensureEachKey(validator: context(Validation)(K) -> Unit): T =
-    apply {
-        constrain("kova.map.eachKey") {
-            context(validation) {
-                validateOnEach(this@ensureEachKey, "kova.map.eachKey") { entry ->
-                    appendPath(text = "<map key>") { validator(entry.key) }
-                }
-            }
+    constrain("kova.map.eachKey") {
+        validateOnEach(this@ensureEachKey, "kova.map.eachKey") { entry ->
+            appendPath(text = "<map key>") { validator(entry.key) }
         }
     }
 
@@ -362,13 +354,9 @@ public fun <T : Map<K, *>, K> T.ensureEachKey(validator: context(Validation)(K) 
 @IgnorableReturnValue
 context(_: Validation)
 public fun <T : Map<*, V>, V> T.ensureEachValue(validator: context(Validation)(V) -> Unit): T =
-    apply {
-        constrain("kova.map.eachValue") {
-            context(validation) {
-                validateOnEach(this@ensureEachValue, "kova.map.eachValue") { entry ->
-                    appendPath(text = "[${entry.key}]<map value>") { validator(entry.value) }
-                }
-            }
+    constrain("kova.map.eachValue") {
+        validateOnEach(this@ensureEachValue, "kova.map.eachValue") { entry ->
+            appendPath(text = "[${entry.key}]<map value>") { validator(entry.value) }
         }
     }
 

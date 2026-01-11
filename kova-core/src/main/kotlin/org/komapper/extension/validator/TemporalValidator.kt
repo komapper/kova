@@ -111,7 +111,7 @@ public inline fun <reified S> S.ensurePast(
 context(_: Validation)
 public inline fun <reified S> S.ensurePastOrPresent(
     noinline message: MessageProvider = { "kova.temporal.pastOrPresent".resource },
-): S where S : Temporal, S : Comparable<S> = apply { constrain("kova.temporal.pastOrPresent") { satisfies(it <= now(clock), message) } }
+): S where S : Temporal, S : Comparable<S> = constrain("kova.temporal.pastOrPresent") { satisfies(it <= now(clock), message) }
 
 /**
  * Obtains the current temporal value for the specified type using the provided clock.

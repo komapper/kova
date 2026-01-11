@@ -121,16 +121,12 @@ public fun <T : Iterable<E>, E> T.ensureNotContains(
 @IgnorableReturnValue
 context(_: Validation)
 public fun <T : Iterable<E>, E> T.ensureEach(validate: context(Validation)(E) -> Unit): T =
-    apply {
-        constrain("kova.iterable.each") {
-            context(validation) {
-                withMessage({ "kova.iterable.each".resource(it) }) {
-                    for ((i, element) in this@ensureEach.withIndex()) {
-                        accumulating {
-                            appendPath("[$i]<iterable element>") {
-                                validate(element)
-                            }
-                        }
+    constrain("kova.iterable.each") {
+        withMessage({ "kova.iterable.each".resource(it) }) {
+            for ((i, element) in this@ensureEach.withIndex()) {
+                accumulating {
+                    appendPath("[$i]<iterable element>") {
+                        validate(element)
                     }
                 }
             }
