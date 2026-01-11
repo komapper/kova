@@ -16,10 +16,7 @@ import org.komapper.extension.validator.Validation
  *     context(_: Validation)
  *     override fun validate() = schema {
  *         ::id { it.ensurePositive() }
- *         ::name {
- *             it.ensureNotBlank()
- *             it.ensureLengthInRange(1..100)
- *         }
+ *         ::name { it.ensureNotBlank().ensureLengthInRange(1..100) }
  *     }
  * }
  * ```

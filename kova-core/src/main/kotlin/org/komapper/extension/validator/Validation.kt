@@ -36,15 +36,17 @@ public data class Validation(
  *
  * Example:
  * ```kotlin
- * fun Validation.alphanumeric(
- *     input: String,
+ * context(_: Validation)
+ * fun String.alphanumeric(
  *     message: MessageProvider = { "kova.string.alphanumeric".resource }
- * ) = input.constrain("kova.string.alphanumeric") {
- *     satisfies(it.all { c -> c.isLetterOrDigit() }, message)
+ * ) = apply {
+ *     constrain("kova.string.alphanumeric") {
+ *         satisfies(it.all { c -> c.isLetterOrDigit() }, message)
+ *     }
  * }
  *
- * tryValidate { alphanumeric("abc123") } // Success
- * tryValidate { alphanumeric("abc-123") } // Failure
+ * tryValidate { "abc123".alphanumeric() } // Success
+ * tryValidate { "abc-123".alphanumeric() } // Failure
  * ```
  *
  * @param id Unique identifier for the constraint (used in error messages and logging)
@@ -199,9 +201,10 @@ public inline fun <T, R> T.named(
  * ```kotlin
  * data class User(val name: String, val age: Int)
  *
- * fun Validation.validate(user: User) = user.schema {
- *     user::name { ensureNotBlank(it); ensureLengthInRange(it, 1..100) }
- *     user::age { ensureAtLeast(it, 0); ensureAtMost(it, 120) }
+ * context(_: Validation)
+ * fun validate(user: User) = user.schema {
+ *     user::name { it.ensureNotBlank().ensureLengthInRange(1..100) }
+ *     user::age { it.ensureAtLeast(0).ensureAtMost(120) }
  * }
  *
  * tryValidate { validate(User("Alice", 30)) }
@@ -238,9 +241,10 @@ public inline fun <T : Any> T.schema(block: context(Validation) Schema<T>.() -> 
  * ```kotlin
  * data class Period(val startDate: LocalDate, val endDate: LocalDate)
  *
- * fun Validation.validate(period: Period) = period.schema {
- *     period::startDate { ensurePastOrPresent(it) }
- *     period::endDate { ensureFutureOrPresent(it) }
+ * context(_: Validation)
+ * fun validate(period: Period) = period.schema {
+ *     period::startDate { it.ensurePastOrPresent() }
+ *     period::endDate { it.ensureFutureOrPresent() }
  *     period.constrain("period") {
  *         satisfies(it.startDate <= it.endDate) {
  *             text("Start date must be before or equal to end date")
@@ -268,15 +272,17 @@ public fun text(content: String): Message = Message.Text("", v.root, v.path, con
  *
  * Example usage in a constraint:
  * ```kotlin
- * fun Validation.min(
- *     input: Int,
- *     ensureAtLeast: Int,
- *     message: MessageProvider = { "kova.number.min".resource(ensureAtLeast) }
- * ) = input.constrain("kova.number.min") {
- *     satisfies(it >= ensureAtLeast, message)
+ * context(_: Validation)
+ * fun Int.min(
+ *     value: Int,
+ *     message: MessageProvider = { "kova.number.min".resource(value) }
+ * ) = apply {
+ *     constrain("kova.number.min") {
+ *         satisfies(it >= value, message)
+ *     }
  * }
  *
- * tryValidate { min(5, 0) } // Success
+ * tryValidate { 5.min(0) } // Success
  * ```
  *
  * The corresponding entry in `kova.properties` would be:
@@ -286,13 +292,15 @@ public fun text(content: String): Message = Message.Text("", v.root, v.path, con
  *
  * For multiple arguments:
  * ```kotlin
- * fun Validation.range(
- *     input: Int,
- *     ensureAtLeast: Int,
- *     ensureAtMost: Int,
- *     message: MessageProvider = { "kova.number.range".resource(ensureAtLeast, ensureAtMost) }
- * ) = input.constrain("kova.number.range") {
- *     satisfies(it in ensureAtLeast..ensureAtMost, message)
+ * context(_: Validation)
+ * fun Int.range(
+ *     min: Int,
+ *     max: Int,
+ *     message: MessageProvider = { "kova.number.range".resource(min, max) }
+ * ) = apply {
+ *     constrain("kova.number.range") {
+ *         satisfies(it in min..max, message)
+ *     }
  * }
  * ```
  *
@@ -713,10 +721,11 @@ public class Schema<T>(
      * ```kotlin
      * data class User(val name: String, val age: Int, val email: String?)
      *
-     * fun Validation.validate(user: User) = user.schema {
-     *     user::name { ensureNotBlank(it); ensureLengthAtLeast(it, 1) }
-     *     user::age { ensureAtLeast(it, 0); ensureAtMost(it, 120) }
-     *     user::email { ensureNullOr(it) { ensureMatches(it, emailRegex) } }
+     * context(_: Validation)
+     * fun validate(user: User) = user.schema {
+     *     user::name { it.ensureNotBlank().ensureLengthAtLeast(1) }
+     *     user::age { it.ensureAtLeast(0).ensureAtMost(120) }
+     *     user::email { it.ensureNullOr { it.ensureMatches(emailRegex) } }
      * }
      * ```
      *

@@ -19,13 +19,14 @@ import kotlin.reflect.KProperty
  * ```kotlin
  * data class User(val name: String, val age: Int)
  *
- * fun Validation.buildUser(name: String, age: String) =
+ * context(_: Validation)
+ * fun buildUser(name: String, age: String) =
  *     factory {
  *         val name by bind(name) {
- *             ensureNotBlank(it)
+ *             it.ensureNotBlank()
  *             it
  *         }
- *         val age by bind(age) { transformToInt(it) }
+ *         val age by bind(age) { it.transformToInt() }
  *         User(name, age)
  *     }
  * ```

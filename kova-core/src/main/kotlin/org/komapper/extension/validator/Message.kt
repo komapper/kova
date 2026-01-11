@@ -12,9 +12,12 @@ import java.util.ResourceBundle
  *
  * MessageProviders are typically used with the `satisfies` function in custom validators:
  * ```kotlin
- * fun Validation.alphanumeric(input: String) = input.constrain("custom.alphanumeric") {
- *     satisfies(it.all { c -> c.isLetterOrDigit() }) {
- *         "kova.string.alphanumeric".resource  // This lambda is a MessageProvider
+ * context(_: Validation)
+ * fun String.alphanumeric() = apply {
+ *     constrain("custom.alphanumeric") {
+ *         satisfies(it.all { c -> c.isLetterOrDigit() }) {
+ *             "kova.string.alphanumeric".resource  // This lambda is a MessageProvider
+ *         }
  *     }
  * }
  * ```

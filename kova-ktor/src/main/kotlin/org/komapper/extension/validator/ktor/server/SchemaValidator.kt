@@ -3,7 +3,6 @@ package org.komapper.extension.validator.ktor.server
 import io.ktor.server.plugins.requestvalidation.*
 import io.ktor.server.plugins.requestvalidation.ValidationResult.*
 import org.komapper.extension.validator.Message
-import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationResult.Failure
 import org.komapper.extension.validator.ValidationResult.Success
 import org.komapper.extension.validator.ktor.server.SchemaValidator.Companion.defaultErrorFormatter
@@ -19,12 +18,10 @@ import org.komapper.extension.validator.tryValidate
  * ```kotlin
  * @Serializable
  * data class Customer(val id: Int, val name: String) : Validated {
- *     override fun Validation.validate() = this@Customer.schema {
- *         ::id { ensurePositive(it) }
- *         ::name {
- *             ensureNotBlank(it)
- *             ensureLengthInRange(it, 1..100)
- *         }
+ *     context(_: Validation)
+ *     override fun validate() = schema {
+ *         ::id { it.ensurePositive() }
+ *         ::name { it.ensureNotBlank().ensureLengthInRange(1..100) }
  *     }
  * }
  *
