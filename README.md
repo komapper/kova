@@ -100,7 +100,7 @@ Kova lets you write validation rules that are readable, composable, and type-saf
 **Without Kova** - Validation logic often ends up scattered, and collecting all errors requires extra boilerplate:
 
 ```kotlin
-fun validateUser(name: String, age: Int): List<String> {
+fun validateUser(name: String, age: Int): Pair<String, Int> {
     val errors = mutableListOf<String>()
     if (name.isBlank()) errors.add("Name cannot be blank")
     if (name.length > 100) errors.add("Name must be at most 100 characters")
