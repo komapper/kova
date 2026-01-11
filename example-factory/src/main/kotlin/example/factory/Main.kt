@@ -83,11 +83,7 @@ fun buildPerson(
     name: String,
     age: String,
 ) = factory {
-    val name by bind(name) {
-        it.ensureLengthAtLeast(1)
-        it.ensureNotBlank()
-        it
-    } // argument validator
+    val name by bind(name) { it.ensureLengthAtLeast(1).ensureNotBlank() } // argument validator
     val age by bind { buildAge(age) } // nested object validator
     Person(name, age)
 }

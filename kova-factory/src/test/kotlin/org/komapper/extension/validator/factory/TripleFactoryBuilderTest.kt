@@ -25,20 +25,9 @@ class TripleFactoryBuilderTest :
                 second: Int,
                 third: String,
             ) = buildTriple(
-                bind(first) {
-                    it.ensureNotBlank()
-                    it.ensureLengthAtMost(10)
-                    it
-                },
-                bind(second) {
-                    it.ensurePositive()
-                    it
-                },
-                bind(third) {
-                    it.ensureNotBlank()
-                    it.ensureLengthAtMost(20)
-                    it
-                },
+                bind(first) { it.ensureNotBlank().ensureLengthAtMost(10) },
+                bind(second) { it.ensurePositive() },
+                bind(third) { it.ensureNotBlank().ensureLengthAtMost(20) },
             )
 
             context("tryCreate") {
@@ -132,21 +121,13 @@ class TripleFactoryBuilderTest :
                 email: String,
             ) = buildTriple(
                 bind(name) {
-                    it.ensureNotBlank()
-                    it.ensureLengthAtLeast(1)
-                    it.ensureLengthAtMost(50)
                     it
+                        .ensureNotBlank()
+                        .ensureLengthAtLeast(1)
+                        .ensureLengthAtMost(50)
                 },
-                bind(age) {
-                    it.ensureAtLeast(0)
-                    it.ensureAtMost(120)
-                    it
-                },
-                bind(email) {
-                    it.ensureNotBlank()
-                    it.ensureLengthAtMost(100)
-                    it
-                },
+                bind(age) { it.ensureAtLeast(0).ensureAtMost(120) },
+                bind(email) { it.ensureNotBlank().ensureLengthAtMost(100) },
             )
 
             test("success") {

@@ -24,15 +24,8 @@ class PairFactoryBuilderTest :
                 first: String,
                 second: Int,
             ) = buildPair(
-                bind(first) {
-                    it.ensureNotBlank()
-                    it.ensureLengthAtMost(10)
-                    it
-                },
-                bind(second) {
-                    it.ensurePositive()
-                    it
-                },
+                bind(first) { it.ensureNotBlank().ensureLengthAtMost(10) },
+                bind(second) { it.ensurePositive() },
             )
 
             context("tryCreate") {
@@ -109,16 +102,12 @@ class PairFactoryBuilderTest :
                 age: Int,
             ) = buildPair(
                 bind(name) {
-                    it.ensureNotBlank()
-                    it.ensureLengthAtLeast(1)
-                    it.ensureLengthAtMost(50)
                     it
+                        .ensureNotBlank()
+                        .ensureLengthAtLeast(1)
+                        .ensureLengthAtMost(50)
                 },
-                bind(age) {
-                    it.ensureAtLeast(0)
-                    it.ensureAtMost(120)
-                    it
-                },
+                bind(age) { it.ensureAtLeast(0).ensureAtMost(120) },
             )
 
             test("success") {

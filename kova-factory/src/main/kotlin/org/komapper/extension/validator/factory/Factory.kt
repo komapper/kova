@@ -22,10 +22,7 @@ import kotlin.reflect.KProperty
  * context(_: Validation)
  * fun buildUser(name: String, age: String) =
  *     factory {
- *         val name by bind(name) {
- *             it.ensureNotBlank()
- *             it
- *         }
+ *         val name by bind(name) { it.ensureNotBlank() }
  *         val age by bind(age) { it.transformToInt() }
  *         User(name, age)
  *     }
@@ -49,11 +46,7 @@ public inline fun <R> factory(
  *
  * Example:
  * ```kotlin
- * val name by bind(rawName) {
- *     ensureNotBlank(it)
- *     ensureLengthInRange(it, 1..50)
- *     it
- * }
+ * val name by bind(rawName) { it.ensureNotBlank().ensureLengthInRange(1..50) }
  * val id by bind(rawId) { transformToInt(it) }
  * ```
  *
