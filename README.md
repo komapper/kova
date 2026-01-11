@@ -4,96 +4,7 @@ A type-safe Kotlin validation library with composable validators and detailed er
 
 > **⚠️ Note**: This project is currently under active development. The API may change until a stable 1.0.0 release.
 
-## Setup
-
-Add Kova to your Gradle project:
-
-### Gradle Kotlin DSL (build.gradle.kts)
-
-```kotlin
-dependencies {
-    // Core validation library
-    implementation("org.komapper:kova-core:0.1.0")
-
-    // Factory validation (optional)
-    implementation("org.komapper:kova-factory:0.1.0")
-
-    // Ktor integration (optional)
-    implementation("org.komapper:kova-ktor:0.1.0")
-}
-```
-
-### Enable Context Parameters (Required)
-
-Kova uses Kotlin's context parameters feature, which must be enabled in your project:
-
-```kotlin
-kotlin {
-    compilerOptions {
-        freeCompilerArgs.add("-Xcontext-parameters")
-    }
-}
-```
-
-**Note**: Context parameters are an experimental Kotlin feature. This compiler flag is required to use Kova's validation functions.
-
-## Features
-
-- **Type-Safe**: Leverages Kotlin's type system for compile-time safety
-- **Composable**: Build complex validation logic by composing reusable validation functions, chaining constraints, and using conditional operators (`or`, `orElse`)
-- **Immutable**: All validators are immutable and thread-safe
-- **Detailed Error Reporting**: Get precise error messages with path tracking for nested validations
-- **Internationalization**: Built-in support for localized error messages
-- **Fail-Fast Support**: Option to stop validation at the first error or collect all errors
-- **Ktor Integration**: Automatic request validation with Ktor's RequestValidation plugin
-- **Zero Dependencies**: No external runtime dependencies, only requires Kotlin standard library
-
-## Table of Contents
-
-- [Setup](#setup)
-- [Features](#features)
-- [Quick Start](#quick-start)
-  - [Basic Validation](#basic-validation)
-  - [Multiple Validators](#multiple-validators)
-  - [Object Validation](#object-validation)
-- [Factory Validation](#factory-validation)
-- [Ktor Integration](#ktor-integration)
-- [Available Validators](#available-validators)
-  - [String & CharSequence](#string--charsequence)
-  - [Numbers](#numbers)
-  - [Temporal Types](#temporal-types)
-  - [Iterables](#iterables)
-  - [Collections](#collections)
-  - [Maps](#maps)
-  - [Nullable](#nullable)
-  - [Boolean](#boolean)
-  - [Comparable Types](#comparable-types)
-  - [Any Type Validators](#any-type-validators)
-- [Error Handling](#error-handling)
-  - [Basic Error Handling](#basic-error-handling)
-  - [Message Properties](#message-properties)
-  - [Custom Error Messages](#custom-error-messages)
-- [Validation Configuration](#validation-configuration)
-  - [Fail-Fast Mode](#fail-fast-mode)
-  - [Custom Clock for Temporal Validation](#custom-clock-for-temporal-validation)
-  - [Debug Logging](#debug-logging)
-  - [Combined Configuration](#combined-configuration)
-- [Advanced Topics](#advanced-topics)
-  - [Custom Constraints](#custom-constraints)
-  - [Nullable Validation](#nullable-validation)
-  - [Conditional Validation with `or` and `orElse`](#conditional-validation-with-or-and-orelse)
-  - [Wrapping Errors with `withMessage`](#wrapping-errors-with-withmessage)
-  - [Circular Reference Detection](#circular-reference-detection)
-  - [Internationalization](#internationalization)
-- [Examples](#examples)
-- [Building and Testing](#building-and-testing)
-- [Requirements](#requirements)
-- [License](#license)
-- [Contributing](#contributing)
-
 ## Quick Start
-
-### Basic Validation
 
 Kova lets you write validation rules that are readable, composable, and type-safe.
 
@@ -155,6 +66,95 @@ val value = validate { validateUser("", -5) }  // Throws ValidationException wit
 ```
 
 > **Note**: The `context(_: Validation)` declaration is required for validator functions. This uses Kotlin's [context parameters](https://kotlinlang.org/docs/whatsnew2020.html#context-parameters) feature, which must be enabled in your build (see [Setup](#setup)).
+
+## Features
+
+- **Type-Safe**: Leverages Kotlin's type system for compile-time safety
+- **Composable**: Build complex validation logic by composing reusable validation functions, chaining constraints, and using conditional operators (`or`, `orElse`)
+- **Immutable**: All validators are immutable and thread-safe
+- **Detailed Error Reporting**: Get precise error messages with path tracking for nested validations
+- **Internationalization**: Built-in support for localized error messages
+- **Fail-Fast Support**: Option to stop validation at the first error or collect all errors
+- **Ktor Integration**: Automatic request validation with Ktor's RequestValidation plugin
+- **Zero Dependencies**: No external runtime dependencies, only requires Kotlin standard library
+
+## Setup
+
+Add Kova to your Gradle project:
+
+### Gradle Kotlin DSL (build.gradle.kts)
+
+```kotlin
+dependencies {
+    // Core validation library
+    implementation("org.komapper:kova-core:0.1.0")
+
+    // Factory validation (optional)
+    implementation("org.komapper:kova-factory:0.1.0")
+
+    // Ktor integration (optional)
+    implementation("org.komapper:kova-ktor:0.1.0")
+}
+```
+
+### Enable Context Parameters (Required)
+
+Kova uses Kotlin's context parameters feature, which must be enabled in your project:
+
+```kotlin
+kotlin {
+    compilerOptions {
+        freeCompilerArgs.add("-Xcontext-parameters")
+    }
+}
+```
+
+**Note**: Context parameters are an experimental Kotlin feature. This compiler flag is required to use Kova's validation functions.
+
+## Table of Contents
+
+- [Quick Start](#quick-start)
+- [Features](#features)
+- [Setup](#setup)
+- [Basic Usage](#basic-usage)
+  - [Multiple Validators](#multiple-validators)
+  - [Object Validation](#object-validation)
+- [Factory Validation](#factory-validation)
+- [Ktor Integration](#ktor-integration)
+- [Available Validators](#available-validators)
+  - [String & CharSequence](#string--charsequence)
+  - [Numbers](#numbers)
+  - [Temporal Types](#temporal-types)
+  - [Iterables](#iterables)
+  - [Collections](#collections)
+  - [Maps](#maps)
+  - [Nullable](#nullable)
+  - [Boolean](#boolean)
+  - [Comparable Types](#comparable-types)
+  - [Any Type Validators](#any-type-validators)
+- [Error Handling](#error-handling)
+  - [Basic Error Handling](#basic-error-handling)
+  - [Message Properties](#message-properties)
+  - [Custom Error Messages](#custom-error-messages)
+- [Validation Configuration](#validation-configuration)
+  - [Fail-Fast Mode](#fail-fast-mode)
+  - [Custom Clock for Temporal Validation](#custom-clock-for-temporal-validation)
+  - [Debug Logging](#debug-logging)
+  - [Combined Configuration](#combined-configuration)
+- [Advanced Topics](#advanced-topics)
+  - [Custom Constraints](#custom-constraints)
+  - [Nullable Validation](#nullable-validation)
+  - [Conditional Validation with `or` and `orElse`](#conditional-validation-with-or-and-orelse)
+  - [Wrapping Errors with `withMessage`](#wrapping-errors-with-withmessage)
+  - [Circular Reference Detection](#circular-reference-detection)
+  - [Internationalization](#internationalization)
+- [Examples](#examples)
+- [Building and Testing](#building-and-testing)
+- [Requirements](#requirements)
+- [License](#license)
+- [Contributing](#contributing)
+
+## Basic Usage
 
 ### Multiple Validators
 
