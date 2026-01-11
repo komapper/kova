@@ -129,7 +129,9 @@ Use `tryValidate` to run validation and get a result object:
 ```kotlin
 // Valid input - returns Success
 val result = tryValidate { validateUser("Alice", 25) }
-println(result.value)  // (Alice, 25)
+if (result.isSuccess()) {
+    println(result.value)  // (Alice, 25)
+}
 
 // Invalid input - returns Failure with ALL errors, not just the first one
 val result = tryValidate { validateUser("", -5) }
@@ -140,6 +142,10 @@ if (result.isFailure()) {
     //   "must not be negative"
 }
 ```
+
+`tryValidate` returns a `ValidationResult` which is either `Success` or `Failure`:
+- `isSuccess()` - Returns `true` if validation passed. Enables smart cast to access `result.value`.
+- `isFailure()` - Returns `true` if validation failed. Enables smart cast to access `result.messages`.
 
 Alternatively, use `validate` to get the value directly or throw a `ValidationException` on failure:
 
