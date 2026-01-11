@@ -12,13 +12,13 @@ import kotlin.contracts.contract
  * both a value and error messages simultaneously ([Both]), or just errors ([FailureLike]).
  * [ValidationResult] extends this to provide the public Success/Failure API.
  */
-sealed interface ValidationIor<out T> {
+public sealed interface ValidationIor<out T> {
     /**
      * Represents a validation result that ensureContains error messages.
      *
      * This can be either a [Failure] (only errors, no value) or [Both] (value with errors).
      */
-    sealed interface FailureLike<out T> : ValidationIor<T> {
+    public sealed interface FailureLike<out T> : ValidationIor<T> {
         val messages: List<Message>
 
         fun withMessage(message: Message): FailureLike<T>
@@ -30,7 +30,7 @@ sealed interface ValidationIor<out T> {
      * This is used internally during validation to track partial successes. When converted
      * to [ValidationResult], this becomes a [Failure] containing the accumulated messages.
      */
-    data class Both<out T>(
+    public data class Both<out T>(
         val value: T,
         override val messages: List<Message>,
     ) : FailureLike<T> {
@@ -52,13 +52,13 @@ sealed interface ValidationIor<out T> {
  *
  * @param T The type of the validated value on success
  */
-sealed interface ValidationResult<out T> : ValidationIor<T> {
+public sealed interface ValidationResult<out T> : ValidationIor<T> {
     /**
      * Represents a successful validation with the validated value.
      *
      * @property value The validated value that passed all constraints
      */
-    data class Success<out T>(
+    public data class Success<out T>(
         val value: T,
     ) : ValidationResult<T>
 
@@ -67,7 +67,7 @@ sealed interface ValidationResult<out T> : ValidationIor<T> {
      *
      * @property messages List of error messages describing what went wrong
      */
-    data class Failure(
+    public data class Failure(
         override val messages: List<Message>,
     ) : FailureLike<Nothing>,
         ValidationResult<Nothing> {
@@ -94,7 +94,7 @@ sealed interface ValidationResult<out T> : ValidationIor<T> {
  * }
  * ```
  */
-fun <T> ValidationResult<T>.isSuccess(): Boolean {
+public fun <T> ValidationResult<T>.isSuccess(): Boolean {
     contract {
         returns(true) implies (this@isSuccess is Success)
         returns(false) implies (this@isSuccess is Failure)
@@ -121,7 +121,7 @@ fun <T> ValidationResult<T>.isSuccess(): Boolean {
  * }
  * ```
  */
-fun <T> ValidationResult<T>.isFailure(): Boolean {
+public fun <T> ValidationResult<T>.isFailure(): Boolean {
     contract {
         returns(true) implies (this@isFailure is Failure)
         returns(false) implies (this@isFailure is Success<T>)

@@ -18,7 +18,7 @@ import kotlin.contracts.contract
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun <T> T.ensureNull(message: MessageProvider = { "kova.nullable.null".resource }) =
+public fun<T> T.ensureNull(message: MessageProvider = { "kova.nullable.null".resource }) =
     apply { constrain("kova.nullable.null") { satisfies(it == null, message) } }
 
 /**
@@ -43,7 +43,7 @@ fun <T> T.ensureNull(message: MessageProvider = { "kova.nullable.null".resource 
  */
 @IgnorableReturnValue
 context(_: Validation)
-inline fun <T> T.ensureNullOr(
+public inline fun<T> T.ensureNullOr(
     noinline message: MessageProvider = { "kova.nullable.null".resource },
     block: context(Validation)(T & Any) -> Unit,
 ) = apply { or<Unit> { this.ensureNull(message) } orElse { block(this!!) } }
@@ -64,7 +64,7 @@ inline fun <T> T.ensureNullOr(
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun <T> T.ensureNotNull(message: MessageProvider = { "kova.nullable.notNull".resource }): T & Any {
+public fun<T> T.ensureNotNull(message: MessageProvider = { "kova.nullable.notNull".resource }): T & Any {
     contract { returns() implies (this@ensureNotNull != null) }
     return toNonNullable("kova.nullable.notNull", message)
 }
@@ -90,7 +90,7 @@ fun <T> T.ensureNotNull(message: MessageProvider = { "kova.nullable.notNull".res
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun <T> T.toNonNullable(
+public fun<T> T.toNonNullable(
     constraintId: String,
     message: MessageProvider,
 ): T & Any = raiseIfNull(constraintId, message).let { this }

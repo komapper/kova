@@ -15,7 +15,7 @@ package org.komapper.extension.validator
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun Map<*, *>.ensureSize(
+public funMap<*, *>.ensureSize(
     size: Int,
     message: SizeMessageProvider = { "kova.map.size".resource(it, size) },
 ) = apply { constrain("kova.map.size") { satisfies(it.size == size) { message(it.size) } } }
@@ -35,7 +35,7 @@ fun Map<*, *>.ensureSize(
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun Map<*, *>.ensureSizeAtLeast(
+public funMap<*, *>.ensureSizeAtLeast(
     size: Int,
     message: SizeMessageProvider = { "kova.map.sizeAtLeast".resource(it, size) },
 ) = apply { constrain("kova.map.sizeAtLeast") { satisfies(it.size >= size) { message(it.size) } } }
@@ -55,7 +55,7 @@ fun Map<*, *>.ensureSizeAtLeast(
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun Map<*, *>.ensureSizeAtMost(
+public funMap<*, *>.ensureSizeAtMost(
     size: Int,
     message: SizeMessageProvider = { "kova.map.sizeAtMost".resource(it, size) },
 ) = apply { constrain("kova.map.sizeAtMost") { satisfies(it.size <= size) { message(it.size) } } }
@@ -75,7 +75,7 @@ fun Map<*, *>.ensureSizeAtMost(
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun <R> Map<*, *>.ensureSizeInRange(
+public fun<R> Map<*, *>.ensureSizeInRange(
     range: R,
     message: MessageProvider = { "kova.map.sizeInRange".resource(range) },
 ) where R : ClosedRange<Int>, R : OpenEndRange<Int> = apply { constrain("kova.map.sizeInRange") { satisfies(it.size in range, message) } }
@@ -94,7 +94,7 @@ fun <R> Map<*, *>.ensureSizeInRange(
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun Map<*, *>.ensureNotEmpty(message: MessageProvider = { "kova.map.notEmpty".resource }) =
+public funMap<*, *>.ensureNotEmpty(message: MessageProvider = { "kova.map.notEmpty".resource }) =
     apply { constrain("kova.map.notEmpty") { satisfies(it.isNotEmpty(), message) } }
 
 /**
@@ -111,7 +111,7 @@ fun Map<*, *>.ensureNotEmpty(message: MessageProvider = { "kova.map.notEmpty".re
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun <K> Map<K, *>.ensureHasKey(
+public fun<K> Map<K, *>.ensureHasKey(
     key: K,
     message: MessageProvider = { "kova.map.containsKey".resource(key) },
 ) = ensureContainsKey(key, message)
@@ -130,7 +130,7 @@ fun <K> Map<K, *>.ensureHasKey(
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun <K> Map<K, *>.ensureContainsKey(
+public fun<K> Map<K, *>.ensureContainsKey(
     key: K,
     message: MessageProvider = { "kova.map.containsKey".resource(key) },
 ) = apply { constrain("kova.map.containsKey") { satisfies(it.containsKey(key), message) } }
@@ -149,7 +149,7 @@ fun <K> Map<K, *>.ensureContainsKey(
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun <K> Map<K, *>.ensureNotContainsKey(
+public fun<K> Map<K, *>.ensureNotContainsKey(
     key: K,
     message: MessageProvider = { "kova.map.notContainsKey".resource(key) },
 ) = apply { constrain("kova.map.notContainsKey") { satisfies(!it.containsKey(key), message) } }
@@ -168,7 +168,7 @@ fun <K> Map<K, *>.ensureNotContainsKey(
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun <V> Map<*, V>.ensureHasValue(
+public fun<V> Map<*, V>.ensureHasValue(
     value: V,
     message: MessageProvider = { "kova.map.containsValue".resource(value) },
 ) = ensureContainsValue(value, message)
@@ -187,7 +187,7 @@ fun <V> Map<*, V>.ensureHasValue(
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun <V> Map<*, V>.ensureContainsValue(
+public fun<V> Map<*, V>.ensureContainsValue(
     value: V,
     message: MessageProvider = { "kova.map.containsValue".resource(value) },
 ) = apply { constrain("kova.map.containsValue") { satisfies(it.containsValue(value), message) } }
@@ -206,7 +206,7 @@ fun <V> Map<*, V>.ensureContainsValue(
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun <V> Map<*, V>.ensureNotContainsValue(
+public fun<V> Map<*, V>.ensureNotContainsValue(
     value: V,
     message: MessageProvider = { "kova.map.notContainsValue".resource(value) },
 ) = apply { constrain("kova.map.notContainsValue") { satisfies(!it.containsValue(value), message) } }
@@ -235,7 +235,7 @@ fun <V> Map<*, V>.ensureNotContainsValue(
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun <K, V> Map<K, V>.ensureEach(validator: context(Validation)(Map.Entry<K, V>) -> Unit) =
+public fun<K, V> Map<K, V>.ensureEach(validator: context(Validation)(Map.Entry<K, V>) -> Unit) =
     apply {
         constrain("kova.map.each") {
             context(validation) {
@@ -268,7 +268,7 @@ fun <K, V> Map<K, V>.ensureEach(validator: context(Validation)(Map.Entry<K, V>) 
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun <K> Map<K, *>.ensureEachKey(validator: context(Validation)(K) -> Unit) =
+public fun<K> Map<K, *>.ensureEachKey(validator: context(Validation)(K) -> Unit) =
     apply {
         constrain("kova.map.eachKey") {
             context(validation) {
@@ -301,7 +301,7 @@ fun <K> Map<K, *>.ensureEachKey(validator: context(Validation)(K) -> Unit) =
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun <V> Map<*, V>.ensureEachValue(validator: context(Validation)(V) -> Unit) =
+public fun<V> Map<*, V>.ensureEachValue(validator: context(Validation)(V) -> Unit) =
     apply {
         constrain("kova.map.eachValue") {
             context(validation) {

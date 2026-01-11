@@ -16,7 +16,7 @@ package org.komapper.extension.validator
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun Boolean.ensureTrue(message: MessageProvider = { "kova.boolean.true".resource() }) =
+public fun Boolean.ensureTrue(message: MessageProvider = { "kova.boolean.true".resource() }) =
     apply { constrain("kova.boolean.true") { satisfies(it, message) } }
 
 /**
@@ -35,5 +35,5 @@ fun Boolean.ensureTrue(message: MessageProvider = { "kova.boolean.true".resource
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun Boolean.ensureFalse(message: MessageProvider = { "kova.boolean.false".resource() }) =
+public fun Boolean.ensureFalse(message: MessageProvider = { "kova.boolean.false".resource() }) =
     apply { constrain("kova.boolean.false") { satisfies(!it, message) } }

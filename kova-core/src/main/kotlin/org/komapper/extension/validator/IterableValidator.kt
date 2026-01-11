@@ -1,6 +1,6 @@
 package org.komapper.extension.validator
 
-typealias CountMessageProvider = (actualCount: Int) -> Message
+public typealias CountMessageProvider = (actualCount: Int) -> Message
 
 /**
  * Validates that the iterable is not ensureEmpty.
@@ -15,7 +15,7 @@ typealias CountMessageProvider = (actualCount: Int) -> Message
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun <T : Iterable<*>> T.ensureNotEmpty(message: MessageProvider = { "kova.iterable.notEmpty".resource }) =
+public fun<T : Iterable<*>> T.ensureNotEmpty(message: MessageProvider = { "kova.iterable.notEmpty".resource }) =
     apply { constrain("kova.iterable.notEmpty") { satisfies(it.iterator().hasNext(), message) } }
 
 /**
@@ -32,7 +32,7 @@ fun <T : Iterable<*>> T.ensureNotEmpty(message: MessageProvider = { "kova.iterab
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun <T : Iterable<E>, E> T.ensureHas(
+public fun<T : Iterable<E>, E> T.ensureHas(
     element: E,
     message: MessageProvider = { "kova.iterable.contains".resource(element) },
 ) = ensureContains(element, message)
@@ -51,7 +51,7 @@ fun <T : Iterable<E>, E> T.ensureHas(
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun <T : Iterable<E>, E> T.ensureContains(
+public fun<T : Iterable<E>, E> T.ensureContains(
     element: E,
     message: MessageProvider = { "kova.iterable.contains".resource(element) },
 ) = apply { constrain("kova.iterable.contains") { satisfies(it.contains(element), message) } }
@@ -70,7 +70,7 @@ fun <T : Iterable<E>, E> T.ensureContains(
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun <T : Iterable<E>, E> T.ensureNotContains(
+public fun<T : Iterable<E>, E> T.ensureNotContains(
     element: E,
     message: MessageProvider = { "kova.iterable.notContains".resource(element) },
 ) = apply { constrain("kova.iterable.notContains") { satisfies(!it.contains(element), message) } }
@@ -96,7 +96,7 @@ fun <T : Iterable<E>, E> T.ensureNotContains(
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun <T : Iterable<E>, E> T.ensureEach(validate: context(Validation)(E) -> Unit) =
+public fun<T : Iterable<E>, E> T.ensureEach(validate: context(Validation)(E) -> Unit) =
     apply {
         constrain("kova.iterable.each") {
             context(validation) {

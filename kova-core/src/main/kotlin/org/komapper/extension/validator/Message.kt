@@ -19,7 +19,7 @@ import java.util.ResourceBundle
  * }
  * ```
  */
-typealias MessageProvider = () -> Message
+public typealias MessageProvider = () -> Message
 
 /**
  * Represents an error message for validation failures.
@@ -34,7 +34,7 @@ typealias MessageProvider = () -> Message
  * - [Text]: Simple hardcoded text messages
  * - [Resource]: I18n messages loaded from `kova.properties` resource bundles
  */
-sealed interface Message {
+public sealed interface Message {
     fun withDetails(
         input: Any?,
         constraintId: String,
@@ -73,7 +73,7 @@ sealed interface Message {
      * @property text The formatted message text
      * @property input The input value being validated
      */
-    class Text internal constructor(
+    public class Text internal constructor(
         override val constraintId: String,
         override val root: String,
         override val path: Path,
@@ -113,7 +113,7 @@ sealed interface Message {
      * @property input The input value being validated
      * @property args Arguments for formatting the resource message using [MessageFormat]
      */
-    class Resource internal constructor(
+    public class Resource internal constructor(
         private val key: String,
         override val constraintId: String,
         override val root: String,

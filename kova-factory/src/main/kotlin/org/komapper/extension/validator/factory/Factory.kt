@@ -35,7 +35,7 @@ import kotlin.reflect.KProperty
  * @return The result of executing the factory block
  */
 context(_: Validation)
-inline fun <R> factory(
+public inline fun <R> factory(
     name: String = "factory",
     block: context(Validation) Factory.() -> R,
 ): R = addRoot(name, null) { block(Factory(contextOf<Validation>())) }
@@ -62,7 +62,7 @@ inline fun <R> factory(
  * @param block A function that receives the input value and returns the validated result
  * @return A property delegate provider that executes validation when accessed
  */
-fun <T, S> bind(
+public fun <T, S> bind(
     input: T,
     block: context(Validation)(T) -> S,
 ): context(Validation)
@@ -84,9 +84,9 @@ fun <T, S> bind(
  * @param block A function that returns the validated result
  * @return A property delegate provider that executes validation when accessed
  */
-fun <S> bind(block: context(Validation)() -> S) = block
+public fun <S> bind(block: context(Validation)() -> S): context(Validation)() -> S = block
 
-class Factory(
+public class Factory(
     private val validation: Validation,
 ) {
     /**
@@ -99,7 +99,7 @@ class Factory(
      * @param S the type produced by the validation lambda
      * @return an [Accumulate.Value] for accessing the validation result
      */
-    operator fun <S> (
+    public operator fun <S> (
     context(Validation)
     () -> S
     ).provideDelegate(

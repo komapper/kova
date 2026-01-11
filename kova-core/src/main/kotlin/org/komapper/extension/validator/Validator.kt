@@ -38,7 +38,7 @@ import org.komapper.extension.validator.ValidationResult.Success
  * @param validator The validation logic to execute within a Validation context
  * @return A [ValidationResult] containing either the validated value or failure messages
  */
-fun <R> tryValidate(
+public fun <R> tryValidate(
     config: ValidationConfig = ValidationConfig(),
     validator: context(Validation)() -> R,
 ): ValidationResult<R> =
@@ -70,7 +70,7 @@ fun <R> tryValidate(
  * @return The validated value of type [R]
  * @throws ValidationException if validation fails
  */
-fun <R> validate(
+public fun <R> validate(
     config: ValidationConfig = ValidationConfig(),
     validator: context(Validation)() -> R,
 ): R =
@@ -93,7 +93,7 @@ fun <R> validate(
  * @return A [ValidationIor] containing the result and/or accumulated error messages
  */
 context(v: Validation)
-inline fun <R> or(block: context(Validation)() -> R): ValidationIor<R> {
+public inline fun <R> or(block: context(Validation)() -> R): ValidationIor<R> {
     val messages = mutableListOf<Message>()
     return recoverValidation({ Failure(messages) }) {
         val result =
@@ -130,7 +130,7 @@ inline fun <R> or(block: context(Validation)() -> R): ValidationIor<R> {
  * @return The validated result
  */
 context(_: Validation)
-inline fun <R> withMessage(
+public inline fun <R> withMessage(
     noinline transform: (List<Message>) -> Message = { "kova.withMessage".resource(it) },
     block: context(Validation)() -> R,
 ): R =
@@ -157,7 +157,7 @@ inline fun <R> withMessage(
  * @return The validated result
  */
 context(_: Validation)
-inline fun <R> withMessage(
+public inline fun <R> withMessage(
     message: String,
     block: context(Validation)() -> R,
 ): R = withMessage({ text(message) }, block)

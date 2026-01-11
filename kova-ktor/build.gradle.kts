@@ -18,6 +18,7 @@ dependencies {
 }
 
 kotlin {
+    explicitApi()
     compilerOptions {
         freeCompilerArgs.addAll("-Xreturn-value-checker=full", "-Xcontext-parameters")
     }
