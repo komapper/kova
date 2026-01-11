@@ -594,6 +594,8 @@ val result = tryValidate(config = ValidationConfig(
 
 For advanced usage including custom constraints, nullable validation, conditional validation (`or`/`orElse`), error wrapping, circular reference detection, and internationalization, see **[docs/ADVANCED.md](docs/ADVANCED.md)**.
 
+To understand how Kova's error accumulation mechanism works internally, including fail-fast vs collect-all modes, path tracking, and the special behavior of validators like `ensureNotNull()` and `transformToInt()`, see **[docs/ERROR_ACCUMULATION.md](docs/ERROR_ACCUMULATION.md)**.
+
 ## Examples
 
 The project includes several example modules demonstrating different use cases:
