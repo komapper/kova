@@ -1,5 +1,9 @@
 # Kova
 
+[![Build](https://github.com/komapper/kova/actions/workflows/ci.yml/badge.svg)](https://github.com/komapper/kova/actions/workflows/ci.yml)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.1.0+-purple.svg)](https://kotlinlang.org)
+
 A type-safe Kotlin validation library with composable validators and detailed error reporting.
 
 > **⚠️ Note**: This project is currently under active development. The API may change until a stable 1.0.0 release.
