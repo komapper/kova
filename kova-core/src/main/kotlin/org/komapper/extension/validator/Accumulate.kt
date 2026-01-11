@@ -21,7 +21,7 @@ public fun interface Accumulate {
          *
          * @throws ValidationCancellationException if this is an [Error]
          */
-        abstract val value: T
+        public abstract val value: T
 
         /**
          * Enables property delegation syntax for extracting validated values.
@@ -79,7 +79,7 @@ public fun interface Accumulate {
      * @return an [Error] instance representing the accumulated errors
      */
     @IgnorableReturnValue
-    fun accumulate(messages: List<Message>): Error
+    public fun accumulate(messages: List<Message>): Error
 }
 
 /**
@@ -155,7 +155,7 @@ public inline fun <R> accumulating(block: context(Validation)() -> R): Accumulat
  * @property error the accumulated validation errors
  */
 public class ValidationCancellationException(
-    val error: Accumulate.Error,
+    public val error: Accumulate.Error,
 ) : CancellationException() {
     /**
      * Overridden to prevent stack trace generation for performance optimization.

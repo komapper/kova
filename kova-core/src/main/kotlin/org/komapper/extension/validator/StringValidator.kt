@@ -17,9 +17,9 @@ import kotlin.reflect.KClass
  */
 @IgnorableReturnValue
 context(_: Validation)
-public funString.ensureInt(
+public fun String.ensureInt(
     message: MessageProvider = { "kova.string.int".resource },
-) = apply { constrain("kova.string.int") { val _ = it.transformToInt(message) } }
+): String = apply { constrain("kova.string.int") { val _ = it.transformToInt(message) } }
 
 /**
  * Validates that the string can be parsed as a Long.
@@ -34,9 +34,9 @@ public funString.ensureInt(
  */
 @IgnorableReturnValue
 context(_: Validation)
-public funString.ensureLong(
+public fun String.ensureLong(
     message: MessageProvider = { "kova.string.long".resource },
-) = apply { constrain("kova.string.long") { val _ = it.transformToLong(message) } }
+): String = apply { constrain("kova.string.long") { val _ = it.transformToLong(message) } }
 
 /**
  * Validates that the string can be parsed as a Short.
@@ -51,9 +51,9 @@ public funString.ensureLong(
  */
 @IgnorableReturnValue
 context(_: Validation)
-public funString.ensureShort(
+public fun String.ensureShort(
     message: MessageProvider = { "kova.string.short".resource },
-) = apply { constrain("kova.string.short") { val _ = it.transformToShort(message) } }
+): String = apply { constrain("kova.string.short") { val _ = it.transformToShort(message) } }
 
 /**
  * Validates that the string can be parsed as a Byte.
@@ -68,9 +68,9 @@ public funString.ensureShort(
  */
 @IgnorableReturnValue
 context(_: Validation)
-public funString.ensureByte(
+public fun String.ensureByte(
     message: MessageProvider = { "kova.string.byte".resource },
-) = apply { constrain("kova.string.byte") { val _ = it.transformToByte(message) } }
+): String = apply { constrain("kova.string.byte") { val _ = it.transformToByte(message) } }
 
 /**
  * Validates that the string can be parsed as a Double.
@@ -85,9 +85,9 @@ public funString.ensureByte(
  */
 @IgnorableReturnValue
 context(_: Validation)
-public funString.ensureDouble(
+public fun String.ensureDouble(
     message: MessageProvider = { "kova.string.double".resource },
-) = apply { constrain("kova.string.double") { val _ = it.transformToDouble(message) } }
+): String = apply { constrain("kova.string.double") { val _ = it.transformToDouble(message) } }
 
 /**
  * Validates that the string can be parsed as a Float.
@@ -102,9 +102,9 @@ public funString.ensureDouble(
  */
 @IgnorableReturnValue
 context(_: Validation)
-public funString.ensureFloat(
+public fun String.ensureFloat(
     message: MessageProvider = { "kova.string.float".resource },
-) = apply { constrain("kova.string.float") { val _ = it.transformToFloat(message) } }
+): String = apply { constrain("kova.string.float") { val _ = it.transformToFloat(message) } }
 
 /**
  * Validates that the string can be parsed as a BigDecimal.
@@ -119,9 +119,9 @@ public funString.ensureFloat(
  */
 @IgnorableReturnValue
 context(_: Validation)
-public funString.ensureBigDecimal(
+public fun String.ensureBigDecimal(
     message: MessageProvider = { "kova.string.bigDecimal".resource },
-) = apply { constrain("kova.string.bigDecimal") { val _ = it.transformToBigDecimal(message) } }
+): String = apply { constrain("kova.string.bigDecimal") { val _ = it.transformToBigDecimal(message) } }
 
 /**
  * Validates that the string can be parsed as a BigInteger.
@@ -136,9 +136,9 @@ public funString.ensureBigDecimal(
  */
 @IgnorableReturnValue
 context(_: Validation)
-public funString.ensureBigInteger(
+public fun String.ensureBigInteger(
     message: MessageProvider = { "kova.string.bigInteger".resource },
-) = apply { constrain("kova.string.bigInteger") { val _ = it.transformToBigInteger(message) } }
+): String = apply { constrain("kova.string.bigInteger") { val _ = it.transformToBigInteger(message) } }
 
 /**
  * Validates that the string can be parsed as a Boolean.
@@ -156,9 +156,9 @@ public funString.ensureBigInteger(
  */
 @IgnorableReturnValue
 context(_: Validation)
-public funString.ensureBoolean(
+public fun String.ensureBoolean(
     message: MessageProvider = { "kova.string.boolean".resource },
-) = apply { constrain("kova.string.boolean") { val _ = it.transformToBoolean(message) } }
+): String = apply { constrain("kova.string.boolean") { val _ = it.transformToBoolean(message) } }
 
 /**
  * Validates that the string is a valid name for the specified enum type.
@@ -175,10 +175,10 @@ public funString.ensureBoolean(
  */
 @IgnorableReturnValue
 context(_: Validation)
-public fun<E : Enum<E>> String.ensureEnum(
+public fun <E : Enum<E>> String.ensureEnum(
     klass: KClass<E>,
     message: (validNames: List<String>) -> Message = { "kova.string.enum".resource(it) },
-) = apply { constrain("kova.string.enum") { val _ = it.transformToEnum(klass, message) } }
+): String = apply { constrain("kova.string.enum") { val _ = it.transformToEnum(klass, message) } }
 
 /**
  * Validates that the string is a valid name for the specified enum type (reified version).
@@ -194,9 +194,9 @@ public fun<E : Enum<E>> String.ensureEnum(
  */
 @IgnorableReturnValue
 context(_: Validation)
-public inline fun<reified E : Enum<E>> String.ensureEnum(
+public inline fun <reified E : Enum<E>> String.ensureEnum(
     noinline message: (validNames: List<String>) -> Message = { "kova.string.enum".resource(it) },
-) = ensureEnum(E::class, message)
+): String = ensureEnum(E::class, message)
 
 /**
  * Validates that the string is in ensureUppercase.
@@ -211,9 +211,9 @@ public inline fun<reified E : Enum<E>> String.ensureEnum(
  */
 @IgnorableReturnValue
 context(_: Validation)
-public funString.ensureUppercase(
+public fun String.ensureUppercase(
     message: MessageProvider = { "kova.string.uppercase".resource },
-) = apply { constrain("kova.string.uppercase") { satisfies(it == it.uppercase(Locale.getDefault()), message) } }
+): String = apply { constrain("kova.string.uppercase") { satisfies(it == it.uppercase(Locale.getDefault()), message) } }
 
 /**
  * Validates that the string is in ensureLowercase.
@@ -228,9 +228,9 @@ public funString.ensureUppercase(
  */
 @IgnorableReturnValue
 context(_: Validation)
-public funString.ensureLowercase(
+public fun String.ensureLowercase(
     message: MessageProvider = { "kova.string.lowercase".resource },
-) = apply { constrain("kova.string.lowercase") { satisfies(it == it.lowercase(Locale.getDefault()), message) } }
+): String = apply { constrain("kova.string.lowercase") { satisfies(it == it.lowercase(Locale.getDefault()), message) } }
 
 /**
  * Validates that the string can be parsed as an Int and converts it.
@@ -244,9 +244,9 @@ public funString.ensureLowercase(
  * ```
  */
 context(_: Validation)
-public funString.transformToInt(
+public fun String.transformToInt(
     message: MessageProvider = { "kova.string.int".resource },
-) = toIntOrNull().toNonNullable("kova.string.int", message)
+): Int = toIntOrNull().toNonNullable("kova.string.int", message)
 
 /**
  * Validates that the string can be parsed as a Long and converts it.
@@ -260,9 +260,9 @@ public funString.transformToInt(
  * ```
  */
 context(_: Validation)
-public funString.transformToLong(
+public fun String.transformToLong(
     message: MessageProvider = { "kova.string.long".resource },
-) = toLongOrNull().toNonNullable("kova.string.long", message)
+): Long = toLongOrNull().toNonNullable("kova.string.long", message)
 
 /**
  * Validates that the string can be parsed as a Short and converts it.
@@ -276,9 +276,9 @@ public funString.transformToLong(
  * ```
  */
 context(_: Validation)
-public funString.transformToShort(
+public fun String.transformToShort(
     message: MessageProvider = { "kova.string.short".resource },
-) = toShortOrNull().toNonNullable("kova.string.short", message)
+): Short = toShortOrNull().toNonNullable("kova.string.short", message)
 
 /**
  * Validates that the string can be parsed as a Byte and converts it.
@@ -292,9 +292,9 @@ public funString.transformToShort(
  * ```
  */
 context(_: Validation)
-public funString.transformToByte(
+public fun String.transformToByte(
     message: MessageProvider = { "kova.string.byte".resource },
-) = toByteOrNull().toNonNullable("kova.string.byte", message)
+): Byte = toByteOrNull().toNonNullable("kova.string.byte", message)
 
 /**
  * Validates that the string can be parsed as a Double and converts it.
@@ -308,9 +308,9 @@ public funString.transformToByte(
  * ```
  */
 context(_: Validation)
-public funString.transformToDouble(
+public fun String.transformToDouble(
     message: MessageProvider = { "kova.string.double".resource },
-) = toDoubleOrNull().toNonNullable("kova.string.double", message)
+): Double = toDoubleOrNull().toNonNullable("kova.string.double", message)
 
 /**
  * Validates that the string can be parsed as a Float and converts it.
@@ -324,9 +324,9 @@ public funString.transformToDouble(
  * ```
  */
 context(_: Validation)
-public funString.transformToFloat(
+public fun String.transformToFloat(
     message: MessageProvider = { "kova.string.float".resource },
-) = toFloatOrNull().toNonNullable("kova.string.float", message)
+): Float = toFloatOrNull().toNonNullable("kova.string.float", message)
 
 /**
  * Validates that the string can be parsed as a BigDecimal and converts it.
@@ -340,9 +340,9 @@ public funString.transformToFloat(
  * ```
  */
 context(_: Validation)
-public funString.transformToBigDecimal(
+public fun String.transformToBigDecimal(
     message: MessageProvider = { "kova.string.bigDecimal".resource },
-) = toBigDecimalOrNull().toNonNullable("kova.string.bigDecimal", message)
+): java.math.BigDecimal = toBigDecimalOrNull().toNonNullable("kova.string.bigDecimal", message)
 
 /**
  * Validates that the string can be parsed as a BigInteger and converts it.
@@ -356,9 +356,9 @@ public funString.transformToBigDecimal(
  * ```
  */
 context(_: Validation)
-public funString.transformToBigInteger(
+public fun String.transformToBigInteger(
     message: MessageProvider = { "kova.string.bigInteger".resource },
-) = toBigIntegerOrNull().toNonNullable("kova.string.bigInteger", message)
+): java.math.BigInteger = toBigIntegerOrNull().toNonNullable("kova.string.bigInteger", message)
 
 /**
  * Validates that the string can be parsed as a Boolean and converts it.
@@ -373,9 +373,9 @@ public funString.transformToBigInteger(
  * ```
  */
 context(_: Validation)
-public funString.transformToBoolean(
+public fun String.transformToBoolean(
     message: MessageProvider = { "kova.string.boolean".resource },
-) = toBooleanStrictOrNull().toNonNullable("kova.string.boolean", message)
+): Boolean = toBooleanStrictOrNull().toNonNullable("kova.string.boolean", message)
 
 /**
  * Validates that the string is a valid enum name and converts it to the enum value.
@@ -390,12 +390,12 @@ public funString.transformToBoolean(
  * ```
  */
 context(_: Validation)
-public inline fun<reified E : Enum<E>> String.transformToEnum(
+public inline fun <reified E : Enum<E>> String.transformToEnum(
     noinline message: (validNames: List<String>) -> Message = { "kova.string.enum".resource(it) },
-) = transformToEnum(E::class, message)
+): E = transformToEnum(E::class, message)
 
 context(_: Validation)
-public fun<E : Enum<E>> String.transformToEnum(
+public fun <E : Enum<E>> String.transformToEnum(
     klass: KClass<E>,
     message: (validNames: List<String>) -> Message = { "kova.string.enum".resource(it) },
 ): E {

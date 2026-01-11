@@ -26,5 +26,5 @@ package org.komapper.extension.validator
  * @property messages List of [Message] objects describing each validation failure
  */
 public class ValidationException(
-    val messages: List<Message>,
+    public val messages: List<Message>,
 ) : RuntimeException(messages.toString())

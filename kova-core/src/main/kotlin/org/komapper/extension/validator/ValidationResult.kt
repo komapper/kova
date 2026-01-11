@@ -19,9 +19,9 @@ public sealed interface ValidationIor<out T> {
      * This can be either a [Failure] (only errors, no value) or [Both] (value with errors).
      */
     public sealed interface FailureLike<out T> : ValidationIor<T> {
-        val messages: List<Message>
+        public val messages: List<Message>
 
-        fun withMessage(message: Message): FailureLike<T>
+        public fun withMessage(message: Message): FailureLike<T>
     }
 
     /**

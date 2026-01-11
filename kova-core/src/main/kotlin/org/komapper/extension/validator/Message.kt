@@ -35,31 +35,31 @@ public typealias MessageProvider = () -> Message
  * - [Resource]: I18n messages loaded from `kova.properties` resource bundles
  */
 public sealed interface Message {
-    fun withDetails(
+    public fun withDetails(
         input: Any?,
         constraintId: String,
     ): Message
 
     /** The formatted message text */
-    val text: String
+    public val text: String
 
     /** The constraint identifier for this message */
-    val constraintId: String
+    public val constraintId: String
 
     /** The root object identifier in the validation hierarchy */
-    val root: String
+    public val root: String
 
     /** The path to the validated value in the object graph */
-    val path: Path
+    public val path: Path
 
     /** The input value being validated */
-    val input: Any?
+    public val input: Any?
 
     /** Arguments for formatting the message text using [MessageFormat] */
-    val args: List<Any?>
+    public val args: List<Any?>
 
     /** Nested validation error messages extracted from [args] */
-    val descendants: List<Message>
+    public val descendants: List<Message>
 
     /**
      * A simple text message without i18n support.
@@ -90,7 +90,7 @@ public sealed interface Message {
         override fun withDetails(
             input: Any?,
             constraintId: String,
-        ) = Text(constraintId = constraintId, root = root, path = path, text = text, input = input)
+        ): Text = Text(constraintId = constraintId, root = root, path = path, text = text, input = input)
     }
 
     /**

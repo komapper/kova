@@ -31,9 +31,9 @@ import kotlin.reflect.KClass
  */
 @IgnorableReturnValue
 context(_: Validation)
-public inline fun<reified S> S.ensureFuture(
+public inline fun <reified S> S.ensureFuture(
     noinline message: MessageProvider = { "kova.temporal.future".resource },
-) where S : Temporal, S : Comparable<S> = apply { constrain("kova.temporal.future") { satisfies(it > now(clock), message) } }
+): S where S : Temporal, S : Comparable<S> = apply { constrain("kova.temporal.future") { satisfies(it > now(clock), message) } }
 
 /**
  * Validates that the temporal value is in the ensureFuture or present (greater than or equal to now).
@@ -53,9 +53,9 @@ public inline fun<reified S> S.ensureFuture(
  */
 @IgnorableReturnValue
 context(_: Validation)
-public inline fun<reified S> S.ensureFutureOrPresent(
+public inline fun <reified S> S.ensureFutureOrPresent(
     noinline message: MessageProvider = { "kova.temporal.futureOrPresent".resource },
-) where S : Temporal, S : Comparable<S> = apply { constrain("kova.temporal.futureOrPresent") { satisfies(it >= now(clock), message) } }
+): S where S : Temporal, S : Comparable<S> = apply { constrain("kova.temporal.futureOrPresent") { satisfies(it >= now(clock), message) } }
 
 /**
  * Validates that the temporal value is in the ensurePast (strictly less than now).
@@ -75,9 +75,9 @@ public inline fun<reified S> S.ensureFutureOrPresent(
  */
 @IgnorableReturnValue
 context(_: Validation)
-public inline fun<reified S> S.ensurePast(
+public inline fun <reified S> S.ensurePast(
     noinline message: MessageProvider = { "kova.temporal.past".resource },
-)where S : Temporal, S : Comparable<S> = apply { constrain("kova.temporal.past") { satisfies(it < now(clock), message) } }
+): S where S : Temporal, S : Comparable<S> = apply { constrain("kova.temporal.past") { satisfies(it < now(clock), message) } }
 
 /**
  * Validates that the temporal value is in the ensurePast or present (less than or equal to now).
@@ -98,9 +98,9 @@ public inline fun<reified S> S.ensurePast(
  */
 @IgnorableReturnValue
 context(_: Validation)
-public inline fun<reified S> S.ensurePastOrPresent(
+public inline fun <reified S> S.ensurePastOrPresent(
     noinline message: MessageProvider = { "kova.temporal.pastOrPresent".resource },
-) where S : Temporal, S : Comparable<S> = apply { constrain("kova.temporal.pastOrPresent") { satisfies(it <= now(clock), message) } }
+): S where S : Temporal, S : Comparable<S> = apply { constrain("kova.temporal.pastOrPresent") { satisfies(it <= now(clock), message) } }
 
 /**
  * Obtains the current temporal value for the specified type using the provided clock.

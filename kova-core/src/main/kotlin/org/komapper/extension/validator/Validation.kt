@@ -55,20 +55,22 @@ context(_: Validation)
 public inline fun <T> T.constrain(
     id: String,
     check: Constraint.(T) -> Unit,
-) = accumulating {
-    mapEachMessage({ logAndAddDetails(it, this@constrain, id) }) {
-        val v = contextOf<Validation>()
-        Constraint(v).check(this)
-        log {
-            LogEntry.Satisfied(
-                constraintId = id,
-                root = v.root,
-                path = v.path.fullName,
-                input = this,
-            )
+): Accumulate.Value<T> =
+    accumulating {
+        mapEachMessage({ logAndAddDetails(it, this@constrain, id) }) {
+            val v = contextOf<Validation>()
+            Constraint(v).check(this)
+            log {
+                LogEntry.Satisfied(
+                    constraintId = id,
+                    root = v.root,
+                    path = v.path.fullName,
+                    input = this,
+                )
+            }
         }
+        this
     }
-}
 
 /**
  * Extracts the value from a [ValidationIor], accumulating or raising errors as needed.
@@ -641,7 +643,7 @@ public data class Path(
      * @param target The object to search for in the path
      * @return true if the object is found in the path ancestry
      */
-    fun containsObject(target: Any): Boolean {
+    public fun containsObject(target: Any): Boolean {
         if (obj === target) return true
         return parent?.containsObject(target) ?: false
     }
@@ -737,5 +739,5 @@ public class Schema<T>(
     public fun constrain(
         id: String,
         check: Constraint.(T) -> Unit,
-    ) = obj.constrain(id, check)
+    ): Accumulate.Value<T> = obj.constrain(id, check)
 }

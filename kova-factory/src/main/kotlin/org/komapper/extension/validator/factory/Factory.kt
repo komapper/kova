@@ -84,7 +84,8 @@ public fun <T, S> bind(
  * @param block A function that returns the validated result
  * @return A property delegate provider that executes validation when accessed
  */
-public fun <S> bind(block: context(Validation)() -> S): context(Validation)() -> S = block
+public fun <S> bind(block: context(Validation)() -> S): context(Validation)
+() -> S = block
 
 public class Factory(
     private val validation: Validation,
