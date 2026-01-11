@@ -42,10 +42,7 @@ All validators are extension functions on the input type with a `Validation` con
 ```kotlin
 context(_: Validation)
 fun validateName(name: String): String {
-    name.ensureNotBlank()
-    name.ensureLengthAtLeast(1)
-    name.ensureLengthAtMost(100)
-    return name
+    return name.ensureNotBlank().ensureLengthInRange(1..100)
 }
 
 tryValidate { validateName("John") }
@@ -56,10 +53,7 @@ tryValidate { validateName("John") }
 context(_: Validation)
 fun User.validate() = schema {
     ::name { it.ensureLengthInRange(1..100) }
-    ::age {
-        it.ensureAtLeast(0)
-        it.ensureAtMost(120)
-    }
+    ::age { it.ensureInRange(0..120) }
 }
 ```
 
@@ -67,10 +61,7 @@ fun User.validate() = schema {
 ```kotlin
 context(_: Validation)
 fun buildUser(rawName: String, rawAge: String) = factory {
-    val name by bind(rawName) {
-        it.ensureNotBlank()
-        it
-    }
+    val name by bind(rawName) { it.ensureNotBlank() }
     val age by bind(rawAge) { it.transformToInt() }
     User(name, age)
 }
@@ -82,10 +73,7 @@ data class Customer(...) : Validated {
     context(_: Validation)
     override fun validate() = schema {
         ::id { it.ensurePositive() }
-        ::name {
-            it.ensureNotBlank()
-            it.ensureLengthAtLeast(1)
-        }
+        ::name { it.ensureNotBlank().ensureLengthAtLeast(1) }
     }
 }
 ```
@@ -96,8 +84,10 @@ data class Customer(...) : Validated {
 Use `constrain(id)` and `satisfies(condition, message)`:
 ```kotlin
 context(_: Validation)
-fun String.alphanumeric() = constrain("custom.alphanumeric") {
-    satisfies(it.all { c -> c.isLetterOrDigit() }) { "kova.string.alphanumeric".resource }
+fun String.ensureAlphanumeric() = apply {
+    constrain("custom.alphanumeric") {
+        satisfies(it.all { c -> c.isLetterOrDigit() }) { "kova.string.alphanumeric".resource }
+    }
 }
 ```
 

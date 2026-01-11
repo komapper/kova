@@ -17,9 +17,7 @@ class QuickStartTest :
 
         context("basic") {
             context(_: Validation)
-            fun validateProductName(name: String): String {
-                return name.ensureNotBlank().ensureLengthInRange(1..100)
-            }
+            fun validateProductName(name: String): String = name.ensureNotBlank().ensureLengthInRange(1..100)
 
             test("tryValidate") {
                 val result = tryValidate { validateProductName("Wireless Mouse") }
@@ -46,14 +44,10 @@ class QuickStartTest :
 
         context("multiple") {
             context(_: Validation)
-            fun validateProductName(name: String): String {
-                return name.ensureNotBlank().ensureLengthInRange(1..100)
-            }
+            fun validateProductName(name: String): String = name.ensureNotBlank().ensureLengthInRange(1..100)
 
             context(_: Validation)
-            fun validatePrice(price: Double): Double {
-                return price.ensureInClosedRange(0.0..1000.0)
-            }
+            fun validatePrice(price: Double): Double = price.ensureInClosedRange(0.0..1000.0)
 
             test("success") {
                 val result =
@@ -229,7 +223,7 @@ class QuickStartTest :
         context("debug logging") {
             context(_: Validation)
             fun validateUsername(username: String) {
-                username.ensureLengthAtLeast(3).ensureLengthAtMost(20)
+                username.ensureLengthInRange(3..20)
             }
 
             test("test") {

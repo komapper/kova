@@ -255,11 +255,11 @@ fun <K, V> Map<K, V>.ensureEach(validator: context(Validation)(Map.Entry<K, V>) 
  * Example:
  * ```kotlin
  * tryValidate {
- *     mapOf("abc" to 1, "def" to 2).ensureEachKey { it.ensureLengthAtLeast(2); it.ensureLengthAtMost(10) }
+ *     mapOf("abc" to 1, "def" to 2).ensureEachKey { it.ensureLengthInRange(2..10) }
  * } // Success
  *
  * tryValidate {
- *     mapOf("a" to 1, "b" to 2).ensureEachKey { it.ensureLengthAtLeast(2); it.ensureLengthAtMost(10) }
+ *     mapOf("a" to 1, "b" to 2).ensureEachKey { it.ensureLengthInRange(2..10) }
  * } // Failure: keys too short
  * ```
  *

@@ -16,8 +16,7 @@ import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationException
-import org.komapper.extension.validator.ensureAtLeast
-import org.komapper.extension.validator.ensureAtMost
+import org.komapper.extension.validator.ensureInRange
 import org.komapper.extension.validator.ensureLengthAtLeast
 import org.komapper.extension.validator.ensureNotBlank
 import org.komapper.extension.validator.ensureNotEmpty
@@ -25,20 +24,16 @@ import org.komapper.extension.validator.schema
 import org.komapper.extension.validator.validate
 
 /**
- * Database table definition for Cities using Exposed's DSL.
- * Each city ensureHas an auto-incrementing ID and a name.
+ * Database table definition for Cities.
+ * Each city has an auto-incrementing ID and a name.
  */
 object Cities : IntIdTable() {
     val name = varchar("name", 50)
 }
 
 /**
- * Database table definition for Users using Exposed's DSL.
- * Each user ensureHas:
- * - An auto-incrementing ID
- * - A name (indexed for faster lookups)
- * - A foreign key reference to Cities
- * - An age field
+ * Database table definition for Users.
+ * Each user has an auto-incrementing ID, indexed name, city reference, and age.
  */
 object Users : IntIdTable() {
     val name = varchar("name", length = 50).index()
@@ -47,13 +42,8 @@ object Users : IntIdTable() {
 }
 
 /**
- * City entity class representing a row in the Cities table.
- *
- * Key features:
- * - Delegates properties to the Cities table columns
- * - `users` provides access to all users in this city (one-to-many relationship)
- * - The companion object's init block subscribes to entity creation events
- *   to automatically validate new City instances before they're saved
+ * City entity class.
+ * The companion object subscribes to entity creation events to automatically validate cities.
  */
 class City(
     id: EntityID<Int>,
@@ -70,13 +60,8 @@ class City(
 }
 
 /**
- * User entity class representing a row in the Users table.
- *
- * Key features:
- * - Delegates properties to the Users table columns
- * - `city` provides access to the referenced City entity (many-to-one relationship)
- * - The companion object's init block subscribes to entity creation events
- *   to automatically validate new User instances before they're saved
+ * User entity class.
+ * The companion object subscribes to entity creation events to automatically validate users.
  */
 class User(
     id: EntityID<Int>,
@@ -94,8 +79,8 @@ class User(
 }
 
 /**
- * Validation schema for City entities.
- * Validates that the city name is not ensureEmpty.
+ * Validation schema for City.
+ * Validates name is not empty.
  */
 context(_: Validation)
 fun City.validate() =
@@ -104,38 +89,19 @@ fun City.validate() =
     }
 
 /**
- * Validation schema for User entities.
- * Validates that:
- * - name is not ensureBlank and ensureHas minimum ensureLength of 1
- * - age is between 0 and 120
+ * Validation schema for User.
+ * Validates name (minimum length 1, not blank) and age (0-120).
  */
 context(_: Validation)
 fun User.validate() =
     schema {
         ::name { it.ensureLengthAtLeast(1).ensureNotBlank() }
-        ::age { it.ensureAtLeast(0).ensureAtMost(120) }
+        ::age { it.ensureInRange(0..120) }
     }
 
 /**
- * Extension function that hooks Kova validation into Exposed's entity lifecycle.
- *
- * This function:
- * 1. Subscribes to Exposed's EntityHook events
- * 2. Intercepts entity creation events (EntityChangeType.Created)
- * 3. Automatically validates the entity using the provided validation function
- * 4. Throws ValidationException if validation fails, preventing invalid data from being persisted
- *
- * Usage in entity companion object:
- * ```
- * companion object : IntEntityClass<User>(Users) {
- *     init {
- *         subscribe { validate(it) }
- *     }
- * }
- * ```
- *
- * This ensures that all entities are validated before being saved to the database,
- * providing a declarative way to enforce data integrity constraints.
+ * Hooks Kova validation into Exposed's entity lifecycle.
+ * Validates entities on creation and throws ValidationException if validation fails.
  */
 @IgnorableReturnValue
 fun <ID : Any, T : Entity<ID>> EntityClass<ID, T>.subscribe(validate: context(Validation)(T) -> Unit): (EntityChange) -> Unit =
@@ -149,15 +115,8 @@ fun <ID : Any, T : Entity<ID>> EntityClass<ID, T>.subscribe(validate: context(Va
     }
 
 /**
- * Main function demonstrating Kova validation integration with Exposed ORM.
- *
- * This example shows:
- * 1. How to set up entity hooks for automatic validation
- * 2. How validation failures throw ValidationException, preventing invalid data from being saved
- * 3. Three scenarios: successful validation, failed city validation, and failed user validation
- *
- * The integration works through EntityHook.subscribe in the entity companion objects,
- * which intercepts entity creation and validates before the data is persisted.
+ * Demonstrates Kova validation integration with Exposed ORM.
+ * Shows successful validation and two failure scenarios (invalid city and invalid user).
  */
 fun main() {
     // Connect to an in-memory H2 database for testing
@@ -173,7 +132,7 @@ fun main() {
         SchemaUtils.create(Cities, Users)
     }
 
-    // Example 1: Successful validation - all data is valid
+    // Example 1: Successful validation
     println("\n# Example 1: Successful validation")
     try {
         success()
@@ -181,9 +140,8 @@ fun main() {
         assert(false) { "Validation should not fail" }
     }
 
-    // Example 2: Validation failure - invalid city name (ensureEmpty string)
-    // The ValidationException is thrown when creating the City entity
-    println("\n# Example 2: Validation failure - invalid city name (ensureEmpty string)")
+    // Example 2: Validation failure - invalid city (empty name)
+    println("\n# Example 2: Validation failure - invalid city (empty name)")
     try {
         failWithInvalidCity()
         assert(false) { "Validation should fail" }
@@ -192,9 +150,8 @@ fun main() {
         e.messages.joinToString("\n").let { println(it) }
     }
 
-    // Example 3: Validation failure - invalid user (ensureEmpty name and ensureNegative age)
-    // The ValidationException is thrown when creating the User entity
-    println("\n# Example 3: Validation failure - invalid user (ensureEmpty name and ensureNegative age)")
+    // Example 3: Validation failure - invalid user (blank name, negative age)
+    println("\n# Example 3: Validation failure - invalid user (blank name, negative age)")
     try {
         failWithInvalidUser()
         assert(false) { "Validation should fail" }
@@ -205,14 +162,7 @@ fun main() {
 }
 
 /**
- * Test function demonstrating successful entity creation with valid data.
- *
- * Creates:
- * - A city with a valid name "St. Petersburg"
- * - A user with valid name "Andrey", valid age 5, and associated with the city
- *
- * Both entities pass validation and are successfully created.
- * The transaction is rolled back at the end to keep the database clean.
+ * Demonstrates successful entity creation with valid data.
  */
 private fun success() {
     transaction {
@@ -237,14 +187,8 @@ private fun success() {
 }
 
 /**
- * Test function demonstrating validation failure when creating a City with invalid data.
- *
- * Creates:
- * - A city with an INVALID name (ensureEmpty string) - violates ensureNotEmpty constraint
- *
- * When City.new is called, the entity hook triggers validation, which fails
- * and throws ValidationException before the city is persisted to the database.
- * This prevents invalid data from being saved.
+ * Demonstrates validation failure with invalid city (empty name).
+ * ValidationException is thrown before persistence.
  */
 private fun failWithInvalidCity() {
     transaction {
@@ -269,17 +213,8 @@ private fun failWithInvalidCity() {
 }
 
 /**
- * Test function demonstrating validation failure when creating a User with invalid data.
- *
- * Creates:
- * - A city with valid data
- * - A user with INVALID data:
- *   * Empty name (violates ensureNotBlank and min ensureLength constraints)
- *   * Negative age -1 (violates min constraint of 0)
- *
- * When User.new is called, the entity hook triggers validation, which fails
- * and throws ValidationException with multiple error messages, preventing
- * the invalid user from being persisted to the database.
+ * Demonstrates validation failure with invalid user (blank name, negative age).
+ * ValidationException is thrown with multiple error messages before persistence.
  */
 private fun failWithInvalidUser() {
     transaction {

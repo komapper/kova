@@ -25,9 +25,7 @@ data class User(val name: String, val age: Int)
 context(_: Validation)
 fun buildUser(name: String, age: String) = factory {
     val name by bind(name) {
-        it.ensureNotBlank()
-        it.ensureLengthAtLeast(1)
-        it
+        it.ensureNotBlank().ensureLengthAtLeast(1)
     }
     val age by bind(age) { it.transformToInt() }
     User(name, age)
@@ -56,9 +54,7 @@ Binds and validates a field. Returns the validated/transformed value:
 
 ```kotlin
 val name by bind(rawName) {
-    it.ensureNotBlank()
-    it.ensureLengthAtLeast(1)
-    it  // Return validated value
+    it.ensureNotBlank().ensureLengthAtLeast(1)  // Return validated value
 }
 ```
 
@@ -83,9 +79,7 @@ context(_: Validation)
 fun buildAge(ageString: String) = factory {
     val value by bind(ageString) {
         val age = it.transformToInt()  // String -> Int
-        age.ensureAtLeast(0)
-        age.ensureAtMost(120)
-        age
+        age.ensureAtLeast(0).ensureAtMost(120)
     }
     Age(value)
 }
@@ -134,22 +128,14 @@ data class User(val username: String, val email: String, val age: Int)
 context(_: Validation)
 fun buildUser(username: String, email: String, age: String) = factory {
     val username by bind(username) {
-        it.ensureNotBlank()
-        it.ensureLengthInRange(3..20)
-        it.ensureMatches(Regex("^[a-zA-Z0-9_]+$"))
-        it
+        it.ensureNotBlank().ensureLengthInRange(3..20).ensureMatches(Regex("^[a-zA-Z0-9_]+$"))
     }
     val email by bind(email) {
-        it.ensureNotBlank()
-        it.ensureContains("@")
-        it.ensureLengthAtLeast(5)
-        it
+        it.ensureNotBlank().ensureContains("@").ensureLengthAtLeast(5)
     }
     val age by bind(age) {
         val ageInt = it.transformToInt()
-        ageInt.ensureAtLeast(0)
-        ageInt.ensureAtMost(120)
-        ageInt
+        ageInt.ensureAtLeast(0).ensureAtMost(120)
     }
     User(username, email, age)
 }
