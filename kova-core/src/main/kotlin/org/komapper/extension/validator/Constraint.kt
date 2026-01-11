@@ -12,8 +12,11 @@ import kotlin.contracts.contract
  *
  * Example:
  * ```kotlin
- * fun Validation.ensurePositive(input: Int) = input.constrain("kova.number.ensurePositive") {
- *     satisfies(it > 0) { "kova.number.ensurePositive".resource }
+ * context(_: Validation)
+ * fun Int.ensurePositive() = apply {
+ *     constrain("kova.number.ensurePositive") {
+ *         satisfies(it > 0) { "kova.number.ensurePositive".resource }
+ *     }
  * }
  * ```
  *
@@ -32,15 +35,17 @@ public data class Constraint(
      *
      * Example:
      * ```kotlin
-     * fun Validation.ensurePositive(
-     *     input: Int,
+     * context(_: Validation)
+     * fun Int.ensurePositive(
      *     message: MessageProvider = { "kova.number.ensurePositive".resource }
-     * ) = input.constrain("kova.number.ensurePositive") {
-     *     satisfies(it > 0, message)
+     * ) = apply {
+     *     constrain("kova.number.ensurePositive") {
+     *         satisfies(it > 0, message)
+     *     }
      * }
      *
-     * tryValidate { ensurePositive(5) }  // Success (message provider not evaluated)
-     * tryValidate { ensurePositive(-1) } // Failure (message provider evaluated)
+     * tryValidate { 5.ensurePositive() }  // Success (message provider not evaluated)
+     * tryValidate { (-1).ensurePositive() } // Failure (message provider evaluated)
      * ```
      *
      * @param condition The condition to evaluate

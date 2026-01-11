@@ -291,11 +291,11 @@ public fun <T : Map<K, *>, K> T.ensureEachKey(validator: context(Validation)(K) 
  * Example:
  * ```kotlin
  * tryValidate {
- *     mapOf("a" to 10, "b" to 20).ensureEachValue { it.ensureAtLeast(0); it.ensureAtMost(100) }
+ *     mapOf("a" to 10, "b" to 20).ensureEachValue { it.ensureAtLeast(0).ensureAtMost(100) }
  * } // Success
  *
  * tryValidate {
- *     mapOf("a" to -1, "b" to 150).ensureEachValue { it.ensureAtLeast(0); it.ensureAtMost(100) }
+ *     mapOf("a" to -1, "b" to 150).ensureEachValue { it.ensureAtLeast(0).ensureAtMost(100) }
  * } // Failure: values out of range
  * ```
  *

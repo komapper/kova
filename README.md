@@ -90,11 +90,14 @@ fun User.validate() = schema {
 fun main() {
     // Valid user
     val validResult = tryValidate { User("Alice", "alice@example.com", 25).validate() }
-    println("Valid: ${validResult.isSuccess()}")  // Valid: true
-
+    if (validResult.isSuccess()) println("Valid") else error("never happens")
+  
     // Invalid user - collects ALL errors
     val invalidResult = tryValidate { User("", "invalid", -5).validate() }
-    if (invalidResult.isFailure()) {
+    if (invalidResult.isSuccess()) {
+        error("never happens")
+    } else {
+        println("Invalid")
         invalidResult.messages.forEach { println(it) }
         // Message(constraintId=kova.charSequence.notBlank, text='must not be blank', root=User, path=name, input=, args=[])
         // Message(constraintId=kova.charSequence.lengthInRange, text='must have length within range 1..50', root=User, path=name, input=, args=[1..50])
@@ -108,14 +111,14 @@ fun main() {
 
 There are several validation libraries for Kotlin. Here's why you might choose Kova:
 
-| Feature | Kova | Hibernate Validator | Konform |
-|---------|------|---------------------|---------|
-| **Approach** | Function-based | Annotation-based | DSL-based |
-| **Type safety** | Compile-time (context parameters) | Runtime (reflection) | Compile-time |
-| **Value transformation** | Yes (`transformToInt()`, etc.) | No | No |
-| **Smart cast support** | Yes (`ensureNotNull()`) | No | No |
-| **Dependencies** | Zero | Jakarta EE | Zero |
-| **Error collection** | All errors or fail-fast | All errors | All errors or fail-fast |
+| Feature                  | Kova                              | Hibernate Validator  | Konform                 |
+|--------------------------|-----------------------------------|----------------------|-------------------------|
+| **Approach**             | Function-based                    | Annotation-based     | DSL-based               |
+| **Type safety**          | Compile-time (context parameters) | Runtime (reflection) | Compile-time            |
+| **Value transformation** | Yes (`transformToInt()`, etc.)    | No                   | No                      |
+| **Smart cast support**   | Yes (`ensureNotNull()`)           | No                   | No                      |
+| **Dependencies**         | Zero                              | Jakarta EE           | Zero                    |
+| **Error collection**     | All errors or fail-fast           | All errors           | All errors or fail-fast |
 
 ### Function-Based Validation
 
