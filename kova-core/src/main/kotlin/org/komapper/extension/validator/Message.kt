@@ -19,7 +19,7 @@ import java.util.ResourceBundle
  * }
  * ```
  */
-typealias MessageProvider = () -> Message
+public typealias MessageProvider = () -> Message
 
 /**
  * Represents an error message for validation failures.
@@ -34,32 +34,32 @@ typealias MessageProvider = () -> Message
  * - [Text]: Simple hardcoded text messages
  * - [Resource]: I18n messages loaded from `kova.properties` resource bundles
  */
-sealed interface Message {
-    fun withDetails(
+public sealed interface Message {
+    public fun withDetails(
         input: Any?,
         constraintId: String,
     ): Message
 
     /** The formatted message text */
-    val text: String
+    public val text: String
 
     /** The constraint identifier for this message */
-    val constraintId: String
+    public val constraintId: String
 
     /** The root object identifier in the validation hierarchy */
-    val root: String
+    public val root: String
 
     /** The path to the validated value in the object graph */
-    val path: Path
+    public val path: Path
 
     /** The input value being validated */
-    val input: Any?
+    public val input: Any?
 
     /** Arguments for formatting the message text using [MessageFormat] */
-    val args: List<Any?>
+    public val args: List<Any?>
 
     /** Nested validation error messages extracted from [args] */
-    val descendants: List<Message>
+    public val descendants: List<Message>
 
     /**
      * A simple text message without i18n support.
@@ -73,7 +73,7 @@ sealed interface Message {
      * @property text The formatted message text
      * @property input The input value being validated
      */
-    class Text internal constructor(
+    public class Text internal constructor(
         override val constraintId: String,
         override val root: String,
         override val path: Path,
@@ -90,7 +90,7 @@ sealed interface Message {
         override fun withDetails(
             input: Any?,
             constraintId: String,
-        ) = Text(constraintId = constraintId, root = root, path = path, text = text, input = input)
+        ): Text = Text(constraintId = constraintId, root = root, path = path, text = text, input = input)
     }
 
     /**
@@ -113,7 +113,7 @@ sealed interface Message {
      * @property input The input value being validated
      * @property args Arguments for formatting the resource message using [MessageFormat]
      */
-    class Resource internal constructor(
+    public class Resource internal constructor(
         private val key: String,
         override val constraintId: String,
         override val root: String,

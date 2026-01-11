@@ -15,10 +15,10 @@ package org.komapper.extension.validator
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun <S> S.ensureEquals(
+public fun <S> S.ensureEquals(
     value: S,
     message: MessageProvider = { "kova.any.equals".resource(value) },
-) = apply { constrain("kova.any.equals") { satisfies(it == value, message) } }
+): S = apply { constrain("kova.any.equals") { satisfies(it == value, message) } }
 
 /**
  * Validates that the value is not equal to the specified value.
@@ -35,10 +35,10 @@ fun <S> S.ensureEquals(
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun <S> S.ensureNotEquals(
+public fun <S> S.ensureNotEquals(
     value: S,
     message: MessageProvider = { "kova.any.notEquals".resource(value) },
-) = apply { constrain("kova.any.notEquals") { satisfies(it != value, message) } }
+): S = apply { constrain("kova.any.notEquals") { satisfies(it != value, message) } }
 
 /**
  * Validates that the value is contained in the specified iterable.
@@ -58,7 +58,7 @@ fun <S> S.ensureNotEquals(
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun <S> S.ensureIn(
+public fun <S> S.ensureIn(
     iterable: Iterable<S>,
     message: MessageProvider = { "kova.any.in".resource(iterable) },
-) = apply { constrain("kova.any.in") { satisfies(it in iterable, message) } }
+): S = apply { constrain("kova.any.in") { satisfies(it in iterable, message) } }

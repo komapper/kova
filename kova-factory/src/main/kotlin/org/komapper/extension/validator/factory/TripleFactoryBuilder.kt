@@ -3,7 +3,7 @@ package org.komapper.extension.validator.factory
 import org.komapper.extension.validator.Validation
 
 context(_: Validation)
-fun <A, B, C> buildTriple(
+public fun <A, B, C> buildTriple(
     buildFirst: context(Validation)() -> A,
     buildSecond: context(Validation)() -> B,
     buildThird: context(Validation)() -> C,

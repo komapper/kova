@@ -9,19 +9,19 @@ import kotlin.reflect.KProperty
  * This interface defines the strategy for handling validation errors when multiple
  * constraints fail. Implementations determine whether to fail fast or collect all errors.
  */
-fun interface Accumulate {
+public fun interface Accumulate {
     /**
      * Represents the result of an accumulating validation operation.
      *
      * @param T the type of the validated value
      */
-    sealed class Value<out T> {
+    public sealed class Value<out T> {
         /**
          * The validated value.
          *
          * @throws ValidationCancellationException if this is an [Error]
          */
-        abstract val value: T
+        public abstract val value: T
 
         /**
          * Enables property delegation syntax for extracting validated values.
@@ -30,7 +30,7 @@ fun interface Accumulate {
          * @param property the delegated property metadata
          * @return the validated value
          */
-        operator fun getValue(
+        public operator fun getValue(
             instance: Any?,
             property: KProperty<*>,
         ): T = value
@@ -42,7 +42,7 @@ fun interface Accumulate {
      * @param T the type of the validated value
      * @property value the successfully validated value
      */
-    class Ok<T>(
+    public class Ok<T>(
         override val value: T,
     ) : Value<T>()
 
@@ -53,7 +53,7 @@ fun interface Accumulate {
      * validation when errors are accumulated. The constructor is internal to prevent
      * direct instantiation outside the validation framework.
      */
-    class Error
+    public class Error
         @PublishedApi
         internal constructor() : Value<Nothing>() {
             /**
@@ -69,7 +69,7 @@ fun interface Accumulate {
              *
              * @throws ValidationCancellationException always
              */
-            fun raise(): Nothing = throw ValidationCancellationException(this)
+            public fun raise(): Nothing = throw ValidationCancellationException(this)
         }
 
     /**
@@ -79,7 +79,7 @@ fun interface Accumulate {
      * @return an [Error] instance representing the accumulated errors
      */
     @IgnorableReturnValue
-    fun accumulate(messages: List<Message>): Error
+    public fun accumulate(messages: List<Message>): Error
 }
 
 /**
@@ -90,7 +90,7 @@ fun interface Accumulate {
  */
 @IgnorableReturnValue
 context(v: Validation)
-fun accumulate(messages: List<Message>) = v.acc.accumulate(messages)
+public fun accumulate(messages: List<Message>): Accumulate.Error = v.acc.accumulate(messages)
 
 /**
  * Accumulates validation error messages and immediately raises a validation failure.
@@ -102,7 +102,7 @@ fun accumulate(messages: List<Message>) = v.acc.accumulate(messages)
  * @throws ValidationCancellationException always
  */
 context(_: Validation)
-fun raise(messages: List<Message>): Nothing = accumulate(messages).raise()
+public fun raise(messages: List<Message>): Nothing = accumulate(messages).raise()
 
 /**
  * Accumulates a single validation error message and immediately raises a validation failure.
@@ -111,7 +111,7 @@ fun raise(messages: List<Message>): Nothing = accumulate(messages).raise()
  * @throws ValidationCancellationException always
  */
 context(_: Validation)
-fun raise(message: Message): Nothing = raise(listOf(message))
+public fun raise(message: Message): Nothing = raise(listOf(message))
 
 /**
  * Executes a validation block in accumulating mode, capturing all errors.
@@ -127,7 +127,7 @@ fun raise(message: Message): Nothing = raise(listOf(message))
  */
 @IgnorableReturnValue
 context(v: Validation)
-inline fun <R> accumulating(block: context(Validation)() -> R): Accumulate.Value<R> {
+public inline fun <R> accumulating(block: context(Validation)() -> R): Accumulate.Value<R> {
     lateinit var outsideError: Accumulate.Error
     // raise/error is only used after outsideError is initialized
     return recoverValidation({ outsideError }) {
@@ -154,8 +154,8 @@ inline fun <R> accumulating(block: context(Validation)() -> R): Accumulate.Value
  *
  * @property error the accumulated validation errors
  */
-class ValidationCancellationException(
-    val error: Accumulate.Error,
+public class ValidationCancellationException(
+    public val error: Accumulate.Error,
 ) : CancellationException() {
     /**
      * Overridden to prevent stack trace generation for performance optimization.
@@ -188,7 +188,7 @@ class ValidationCancellationException(
  * @return the result from the block if successful, or the result from recovery if validation fails
  * @throws ValidationCancellationException if the exception belongs to a different error context
  */
-inline fun <R> recoverValidation(
+public inline fun <R> recoverValidation(
     recover: () -> R,
     block: Accumulate.Error.() -> R,
 ): R =

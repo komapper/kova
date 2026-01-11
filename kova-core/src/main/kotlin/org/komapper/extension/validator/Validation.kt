@@ -19,7 +19,7 @@ import kotlin.reflect.KProperty0
  * @property config Validation configuration settings
  * @property acc Accumulator function for collecting validation errors
  */
-data class Validation(
+public data class Validation(
     val root: String = "",
     val path: Path = Path(name = "", obj = null, parent = null),
     val config: ValidationConfig = ValidationConfig(),
@@ -52,23 +52,25 @@ data class Validation(
  */
 @IgnorableReturnValue
 context(_: Validation)
-inline fun <T> T.constrain(
+public inline fun <T> T.constrain(
     id: String,
     check: Constraint.(T) -> Unit,
-) = accumulating {
-    mapEachMessage({ logAndAddDetails(it, this@constrain, id) }) {
-        val v = contextOf<Validation>()
-        Constraint(v).check(this)
-        log {
-            LogEntry.Satisfied(
-                constraintId = id,
-                root = v.root,
-                path = v.path.fullName,
-                input = this,
-            )
+): Accumulate.Value<T> =
+    accumulating {
+        mapEachMessage({ logAndAddDetails(it, this@constrain, id) }) {
+            val v = contextOf<Validation>()
+            Constraint(v).check(this)
+            log {
+                LogEntry.Satisfied(
+                    constraintId = id,
+                    root = v.root,
+                    path = v.path.fullName,
+                    input = this,
+                )
+            }
         }
+        this
     }
-}
 
 /**
  * Extracts the value from a [ValidationIor], accumulating or raising errors as needed.
@@ -89,7 +91,7 @@ inline fun <T> T.constrain(
  * @throws ValidationCancellationException if this is a [Failure]
  */
 context(_: Validation)
-fun <T> ValidationIor<T>.bind(): T =
+public fun <T> ValidationIor<T>.bind(): T =
     when (this) {
         is Success -> value
         is Failure -> raise(messages)
@@ -119,7 +121,7 @@ fun <T> ValidationIor<T>.bind(): T =
  * @return [ValidationIor] representing the combined validation result
  */
 context(v: Validation)
-inline infix fun <R> ValidationIor<R>.or(block: context(Validation)() -> R): ValidationIor<R> {
+public inline infix fun <R> ValidationIor<R>.or(block: context(Validation)() -> R): ValidationIor<R> {
     if (this !is FailureLike) return this
     val other = eval(block)
     if (other !is FailureLike) return other
@@ -151,7 +153,7 @@ internal inline fun <R> eval(block: context(Validation)() -> R): ValidationIor<R
  * @throws ValidationCancellationException if both validations fail
  */
 context(_: Validation)
-inline infix fun <R> ValidationIor<R>.orElse(block: context(Validation)() -> R): R = or(block).bind()
+public inline infix fun <R> ValidationIor<R>.orElse(block: context(Validation)() -> R): R = or(block).bind()
 
 /**
  * Validates a value with a named path segment.
@@ -180,7 +182,7 @@ inline infix fun <R> ValidationIor<R>.orElse(block: context(Validation)() -> R):
  * @return the result of executing the validation block
  */
 context(_: Validation)
-inline fun <T, R> T.named(
+public inline fun <T, R> T.named(
     name: String,
     block: context(Validation)(T) -> R,
 ): R = addPath(name, this, { block(this@named) })
@@ -209,7 +211,7 @@ inline fun <T, R> T.named(
  * @param block the validation logic that defines constraints for object properties
  */
 context(_: Validation)
-inline fun <T : Any> T.schema(block: context(Validation) Schema<T>.() -> Unit) {
+public inline fun <T : Any> T.schema(block: context(Validation) Schema<T>.() -> Unit) {
     val obj = this
     val klass = this::class
     val rootName = klass.qualifiedName ?: klass.simpleName ?: klass.toString()
@@ -251,7 +253,7 @@ inline fun <T : Any> T.schema(block: context(Validation) Schema<T>.() -> Unit) {
  * @return A [Message.Text] instance with the given content
  */
 context(v: Validation)
-fun text(content: String): Message = Message.Text("", v.root, v.path, content, null)
+public fun text(content: String): Message = Message.Text("", v.root, v.path, content, null)
 
 /**
  * Creates a resource-based validation message for internationalization.
@@ -303,10 +305,10 @@ fun text(content: String): Message = Message.Text("", v.root, v.path, content, n
  * @return A [Message.Resource] instance configured with the provided arguments
  */
 context(v: Validation)
-fun String.resource(vararg args: Any?): Message.Resource = Message.Resource(this, this, v.root, v.path, null, args = args.toList())
+public fun String.resource(vararg args: Any?): Message.Resource = Message.Resource(this, this, v.root, v.path, null, args = args.toList())
 
 context(_: Validation)
-val String.resource: Message.Resource get() = resource()
+public val String.resource: Message.Resource get() = resource()
 
 /**
  * The clock used for temporal validation constraints (ensurePast, ensureFuture, etc.).
@@ -314,7 +316,7 @@ val String.resource: Message.Resource get() = resource()
  * Delegates to [ValidationConfig.clock].
  */
 context(v: Validation)
-val clock: Clock get() = v.config.clock
+public val clock: Clock get() = v.config.clock
 
 /**
  * Configuration settings for validation execution.
@@ -344,7 +346,7 @@ val clock: Clock get() = v.config.clock
  * }
  * ```
  */
-data class ValidationConfig(
+public data class ValidationConfig(
     val failFast: Boolean = false,
     val clock: Clock = Clock.systemDefaultZone(),
     val logger: ((LogEntry) -> Unit)? = null,
@@ -373,7 +375,7 @@ data class ValidationConfig(
  * @return The result of executing the block
  */
 context(v: Validation)
-inline fun <R> addRoot(
+public inline fun <R> addRoot(
     name: String,
     obj: Any?,
     block: context(Validation)() -> R,
@@ -408,7 +410,7 @@ inline fun <R> addRoot(
  * @return The result of executing the block
  */
 context(v: Validation)
-inline fun <R> addPath(
+public inline fun <R> addPath(
     name: String,
     obj: Any?,
     block: context(Validation)() -> R,
@@ -436,7 +438,7 @@ inline fun <R> addPath(
  * @return The result of executing the block
  */
 context(v: Validation)
-inline fun <R> bindObject(
+public inline fun <R> bindObject(
     obj: Any?,
     block: context(Validation)() -> R,
 ): R {
@@ -472,7 +474,7 @@ inline fun <R> bindObject(
  * @return The result of executing the block, or null if a circular reference is detected
  */
 context(v: Validation)
-inline fun <T, R> addPathChecked(
+public inline fun <T, R> addPathChecked(
     name: String,
     obj: T,
     block: context(Validation)() -> R,
@@ -503,7 +505,7 @@ inline fun <T, R> addPathChecked(
  * @return The result of executing the block
  */
 context(v: Validation)
-inline fun <R> appendPath(
+public inline fun <R> appendPath(
     text: String,
     block: context(Validation)() -> R,
 ): R {
@@ -536,7 +538,7 @@ inline fun <R> appendPath(
  * @param block Lambda that generates the log entry (only called if logger is configured)
  */
 context(v: Validation)
-inline fun log(block: () -> LogEntry) {
+public inline fun log(block: () -> LogEntry) {
     v.config.logger?.invoke(block())
 }
 
@@ -616,7 +618,7 @@ internal inline fun <R> mapEachMessage(
  * @property obj The object at this path point (used for circular reference detection)
  * @property parent The parent path segment, or null if this is the root
  */
-data class Path(
+public data class Path(
     val name: String,
     val obj: Any?,
     val parent: Path?,
@@ -641,7 +643,7 @@ data class Path(
      * @param target The object to search for in the path
      * @return true if the object is found in the path ancestry
      */
-    fun containsObject(target: Any): Boolean {
+    public fun containsObject(target: Any): Boolean {
         if (obj === target) return true
         return parent?.containsObject(target) ?: false
     }
@@ -654,7 +656,7 @@ data class Path(
  * logger callback configured in [ValidationConfig.logger]. This enables debugging and
  * monitoring of validation logic.
  */
-sealed interface LogEntry {
+public sealed interface LogEntry {
     /**
      * Log entry indicating that a validation constraint was satisfied.
      *
@@ -665,7 +667,7 @@ sealed interface LogEntry {
      * @property path The validation path indicating the property location (e.g., "address.city")
      * @property input The input value that was validated
      */
-    data class Satisfied(
+    public data class Satisfied(
         val constraintId: String,
         val root: String,
         val path: String,
@@ -683,7 +685,7 @@ sealed interface LogEntry {
      * @property input The input value that failed validation
      * @property args The arguments used in the constraint evaluation (e.g., [10] for min(value, 10))
      */
-    data class Violated(
+    public data class Violated(
         val constraintId: String,
         val root: String,
         val path: String,
@@ -692,7 +694,7 @@ sealed interface LogEntry {
     ) : LogEntry
 }
 
-class Schema<T>(
+public class Schema<T>(
     private val obj: T,
 ) {
     /**
@@ -727,15 +729,15 @@ class Schema<T>(
      */
     @IgnorableReturnValue
     context(_: Validation)
-    operator fun <T> KProperty0<T>.invoke(block: context(Validation)(T) -> Unit): Accumulate.Value<Unit> {
+    public operator fun <T> KProperty0<T>.invoke(block: context(Validation)(T) -> Unit): Accumulate.Value<Unit> {
         val value = get()
         return addPathChecked(name, value) { accumulating { block(value) } } ?: Accumulate.Ok(Unit)
     }
 
     @IgnorableReturnValue
     context(_: Validation)
-    fun constrain(
+    public fun constrain(
         id: String,
         check: Constraint.(T) -> Unit,
-    ) = obj.constrain(id, check)
+    ): Accumulate.Value<T> = obj.constrain(id, check)
 }

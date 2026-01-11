@@ -3,7 +3,7 @@ package org.komapper.extension.validator.factory
 import org.komapper.extension.validator.Validation
 
 context(_: Validation)
-fun <A, B> buildPair(
+public fun <A, B> buildPair(
     buildFirst: context(Validation)() -> A,
     buildSecond: context(Validation)() -> B,
 ): Pair<A, B> =

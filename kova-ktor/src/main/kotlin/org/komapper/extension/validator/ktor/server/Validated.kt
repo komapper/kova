@@ -26,7 +26,7 @@ import org.komapper.extension.validator.Validation
  *
  * @see SchemaValidator
  */
-interface Validated {
+public interface Validated {
     /**
      * Defines validation logic for this object within a [Validation] context.
      *
@@ -34,5 +34,5 @@ interface Validated {
      * references. Property names are automatically used as validation paths in error messages.
      */
     context(_: Validation)
-    fun validate()
+    public fun validate()
 }

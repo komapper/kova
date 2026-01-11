@@ -20,7 +20,7 @@ import kotlin.contracts.contract
  * @property validation The validation context that accumulates errors and manages validation state
  * @see satisfies
  */
-data class Constraint(
+public data class Constraint(
     val validation: Validation,
 ) {
     /**
@@ -46,7 +46,7 @@ data class Constraint(
      * @param condition The condition to evaluate
      * @param message A MessageProvider lambda that produces the error message if the condition is false
      */
-    fun satisfies(
+    public fun satisfies(
         condition: Boolean,
         message: MessageProvider,
     ) {
