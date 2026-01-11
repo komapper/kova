@@ -67,7 +67,7 @@ fun Age.validate() =
     }
 
 /**
- * Schema validation for Person with nested object.
+ * Schema validation for a Person with a nested object.
  * The age property reuses Age.validate(), creating nested paths like "age.value".
  */
 context(_: Validation)
@@ -112,7 +112,7 @@ fun main() {
     // Valid person
     tryValidate { Person("a", Age(10)).validate() }.printResult()
 
-    // Invalid person - error path "age.value" shows nested property location
+    // Invalid person - error path "age.value" shows a nested property location
     tryValidate { Person("  ", Age(-1)).validate() }.printResult()
 
     println("\n# Example 3: Cross-property validation")
