@@ -5,8 +5,7 @@ import io.kotest.matchers.shouldBe
 import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ensureAtLeast
 import org.komapper.extension.validator.ensureEquals
-import org.komapper.extension.validator.ensureLengthAtLeast
-import org.komapper.extension.validator.ensureLengthAtMost
+import org.komapper.extension.validator.ensureLengthInRange
 import org.komapper.extension.validator.ensureNotNull
 import org.komapper.extension.validator.schema
 import org.komapper.extension.validator.text
@@ -81,9 +80,7 @@ class GroupTest :
                             it.ensureNotNull()
                         }
                         ::licencePlate {
-                            it.ensureNotNull()
-                            it.ensureLengthAtLeast(2)
-                            it.ensureLengthAtMost(14)
+                            it.ensureNotNull().ensureLengthInRange(2..14)
                         }
                         ::seatCount {
                             it.ensureAtLeast(2)

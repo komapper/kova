@@ -85,10 +85,7 @@ class SimpleTest :
             fun Car.validate() =
                 schema {
                     ::manufacturer { it.ensureNotNull() }
-                    ::licensePlate {
-                        it.ensureNotNull()
-                        it.ensureLengthInRange(2..14)
-                    }
+                    ::licensePlate { it.ensureNotNull().ensureLengthInRange(2..14) }
                     ::seatCount { it.ensureAtLeast(2) }
                 }
 

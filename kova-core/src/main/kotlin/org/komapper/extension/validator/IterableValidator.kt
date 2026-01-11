@@ -15,7 +15,7 @@ typealias CountMessageProvider = (actualCount: Int) -> Message
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun Iterable<*>.ensureNotEmpty(message: MessageProvider = { "kova.iterable.notEmpty".resource }) =
+fun <T : Iterable<*>> T.ensureNotEmpty(message: MessageProvider = { "kova.iterable.notEmpty".resource }) =
     apply { constrain("kova.iterable.notEmpty") { satisfies(it.iterator().hasNext(), message) } }
 
 /**
@@ -32,7 +32,7 @@ fun Iterable<*>.ensureNotEmpty(message: MessageProvider = { "kova.iterable.notEm
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun <E> Iterable<E>.ensureHas(
+fun <T : Iterable<E>, E> T.ensureHas(
     element: E,
     message: MessageProvider = { "kova.iterable.contains".resource(element) },
 ) = ensureContains(element, message)
@@ -51,7 +51,7 @@ fun <E> Iterable<E>.ensureHas(
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun <E> Iterable<E>.ensureContains(
+fun <T : Iterable<E>, E> T.ensureContains(
     element: E,
     message: MessageProvider = { "kova.iterable.contains".resource(element) },
 ) = apply { constrain("kova.iterable.contains") { satisfies(it.contains(element), message) } }
@@ -70,7 +70,7 @@ fun <E> Iterable<E>.ensureContains(
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun <E> Iterable<E>.ensureNotContains(
+fun <T : Iterable<E>, E> T.ensureNotContains(
     element: E,
     message: MessageProvider = { "kova.iterable.notContains".resource(element) },
 ) = apply { constrain("kova.iterable.notContains") { satisfies(!it.contains(element), message) } }
@@ -96,7 +96,7 @@ fun <E> Iterable<E>.ensureNotContains(
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun <E> Iterable<E>.ensureEach(validate: context(Validation)(E) -> Unit) =
+fun <T : Iterable<E>, E> T.ensureEach(validate: context(Validation)(E) -> Unit) =
     apply {
         constrain("kova.iterable.each") {
             context(validation) {

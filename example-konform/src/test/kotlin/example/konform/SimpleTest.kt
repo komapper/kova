@@ -68,13 +68,8 @@ class SimpleTest :
             context(_: Validation)
             fun UserProfile.validate() =
                 schema {
-                    ::fullName {
-                        it.ensureLengthAtLeast(2)
-                        it.ensureLengthAtMost(100)
-                    }
-                    ::age {
-                        if (it != null) it.ensureInRange(0..150)
-                    }
+                    ::fullName { it.ensureLengthAtLeast(2).ensureLengthAtMost(100) }
+                    ::age { if (it != null) it.ensureInRange(0..150) }
                 }
 
             test("valid") {

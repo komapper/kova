@@ -54,13 +54,8 @@ data class PriceRange(
 context(_: Validation)
 fun User.validate() =
     schema {
-        ::name {
-            it.ensureLengthAtLeast(1)
-            it.ensureNotBlank()
-        }
-        ::age {
-            it.ensureInRange(0..120)
-        }
+        ::name { it.ensureLengthAtLeast(1).ensureNotBlank() }
+        ::age { it.ensureInRange(0..120) }
     }
 
 /**
@@ -70,9 +65,7 @@ fun User.validate() =
 context(_: Validation)
 fun Age.validate() =
     schema {
-        ::value {
-            it.ensureInRange(0..120)
-        }
+        ::value { it.ensureInRange(0..120) }
     }
 
 /**
@@ -83,10 +76,7 @@ fun Age.validate() =
 context(_: Validation)
 fun Person.validate() =
     schema {
-        ::name {
-            it.ensureLengthAtLeast(1)
-            it.ensureNotBlank()
-        }
+        ::name { it.ensureLengthAtLeast(1).ensureNotBlank() }
         ::age { it.validate() }
     }
 

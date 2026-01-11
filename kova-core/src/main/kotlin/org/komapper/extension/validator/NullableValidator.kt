@@ -64,9 +64,10 @@ inline fun <T> T.ensureNullOr(
  */
 @IgnorableReturnValue
 context(_: Validation)
-fun <T> T.ensureNotNull(message: MessageProvider = { "kova.nullable.notNull".resource }): Accumulate.Value<Unit> {
+fun <T> T.ensureNotNull(message: MessageProvider = { "kova.nullable.notNull".resource }): T & Any {
     contract { returns() implies (this@ensureNotNull != null) }
-    return raiseIfNull(this, "kova.nullable.notNull", message)
+    raiseIfNull(this, "kova.nullable.notNull", message)
+    return this
 }
 
 /**

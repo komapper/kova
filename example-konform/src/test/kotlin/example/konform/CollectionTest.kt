@@ -120,20 +120,20 @@ class CollectionTest :
 
         context("kova") {
             context(_: Validation)
-            fun validateOrganizer(person: Person) =
-                person.schema {
-                    person::email {
+            fun Person.validateOrganizer() =
+                schema {
+                    ::email {
                         it.ensureNotNull { text("Email address must be given") }
                         it.ensureMatches(Regex(".+@bigcorp.com")) { text("Organizers must have a BigCorp email address") }
                     }
                 }
 
             context(_: Validation)
-            fun validateAttendee(person: Person) =
-                person.schema {
-                    person::name { it.ensureLengthAtLeast(2) }
-                    person::age { it.ensureAtLeast(18) { text("Attendees must be 18 years or older") } }
-                    person::email {
+            fun Person.validateAttendee() =
+                schema {
+                    ::name { it.ensureLengthAtLeast(2) }
+                    ::age { it.ensureAtLeast(18) { text("Attendees must be 18 years or older") } }
+                    ::email {
                         if (it != null) {
                             it.ensureMatches(
                                 Regex(".+@.+\\..+"),
@@ -145,11 +145,8 @@ class CollectionTest :
             context(_: Validation)
             fun validate(event: Event) =
                 event.schema {
-                    event::organizer { validateOrganizer(it) }
-                    event::attendees {
-                        it.ensureSizeAtMost(100)
-                        it.ensureEach { validateAttendee(it) }
-                    }
+                    event::organizer { it.validateOrganizer() }
+                    event::attendees { it.ensureSizeAtMost(100).ensureEach { each -> each.validateAttendee() } }
                     event::ticketPrices {
                         it.ensureSizeAtLeast(1) { text("Provide at least one ticket price") }
                         it.ensureEachValue { price ->

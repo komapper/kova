@@ -75,11 +75,7 @@ fun buildUser(
     name: String,
     age: String,
 ) = factory {
-    val name by bind(name) {
-        it.ensureLengthAtLeast(1)
-        it.ensureNotBlank()
-        it
-    } // argument validator
+    val name by bind(name) { it.ensureLengthAtLeast(1).ensureNotBlank() } // argument validator
     val age by bind(age) { it.transformToInt() } // argument validator
     User(name, age)
 }.also { it.validate() } // object validator

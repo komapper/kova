@@ -72,19 +72,14 @@ class SplitTest :
 
             context(_: Validation)
             fun checkAge(age: Int?) {
-                age.ensureNotNull()
-                age.ensureAtLeast(21)
+                age.ensureNotNull().ensureAtLeast(21)
             }
 
             context(_: Validation)
             fun UserProfile.validate() =
                 schema {
-                    ::age {
-                        checkAge(it)
-                    }
-                    age.named("ageMinus10") {
-                        checkAge(it?.let { age -> age - 10 })
-                    }
+                    ::age { checkAge(it) }
+                    age.named("ageMinus10") { checkAge(it?.let { age -> age - 10 }) }
                 }
 
             test("valid") {
