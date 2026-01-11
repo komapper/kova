@@ -9,8 +9,12 @@ package org.komapper.extension.validator
  * tryValidate { "hi".ensureLength(5) }    // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver T The character sequence to validate
+ * @param T The type of character sequence being validated
  * @param length Exact length required
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -28,8 +32,12 @@ public fun <T : CharSequence> T.ensureLength(
  * tryValidate { "hi".ensureLengthAtLeast(3) }    // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver T The character sequence to validate
+ * @param T The type of character sequence being validated
  * @param length Minimum length (inclusive)
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -47,8 +55,12 @@ public fun <T : CharSequence> T.ensureLengthAtLeast(
  * tryValidate { "very long string".ensureLengthAtMost(10) } // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver T The character sequence to validate
+ * @param T The type of character sequence being validated
  * @param length Maximum length (inclusive)
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -71,8 +83,13 @@ public fun <T : CharSequence> T.ensureLengthAtMost(
  * tryValidate { "very long text".ensureLengthInRange(1..<5) }  // Failure (too long)
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver T The character sequence to validate
+ * @param T The type of character sequence being validated
+ * @param R The type of range (must implement both ClosedRange and OpenEndRange)
  * @param range The range for valid lengths (must implement both ClosedRange and OpenEndRange)
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -92,7 +109,11 @@ public fun <T : CharSequence, R> T.ensureLengthInRange(
  * tryValidate { "".ensureNotBlank() }      // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver T The character sequence to validate
+ * @param T The type of character sequence being validated
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -109,7 +130,11 @@ public fun <T : CharSequence> T.ensureNotBlank(message: MessageProvider = { "kov
  * tryValidate { "hello".ensureBlank() } // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver T The character sequence to validate
+ * @param T The type of character sequence being validated
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -126,7 +151,11 @@ public fun <T : CharSequence> T.ensureBlank(message: MessageProvider = { "kova.c
  * tryValidate { "".ensureNotEmpty() }      // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver T The character sequence to validate
+ * @param T The type of character sequence being validated
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -143,7 +172,11 @@ public fun <T : CharSequence> T.ensureNotEmpty(message: MessageProvider = { "kov
  * tryValidate { "hello".ensureEmpty() } // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver T The character sequence to validate
+ * @param T The type of character sequence being validated
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -159,8 +192,12 @@ public fun <T : CharSequence> T.ensureEmpty(message: MessageProvider = { "kova.c
  * tryValidate { "Goodbye".ensureStartsWith("Hello") }     // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver T The character sequence to validate
+ * @param T The type of character sequence being validated
  * @param prefix The required prefix
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -178,8 +215,12 @@ public fun <T : CharSequence> T.ensureStartsWith(
  * tryValidate { "Hello World".ensureNotStartsWith("Hello") } // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver T The character sequence to validate
+ * @param T The type of character sequence being validated
  * @param prefix The prefix that must not be present
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -200,8 +241,12 @@ public fun <T : CharSequence> T.ensureNotStartsWith(
  * tryValidate { "document.pdf".ensureEndsWith(".txt") } // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver T The character sequence to validate
+ * @param T The type of character sequence being validated
  * @param suffix The required suffix
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -219,8 +264,12 @@ public fun <T : CharSequence> T.ensureEndsWith(
  * tryValidate { "document.txt".ensureNotEndsWith(".txt") } // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver T The character sequence to validate
+ * @param T The type of character sequence being validated
  * @param suffix The suffix that must not be present
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -238,8 +287,12 @@ public fun <T : CharSequence> T.ensureNotEndsWith(
  * tryValidate { "hello".ensureContains("world") }       // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver T The character sequence to validate
+ * @param T The type of character sequence being validated
  * @param infix The required substring
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -257,8 +310,12 @@ public fun <T : CharSequence> T.ensureContains(
  * tryValidate { "hello world".ensureNotContains("world") } // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver T The character sequence to validate
+ * @param T The type of character sequence being validated
  * @param infix The substring that must not be present
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -276,8 +333,12 @@ public fun <T : CharSequence> T.ensureNotContains(
  * tryValidate { "12-34".ensureMatches(Regex("\\d{3}-\\d{4}")) }    // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver T The character sequence to validate
+ * @param T The type of character sequence being validated
  * @param pattern The regex pattern to match
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -295,8 +356,12 @@ public fun <T : CharSequence> T.ensureMatches(
  * tryValidate { "123".ensureNotMatches(Regex("\\d+")) }   // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver T The character sequence to validate
+ * @param T The type of character sequence being validated
  * @param pattern The regex pattern that must not match
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)

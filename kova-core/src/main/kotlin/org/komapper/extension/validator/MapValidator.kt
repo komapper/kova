@@ -9,9 +9,12 @@ package org.komapper.extension.validator
  * tryValidate { mapOf("a" to 1, "b" to 2).ensureSize(3) }           // Failure
  * ```
  *
- * @param size Exact map ensureSize required
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param T The map type being validated
+ * @receiver The map to validate
+ * @param size Exact map size required
  * @param message Custom error message provider
- * @return A new validator with the exact ensureSize constraint
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -29,9 +32,12 @@ public fun <T : Map<*, *>> T.ensureSize(
  * tryValidate { mapOf("a" to 1).ensureSizeAtLeast(2) }                     // Failure
  * ```
  *
- * @param size Minimum map ensureSize (inclusive)
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param T The map type being validated
+ * @receiver The map to validate
+ * @param size Minimum map size (inclusive)
  * @param message Custom error message provider
- * @return A new validator with the minimum ensureSize constraint
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -49,9 +55,12 @@ public fun <T : Map<*, *>> T.ensureSizeAtLeast(
  * tryValidate { mapOf("a" to 1, "b" to 2, "c" to 3, "d" to 4).ensureSizeAtMost(3) } // Failure
  * ```
  *
- * @param size Maximum map ensureSize (inclusive)
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param T The map type being validated
+ * @receiver The map to validate
+ * @param size Maximum map size (inclusive)
  * @param message Custom error message provider
- * @return A new validator with the maximum ensureSize constraint
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -70,8 +79,13 @@ public fun <T : Map<*, *>> T.ensureSizeAtMost(
  * tryValidate { mapOf("a" to 1, "b" to 2, "c" to 3).ensureSizeInRange(1..<3) } // Failure (open-ended range)
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param T The map type being validated
+ * @param R The range type (must implement both ClosedRange and OpenEndRange)
+ * @receiver The map to validate
  * @param range The allowed size range (supports both ClosedRange and OpenEndRange)
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -81,7 +95,7 @@ public fun <T : Map<*, *>, R> T.ensureSizeInRange(
 ): T where R : ClosedRange<Int>, R : OpenEndRange<Int> = constrain("kova.map.sizeInRange") { satisfies(it.size in range, message) }
 
 /**
- * Validates that the map is not ensureEmpty.
+ * Validates that the map is not empty.
  *
  * Example:
  * ```kotlin
@@ -89,8 +103,11 @@ public fun <T : Map<*, *>, R> T.ensureSizeInRange(
  * tryValidate { mapOf<String, Int>().ensureNotEmpty() }  // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param T The map type being validated
+ * @receiver The map to validate
  * @param message Custom error message provider
- * @return A new validator with the not-ensureEmpty constraint
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -98,7 +115,7 @@ public fun <T : Map<*, *>> T.ensureNotEmpty(message: MessageProvider = { "kova.m
     constrain("kova.map.notEmpty") { satisfies(it.isNotEmpty(), message) }
 
 /**
- * Validates that the map ensureContains the specified key.
+ * Validates that the map contains the specified key.
  *
  * Example:
  * ```kotlin
@@ -106,8 +123,13 @@ public fun <T : Map<*, *>> T.ensureNotEmpty(message: MessageProvider = { "kova.m
  * tryValidate { mapOf("bar" to 2, "baz" to 3).ensureHasKey("foo") }  // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param T The map type being validated
+ * @param K The key type of the map
+ * @receiver The map to validate
  * @param key The key that must be present in the map
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -117,7 +139,7 @@ public fun <T : Map<K, *>, K> T.ensureHasKey(
 ): T = ensureContainsKey(key, message)
 
 /**
- * Validates that the map ensureContains the specified key.
+ * Validates that the map contains the specified key.
  *
  * Example:
  * ```kotlin
@@ -125,8 +147,13 @@ public fun <T : Map<K, *>, K> T.ensureHasKey(
  * tryValidate { mapOf("bar" to 2, "baz" to 3).ensureContainsKey("foo") }  // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param T The map type being validated
+ * @param K The key type of the map
+ * @receiver The map to validate
  * @param key The key that must be present in the map
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -144,8 +171,13 @@ public fun <T : Map<K, *>, K> T.ensureContainsKey(
  * tryValidate { mapOf("foo" to 1, "bar" to 2).ensureNotContainsKey("foo") }  // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param T The map type being validated
+ * @param K The key type of the map
+ * @receiver The map to validate
  * @param key The key that must not be present in the map
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -155,7 +187,7 @@ public fun <T : Map<K, *>, K> T.ensureNotContainsKey(
 ): T = constrain("kova.map.notContainsKey") { satisfies(!it.containsKey(key), message) }
 
 /**
- * Validates that the map ensureContains the specified value.
+ * Validates that the map contains the specified value.
  *
  * Example:
  * ```kotlin
@@ -163,8 +195,13 @@ public fun <T : Map<K, *>, K> T.ensureNotContainsKey(
  * tryValidate { mapOf("foo" to 1, "bar" to 2).ensureHasValue(42) }   // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param T The map type being validated
+ * @param V The value type of the map
+ * @receiver The map to validate
  * @param value The value that must be present in the map
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -182,8 +219,13 @@ public fun <T : Map<*, V>, V> T.ensureHasValue(
  * tryValidate { mapOf("foo" to 1, "bar" to 2).ensureContainsValue(42) }   // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param T The map type being validated
+ * @param V The value type of the map
+ * @receiver The map to validate
  * @param value The value that must be present in the map
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -201,8 +243,13 @@ public fun <T : Map<*, V>, V> T.ensureContainsValue(
  * tryValidate { mapOf("foo" to 42, "bar" to 2).ensureNotContainsValue(42) }  // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param T The map type being validated
+ * @param V The value type of the map
+ * @receiver The map to validate
  * @param value The value that must not be present in the map
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -230,8 +277,13 @@ public fun <T : Map<*, V>, V> T.ensureNotContainsValue(
  * }
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param T The map type being validated
+ * @param K The key type of the map
+ * @param V The value type of the map
+ * @receiver The map to validate
  * @param validator The validator to apply to each entry
- * @return A new validator with per-entry validation
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -263,8 +315,12 @@ public fun <T : Map<K, V>, K, V> T.ensureEach(validator: context(Validation)(Map
  * } // Failure: keys too short
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param T The map type being validated
+ * @param K The key type of the map
+ * @receiver The map to validate
  * @param validator The validator to apply to each key
- * @return A new validator with per-key validation
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -296,8 +352,12 @@ public fun <T : Map<K, *>, K> T.ensureEachKey(validator: context(Validation)(K) 
  * } // Failure: values out of range
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param T The map type being validated
+ * @param V The value type of the map
+ * @receiver The map to validate
  * @param validator The validator to apply to each value
- * @return A new validator with per-value validation
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)

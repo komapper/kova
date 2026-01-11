@@ -29,6 +29,8 @@ public interface Validated {
      *
      * Typically implemented using the [schema][Validation.schema] function with property
      * references. Property names are automatically used as validation paths in error messages.
+     *
+     * @param Validation (context parameter) The validation context for constraint checking and error accumulation
      */
     context(_: Validation)
     public fun validate()

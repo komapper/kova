@@ -10,7 +10,11 @@ package org.komapper.extension.validator
  * tryValidate { (-1).ensurePositive() }  // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param T The numeric type being validated
+ * @receiver The number to validate
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -27,7 +31,11 @@ public fun <T : Number> T.ensurePositive(message: MessageProvider = { "kova.numb
  * tryValidate { 1.ensureNegative() }   // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param T The numeric type being validated
+ * @receiver The number to validate
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -44,7 +52,11 @@ public fun <T : Number> T.ensureNegative(message: MessageProvider = { "kova.numb
  * tryValidate { 1.ensureNotPositive() }   // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param T The numeric type being validated
+ * @receiver The number to validate
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -61,7 +73,11 @@ public fun <T : Number> T.ensureNotPositive(message: MessageProvider = { "kova.n
  * tryValidate { (-1).ensureNotNegative() }  // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param T The numeric type being validated
+ * @receiver The number to validate
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)

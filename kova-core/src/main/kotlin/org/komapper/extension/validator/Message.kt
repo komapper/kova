@@ -38,6 +38,16 @@ public typealias MessageProvider = () -> Message
  * - [Resource]: I18n messages loaded from `kova.properties` resource bundles
  */
 public sealed interface Message {
+    /**
+     * Creates a new message with updated input value and constraint ID.
+     *
+     * This method is used internally by the validation framework to attach
+     * contextual information to messages after they are created.
+     *
+     * @param input The input value being validated
+     * @param constraintId The constraint identifier for this message
+     * @return A new [Message] instance with the updated details
+     */
     public fun withDetails(
         input: Any?,
         constraintId: String,
@@ -90,6 +100,13 @@ public sealed interface Message {
         override fun toString(): String =
             "Message(constraintId=$constraintId, text='$text', root=$root, path=${path.fullName}, input=$input)"
 
+        /**
+         * Creates a new [Text] message with updated input value and constraint ID.
+         *
+         * @param input The input value being validated
+         * @param constraintId The constraint identifier for this message
+         * @return A new [Text] instance with the updated details
+         */
         override fun withDetails(
             input: Any?,
             constraintId: String,
@@ -151,6 +168,13 @@ public sealed interface Message {
         override fun toString(): String =
             "Message(constraintId=$constraintId, text='$text', root=$root, path=${path.fullName}, input=$input, args=$args)"
 
+        /**
+         * Creates a new [Resource] message with updated input value and constraint ID.
+         *
+         * @param input The input value being validated
+         * @param constraintId The constraint identifier for this message
+         * @return A new [Resource] instance with the updated details
+         */
         override fun withDetails(
             input: Any?,
             constraintId: String,

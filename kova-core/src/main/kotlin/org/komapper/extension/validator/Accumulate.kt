@@ -19,6 +19,7 @@ public fun interface Accumulate {
         /**
          * The validated value.
          *
+         * @return the validated value of type [T]
          * @throws ValidationCancellationException if this is an [Error]
          */
         public abstract val value: T
@@ -26,9 +27,10 @@ public fun interface Accumulate {
         /**
          * Enables property delegation syntax for extracting validated values.
          *
-         * @param instance the instance owning the delegated property
+         * @param instance the instance owning the delegated property (unused, may be null)
          * @param property the delegated property metadata
-         * @return the validated value
+         * @return the validated value of type [T]
+         * @throws ValidationCancellationException if this is an [Error]
          */
         public operator fun getValue(
             instance: Any?,
@@ -52,6 +54,8 @@ public fun interface Accumulate {
      * This class uses a cancellation-based control flow mechanism to short-circuit
      * validation when errors are accumulated. The constructor is internal to prevent
      * direct instantiation outside the validation framework.
+     *
+     * @param T the type of the validated value (always [Nothing] for errors)
      */
     public class Error
         @PublishedApi
@@ -59,6 +63,7 @@ public fun interface Accumulate {
             /**
              * Always raises a [ValidationCancellationException] when accessed.
              *
+             * @return never returns, always throws
              * @throws ValidationCancellationException always
              */
             override val value: Nothing
@@ -67,6 +72,7 @@ public fun interface Accumulate {
             /**
              * Raises a [ValidationCancellationException] to signal validation failure.
              *
+             * @return never returns, always throws
              * @throws ValidationCancellationException always
              */
             public fun raise(): Nothing = throw ValidationCancellationException(this)
@@ -85,6 +91,7 @@ public fun interface Accumulate {
 /**
  * Accumulates validation error messages in the current validation context.
  *
+ * @context Validation the validation context for constraint checking and error accumulation
  * @param messages the validation error messages to accumulate
  * @return an [Accumulate.Error] instance representing the accumulated errors
  */
@@ -98,7 +105,9 @@ public fun accumulate(messages: List<Message>): Accumulate.Error = v.acc.accumul
  * This function combines error accumulation with immediate failure signaling through
  * a [ValidationCancellationException].
  *
+ * @context Validation the validation context for constraint checking and error accumulation
  * @param messages the validation error messages to accumulate and raise
+ * @return never returns, always throws
  * @throws ValidationCancellationException always
  */
 context(_: Validation)
@@ -107,7 +116,9 @@ public fun raise(messages: List<Message>): Nothing = accumulate(messages).raise(
 /**
  * Accumulates a single validation error message and immediately raises a validation failure.
  *
+ * @context Validation the validation context for constraint checking and error accumulation
  * @param message the validation error message to accumulate and raise
+ * @return never returns, always throws
  * @throws ValidationCancellationException always
  */
 context(_: Validation)
@@ -120,8 +131,9 @@ public fun raise(message: Message): Nothing = raise(listOf(message))
  * failing fast. Validation errors raised within the block are collected and returned
  * as an [Accumulate.Error], or as [Accumulate.Ok] if validation succeeds.
  *
+ * @context Validation the validation context for constraint checking and error accumulation
  * @param R the type of the validation result
- * @param block the validation logic to execute
+ * @param block the validation logic to execute with the validation context
  * @return [Accumulate.Ok] with the result if validation succeeds, or [Accumulate.Error]
  *         if validation fails with accumulated error messages
  */
@@ -152,6 +164,7 @@ public inline fun <R> accumulating(block: context(Validation)() -> R): Accumulat
  * Originally inspired by KotlinX Coroutines:
  * https://github.com/Kotlin/kotlinx.coroutines/blob/3788889ddfd2bcfedbff1bbca10ee56039e024a2/kotlinx-coroutines-core/jvm/src/Exceptions.kt#L29
  *
+ * @param error the accumulated validation errors
  * @property error the accumulated validation errors
  */
 public class ValidationCancellationException(
@@ -164,7 +177,7 @@ public class ValidationCancellationException(
      * control flow rather than exceptional conditions. This also prevents bugs on
      * Android versions 6.0 and below.
      *
-     * @return this exception with an ensureEmpty stack trace
+     * @return this exception with an empty stack trace
      */
     override fun fillInStackTrace(): Throwable {
         // Prevent Android <= 6.0 bug.
@@ -178,13 +191,13 @@ public class ValidationCancellationException(
  * Executes a validation block with structured error recovery.
  *
  * This function creates an [Accumulate.Error] context and executes the validation block.
- * If the block raises a [ValidationCancellationException] that ensureMatches the created error
+ * If the block raises a [ValidationCancellationException] that matches the created error
  * context, the recovery function is invoked. If the exception belongs to a different
  * error context, it is re-thrown to propagate to the appropriate handler.
  *
  * @param R the type of the result
  * @param recover the recovery function to invoke when validation fails in this context
- * @param block the validation logic to execute
+ * @param block the validation logic to execute with the error context as receiver
  * @return the result from the block if successful, or the result from recovery if validation fails
  * @throws ValidationCancellationException if the exception belongs to a different error context
  */

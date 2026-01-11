@@ -9,8 +9,12 @@ package org.komapper.extension.validator
  * tryValidate { (-1).ensureAtLeast(0) }  // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param S The comparable type being validated
+ * @receiver The comparable value to validate
  * @param value Minimum value (inclusive)
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -28,8 +32,12 @@ public fun <S : Comparable<S>> S.ensureAtLeast(
  * tryValidate { 150.ensureAtMost(100) }  // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param S The comparable type being validated
+ * @receiver The comparable value to validate
  * @param value Maximum value (inclusive)
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -48,8 +56,12 @@ public fun <S : Comparable<S>> S.ensureAtMost(
  * tryValidate { (-1).ensureGreaterThan(0) }  // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param S The comparable type being validated
+ * @receiver The comparable value to validate
  * @param value The value to compare against (exclusive)
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -68,8 +80,12 @@ public fun <S : Comparable<S>> S.ensureGreaterThan(
  * tryValidate { (-1).ensureGreaterThanOrEqual(0) }  // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param S The comparable type being validated
+ * @receiver The comparable value to validate
  * @param value The value to compare against (inclusive)
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -88,8 +104,12 @@ public fun <S : Comparable<S>> S.ensureGreaterThanOrEqual(
  * tryValidate { 150.ensureLessThan(100) }  // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param S The comparable type being validated
+ * @receiver The comparable value to validate
  * @param value The value to compare against (exclusive)
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -108,8 +128,12 @@ public fun <S : Comparable<S>> S.ensureLessThan(
  * tryValidate { 150.ensureLessThanOrEqual(100) }  // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param S The comparable type being validated
+ * @receiver The comparable value to validate
  * @param value The value to compare against (inclusive)
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -143,8 +167,13 @@ public fun <S : Comparable<S>> S.ensureLessThanOrEqual(
  * tryValidate { 0.ensureInRange(1..<10) }   // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param S The comparable type being validated
+ * @param R The range type that implements both ClosedRange and OpenEndRange
+ * @receiver The comparable value to validate
  * @param range The range to check against (must implement both ClosedRange and OpenEndRange)
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -167,8 +196,12 @@ public fun <S : Comparable<S>, R> S.ensureInRange(
  * tryValidate { 11.ensureInClosedRange(1.0..10.0) }   // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param S The comparable type being validated
+ * @receiver The comparable value to validate
  * @param range The closed range to check against
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -191,8 +224,12 @@ public fun <S : Comparable<S>> S.ensureInClosedRange(
  * tryValidate { 0.ensureInOpenEndRange(1..<10) }    // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param S The comparable type being validated
+ * @receiver The comparable value to validate
  * @param range The open-ended range to check against
  * @param message Custom error message provider
+ * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)

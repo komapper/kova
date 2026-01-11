@@ -12,7 +12,10 @@ package org.komapper.extension.validator
  * tryValidate { false.ensureTrue() }  // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver Boolean The boolean value to validate
  * @param message Custom error message provider
+ * @return The validated boolean value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
@@ -31,7 +34,10 @@ public fun Boolean.ensureTrue(message: MessageProvider = { "kova.boolean.true".r
  * tryValidate { true.ensureFalse() }   // Failure
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver Boolean The boolean value to validate
  * @param message Custom error message provider
+ * @return The validated boolean value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)

@@ -28,6 +28,8 @@ import kotlin.reflect.KProperty
  *     }
  * ```
  *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param R The type of the object being built by the factory
  * @param name The name of the factory root (defaults to "factory")
  * @param block The factory block that builds and returns the validated object
  * @return The result of executing the factory block
@@ -54,7 +56,7 @@ public inline fun <R> factory(
  * @param S The type of the validated output value
  * @param input The value to validate
  * @param block A function that receives the input value and returns the validated result
- * @return A property delegate provider that executes validation when accessed
+ * @return A lambda that, when called with a [Validation] context, executes the validation and returns the result
  */
 public fun <T, S> bind(
     input: T,
@@ -76,11 +78,20 @@ public fun <T, S> bind(
  *
  * @param S The type of the validated output value
  * @param block A function that returns the validated result
- * @return A property delegate provider that executes validation when accessed
+ * @return A lambda that, when called with a [Validation] context, executes the validation and returns the result
  */
 public fun <S> bind(block: context(Validation)() -> S): context(Validation)
 () -> S = block
 
+/**
+ * A factory context that provides property delegation for building validated objects.
+ *
+ * The [Factory] class enables property delegation syntax for validation operations within
+ * a factory block. When a validation lambda is delegated to a property, the property name
+ * is automatically used as the validation path.
+ *
+ * @property validation The validation context used for constraint checking and error accumulation
+ */
 public class Factory(
     private val validation: Validation,
 ) {
@@ -91,8 +102,11 @@ public class Factory(
      * The property name is automatically used as the validation path. The validation
      * is executed within an accumulating context that collects errors.
      *
-     * @param S the type produced by the validation lambda
-     * @return an [Accumulate.Value] for accessing the validation result
+     * @receiver The validation lambda to be delegated, which produces a value of type [S]
+     * @param S The type produced by the validation lambda
+     * @param thisRef The reference to the object containing the delegated property (unused)
+     * @param property The property metadata, used to extract the property name for the validation path
+     * @return An [Accumulate.Value] for accessing the validation result
      */
     public operator fun <S> (
     context(Validation)
