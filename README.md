@@ -78,7 +78,7 @@ There are several validation libraries for Kotlin. Here's why you might choose K
 | **Value transformation** | Yes (`transformToInt()`, etc.) | No | No |
 | **Smart cast support** | Yes (`ensureNotNull()`) | No | No |
 | **Dependencies** | Zero | Jakarta EE | Zero |
-| **Error collection** | All errors or fail-fast | All errors | All errors |
+| **Error collection** | All errors or fail-fast | All errors | All errors or fail-fast |
 
 ### Function-Based Validation
 
