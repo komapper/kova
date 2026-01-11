@@ -19,7 +19,7 @@ import kotlin.contracts.contract
 @IgnorableReturnValue
 context(_: Validation)
 fun <T> T.ensureNull(message: MessageProvider = { "kova.nullable.null".resource }) =
-    this.constrain("kova.nullable.null") { satisfies(it == null, message) }
+    apply { constrain("kova.nullable.null") { satisfies(it == null, message) } }
 
 /**
  * Validates that the input is null OR satisfies the given constraints.
@@ -46,7 +46,7 @@ context(_: Validation)
 inline fun <T> T.ensureNullOr(
     noinline message: MessageProvider = { "kova.nullable.null".resource },
     block: context(Validation)(T & Any) -> Unit,
-) = or<Unit> { this.ensureNull(message) } orElse { block(this!!) }
+) = apply { or<Unit> { this.ensureNull(message) } orElse { block(this!!) } }
 
 /**
  * Validates that the input is not null.

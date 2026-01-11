@@ -19,7 +19,7 @@ context(_: Validation)
 fun Collection<*>.ensureSize(
     size: Int,
     message: SizeMessageProvider = { "kova.collection.size".resource(it, size) },
-) = this.constrain("kova.collection.size") { satisfies(it.size == size) { message(it.size) } }
+) = apply { constrain("kova.collection.size") { satisfies(it.size == size) { message(it.size) } } }
 
 /**
  * Validates that the collection size is at least the specified minimum.
@@ -38,7 +38,7 @@ context(_: Validation)
 fun Collection<*>.ensureSizeAtLeast(
     size: Int,
     message: SizeMessageProvider = { "kova.collection.sizeAtLeast".resource(it, size) },
-) = this.constrain("kova.collection.sizeAtLeast") { satisfies(it.size >= size) { message(it.size) } }
+) = apply { constrain("kova.collection.sizeAtLeast") { satisfies(it.size >= size) { message(it.size) } } }
 
 /**
  * Validates that the collection size does not exceed the specified maximum.
@@ -57,7 +57,7 @@ context(_: Validation)
 fun Collection<*>.ensureSizeAtMost(
     size: Int,
     message: SizeMessageProvider = { "kova.collection.sizeAtMost".resource(it, size) },
-) = this.constrain("kova.collection.sizeAtMost") { satisfies(it.size <= size) { message(it.size) } }
+) = apply { constrain("kova.collection.sizeAtMost") { satisfies(it.size <= size) { message(it.size) } } }
 
 /**
  * Validates that the collection size is within the specified range.
@@ -77,4 +77,7 @@ context(_: Validation)
 fun <R> Collection<*>.ensureSizeInRange(
     range: R,
     message: MessageProvider = { "kova.collection.sizeInRange".resource(range) },
-) where R : ClosedRange<Int>, R : OpenEndRange<Int> = this.constrain("kova.collection.sizeInRange") { satisfies(it.size in range, message) }
+) where R : ClosedRange<Int>, R : OpenEndRange<Int> =
+    apply {
+        constrain("kova.collection.sizeInRange") { satisfies(it.size in range, message) }
+    }

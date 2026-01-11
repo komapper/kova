@@ -18,7 +18,7 @@ context(_: Validation)
 fun Map<*, *>.ensureSize(
     size: Int,
     message: SizeMessageProvider = { "kova.map.size".resource(it, size) },
-) = this.constrain("kova.map.size") { satisfies(it.size == size) { message(it.size) } }
+) = apply { constrain("kova.map.size") { satisfies(it.size == size) { message(it.size) } } }
 
 /**
  * Validates that the map size is at least the specified minimum.
@@ -38,7 +38,7 @@ context(_: Validation)
 fun Map<*, *>.ensureSizeAtLeast(
     size: Int,
     message: SizeMessageProvider = { "kova.map.sizeAtLeast".resource(it, size) },
-) = this.constrain("kova.map.sizeAtLeast") { satisfies(it.size >= size) { message(it.size) } }
+) = apply { constrain("kova.map.sizeAtLeast") { satisfies(it.size >= size) { message(it.size) } } }
 
 /**
  * Validates that the map size does not exceed the specified maximum.
@@ -58,7 +58,7 @@ context(_: Validation)
 fun Map<*, *>.ensureSizeAtMost(
     size: Int,
     message: SizeMessageProvider = { "kova.map.sizeAtMost".resource(it, size) },
-) = this.constrain("kova.map.sizeAtMost") { satisfies(it.size <= size) { message(it.size) } }
+) = apply { constrain("kova.map.sizeAtMost") { satisfies(it.size <= size) { message(it.size) } } }
 
 /**
  * Validates that the map size is within the specified range.
@@ -78,7 +78,7 @@ context(_: Validation)
 fun <R> Map<*, *>.ensureSizeInRange(
     range: R,
     message: MessageProvider = { "kova.map.sizeInRange".resource(range) },
-) where R : ClosedRange<Int>, R : OpenEndRange<Int> = this.constrain("kova.map.sizeInRange") { satisfies(it.size in range, message) }
+) where R : ClosedRange<Int>, R : OpenEndRange<Int> = apply { constrain("kova.map.sizeInRange") { satisfies(it.size in range, message) } }
 
 /**
  * Validates that the map is not ensureEmpty.
@@ -95,7 +95,7 @@ fun <R> Map<*, *>.ensureSizeInRange(
 @IgnorableReturnValue
 context(_: Validation)
 fun Map<*, *>.ensureNotEmpty(message: MessageProvider = { "kova.map.notEmpty".resource }) =
-    this.constrain("kova.map.notEmpty") { satisfies(it.isNotEmpty(), message) }
+    apply { constrain("kova.map.notEmpty") { satisfies(it.isNotEmpty(), message) } }
 
 /**
  * Validates that the map ensureContains the specified key.
@@ -133,7 +133,7 @@ context(_: Validation)
 fun <K> Map<K, *>.ensureContainsKey(
     key: K,
     message: MessageProvider = { "kova.map.containsKey".resource(key) },
-) = this.constrain("kova.map.containsKey") { satisfies(it.containsKey(key), message) }
+) = apply { constrain("kova.map.containsKey") { satisfies(it.containsKey(key), message) } }
 
 /**
  * Validates that the map does not contain the specified key.
@@ -152,7 +152,7 @@ context(_: Validation)
 fun <K> Map<K, *>.ensureNotContainsKey(
     key: K,
     message: MessageProvider = { "kova.map.notContainsKey".resource(key) },
-) = this.constrain("kova.map.notContainsKey") { satisfies(!it.containsKey(key), message) }
+) = apply { constrain("kova.map.notContainsKey") { satisfies(!it.containsKey(key), message) } }
 
 /**
  * Validates that the map does not contain the specified key.
@@ -213,7 +213,7 @@ context(_: Validation)
 fun <V> Map<*, V>.ensureContainsValue(
     value: V,
     message: MessageProvider = { "kova.map.containsValue".resource(value) },
-) = this.constrain("kova.map.containsValue") { satisfies(it.containsValue(value), message) }
+) = apply { constrain("kova.map.containsValue") { satisfies(it.containsValue(value), message) } }
 
 /**
  * Validates that the map does not contain the specified value.
@@ -232,7 +232,7 @@ context(_: Validation)
 fun <V> Map<*, V>.ensureNotContainsValue(
     value: V,
     message: MessageProvider = { "kova.map.notContainsValue".resource(value) },
-) = this.constrain("kova.map.notContainsValue") { satisfies(!it.containsValue(value), message) }
+) = apply { constrain("kova.map.notContainsValue") { satisfies(!it.containsValue(value), message) } }
 
 /**
  * Validates each entry (key-value pair) of the map using the specified validator.
@@ -259,10 +259,12 @@ fun <V> Map<*, V>.ensureNotContainsValue(
 @IgnorableReturnValue
 context(_: Validation)
 fun <K, V> Map<K, V>.ensureEach(validator: context(Validation)(Map.Entry<K, V>) -> Unit) =
-    this.constrain("kova.map.each") {
-        context(validation) {
-            validateOnEach(this@ensureEach, "kova.map.each") { entry ->
-                appendPath(text = "<map entry>") { validator(entry) }
+    apply {
+        constrain("kova.map.each") {
+            context(validation) {
+                validateOnEach(this@ensureEach, "kova.map.each") { entry ->
+                    appendPath(text = "<map entry>") { validator(entry) }
+                }
             }
         }
     }
@@ -290,10 +292,12 @@ fun <K, V> Map<K, V>.ensureEach(validator: context(Validation)(Map.Entry<K, V>) 
 @IgnorableReturnValue
 context(_: Validation)
 fun <K> Map<K, *>.ensureEachKey(validator: context(Validation)(K) -> Unit) =
-    this.constrain("kova.map.eachKey") {
-        context(validation) {
-            validateOnEach(this@ensureEachKey, "kova.map.eachKey") { entry ->
-                appendPath(text = "<map key>") { validator(entry.key) }
+    apply {
+        constrain("kova.map.eachKey") {
+            context(validation) {
+                validateOnEach(this@ensureEachKey, "kova.map.eachKey") { entry ->
+                    appendPath(text = "<map key>") { validator(entry.key) }
+                }
             }
         }
     }
@@ -321,10 +325,12 @@ fun <K> Map<K, *>.ensureEachKey(validator: context(Validation)(K) -> Unit) =
 @IgnorableReturnValue
 context(_: Validation)
 fun <V> Map<*, V>.ensureEachValue(validator: context(Validation)(V) -> Unit) =
-    this.constrain("kova.map.eachValue") {
-        context(validation) {
-            validateOnEach(this@ensureEachValue, "kova.map.eachValue") { entry ->
-                appendPath(text = "[${entry.key}]<map value>") { validator(entry.value) }
+    apply {
+        constrain("kova.map.eachValue") {
+            context(validation) {
+                validateOnEach(this@ensureEachValue, "kova.map.eachValue") { entry ->
+                    appendPath(text = "[${entry.key}]<map value>") { validator(entry.value) }
+                }
             }
         }
     }

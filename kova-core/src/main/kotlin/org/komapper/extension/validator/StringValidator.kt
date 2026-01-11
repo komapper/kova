@@ -19,7 +19,7 @@ import kotlin.reflect.KClass
 context(_: Validation)
 fun String.ensureInt(
     message: MessageProvider = { "kova.string.int".resource },
-) = this.constrain("kova.string.int") { val _ = it.transformToInt(message) }
+) = apply { constrain("kova.string.int") { val _ = it.transformToInt(message) } }
 
 /**
  * Validates that the string can be parsed as a Long.
@@ -36,7 +36,7 @@ fun String.ensureInt(
 context(_: Validation)
 fun String.ensureLong(
     message: MessageProvider = { "kova.string.long".resource },
-) = this.constrain("kova.string.long") { val _ = it.transformToLong(message) }
+) = apply { constrain("kova.string.long") { val _ = it.transformToLong(message) } }
 
 /**
  * Validates that the string can be parsed as a Short.
@@ -53,7 +53,7 @@ fun String.ensureLong(
 context(_: Validation)
 fun String.ensureShort(
     message: MessageProvider = { "kova.string.short".resource },
-) = this.constrain("kova.string.short") { val _ = it.transformToShort(message) }
+) = apply { constrain("kova.string.short") { val _ = it.transformToShort(message) } }
 
 /**
  * Validates that the string can be parsed as a Byte.
@@ -70,7 +70,7 @@ fun String.ensureShort(
 context(_: Validation)
 fun String.ensureByte(
     message: MessageProvider = { "kova.string.byte".resource },
-) = this.constrain("kova.string.byte") { val _ = it.transformToByte(message) }
+) = apply { constrain("kova.string.byte") { val _ = it.transformToByte(message) } }
 
 /**
  * Validates that the string can be parsed as a Double.
@@ -87,7 +87,7 @@ fun String.ensureByte(
 context(_: Validation)
 fun String.ensureDouble(
     message: MessageProvider = { "kova.string.double".resource },
-) = this.constrain("kova.string.double") { val _ = it.transformToDouble(message) }
+) = apply { constrain("kova.string.double") { val _ = it.transformToDouble(message) } }
 
 /**
  * Validates that the string can be parsed as a Float.
@@ -104,7 +104,7 @@ fun String.ensureDouble(
 context(_: Validation)
 fun String.ensureFloat(
     message: MessageProvider = { "kova.string.float".resource },
-) = this.constrain("kova.string.float") { val _ = it.transformToFloat(message) }
+) = apply { constrain("kova.string.float") { val _ = it.transformToFloat(message) } }
 
 /**
  * Validates that the string can be parsed as a BigDecimal.
@@ -121,7 +121,7 @@ fun String.ensureFloat(
 context(_: Validation)
 fun String.ensureBigDecimal(
     message: MessageProvider = { "kova.string.bigDecimal".resource },
-) = this.constrain("kova.string.bigDecimal") { val _ = it.transformToBigDecimal(message) }
+) = apply { constrain("kova.string.bigDecimal") { val _ = it.transformToBigDecimal(message) } }
 
 /**
  * Validates that the string can be parsed as a BigInteger.
@@ -138,7 +138,7 @@ fun String.ensureBigDecimal(
 context(_: Validation)
 fun String.ensureBigInteger(
     message: MessageProvider = { "kova.string.bigInteger".resource },
-) = this.constrain("kova.string.bigInteger") { val _ = it.transformToBigInteger(message) }
+) = apply { constrain("kova.string.bigInteger") { val _ = it.transformToBigInteger(message) } }
 
 /**
  * Validates that the string can be parsed as a Boolean.
@@ -158,7 +158,7 @@ fun String.ensureBigInteger(
 context(_: Validation)
 fun String.ensureBoolean(
     message: MessageProvider = { "kova.string.boolean".resource },
-) = this.constrain("kova.string.boolean") { val _ = it.transformToBoolean(message) }
+) = apply { constrain("kova.string.boolean") { val _ = it.transformToBoolean(message) } }
 
 /**
  * Validates that the string is a valid name for the specified enum type.
@@ -178,7 +178,7 @@ context(_: Validation)
 fun <E : Enum<E>> String.ensureEnum(
     klass: KClass<E>,
     message: (validNames: List<String>) -> Message = { "kova.string.enum".resource(it) },
-) = this.constrain("kova.string.enum") { val _ = it.transformToEnum(klass, message) }
+) = apply { constrain("kova.string.enum") { val _ = it.transformToEnum(klass, message) } }
 
 /**
  * Validates that the string is a valid name for the specified enum type (reified version).
@@ -242,7 +242,7 @@ fun <E : Enum<E>> String.transformToEnum(
 context(_: Validation)
 fun String.ensureUppercase(
     message: MessageProvider = { "kova.string.uppercase".resource },
-) = this.constrain("kova.string.uppercase") { satisfies(it == it.uppercase(Locale.getDefault()), message) }
+) = apply { constrain("kova.string.uppercase") { satisfies(it == it.uppercase(Locale.getDefault()), message) } }
 
 /**
  * Validates that the string is in ensureLowercase.
@@ -259,7 +259,7 @@ fun String.ensureUppercase(
 context(_: Validation)
 fun String.ensureLowercase(
     message: MessageProvider = { "kova.string.lowercase".resource },
-) = this.constrain("kova.string.lowercase") { satisfies(it == it.lowercase(Locale.getDefault()), message) }
+) = apply { constrain("kova.string.lowercase") { satisfies(it == it.lowercase(Locale.getDefault()), message) } }
 
 /**
  * Validates that the string can be parsed as an Int and converts it.

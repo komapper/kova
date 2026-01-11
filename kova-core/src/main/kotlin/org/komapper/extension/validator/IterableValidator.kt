@@ -16,7 +16,7 @@ typealias CountMessageProvider = (actualCount: Int) -> Message
 @IgnorableReturnValue
 context(_: Validation)
 fun Iterable<*>.ensureNotEmpty(message: MessageProvider = { "kova.iterable.notEmpty".resource }) =
-    this.constrain("kova.iterable.notEmpty") { satisfies(it.iterator().hasNext(), message) }
+    apply { constrain("kova.iterable.notEmpty") { satisfies(it.iterator().hasNext(), message) } }
 
 /**
  * Validates that the iterable ensureContains the specified element.
@@ -54,7 +54,7 @@ context(_: Validation)
 fun <E> Iterable<E>.ensureContains(
     element: E,
     message: MessageProvider = { "kova.iterable.contains".resource(element) },
-) = this.constrain("kova.iterable.contains") { satisfies(it.contains(element), message) }
+) = apply { constrain("kova.iterable.contains") { satisfies(it.contains(element), message) } }
 
 /**
  * Validates that the iterable does not contain the specified element.
@@ -73,7 +73,7 @@ context(_: Validation)
 fun <E> Iterable<E>.ensureNotContains(
     element: E,
     message: MessageProvider = { "kova.iterable.notContains".resource(element) },
-) = this.constrain("kova.iterable.notContains") { satisfies(!it.contains(element), message) }
+) = apply { constrain("kova.iterable.notContains") { satisfies(!it.contains(element), message) } }
 
 /**
  * Validates each element of the iterable using the specified validator.
@@ -97,13 +97,15 @@ fun <E> Iterable<E>.ensureNotContains(
 @IgnorableReturnValue
 context(_: Validation)
 fun <E> Iterable<E>.ensureEach(validate: context(Validation)(E) -> Unit) =
-    this.constrain("kova.iterable.each") {
-        context(validation) {
-            withMessage({ "kova.iterable.each".resource(it) }) {
-                for ((i, element) in this@ensureEach.withIndex()) {
-                    accumulating {
-                        appendPath("[$i]<iterable element>") {
-                            validate(element)
+    apply {
+        constrain("kova.iterable.each") {
+            context(validation) {
+                withMessage({ "kova.iterable.each".resource(it) }) {
+                    for ((i, element) in this@ensureEach.withIndex()) {
+                        accumulating {
+                            appendPath("[$i]<iterable element>") {
+                                validate(element)
+                            }
                         }
                     }
                 }
