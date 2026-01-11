@@ -39,10 +39,8 @@ public data class Validation(
  * context(_: Validation)
  * fun String.alphanumeric(
  *     message: MessageProvider = { "kova.string.alphanumeric".resource }
- * ) = apply {
- *     constrain("kova.string.alphanumeric") {
- *         satisfies(it.all { c -> c.isLetterOrDigit() }, message)
- *     }
+ * ) = constrain("kova.string.alphanumeric") {
+ *     satisfies(it.all { c -> c.isLetterOrDigit() }, message)
  * }
  *
  * tryValidate { "abc123".alphanumeric() } // Success

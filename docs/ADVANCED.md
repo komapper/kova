@@ -6,13 +6,12 @@ Create custom validators using `constrain` and `satisfies`. The `constrain()` fu
 
 ```kotlin
 context(_: Validation)
-fun String.ensureUrlPath() = apply {
+fun String.ensureUrlPath() =
     constrain("custom.urlPath") {
         satisfies(it.startsWith("/") && !it.contains("..")) {
             text("Must be a valid URL path")
         }
     }
-}
 
 val result = tryValidate { "/a/../b".ensureUrlPath() }
 if (!result.isSuccess()) {
@@ -27,11 +26,9 @@ The `satisfies()` method uses a `MessageProvider` lambda for lazy message constr
 context(_: Validation)
 fun String.ensureAlphanumeric(
     message: MessageProvider = { "kova.string.alphanumeric".resource }
-) = apply {
-    constrain("kova.string.alphanumeric") {
+) = constrain("kova.string.alphanumeric") {
         satisfies(it.all { c -> c.isLetterOrDigit() }, message)
     }
-}
 ```
 
 ## Nullable Validation

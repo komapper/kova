@@ -84,10 +84,8 @@ data class Customer(...) : Validated {
 Use `constrain(id)` and `satisfies(condition, message)`:
 ```kotlin
 context(_: Validation)
-fun String.ensureAlphanumeric() = apply {
-    constrain("custom.alphanumeric") {
-        satisfies(it.all { c -> c.isLetterOrDigit() }) { "kova.string.alphanumeric".resource }
-    }
+fun String.ensureAlphanumeric() = constrain("custom.alphanumeric") {
+    satisfies(it.all { c -> c.isLetterOrDigit() }) { "kova.string.alphanumeric".resource }
 }
 ```
 

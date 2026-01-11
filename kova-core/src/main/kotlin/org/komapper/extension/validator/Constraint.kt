@@ -13,10 +13,8 @@ import kotlin.contracts.contract
  * Example:
  * ```kotlin
  * context(_: Validation)
- * fun Int.ensurePositive() = apply {
- *     constrain("kova.number.ensurePositive") {
- *         satisfies(it > 0) { "kova.number.ensurePositive".resource }
- *     }
+ * fun Int.ensurePositive() = constrain("kova.number.ensurePositive") {
+ *     satisfies(it > 0) { "kova.number.ensurePositive".resource }
  * }
  * ```
  *
@@ -38,10 +36,8 @@ public data class Constraint(
      * context(_: Validation)
      * fun Int.ensurePositive(
      *     message: MessageProvider = { "kova.number.ensurePositive".resource }
-     * ) = apply {
-     *     constrain("kova.number.ensurePositive") {
-     *         satisfies(it > 0, message)
-     *     }
+     * ) = constrain("kova.number.ensurePositive") {
+     *     satisfies(it > 0, message)
      * }
      *
      * tryValidate { 5.ensurePositive() }  // Success (message provider not evaluated)
