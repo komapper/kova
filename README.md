@@ -71,6 +71,38 @@ val value = validate { validateUser("", -5) }  // Throws ValidationException wit
 
 > **Note**: The `context(_: Validation)` declaration is required for validator functions. This uses Kotlin's [context parameters](https://kotlinlang.org/docs/whatsnew2020.html#context-parameters) feature, which must be enabled in your build (see [Setup](#setup)).
 
+### Complete Example
+
+Here's a complete, runnable example you can copy and paste:
+
+```kotlin
+import org.komapper.extension.validator.*
+
+data class User(val name: String, val email: String, val age: Int)
+
+context(_: Validation)
+fun User.validate() = schema {
+    ::name { it.ensureNotBlank().ensureLengthInRange(1..50) }
+    ::email { it.ensureNotBlank().ensureContains("@") }
+    ::age { it.ensureInRange(0..150) }
+}
+
+fun main() {
+    // Valid user
+    val validResult = tryValidate { User("Alice", "alice@example.com", 25).validate() }
+    println("Valid: ${validResult.isSuccess()}")  // Valid: true
+
+    // Invalid user - collects ALL errors
+    val invalidResult = tryValidate { User("", "invalid", -5).validate() }
+    if (invalidResult.isFailure()) {
+        invalidResult.messages.forEach { println("${it.path}: ${it.text}") }
+        // name: must not be blank
+        // email: must contain '@'
+        // age: must be in range 0..150
+    }
+}
+```
+
 ## Why Kova?
 
 There are several validation libraries for Kotlin. Here's why you might choose Kova:
