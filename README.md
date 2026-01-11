@@ -143,6 +143,10 @@ if (result.isFailure()) {
 }
 ```
 
+`tryValidate` returns a `ValidationResult` which is either `Success` or `Failure`:
+- `isSuccess()` - Returns `true` if validation passed. Enables smart cast to access `result.value`.
+- `isFailure()` - Returns `true` if validation failed. Enables smart cast to access `result.messages`.
+
 Alternatively, use `validate` to get the value directly or throw a `ValidationException` on failure:
 
 ```kotlin
