@@ -18,7 +18,7 @@ class MessageTest :
         }
 
         test("resolve arguments") {
-            with(Validation()) {
+            context(Validation()) {
                 val resource1 = "kova.charSequence.lengthAtLeast".resource(1)
                 val resource2 = "kova.charSequence.lengthAtMost".resource(5)
                 val resource3 = "kova.or".resource(listOf(resource1), resource2)
