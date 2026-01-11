@@ -199,35 +199,6 @@ inline fun <reified E : Enum<E>> String.ensureEnum(
 ) = ensureEnum(E::class, message)
 
 /**
- * Validates that the string is a valid enum name and converts it to the enum value.
- *
- * This is a type-transforming validator that outputs the enum type.
- *
- * Example:
- * ```kotlin
- * enum class Role { ADMIN, USER, GUEST }
- * tryValidate { "ADMIN".transformToEnum<Role>() } // Success: Role.ADMIN
- * tryValidate { "OTHER".transformToEnum<Role>() } // Failure
- * ```
- */
-context(_: Validation)
-inline fun <reified E : Enum<E>> String.transformToEnum(
-    noinline message: (validNames: List<String>) -> Message = { "kova.string.enum".resource(it) },
-) = transformToEnum(E::class, message)
-
-context(_: Validation)
-fun <E : Enum<E>> String.transformToEnum(
-    klass: KClass<E>,
-    message: (validNames: List<String>) -> Message = { "kova.string.enum".resource(it) },
-): E =
-    toNonNullable(
-        runCatching { java.lang.Enum.valueOf(klass.java, this) }.getOrNull(),
-        "kova.string.enum",
-    ) {
-        message(klass.java.enumConstants.map { enum -> enum.name })
-    }
-
-/**
  * Validates that the string is in ensureUppercase.
  *
  * Example:
@@ -275,7 +246,7 @@ fun String.ensureLowercase(
 context(_: Validation)
 fun String.transformToInt(
     message: MessageProvider = { "kova.string.int".resource },
-) = toNonNullable(toIntOrNull(), "kova.string.int", message)
+) = toIntOrNull().toNonNullable("kova.string.int", message)
 
 /**
  * Validates that the string can be parsed as a Long and converts it.
@@ -291,7 +262,7 @@ fun String.transformToInt(
 context(_: Validation)
 fun String.transformToLong(
     message: MessageProvider = { "kova.string.long".resource },
-) = toNonNullable(toLongOrNull(), "kova.string.long", message)
+) = toLongOrNull().toNonNullable("kova.string.long", message)
 
 /**
  * Validates that the string can be parsed as a Short and converts it.
@@ -307,7 +278,7 @@ fun String.transformToLong(
 context(_: Validation)
 fun String.transformToShort(
     message: MessageProvider = { "kova.string.short".resource },
-) = toNonNullable(toShortOrNull(), "kova.string.short", message)
+) = toShortOrNull().toNonNullable("kova.string.short", message)
 
 /**
  * Validates that the string can be parsed as a Byte and converts it.
@@ -323,7 +294,7 @@ fun String.transformToShort(
 context(_: Validation)
 fun String.transformToByte(
     message: MessageProvider = { "kova.string.byte".resource },
-) = toNonNullable(toByteOrNull(), "kova.string.byte", message)
+) = toByteOrNull().toNonNullable("kova.string.byte", message)
 
 /**
  * Validates that the string can be parsed as a Double and converts it.
@@ -339,7 +310,7 @@ fun String.transformToByte(
 context(_: Validation)
 fun String.transformToDouble(
     message: MessageProvider = { "kova.string.double".resource },
-) = toNonNullable(toDoubleOrNull(), "kova.string.double", message)
+) = toDoubleOrNull().toNonNullable("kova.string.double", message)
 
 /**
  * Validates that the string can be parsed as a Float and converts it.
@@ -355,7 +326,7 @@ fun String.transformToDouble(
 context(_: Validation)
 fun String.transformToFloat(
     message: MessageProvider = { "kova.string.float".resource },
-) = toNonNullable(toFloatOrNull(), "kova.string.float", message)
+) = toFloatOrNull().toNonNullable("kova.string.float", message)
 
 /**
  * Validates that the string can be parsed as a BigDecimal and converts it.
@@ -371,7 +342,7 @@ fun String.transformToFloat(
 context(_: Validation)
 fun String.transformToBigDecimal(
     message: MessageProvider = { "kova.string.bigDecimal".resource },
-) = toNonNullable(toBigDecimalOrNull(), "kova.string.bigDecimal", message)
+) = toBigDecimalOrNull().toNonNullable("kova.string.bigDecimal", message)
 
 /**
  * Validates that the string can be parsed as a BigInteger and converts it.
@@ -387,7 +358,7 @@ fun String.transformToBigDecimal(
 context(_: Validation)
 fun String.transformToBigInteger(
     message: MessageProvider = { "kova.string.bigInteger".resource },
-) = toNonNullable(toBigIntegerOrNull(), "kova.string.bigInteger", message)
+) = toBigIntegerOrNull().toNonNullable("kova.string.bigInteger", message)
 
 /**
  * Validates that the string can be parsed as a Boolean and converts it.
@@ -404,4 +375,32 @@ fun String.transformToBigInteger(
 context(_: Validation)
 fun String.transformToBoolean(
     message: MessageProvider = { "kova.string.boolean".resource },
-) = toNonNullable(toBooleanStrictOrNull(), "kova.string.boolean", message)
+) = toBooleanStrictOrNull().toNonNullable("kova.string.boolean", message)
+
+/**
+ * Validates that the string is a valid enum name and converts it to the enum value.
+ *
+ * This is a type-transforming validator that outputs the enum type.
+ *
+ * Example:
+ * ```kotlin
+ * enum class Role { ADMIN, USER, GUEST }
+ * tryValidate { "ADMIN".transformToEnum<Role>() } // Success: Role.ADMIN
+ * tryValidate { "OTHER".transformToEnum<Role>() } // Failure
+ * ```
+ */
+context(_: Validation)
+inline fun <reified E : Enum<E>> String.transformToEnum(
+    noinline message: (validNames: List<String>) -> Message = { "kova.string.enum".resource(it) },
+) = transformToEnum(E::class, message)
+
+context(_: Validation)
+fun <E : Enum<E>> String.transformToEnum(
+    klass: KClass<E>,
+    message: (validNames: List<String>) -> Message = { "kova.string.enum".resource(it) },
+): E {
+    val enumOrNull = runCatching { java.lang.Enum.valueOf(klass.java, this) }.getOrNull()
+    return enumOrNull.toNonNullable("kova.string.enum") {
+        message(klass.java.enumConstants.map { enum -> enum.name })
+    }
+}
