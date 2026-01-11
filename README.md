@@ -129,7 +129,9 @@ Use `tryValidate` to run validation and get a result object:
 ```kotlin
 // Valid input - returns Success
 val result = tryValidate { validateUser("Alice", 25) }
-println(result.value)  // (Alice, 25)
+if (result.isSuccess()) {
+    println(result.value)  // (Alice, 25)
+}
 
 // Invalid input - returns Failure with ALL errors, not just the first one
 val result = tryValidate { validateUser("", -5) }
