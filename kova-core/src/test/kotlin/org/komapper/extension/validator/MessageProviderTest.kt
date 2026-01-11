@@ -19,7 +19,7 @@ class MessageProviderTest :
             }
 
             test("resource") {
-                val message = with(Validation()) { "kova.nullable.notNull".resource }
+                val message = context(Validation()) { "kova.nullable.notNull".resource }
                 message.text shouldBe "must not be null"
             }
         }
