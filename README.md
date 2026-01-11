@@ -2,7 +2,7 @@
 
 [![Build](https://github.com/komapper/kova/actions/workflows/ci.yml/badge.svg)](https://github.com/komapper/kova/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Kotlin](https://img.shields.io/badge/Kotlin-2.1.0+-purple.svg)](https://kotlinlang.org)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.3.0+-purple.svg)](https://kotlinlang.org)
 
 A type-safe Kotlin validation library with composable validators and detailed error reporting.
 
@@ -727,7 +727,7 @@ Each example module contains complete, runnable code that you can use as a refer
 
 ## Requirements
 
-- Kotlin 2.1.0+ (for context parameters support)
+- Kotlin 2.3.0+ (for context parameters support)
 - Java 17+
 - Gradle 8.14+
 - Context parameters compiler flag: `-Xcontext-parameters` (see [Setup](#setup))
