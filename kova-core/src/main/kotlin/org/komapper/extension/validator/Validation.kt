@@ -51,14 +51,15 @@ public data class Validation(
  * @receiver T The value to validate
  * @param T The type of the value being validated
  * @param id Unique identifier for the constraint (used in error messages and logging)
- * @param check Constraint logic that validates the input value
+ * @param check Constraint logic that validates the input value; receives the [Validation] context
+ *              and executes within a [Constraint] receiver scope
  * @return The validated input value (allows method chaining)
  */
 @IgnorableReturnValue
 context(_: Validation)
 public inline fun <T> T.constrain(
     id: String,
-    check: Constraint.(T) -> Unit,
+    check: context(Validation) Constraint.(T) -> Unit,
 ): T = apply { accumulatingThenCheck(id, check) }
 
 @IgnorableReturnValue
@@ -66,12 +67,12 @@ public inline fun <T> T.constrain(
 context(_: Validation)
 internal inline fun <T> T.accumulatingThenCheck(
     id: String,
-    check: Constraint.(T) -> Unit,
+    check: context(Validation) Constraint.(T) -> Unit,
 ): Accumulate.Value<T> =
     accumulating {
         mapEachMessage({ logAndAddDetails(it, this@accumulatingThenCheck, id) }) {
             val v = contextOf<Validation>()
-            Constraint(v).check(this)
+            Constraint.check(this)
             log {
                 LogEntry.Satisfied(
                     constraintId = id,
@@ -830,13 +831,14 @@ public class Schema<T>(
      *
      * @param Validation (context parameter) The validation context for constraint checking and error accumulation
      * @param id Unique identifier for the constraint (used in error messages and logging)
-     * @param check Constraint logic that validates the schema object
+     * @param check Constraint logic that validates the schema object; receives the [Validation] context
+     *              and executes within a [Constraint] receiver scope
      * @return The validated schema object (allows method chaining)
      */
     @IgnorableReturnValue
     context(_: Validation)
     public fun constrain(
         id: String,
-        check: Constraint.(T) -> Unit,
+        check: context(Validation) Constraint.(T) -> Unit,
     ): T = obj.constrain(id, check)
 }

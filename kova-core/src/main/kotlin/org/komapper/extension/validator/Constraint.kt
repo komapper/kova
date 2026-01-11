@@ -1,12 +1,13 @@
 package org.komapper.extension.validator
 
+import org.komapper.extension.validator.Constraint.satisfies
 import kotlin.contracts.contract
 
 /**
  * Represents a validation constraint context that provides methods to evaluate conditions
  * and raise validation errors.
  *
- * This class is typically accessed through the `constrain()` extension function, which
+ * This object is typically accessed through the `constrain()` extension function, which
  * creates a constraint context for a given input value and constraint ID. Within this context,
  * you can use the [satisfies] method to define validation rules.
  *
@@ -18,13 +19,10 @@ import kotlin.contracts.contract
  * }
  * ```
  *
- * @param validation The validation context that accumulates errors and manages validation state
  * @see satisfies
  * @see constrain
  */
-public data class Constraint(
-    val validation: Validation,
-) {
+public object Constraint {
     /**
      * Evaluates a condition and raises a validation error if it fails.
      *
@@ -48,15 +46,17 @@ public data class Constraint(
      * tryValidate { (-1).ensurePositive() } // Failure (message provider evaluated)
      * ```
      *
+     * @param Validation (context parameter) The validation context for constraint checking and error accumulation
      * @param condition The condition to evaluate; if false, the message provider is invoked and an error is raised
      * @param message A [MessageProvider] lambda that produces the error message if the condition is false
      * @return Unit. This function returns normally only when the condition is true; otherwise, it raises an error
      */
+    context(_: Validation)
     public fun satisfies(
         condition: Boolean,
         message: MessageProvider,
     ) {
         contract { returns() implies condition }
-        if (!condition) context(validation) { raise(message()) }
+        if (!condition) raise(message())
     }
 }

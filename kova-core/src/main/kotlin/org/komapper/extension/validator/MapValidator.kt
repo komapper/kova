@@ -92,7 +92,8 @@ context(_: Validation)
 public fun <T : Map<*, *>, R> T.ensureSizeInRange(
     range: R,
     message: MessageProvider = { "kova.map.sizeInRange".resource(range) },
-): T where R : ClosedRange<Int>, R : OpenEndRange<Int> = constrain("kova.map.sizeInRange") { satisfies(it.size in range, message) }
+): T where R : ClosedRange<Int>, R : OpenEndRange<Int> =
+    constrain("kova.map.sizeInRange") { satisfies(it.size in range, message) }
 
 /**
  * Validates that the map is not empty.
@@ -290,10 +291,8 @@ context(_: Validation)
 public fun <T : Map<K, V>, K, V> T.ensureEach(validator: context(Validation)(Map.Entry<K, V>) -> Unit): T =
     apply {
         constrain("kova.map.each") {
-            context(validation) {
-                validateOnEach(this@ensureEach, "kova.map.each") { entry ->
-                    appendPath(text = "<map entry>") { validator(entry) }
-                }
+            validateOnEach(this@ensureEach, "kova.map.each") { entry ->
+                appendPath(text = "<map entry>") { validator(entry) }
             }
         }
     }
@@ -327,10 +326,8 @@ context(_: Validation)
 public fun <T : Map<K, *>, K> T.ensureEachKey(validator: context(Validation)(K) -> Unit): T =
     apply {
         constrain("kova.map.eachKey") {
-            context(validation) {
-                validateOnEach(this@ensureEachKey, "kova.map.eachKey") { entry ->
-                    appendPath(text = "<map key>") { validator(entry.key) }
-                }
+            validateOnEach(this@ensureEachKey, "kova.map.eachKey") { entry ->
+                appendPath(text = "<map key>") { validator(entry.key) }
             }
         }
     }
@@ -364,10 +361,8 @@ context(_: Validation)
 public fun <T : Map<*, V>, V> T.ensureEachValue(validator: context(Validation)(V) -> Unit): T =
     apply {
         constrain("kova.map.eachValue") {
-            context(validation) {
-                validateOnEach(this@ensureEachValue, "kova.map.eachValue") { entry ->
-                    appendPath(text = "[${entry.key}]<map value>") { validator(entry.value) }
-                }
+            validateOnEach(this@ensureEachValue, "kova.map.eachValue") { entry ->
+                appendPath(text = "[${entry.key}]<map value>") { validator(entry.value) }
             }
         }
     }
