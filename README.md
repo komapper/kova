@@ -200,6 +200,7 @@ kotlin {
   - [Combined Configuration](#combined-configuration)
 - [Advanced Topics](#advanced-topics)
 - [Examples](#examples)
+- [FAQ](#faq)
 - [Building and Testing](#building-and-testing)
 - [Requirements](#requirements)
 - [License](#license)
@@ -569,6 +570,49 @@ The project includes several example modules demonstrating different use cases:
 - **[example-konform](example-konform/)** - Side-by-side comparison of Kova and Konform validation approaches
 
 Each example module contains complete, runnable code that you can use as a reference for your own projects.
+
+## FAQ
+
+### Why does Kova use context parameters?
+
+Context parameters allow validators to access the `Validation` context without explicitly passing it as an argument. This makes the API cleaner and enables fluent chaining like `name.ensureNotBlank().ensureLengthAtMost(100)`. While context parameters are still experimental in Kotlin, they are stable enough for production use and represent the future direction of Kotlin's context-aware programming.
+
+### How is Kova different from Konform?
+
+Both libraries are type-safe and have zero dependencies, but they take different approaches:
+
+- **Kova** uses function-based validators with context parameters. Validators are regular Kotlin functions that can be composed, parameterized, and reused freely.
+- **Konform** uses a DSL-based approach where you define validation rules declaratively.
+
+Kova also supports value transformation (`transformToInt()`, etc.) and smart casting with `ensureNotNull()`, which Konform does not.
+
+### How do I display error messages in my language?
+
+Kova uses Java's `ResourceBundle` for internationalization. Create a `kova.properties` file for your locale (e.g., `kova_ja.properties` for Japanese) in your resources directory:
+
+```properties
+kova.charSequence.notBlank=空白にできません
+kova.number.positive=正の数である必要があります
+```
+
+The appropriate locale is selected automatically based on `Locale.getDefault()`.
+
+### Should I use fail-fast mode or collect all errors?
+
+- **Collect all errors** (default): Best for form validation where you want to show all problems at once
+- **Fail-fast mode**: Best for performance-critical paths or when the first error makes subsequent validation meaningless
+
+```kotlin
+// Collect all errors (default)
+tryValidate { /* ... */ }
+
+// Stop at first error
+tryValidate(ValidationConfig(failFast = true)) { /* ... */ }
+```
+
+### Can I use Kova without the context parameters compiler flag?
+
+No. The `-Xcontext-parameters` flag is required because Kova's API is built around context parameters. This is a deliberate design choice that enables the clean, fluent API.
 
 ## Building and Testing
 
