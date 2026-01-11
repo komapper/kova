@@ -67,6 +67,68 @@ val value = validate { validateUser("", -5) }  // Throws ValidationException wit
 
 > **Note**: The `context(_: Validation)` declaration is required for validator functions. This uses Kotlin's [context parameters](https://kotlinlang.org/docs/whatsnew2020.html#context-parameters) feature, which must be enabled in your build (see [Setup](#setup)).
 
+## Why Kova?
+
+There are several validation libraries for Kotlin. Here's why you might choose Kova:
+
+| Feature | Kova | Hibernate Validator | Konform |
+|---------|------|---------------------|---------|
+| **Approach** | Function-based | Annotation-based | DSL-based |
+| **Type safety** | Compile-time (context parameters) | Runtime (reflection) | Compile-time |
+| **Value transformation** | Yes (`transformToInt()`, etc.) | No | No |
+| **Smart cast support** | Yes (`ensureNotNull()`) | No | No |
+| **Dependencies** | Zero | Jakarta EE | Zero |
+| **Error collection** | All errors or fail-fast | All errors | All errors |
+
+### Function-Based Validation
+
+Unlike annotation-based approaches, Kova validators are regular Kotlin functions. This means you can:
+
+- **Compose freely**: Combine validators using standard function composition
+- **Parameterize easily**: Pass arguments to customize validation behavior
+- **Reuse across types**: Apply the same validator to different properties or classes
+- **Test simply**: Unit test validators like any other function
+
+```kotlin
+// Reusable, parameterized validator
+context(_: Validation)
+fun validateLength(value: String, min: Int, max: Int): String {
+    return value.ensureLengthAtLeast(min).ensureLengthAtMost(max)
+}
+
+// Use it anywhere
+context(_: Validation)
+fun User.validate() = schema {
+    ::name { validateLength(it, 1, 100) }
+    ::bio { validateLength(it, 0, 500) }
+}
+```
+
+### Type-Safe Transformations
+
+Kova can validate and transform values in a single operation—useful for handling raw input:
+
+```kotlin
+context(_: Validation)
+fun buildProduct(rawPrice: String, rawQuantity: String) = factory {
+    val price by bind(rawPrice) { it.transformToDouble().ensureNotNegative() }
+    val quantity by bind(rawQuantity) { it.transformToInt().ensurePositive() }
+    Product(price, quantity)
+}
+```
+
+### Smart Cast Support
+
+`ensureNotNull()` uses Kotlin contracts, enabling smart casts in subsequent code:
+
+```kotlin
+context(_: Validation)
+fun processEmail(email: String?): String {
+    email.ensureNotNull()  // Validates and enables smart cast
+    return email.ensureContains("@").ensureLengthAtMost(254)  // email is now String, not String?
+}
+```
+
 ## Features
 
 - **Type-Safe**: Leverages Kotlin's type system for compile-time safety
@@ -114,6 +176,7 @@ kotlin {
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [Why Kova?](#why-kova)
 - [Features](#features)
 - [Setup](#setup)
 - [Basic Usage](#basic-usage)
