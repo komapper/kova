@@ -18,7 +18,7 @@ context(_: Validation)
 public fun <T : Map<*, *>> T.ensureSize(
     size: Int,
     message: SizeMessageProvider = { "kova.map.size".resource(it, size) },
-): T = apply { constrain("kova.map.size") { satisfies(it.size == size) { message(it.size) } } }
+): T = constrain("kova.map.size") { satisfies(it.size == size) { message(it.size) } }
 
 /**
  * Validates that the map size is at least the specified minimum.
@@ -38,7 +38,7 @@ context(_: Validation)
 public fun <T : Map<*, *>> T.ensureSizeAtLeast(
     size: Int,
     message: SizeMessageProvider = { "kova.map.sizeAtLeast".resource(it, size) },
-): T = apply { constrain("kova.map.sizeAtLeast") { satisfies(it.size >= size) { message(it.size) } } }
+): T = constrain("kova.map.sizeAtLeast") { satisfies(it.size >= size) { message(it.size) } }
 
 /**
  * Validates that the map size does not exceed the specified maximum.
@@ -58,7 +58,7 @@ context(_: Validation)
 public fun <T : Map<*, *>> T.ensureSizeAtMost(
     size: Int,
     message: SizeMessageProvider = { "kova.map.sizeAtMost".resource(it, size) },
-): T = apply { constrain("kova.map.sizeAtMost") { satisfies(it.size <= size) { message(it.size) } } }
+): T = constrain("kova.map.sizeAtMost") { satisfies(it.size <= size) { message(it.size) } }
 
 /**
  * Validates that the map size is within the specified range.
@@ -78,10 +78,7 @@ context(_: Validation)
 public fun <T : Map<*, *>, R> T.ensureSizeInRange(
     range: R,
     message: MessageProvider = { "kova.map.sizeInRange".resource(range) },
-): T where R : ClosedRange<Int>, R : OpenEndRange<Int> =
-    apply {
-        constrain("kova.map.sizeInRange") { satisfies(it.size in range, message) }
-    }
+): T where R : ClosedRange<Int>, R : OpenEndRange<Int> = constrain("kova.map.sizeInRange") { satisfies(it.size in range, message) }
 
 /**
  * Validates that the map is not ensureEmpty.
@@ -98,7 +95,7 @@ public fun <T : Map<*, *>, R> T.ensureSizeInRange(
 @IgnorableReturnValue
 context(_: Validation)
 public fun <T : Map<*, *>> T.ensureNotEmpty(message: MessageProvider = { "kova.map.notEmpty".resource }): T =
-    apply { constrain("kova.map.notEmpty") { satisfies(it.isNotEmpty(), message) } }
+    constrain("kova.map.notEmpty") { satisfies(it.isNotEmpty(), message) }
 
 /**
  * Validates that the map ensureContains the specified key.
@@ -136,7 +133,7 @@ context(_: Validation)
 public fun <T : Map<K, *>, K> T.ensureContainsKey(
     key: K,
     message: MessageProvider = { "kova.map.containsKey".resource(key) },
-): T = apply { constrain("kova.map.containsKey") { satisfies(it.containsKey(key), message) } }
+): T = constrain("kova.map.containsKey") { satisfies(it.containsKey(key), message) }
 
 /**
  * Validates that the map does not contain the specified key.
@@ -155,7 +152,7 @@ context(_: Validation)
 public fun <T : Map<K, *>, K> T.ensureNotContainsKey(
     key: K,
     message: MessageProvider = { "kova.map.notContainsKey".resource(key) },
-): T = apply { constrain("kova.map.notContainsKey") { satisfies(!it.containsKey(key), message) } }
+): T = constrain("kova.map.notContainsKey") { satisfies(!it.containsKey(key), message) }
 
 /**
  * Validates that the map ensureContains the specified value.
@@ -193,7 +190,7 @@ context(_: Validation)
 public fun <T : Map<*, V>, V> T.ensureContainsValue(
     value: V,
     message: MessageProvider = { "kova.map.containsValue".resource(value) },
-): T = apply { constrain("kova.map.containsValue") { satisfies(it.containsValue(value), message) } }
+): T = constrain("kova.map.containsValue") { satisfies(it.containsValue(value), message) }
 
 /**
  * Validates that the map does not contain the specified value.
@@ -212,7 +209,7 @@ context(_: Validation)
 public fun <T : Map<*, V>, V> T.ensureNotContainsValue(
     value: V,
     message: MessageProvider = { "kova.map.notContainsValue".resource(value) },
-): T = apply { constrain("kova.map.notContainsValue") { satisfies(!it.containsValue(value), message) } }
+): T = constrain("kova.map.notContainsValue") { satisfies(!it.containsValue(value), message) }
 
 /**
  * Validates each entry (key-value pair) of the map using the specified validator.

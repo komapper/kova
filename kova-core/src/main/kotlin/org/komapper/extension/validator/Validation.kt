@@ -39,10 +39,8 @@ public data class Validation(
  * context(_: Validation)
  * fun String.alphanumeric(
  *     message: MessageProvider = { "kova.string.alphanumeric".resource }
- * ) = apply {
- *     constrain("kova.string.alphanumeric") {
- *         satisfies(it.all { c -> c.isLetterOrDigit() }, message)
- *     }
+ * ) = constrain("kova.string.alphanumeric") {
+ *     satisfies(it.all { c -> c.isLetterOrDigit() }, message)
  * }
  *
  * tryValidate { "abc123".alphanumeric() } // Success
@@ -57,9 +55,17 @@ context(_: Validation)
 public inline fun <T> T.constrain(
     id: String,
     check: Constraint.(T) -> Unit,
+): T = apply { accumulatingThenCheck(id, check) }
+
+@IgnorableReturnValue
+@PublishedApi
+context(_: Validation)
+internal inline fun <T> T.accumulatingThenCheck(
+    id: String,
+    check: Constraint.(T) -> Unit,
 ): Accumulate.Value<T> =
     accumulating {
-        mapEachMessage({ logAndAddDetails(it, this@constrain, id) }) {
+        mapEachMessage({ logAndAddDetails(it, this@accumulatingThenCheck, id) }) {
             val v = contextOf<Validation>()
             Constraint(v).check(this)
             log {
@@ -748,5 +754,5 @@ public class Schema<T>(
     public fun constrain(
         id: String,
         check: Constraint.(T) -> Unit,
-    ): Accumulate.Value<T> = obj.constrain(id, check)
+    ): T = obj.constrain(id, check)
 }

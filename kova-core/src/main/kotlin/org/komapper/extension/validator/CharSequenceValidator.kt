@@ -17,7 +17,7 @@ context(_: Validation)
 public fun <T : CharSequence> T.ensureLength(
     length: Int,
     message: MessageProvider = { "kova.charSequence.length".resource(length) },
-): T = apply { constrain("kova.charSequence.length") { satisfies(it.length == length, message) } }
+): T = constrain("kova.charSequence.length") { satisfies(it.length == length, message) }
 
 /**
  * Validates that the character sequence length is at least the specified minimum.
@@ -36,7 +36,7 @@ context(_: Validation)
 public fun <T : CharSequence> T.ensureLengthAtLeast(
     length: Int,
     message: MessageProvider = { "kova.charSequence.lengthAtLeast".resource(length) },
-): T = apply { constrain("kova.charSequence.lengthAtLeast") { satisfies(it.length >= length, message) } }
+): T = constrain("kova.charSequence.lengthAtLeast") { satisfies(it.length >= length, message) }
 
 /**
  * Validates that the character sequence length does not exceed the specified maximum.
@@ -55,7 +55,7 @@ context(_: Validation)
 public fun <T : CharSequence> T.ensureLengthAtMost(
     length: Int,
     message: MessageProvider = { "kova.charSequence.lengthAtMost".resource(length) },
-): T = apply { constrain("kova.charSequence.lengthAtMost") { satisfies(it.length <= length, message) } }
+): T = constrain("kova.charSequence.lengthAtMost") { satisfies(it.length <= length, message) }
 
 /**
  * Validates that the character sequence length is within the specified range.
@@ -80,7 +80,7 @@ public fun <T : CharSequence, R> T.ensureLengthInRange(
     range: R,
     message: MessageProvider = { "kova.charSequence.lengthInRange".resource(range) },
 ): T where R : ClosedRange<Int>, R : OpenEndRange<Int> =
-    apply { constrain("kova.charSequence.lengthInRange") { satisfies(it.length in range, message) } }
+    constrain("kova.charSequence.lengthInRange") { satisfies(it.length in range, message) }
 
 /**
  * Validates that the character sequence is not blank (not empty and not only whitespace).
@@ -97,7 +97,7 @@ public fun <T : CharSequence, R> T.ensureLengthInRange(
 @IgnorableReturnValue
 context(_: Validation)
 public fun <T : CharSequence> T.ensureNotBlank(message: MessageProvider = { "kova.charSequence.notBlank".resource }): T =
-    apply { constrain("kova.charSequence.notBlank") { satisfies(it.isNotBlank(), message) } }
+    constrain("kova.charSequence.notBlank") { satisfies(it.isNotBlank(), message) }
 
 /**
  * Validates that the character sequence is blank (empty or only whitespace).
@@ -114,7 +114,7 @@ public fun <T : CharSequence> T.ensureNotBlank(message: MessageProvider = { "kov
 @IgnorableReturnValue
 context(_: Validation)
 public fun <T : CharSequence> T.ensureBlank(message: MessageProvider = { "kova.charSequence.blank".resource }): T =
-    apply { constrain("kova.charSequence.blank") { satisfies(it.isBlank(), message) } }
+    constrain("kova.charSequence.blank") { satisfies(it.isBlank(), message) }
 
 /**
  * Validates that the character sequence is not empty.
@@ -131,7 +131,7 @@ public fun <T : CharSequence> T.ensureBlank(message: MessageProvider = { "kova.c
 @IgnorableReturnValue
 context(_: Validation)
 public fun <T : CharSequence> T.ensureNotEmpty(message: MessageProvider = { "kova.charSequence.notEmpty".resource }): T =
-    apply { constrain("kova.charSequence.notEmpty") { satisfies(it.isNotEmpty(), message) } }
+    constrain("kova.charSequence.notEmpty") { satisfies(it.isNotEmpty(), message) }
 
 /**
  * Validates that the character sequence is empty.
@@ -148,7 +148,7 @@ public fun <T : CharSequence> T.ensureNotEmpty(message: MessageProvider = { "kov
 @IgnorableReturnValue
 context(_: Validation)
 public fun <T : CharSequence> T.ensureEmpty(message: MessageProvider = { "kova.charSequence.empty".resource }): T =
-    apply { constrain("kova.charSequence.empty") { satisfies(it.isEmpty(), message) } }
+    constrain("kova.charSequence.empty") { satisfies(it.isEmpty(), message) }
 
 /**
  * Validates that the character sequence starts with the specified prefix.
@@ -167,7 +167,7 @@ context(_: Validation)
 public fun <T : CharSequence> T.ensureStartsWith(
     prefix: CharSequence,
     message: MessageProvider = { "kova.charSequence.startsWith".resource(prefix) },
-): T = apply { constrain("kova.charSequence.startsWith") { satisfies(it.startsWith(prefix, ignoreCase = false), message) } }
+): T = constrain("kova.charSequence.startsWith") { satisfies(it.startsWith(prefix, ignoreCase = false), message) }
 
 /**
  * Validates that the character sequence does not start with the specified prefix.
@@ -187,10 +187,8 @@ public fun <T : CharSequence> T.ensureNotStartsWith(
     prefix: CharSequence,
     message: MessageProvider = { "kova.charSequence.notStartsWith".resource(prefix) },
 ): T =
-    apply {
-        constrain("kova.charSequence.notStartsWith") {
-            satisfies(!it.startsWith(prefix, ignoreCase = false), message)
-        }
+    constrain("kova.charSequence.notStartsWith") {
+        satisfies(!it.startsWith(prefix, ignoreCase = false), message)
     }
 
 /**
@@ -210,7 +208,7 @@ context(_: Validation)
 public fun <T : CharSequence> T.ensureEndsWith(
     suffix: CharSequence,
     message: MessageProvider = { "kova.charSequence.endsWith".resource(suffix) },
-): T = apply { constrain("kova.charSequence.endsWith") { satisfies(it.endsWith(suffix, ignoreCase = false), message) } }
+): T = constrain("kova.charSequence.endsWith") { satisfies(it.endsWith(suffix, ignoreCase = false), message) }
 
 /**
  * Validates that the character sequence does not end with the specified suffix.
@@ -229,7 +227,7 @@ context(_: Validation)
 public fun <T : CharSequence> T.ensureNotEndsWith(
     suffix: CharSequence,
     message: MessageProvider = { "kova.charSequence.notEndsWith".resource(suffix) },
-): T = apply { constrain("kova.charSequence.notEndsWith") { satisfies(!it.endsWith(suffix, ignoreCase = false), message) } }
+): T = constrain("kova.charSequence.notEndsWith") { satisfies(!it.endsWith(suffix, ignoreCase = false), message) }
 
 /**
  * Validates that the character sequence ensureContains the specified substring.
@@ -248,7 +246,7 @@ context(_: Validation)
 public fun <T : CharSequence> T.ensureContains(
     infix: CharSequence,
     message: MessageProvider = { "kova.charSequence.contains".resource(infix) },
-): T = apply { constrain("kova.charSequence.contains") { satisfies(infix in it, message) } }
+): T = constrain("kova.charSequence.contains") { satisfies(infix in it, message) }
 
 /**
  * Validates that the character sequence does not contain the specified substring.
@@ -267,7 +265,7 @@ context(_: Validation)
 public fun <T : CharSequence> T.ensureNotContains(
     infix: CharSequence,
     message: MessageProvider = { "kova.charSequence.notContains".resource(infix) },
-): T = apply { constrain("kova.charSequence.notContains") { satisfies(infix !in it, message) } }
+): T = constrain("kova.charSequence.notContains") { satisfies(infix !in it, message) }
 
 /**
  * Validates that the character sequence ensureMatches the specified regular expression pattern.
@@ -286,7 +284,7 @@ context(_: Validation)
 public fun <T : CharSequence> T.ensureMatches(
     pattern: Regex,
     message: MessageProvider = { "kova.charSequence.matches".resource(pattern) },
-): T = apply { constrain("kova.charSequence.matches") { satisfies(pattern.matches(it), message) } }
+): T = constrain("kova.charSequence.matches") { satisfies(pattern.matches(it), message) }
 
 /**
  * Validates that the character sequence does not match the specified regular expression pattern.
@@ -305,4 +303,4 @@ context(_: Validation)
 public fun <T : CharSequence> T.ensureNotMatches(
     pattern: Regex,
     message: MessageProvider = { "kova.charSequence.notMatches".resource(pattern) },
-): T = apply { constrain("kova.charSequence.notMatches") { satisfies(!pattern.matches(it), message) } }
+): T = constrain("kova.charSequence.notMatches") { satisfies(!pattern.matches(it), message) }

@@ -18,7 +18,7 @@ context(_: Validation)
 public fun <S> S.ensureEquals(
     value: S,
     message: MessageProvider = { "kova.any.equals".resource(value) },
-): S = apply { constrain("kova.any.equals") { satisfies(it == value, message) } }
+): S = constrain("kova.any.equals") { satisfies(it == value, message) }
 
 /**
  * Validates that the value is not equal to the specified value.
@@ -38,7 +38,7 @@ context(_: Validation)
 public fun <S> S.ensureNotEquals(
     value: S,
     message: MessageProvider = { "kova.any.notEquals".resource(value) },
-): S = apply { constrain("kova.any.notEquals") { satisfies(it != value, message) } }
+): S = constrain("kova.any.notEquals") { satisfies(it != value, message) }
 
 /**
  * Validates that the value is contained in the specified iterable.
@@ -61,4 +61,4 @@ context(_: Validation)
 public fun <S> S.ensureIn(
     iterable: Iterable<S>,
     message: MessageProvider = { "kova.any.in".resource(iterable) },
-): S = apply { constrain("kova.any.in") { satisfies(it in iterable, message) } }
+): S = constrain("kova.any.in") { satisfies(it in iterable, message) }

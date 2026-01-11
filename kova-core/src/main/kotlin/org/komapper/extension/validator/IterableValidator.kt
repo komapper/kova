@@ -16,7 +16,7 @@ public typealias CountMessageProvider = (actualCount: Int) -> Message
 @IgnorableReturnValue
 context(_: Validation)
 public fun <T : Iterable<*>> T.ensureNotEmpty(message: MessageProvider = { "kova.iterable.notEmpty".resource }): T =
-    apply { constrain("kova.iterable.notEmpty") { satisfies(it.iterator().hasNext(), message) } }
+    constrain("kova.iterable.notEmpty") { satisfies(it.iterator().hasNext(), message) }
 
 /**
  * Validates that the iterable ensureContains the specified element.
@@ -54,7 +54,7 @@ context(_: Validation)
 public fun <T : Iterable<E>, E> T.ensureContains(
     element: E,
     message: MessageProvider = { "kova.iterable.contains".resource(element) },
-): T = apply { constrain("kova.iterable.contains") { satisfies(it.contains(element), message) } }
+): T = constrain("kova.iterable.contains") { satisfies(it.contains(element), message) }
 
 /**
  * Validates that the iterable does not contain the specified element.
@@ -73,7 +73,7 @@ context(_: Validation)
 public fun <T : Iterable<E>, E> T.ensureNotContains(
     element: E,
     message: MessageProvider = { "kova.iterable.notContains".resource(element) },
-): T = apply { constrain("kova.iterable.notContains") { satisfies(!it.contains(element), message) } }
+): T = constrain("kova.iterable.notContains") { satisfies(!it.contains(element), message) }
 
 /**
  * Validates each element of the iterable using the specified validator.

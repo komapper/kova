@@ -607,13 +607,11 @@ Messages flow through several transformation layers before being reported:
 
 ```kotlin
 context(_: Validation)
-fun String.ensureLengthAtLeast(minValue: Int) = apply {
-    constrain("kova.charSequence.lengthAtLeast") {  // Sets constraintId
-        satisfies(it.length >= minValue) {
-            "kova.charSequence.lengthAtLeast".resource(minValue)  // Creates message
-        }
-        // logAndAddDetails adds input value and path
+fun String.ensureLengthAtLeast(minValue: Int) = constrain("kova.charSequence.lengthAtLeast") {
+    satisfies(it.length >= minValue) {
+        "kova.charSequence.lengthAtLeast".resource(minValue)  // Creates message
     }
+    // logAndAddDetails adds input value and path
 }
 ```
 
