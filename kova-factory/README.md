@@ -24,9 +24,7 @@ data class User(val name: String, val age: Int)
 
 context(_: Validation)
 fun buildUser(name: String, age: String) = factory {
-    val name by bind(name) {
-        it.ensureNotBlank().ensureLengthAtLeast(1)
-    }
+    val name by bind(name) { it.ensureNotBlank().ensureLengthAtLeast(1) }
     val age by bind(age) { it.transformToInt() }
     User(name, age)
 }
