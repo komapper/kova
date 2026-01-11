@@ -155,29 +155,6 @@ fun <K> Map<K, *>.ensureNotContainsKey(
 ) = apply { constrain("kova.map.notContainsKey") { satisfies(!it.containsKey(key), message) } }
 
 /**
- * Validates that the map does not contain the specified key.
- *
- * Example:
- * ```kotlin
- * tryValidate { mapOf("bar" to 2, "baz" to 3).notContainsKey("foo") }  // Success
- * tryValidate { mapOf("foo" to 1, "bar" to 2).notContainsKey("foo") }  // Failure
- * ```
- *
- * @param key The key that must not be present in the map
- * @param message Custom error message provider
- */
-@Deprecated(
-    "Use ensureNotContainsKey for naming consistency",
-    ReplaceWith("ensureNotContainsKey(key, message)"),
-)
-@IgnorableReturnValue
-context(_: Validation)
-fun <K> Map<K, *>.notContainsKey(
-    key: K,
-    message: MessageProvider = { "kova.map.notContainsKey".resource(key) },
-) = ensureNotContainsKey(key, message)
-
-/**
  * Validates that the map ensureContains the specified value.
  *
  * Example:
