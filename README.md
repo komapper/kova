@@ -97,51 +97,55 @@ kotlin {
 
 Kova lets you write validation rules that are readable, composable, and type-safe.
 
-**Without Kova** - Validation logic often ends up scattered and repetitive:
+**Without Kova** - Validation logic often ends up scattered, and collecting all errors requires extra boilerplate:
 
 ```kotlin
-fun validateProductName(name: String): String {
-    if (name.isBlank()) {
-        throw IllegalArgumentException("Name cannot be blank")
-    }
-    if (name.length !in 1..100) {
-        throw IllegalArgumentException("Name must be 1-100 characters")
-    }
-    return name
+fun validateUser(name: String, age: Int): List<String> {
+    val errors = mutableListOf<String>()
+    if (name.isBlank()) errors.add("Name cannot be blank")
+    if (name.length > 100) errors.add("Name must be at most 100 characters")
+    if (age < 0) errors.add("Age cannot be negative")
+    if (age > 150) errors.add("Age must be at most 150")
+    if (errors.isNotEmpty()) throw IllegalArgumentException(errors.joinToString())
+    return name to age
 }
 ```
 
-**With Kova** - Chain validators fluently and get structured error handling:
+**With Kova** - Chain validators fluently, and all errors are collected automatically:
 
 ```kotlin
 import org.komapper.extension.validator.*
 
 context(_: Validation)
-fun validateProductName(name: String): String {
-    return name.ensureNotBlank().ensureLengthInRange(1..100)
+fun validateUser(name: String, age: Int): Pair<String, Int> {
+    val validName = name.ensureNotBlank().ensureLengthAtMost(100)
+    val validAge = age.ensureNotNegative().ensureAtMost(150)
+    return validName to validAge
 }
 ```
 
 Use `tryValidate` to run validation and get a result object:
 
 ```kotlin
-// Valid input - returns Success with the validated value
-val result = tryValidate { validateProductName("Wireless Mouse") }
-println(result.value)  // "Wireless Mouse"
+// Valid input - returns Success
+val result = tryValidate { validateUser("Alice", 25) }
+println(result.value)  // (Alice, 25)
 
-// Invalid input - returns Failure with detailed error messages
-val result = tryValidate { validateProductName("") }
+// Invalid input - returns Failure with ALL errors, not just the first one
+val result = tryValidate { validateUser("", -5) }
 if (!result.isSuccess()) {
     result.messages.forEach { println(it.text) }
-    // Output: "must not be blank"
+    // Output:
+    //   "must not be blank"
+    //   "must not be negative"
 }
 ```
 
 Alternatively, use `validate` to get the value directly or throw a `ValidationException` on failure:
 
 ```kotlin
-val value = validate { validateProductName("Wireless Mouse") }  // Returns "Wireless Mouse"
-val value = validate { validateProductName("") }  // Throws ValidationException
+val value = validate { validateUser("Alice", 25) }  // Returns (Alice, 25)
+val value = validate { validateUser("", -5) }  // Throws ValidationException with all errors
 ```
 
 > **Note**: The `context(_: Validation)` declaration is required for validator functions. This uses Kotlin's [context parameters](https://kotlinlang.org/docs/whatsnew2020.html#context-parameters) feature, which must be enabled in your build (see [Setup](#setup)).
