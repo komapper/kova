@@ -95,37 +95,56 @@ kotlin {
 
 ### Basic Validation
 
-Validate individual values by calling validator functions within a `tryValidate` block. Each validator is an extension function on the input type with a `Validation` context receiver.
+Kova lets you write validation rules that are readable, composable, and type-safe.
+
+**Without Kova** - Validation logic often ends up scattered and repetitive:
+
+```kotlin
+fun validateProductName(name: String): String {
+    if (name.isBlank()) {
+        throw IllegalArgumentException("Name cannot be blank")
+    }
+    if (name.length !in 1..100) {
+        throw IllegalArgumentException("Name must be 1-100 characters")
+    }
+    return name
+}
+```
+
+**With Kova** - Chain validators fluently and get structured error handling:
 
 ```kotlin
 import org.komapper.extension.validator.*
 
-// Define validator function
 context(_: Validation)
 fun validateProductName(name: String): String {
     return name.ensureNotBlank().ensureLengthInRange(1..100)
 }
+```
 
-// in this case, the return type is ValidationResult.Success<String>
+Use `tryValidate` to run validation and get a result object:
+
+```kotlin
+// Valid input - returns Success with the validated value
 val result = tryValidate { validateProductName("Wireless Mouse") }
-if (result.isSuccess()) {
-    println("Valid: ${result.value}") // Valid: Wireless Mouse
-} else {
-    result.messages.forEach { println("Invalid: $it") }
+println(result.value)  // "Wireless Mouse"
+
+// Invalid input - returns Failure with detailed error messages
+val result = tryValidate { validateProductName("") }
+if (!result.isSuccess()) {
+    result.messages.forEach { println(it.text) }
+    // Output: "must not be blank"
 }
 ```
 
 Alternatively, use `validate` to get the value directly or throw a `ValidationException` on failure:
 
 ```kotlin
-try {
-    // in this case, the return type is String
-    val value = validate { validateProductName("Wireless Mouse") }
-    println("Valid: $value") // Valid: Wireless Mouse
-} catch (e: ValidationException) {
-    e.messages.forEach { println("Invalid: $it") }
-}
+val value = validate { validateProductName("Wireless Mouse") }  // Returns "Wireless Mouse"
+val value = validate { validateProductName("") }  // Throws ValidationException
 ```
+
+> **Note**: The `context(_: Validation)` declaration is required for validator functions. This uses Kotlin's [context parameters](https://kotlinlang.org/docs/whatsnew2020.html#context-parameters) feature, which must be enabled in your build (see [Setup](#setup)).
 
 ### Multiple Validators
 
