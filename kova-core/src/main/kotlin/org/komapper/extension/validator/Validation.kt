@@ -54,4 +54,3 @@ public data class ValidationConfig(
     val clock: Clock = Clock.systemDefaultZone(),
     val logger: ((LogEntry) -> Unit)? = null,
 )
-
