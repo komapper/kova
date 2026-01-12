@@ -402,29 +402,6 @@ public inline fun <R> addPath(
 }
 
 /**
- * Binds an object reference to the current path node and executes a block.
- *
- * This updates the object reference at the current path level without changing
- * the path name or structure. It's used internally to bind validated values
- * to the path for circular reference detection. After updating the object reference,
- * the block is executed.
- *
- * @param Validation (context parameter) The validation context for constraint checking and error accumulation
- * @param R The type of the result from executing the block
- * @param obj The object to bind to the current path
- * @param block The validation logic to execute with the updated context
- * @return The result of executing the block
- */
-context(v: Validation)
-public inline fun <R> bindObject(
-    obj: Any?,
-    block: context(Validation)() -> R,
-): R {
-    val path = v.path.copy(obj = obj)
-    return block(v.copy(path = path))
-}
-
-/**
  * Adds a path segment with circular reference detection and executes a block.
  *
  * This function combines [addPath] with circular reference checking. If the object
