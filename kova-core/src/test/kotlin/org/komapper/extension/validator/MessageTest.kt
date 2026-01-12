@@ -1,6 +1,7 @@
 package org.komapper.extension.validator
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.types.shouldBeInstanceOf
 import java.text.MessageFormat
 import java.util.Locale
 
@@ -52,5 +53,86 @@ class MessageTest :
             result.messages.size shouldBe 1
             result.messages[0].toString() shouldBe
                 "Message(constraintId=kova.charSequence.lengthAtLeast, text='must be at least 5 characters', root=Person, path=name, input=abc, args=[5])"
+        }
+
+        context("withMessage - text") {
+            context(_: Validation)
+            fun validate(string: String) =
+                withMessage({ messages -> text("Invalid: consolidates messages=(${messages.joinToString { it.text }})") }) {
+                    string.ensureUppercase()
+                    string.ensureLengthAtLeast(3)
+                    Unit
+                }
+
+            test("success") {
+                val result = tryValidate { validate("ABCDE") }
+                result.shouldBeSuccess()
+            }
+            test("failure") {
+                val result = tryValidate { validate("ab") }
+                result.shouldBeFailure()
+                val message = result.messages.single()
+                message.shouldBeInstanceOf<Message.Text>()
+                message.text shouldBe "Invalid: consolidates messages=(must be uppercase, must be at least 3 characters)"
+                message.root shouldBe ""
+                message.path.fullName shouldBe ""
+            }
+        }
+
+        context("withMessage - resource") {
+            context(_: Validation)
+            fun validate(string: String) =
+                withMessage {
+                    string.ensureUppercase()
+                    string.ensureLengthAtLeast(3)
+                    Unit
+                }
+
+            test("success") {
+                val result = tryValidate { validate("ABCDE") }
+                result.shouldBeSuccess()
+            }
+            test("failure") {
+                val result = tryValidate { validate("ab") }
+                result.shouldBeFailure()
+                val message = result.messages.single()
+                message.constraintId shouldBe "kova.withMessage"
+                message.text shouldBe "invalid: [must be uppercase, must be at least 3 characters]"
+                message.root shouldBe ""
+                message.path.fullName shouldBe ""
+            }
+        }
+
+        context("withMessage - text in schema") {
+            data class User(
+                val id: Int,
+                val name: String,
+            )
+
+            context(_: Validation)
+            fun validate(user: User) =
+                user.schema {
+                    user::id { }
+                    user::name {
+                        withMessage({ text("Must be uppercase and at least 3 characters long") }) {
+                            it.ensureUppercase()
+                            it.ensureLengthAtLeast(3)
+                        }
+                    }
+                }
+
+            test("success") {
+                val result = tryValidate { validate(User(1, "ABCDE")) }
+                result.shouldBeSuccess()
+            }
+            test("failure") {
+                val result = tryValidate { validate(User(1, "ab")) }
+                result.shouldBeFailure()
+                val message = result.messages.single()
+                message.shouldBeInstanceOf<Message.Text>()
+                message.text shouldBe "Must be uppercase and at least 3 characters long"
+                message.root shouldBe "User"
+                message.path.fullName shouldBe "name"
+            }
         }
     })
