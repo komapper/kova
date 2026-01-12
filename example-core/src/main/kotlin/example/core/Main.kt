@@ -2,6 +2,7 @@ package example.core
 
 import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationResult
+import org.komapper.extension.validator.capture
 import org.komapper.extension.validator.ensureInRange
 import org.komapper.extension.validator.ensureLengthAtLeast
 import org.komapper.extension.validator.ensureNotBlank
@@ -9,6 +10,7 @@ import org.komapper.extension.validator.ensureNotNegative
 import org.komapper.extension.validator.isSuccess
 import org.komapper.extension.validator.schema
 import org.komapper.extension.validator.text
+import org.komapper.extension.validator.transformToInt
 import org.komapper.extension.validator.tryValidate
 
 /**
@@ -94,6 +96,33 @@ fun PriceRange.validate() =
         }
     }
 
+context(_: Validation)
+fun buildUser(
+    name: String,
+    age: String,
+): User {
+    val name by capture { name.ensureLengthAtLeast(1).ensureNotBlank() } // argument validator
+    val age by capture { age.transformToInt() } // argument validator
+    return User(name, age).also { it.validate() }
+}
+
+context(_: Validation)
+fun buildAge(age: String): Age {
+    val value by capture { age.transformToInt() } // argument validator
+    return Age(value)
+}
+
+context(_: Validation)
+fun buildPerson(
+    name: String,
+    age: String,
+): Person {
+    val name by capture { name.ensureLengthAtLeast(1).ensureNotBlank() } // argument validator
+    val age by capture { buildAge(age) } // nested object validator
+    return Person(name, age)
+}
+
+
 /**
  * Demonstrates basic schema validation, nested validation, and cross-property validation.
  * Uses tryValidate() which returns ValidationResult (Success or Failure).
@@ -122,6 +151,22 @@ fun main() {
 
     // Invalid price range - minPrice > maxPrice violates the relationship constraint
     tryValidate { PriceRange(30.0, 20.0).validate() }.printResult()
+
+    println("\n# Example 4: Creation")
+
+    // Valid user - name "a" and age "10" (string converted to Int)
+    tryValidate { buildUser("a", "10") }.printResult()
+
+    // Invalid user - age "130" exceeds maximum allowed value
+    tryValidate { buildUser("a", "130") }.printResult()
+
+    println("\n# Example 5: Creation(nested object)")
+
+    // Valid person
+    tryValidate { buildPerson("a", "10") }.printResult()
+
+    // Invalid person - name is blank and age cannot be converted to Int
+    tryValidate { buildPerson("   ", "abc") }.printResult()
 }
 
 /**
@@ -131,6 +176,7 @@ fun main() {
 private fun ValidationResult<*>.printResult() {
     if (isSuccess()) {
         println("## Success")
+        println(this.value)
     } else {
         println("## Failure")
         println(this.messages.joinToString("\n"))
