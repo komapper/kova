@@ -49,8 +49,8 @@ Both approaches collect all errors and provide detailed path information:
 
 ```kotlin
 val result = tryValidate { buildUser("", "invalid") }
-if (result.isFailure()) {
-    result.messages.forEach { println("${it.path}: ${it.text}") }
+if (result.isFailure()) { 
+    result.messages.forEach { println("${it.path.fullName}: ${it.text}") }
     // name: must not be blank
     // age: must be a valid integer
 }
@@ -59,6 +59,10 @@ if (result.isFailure()) {
 > **Note**: Validators require `context(_: Validation)`. This uses Kotlin's [context parameters](https://kotlinlang.org/docs/whatsnew2020.html#context-parameters), which must be enabled (see [Setup](#setup)).
 
 ## Why Kova?
+
+Most validation libraries only support **property validation** — validating an object after it's constructed. Kova goes further by also supporting **argument validation** — validating and transforming function arguments to construct typed objects from raw input.
+
+This dual approach makes Kova ideal for scenarios like form processing, API request handling, and data import where you need to validate raw strings and convert them into domain objects.
 
 | Feature                       | Kova                    | Hibernate Validator              | Konform                 |
 |-------------------------------|-------------------------|----------------------------------|-------------------------|
