@@ -1,6 +1,5 @@
 package org.komapper.extension.validator
 
-import java.time.Clock
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -36,7 +35,7 @@ import kotlin.reflect.KClass
 context(_: Validation)
 public inline fun <reified S> S.ensureFuture(
     noinline message: MessageProvider = { "kova.temporal.future".resource },
-): S where S : Temporal, S : Comparable<S> = constrain("kova.temporal.future") { satisfies(it > now(clock), message) }
+): S where S : Temporal, S : Comparable<S> = constrain("kova.temporal.future") { satisfies(it > now(), message) }
 
 /**
  * Validates that the temporal value is in the ensureFuture or present (greater than or equal to now).
@@ -61,7 +60,7 @@ public inline fun <reified S> S.ensureFuture(
 context(_: Validation)
 public inline fun <reified S> S.ensureFutureOrPresent(
     noinline message: MessageProvider = { "kova.temporal.futureOrPresent".resource },
-): S where S : Temporal, S : Comparable<S> = constrain("kova.temporal.futureOrPresent") { satisfies(it >= now(clock), message) }
+): S where S : Temporal, S : Comparable<S> = constrain("kova.temporal.futureOrPresent") { satisfies(it >= now(), message) }
 
 /**
  * Validates that the temporal value is in the ensurePast (strictly less than now).
@@ -86,7 +85,7 @@ public inline fun <reified S> S.ensureFutureOrPresent(
 context(_: Validation)
 public inline fun <reified S> S.ensurePast(
     noinline message: MessageProvider = { "kova.temporal.past".resource },
-): S where S : Temporal, S : Comparable<S> = constrain("kova.temporal.past") { satisfies(it < now(clock), message) }
+): S where S : Temporal, S : Comparable<S> = constrain("kova.temporal.past") { satisfies(it < now(), message) }
 
 /**
  * Validates that the temporal value is in the ensurePast or present (less than or equal to now).
@@ -111,26 +110,30 @@ public inline fun <reified S> S.ensurePast(
 context(_: Validation)
 public inline fun <reified S> S.ensurePastOrPresent(
     noinline message: MessageProvider = { "kova.temporal.pastOrPresent".resource },
-): S where S : Temporal, S : Comparable<S> = constrain("kova.temporal.pastOrPresent") { satisfies(it <= now(clock), message) }
+): S where S : Temporal, S : Comparable<S> = constrain("kova.temporal.pastOrPresent") { satisfies(it <= now(), message) }
 
 /**
- * Obtains the current temporal value for the specified type using the provided clock.
+ * Obtains the current temporal value for the specified type using the configured clock.
  *
  * This internal function maps from a [KClass] to the appropriate static `now(Clock)` method
  * for each supported temporal type. It is used by the temporal constraint extension functions
  * (ensureFuture, ensurePast, etc.) to obtain the current time at validation time.
  *
+ * The clock is obtained from [ValidationConfig.clock] via the [Validation] context parameter.
+ *
  * The function uses reified type parameters at the call site to ensure type safety, and
  * the unchecked cast here is safe because the when expression guarantees that the returned
- * value's type ensureMatches the requested [KClass].
+ * value's type matches the requested [KClass].
  *
+ * @param Validation (context parameter) The validation context containing the clock configuration
  * @param T The temporal type to obtain the current value for
- * @param clock The clock to use for determining the current time
  * @return The current temporal value
  * @throws IllegalStateException if the temporal type is not supported
  */
 @PublishedApi
-internal inline fun <reified T : Temporal> now(clock: Clock): T {
+context(v: Validation)
+internal inline fun <reified T : Temporal> now(): T {
+    val clock = v.config.clock
     val now =
         when (T::class) {
             Instant::class -> Instant.now(clock)

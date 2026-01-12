@@ -1,17 +1,8 @@
 # CLAUDE.md
 
-**Kova** is a type-safe Kotlin validation library with context-based validators.
+This file helps AI assistants and contributors navigate and modify the Kova codebase.
 
-## Requirements
-
-**Context Parameters**: Kova requires Kotlin's context parameters feature. Enable it in your build.gradle.kts:
-```kotlin
-kotlin {
-    compilerOptions {
-        freeCompilerArgs.add("-Xcontext-parameters")
-    }
-}
-```
+For API documentation and usage examples, see `Package.md` or README.md.
 
 ## Build Commands
 
@@ -24,60 +15,35 @@ kotlin {
 
 **Stack**: Kotlin, Gradle 8.14, Java 17, Kotest, Ktor 3.0.0+
 
+**Requires**: `-Xcontext-parameters` compiler flag (configured in build.gradle.kts)
+
 ## Modules
 
 - **kova-core**: Core validation (`org.komapper.extension.validator`)
 - **kova-ktor**: Ktor integration (`org.komapper.extension.validator.ktor.server`)
 - **example-core**, **example-ktor**, **example-exposed**, **example-hibernate-validator**, **example-konform**: Examples
 
-## Core API
+## Key Files
 
-### Entry Points
-- `tryValidate { ... }` → `ValidationResult<T>` (Success | Failure)
-- `validate { ... }` → `T` (throws ValidationException on failure)
+### kova-core
+- `Validator.kt` - `tryValidate`, `validate` entry points
+- `Validation.kt` - `Validation` context class and `ValidationConfig`
+- `ValidationResult.kt` - `ValidationResult` (Success/Failure)
+- `ValidationIor.kt` - Internal inclusive-or type, `bind`, `or`, `orElse`
+- `Schema.kt` - `schema` function and `Schema` class for object validation
+- `Constraint.kt` - `constrain`, `transformOrRaise`, `Constraint` class
+- `Accumulate.kt` - Error accumulation logic
+- `Message.kt` - `Message` types, `text()`, `resource()`
+- `Path.kt` - `Path` class, `addPath`, `addPathChecked`, `named`
+- `Log.kt` - `LogEntry`, `log()`
+- `Capture.kt` - `capture()` for object creation with property delegation
+- `ValidationException.kt` - Exception thrown by `validate`
+- Validators: `AnyValidator.kt`, `BooleanValidator.kt`, `NullableValidator.kt`, `CharSequenceValidator.kt`, `StringValidator.kt`, `NumberValidator.kt`, `ComparableValidator.kt`, `IterableValidator.kt`, `CollectionValidator.kt`, `MapValidator.kt`, `TemporalValidator.kt`
 
-### Validation Context
-All validators are extension functions on the input type with a `Validation` context receiver:
-```kotlin
-context(_: Validation)
-fun validateName(name: String): String {
-    return name.ensureNotBlank().ensureLengthInRange(1..100)
-}
+### kova-ktor
+- `SchemaValidator.kt`, `Validated.kt`
 
-tryValidate { validateName("John") }
-```
-
-### Schema Validation
-```kotlin
-context(_: Validation)
-fun User.validate() = schema {
-    ::name { it.ensureLengthInRange(1..100) }
-    ::age { it.ensureInRange(0..120) }
-}
-```
-
-### Object Creation with capture
-```kotlin
-context(_: Validation)
-fun buildUser(rawName: String, rawAge: String): User {
-    val name by capture { rawName.ensureNotBlank() }
-    val age by capture { rawAge.transformToInt() }
-    return User(name, age)
-}
-```
-
-### Ktor Integration
-```kotlin
-data class Customer(...) : Validated {
-    context(_: Validation)
-    override fun validate() = schema {
-        ::id { it.ensurePositive() }
-        ::name { it.ensureNotBlank().ensureLengthAtLeast(1) }
-    }
-}
-```
-
-## Key Implementation Details
+## Implementation Details
 
 ### Custom Validators
 Use `constrain(id)` and `satisfies(condition, message)`:
@@ -117,15 +83,3 @@ fun String.ensureAlphanumeric() = constrain("custom.alphanumeric") {
 - `failFast: Boolean` - stop at first error vs collect all
 - `clock: Clock` - for temporal validators
 - `logger: ((LogEntry) -> Unit)?` - debug logging
-
-## Key Files
-
-### kova-core
-- `Validator.kt`, `Validation.kt`, `ValidationResult.kt`, `ValidationConfig.kt`
-- `AnyValidator.kt`, `BooleanValidator.kt`, `CharSequenceValidator.kt`, `StringValidator.kt`, `NumberValidator.kt`, `ComparableValidator.kt`
-- `IterableValidator.kt`, `CollectionValidator.kt`, `MapValidator.kt`, `TemporalValidator.kt`
-- `Constraint.kt`, `Accumulate.kt`, `Message.kt`, `Path.kt`
-- `Capture.kt` - `capture()` for object creation with property delegation
-
-### kova-ktor
-- `SchemaValidator.kt`, `Validated.kt`
