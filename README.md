@@ -150,10 +150,10 @@ Kova can validate and transform values in a single operation—useful for handli
 
 ```kotlin
 context(_: Validation)
-fun buildProduct(rawPrice: String, rawQuantity: String) = factory {
-    val price by bind(rawPrice) { it.transformToDouble().ensureNotNegative() }
-    val quantity by bind(rawQuantity) { it.transformToInt().ensurePositive() }
-    Product(price, quantity)
+fun buildProduct(rawPrice: String, rawQuantity: String): Product {
+    val price by capture { rawPrice.transformToDouble().ensureNotNegative() }
+    val quantity by capture { rawQuantity.transformToInt().ensurePositive() }
+    return Product(price, quantity)
 }
 ```
 
@@ -191,9 +191,6 @@ dependencies {
     // Core validation library
     implementation("org.komapper:kova-core:0.1.0")
 
-    // Factory validation (optional)
-    implementation("org.komapper:kova-factory:0.1.0")
-
     // Ktor integration (optional)
     implementation("org.komapper:kova-ktor:0.1.0")
 }
@@ -222,7 +219,7 @@ kotlin {
 - [Basic Usage](#basic-usage)
   - [Multiple Validators](#multiple-validators)
   - [Object Validation](#object-validation)
-- [Factory Validation](#factory-validation)
+- [Object Creation with Validation](#object-creation-with-validation)
 - [Ktor Integration](#ktor-integration)
 - [Available Validators](#available-validators)
 - [Error Handling](#error-handling)
@@ -380,26 +377,106 @@ fun PriceRange.validate() = schema {
 val result = tryValidate { PriceRange(10.0, 100.0).validate() }
 ```
 
-## Factory Validation
+## Object Creation with Validation
 
-The `kova-factory` module provides a factory pattern for combining object construction and validation in a single operation. It's particularly useful when validating and transforming raw input (like form data or API requests) into typed objects.
+Use the `capture` function to validate and transform raw input while creating typed objects. This is useful for handling form data, API requests, or any scenario where you need to convert and validate external input.
+
+### Basic Usage
+
+The `capture` function uses property delegation to validate values with automatic error path naming:
 
 ```kotlin
-import org.komapper.extension.validator.factory.*
-
 data class User(val name: String, val age: Int)
 
 context(_: Validation)
-fun buildUser(name: String, age: String) = factory {
-    val name by bind(name) { it.ensureNotBlank().ensureLengthAtLeast(1) }
-    val age by bind(age) { it.transformToInt() }
-    User(name, age)
+fun buildUser(rawName: String, rawAge: String): User {
+    val name by capture { rawName.ensureNotBlank().ensureLengthAtLeast(1) }
+    val age by capture { rawAge.transformToInt().ensureInRange(0..120) }
+    return User(name, age)
 }
 
+// Valid input
 val result = tryValidate { buildUser("Alice", "25") }
+// result.value = User(name="Alice", age=25)
+
+// Invalid input - collects all errors
+val result = tryValidate { buildUser("", "invalid") }
+// Errors: name -> "must not be blank", age -> "must be a valid integer"
 ```
 
-For detailed documentation, see **[kova-factory/README.md](kova-factory/README.md)**.
+### Error Path Naming
+
+The property name automatically becomes the path segment in validation errors. This provides clear, precise error messages:
+
+```kotlin
+val result = tryValidate { buildUser("", "-5") }
+if (!result.isSuccess()) {
+    result.messages.forEach { println("${it.path.fullName}: ${it.text}") }
+    // Output:
+    //   name: must not be blank
+    //   age: must be within range 0..120
+}
+```
+
+### Nested Object Creation
+
+Compose builder functions to create complex object hierarchies. Error paths automatically include the full nesting structure:
+
+```kotlin
+data class Name(val value: String)
+data class FullName(val first: Name, val last: Name)
+data class Person(val id: Int, val fullName: FullName)
+
+context(_: Validation)
+fun buildName(value: String): Name {
+    val value by capture { value.ensureNotBlank() }
+    return Name(value)
+}
+
+context(_: Validation)
+fun buildFullName(first: String, last: String): FullName {
+    val first by capture { buildName(first) }  // Nested builder call
+    val last by capture { buildName(last) }
+    return FullName(first, last)
+}
+
+context(_: Validation)
+fun buildPerson(id: String, firstName: String, lastName: String): Person {
+    val id by capture { id.transformToInt() }
+    val fullName by capture { buildFullName(firstName, lastName) }
+    return Person(id, fullName)
+}
+
+// Nested error paths
+val result = tryValidate { buildPerson("1", "", "") }
+// Errors:
+//   fullName.first.value -> "must not be blank"
+//   fullName.last.value -> "must not be blank"
+```
+
+### Combining with Schema Validation
+
+You can combine `capture` for input transformation with `schema` for object-level validation:
+
+```kotlin
+data class User(val name: String, val age: Int)
+
+context(_: Validation)
+fun User.validate() = schema {
+    ::age { it.ensureInRange(0..120) }
+}
+
+context(_: Validation)
+fun buildUser(rawName: String, rawAge: String): User {
+    val name by capture { rawName.ensureNotBlank() }
+    val age by capture { rawAge.transformToInt() }
+    return User(name, age).also { it.validate() }  // Additional validation
+}
+
+// Invalid: age "130" passes transformToInt() but fails ensureInRange(0..120)
+val result = tryValidate { buildUser("Alice", "130") }
+// Error: age -> "must be within range 0..120"
+```
 
 ## Ktor Integration
 
@@ -600,8 +677,7 @@ To understand how Kova's error accumulation mechanism works internally, includin
 
 The project includes several example modules demonstrating different use cases:
 
-- **[example-core](example-core/)** - Basic validation examples including schema validation, cross-property validation, and nested object validation
-- **[example-factory](example-factory/)** - Factory pattern examples showing how to validate and transform raw input into typed objects
+- **[example-core](example-core/)** - Basic validation examples including schema validation, cross-property validation, nested object validation, and factory-style object construction with `capture`
 - **[example-ktor](example-ktor/)** - Ktor integration examples with request validation and error handling
 - **[example-exposed](example-exposed/)** - Database integration examples using Exposed ORM
 - **[example-hibernate-validator](example-hibernate-validator/)** - Side-by-side comparison of Kova and Hibernate Validator validation approaches

@@ -27,9 +27,8 @@ kotlin {
 ## Modules
 
 - **kova-core**: Core validation (`org.komapper.extension.validator`)
-- **kova-factory**: Factory validation with property delegation (`org.komapper.extension.validator.factory`)
 - **kova-ktor**: Ktor integration (`org.komapper.extension.validator.ktor.server`)
-- **example-core**, **example-factory**, **example-ktor**, **example-exposed**, **example-hibernate-validator**, **example-konform**: Examples
+- **example-core**, **example-ktor**, **example-exposed**, **example-hibernate-validator**, **example-konform**: Examples
 
 ## Core API
 
@@ -57,13 +56,13 @@ fun User.validate() = schema {
 }
 ```
 
-### Factory Validation
+### Object Creation with capture
 ```kotlin
 context(_: Validation)
-fun buildUser(rawName: String, rawAge: String) = factory {
-    val name by bind(rawName) { it.ensureNotBlank() }
-    val age by bind(rawAge) { it.transformToInt() }
-    User(name, age)
+fun buildUser(rawName: String, rawAge: String): User {
+    val name by capture { rawName.ensureNotBlank() }
+    val age by capture { rawAge.transformToInt() }
+    return User(name, age)
 }
 ```
 
@@ -126,9 +125,7 @@ fun String.ensureAlphanumeric() = constrain("custom.alphanumeric") {
 - `AnyValidator.kt`, `BooleanValidator.kt`, `CharSequenceValidator.kt`, `StringValidator.kt`, `NumberValidator.kt`, `ComparableValidator.kt`
 - `IterableValidator.kt`, `CollectionValidator.kt`, `MapValidator.kt`, `TemporalValidator.kt`
 - `Constraint.kt`, `Accumulate.kt`, `Message.kt`, `Path.kt`
-
-### kova-factory
-- `Factory.kt` - `factory()`, `bind()`
+- `Capture.kt` - `capture()` for object creation with property delegation
 
 ### kova-ktor
 - `SchemaValidator.kt`, `Validated.kt`
