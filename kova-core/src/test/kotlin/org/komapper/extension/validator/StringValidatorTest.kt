@@ -31,6 +31,7 @@ class StringValidatorTest :
                 val result = tryValidate { "123a".ensureInt() }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.int"
+                result.messages.single().input shouldBe "123a"
             }
         }
 
@@ -43,6 +44,7 @@ class StringValidatorTest :
                 val result = tryValidate { "123.45".ensureLong() }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.long"
+                result.messages.single().input shouldBe "123.45"
             }
         }
 
@@ -55,6 +57,7 @@ class StringValidatorTest :
                 val result = tryValidate { "99999".ensureShort() }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.short"
+                result.messages.single().input shouldBe "99999"
             }
         }
 
@@ -67,6 +70,7 @@ class StringValidatorTest :
                 val result = tryValidate { "256".ensureByte() }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.byte"
+                result.messages.single().input shouldBe "256"
             }
         }
 
@@ -79,6 +83,7 @@ class StringValidatorTest :
                 val result = tryValidate { "abc".ensureDouble() }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.double"
+                result.messages.single().input shouldBe "abc"
             }
         }
 
@@ -91,6 +96,7 @@ class StringValidatorTest :
                 val result = tryValidate { "abc".ensureFloat() }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.float"
+                result.messages.single().input shouldBe "abc"
             }
         }
 
@@ -103,6 +109,7 @@ class StringValidatorTest :
                 val result = tryValidate { "abc".ensureBigDecimal() }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.bigDecimal"
+                result.messages.single().input shouldBe "abc"
             }
         }
 
@@ -115,6 +122,7 @@ class StringValidatorTest :
                 val result = tryValidate { "123.45".ensureBigInteger() }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.bigInteger"
+                result.messages.single().input shouldBe "123.45"
             }
         }
 
@@ -136,6 +144,7 @@ class StringValidatorTest :
                 val result = tryValidate { "yes".ensureBoolean() }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.boolean"
+                result.messages.single().input shouldBe "yes"
             }
         }
 
@@ -154,6 +163,13 @@ class StringValidatorTest :
                 val result = tryValidate { "yes".transformToBoolean() }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.boolean"
+                result.messages.single().input shouldBe "yes"
+            }
+            test("failure stops subsequent validation") {
+                val result = tryValidate { "yes".transformToBoolean().ensureNull() }
+                result.shouldBeFailure()
+                result.messages.single().constraintId shouldBe "kova.string.boolean"
+                result.messages.single().input shouldBe "yes"
             }
         }
 
@@ -167,6 +183,13 @@ class StringValidatorTest :
                 val result = tryValidate { "abc".transformToLong() }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.long"
+                result.messages.single().input shouldBe "abc"
+            }
+            test("failure stops subsequent validation") {
+                val result = tryValidate { "abc".transformToLong().ensureNull() }
+                result.shouldBeFailure()
+                result.messages.single().constraintId shouldBe "kova.string.long"
+                result.messages.single().input shouldBe "abc"
             }
         }
 
@@ -180,6 +203,13 @@ class StringValidatorTest :
                 val result = tryValidate { "99999".transformToShort() }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.short"
+                result.messages.single().input shouldBe "99999"
+            }
+            test("failure stops subsequent validation") {
+                val result = tryValidate { "99999".transformToShort().ensureNull() }
+                result.shouldBeFailure()
+                result.messages.single().constraintId shouldBe "kova.string.short"
+                result.messages.single().input shouldBe "99999"
             }
         }
 
@@ -193,6 +223,13 @@ class StringValidatorTest :
                 val result = tryValidate { "256".transformToByte() }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.byte"
+                result.messages.single().input shouldBe "256"
+            }
+            test("failure stops subsequent validation") {
+                val result = tryValidate { "256".transformToByte().ensureNull() }
+                result.shouldBeFailure()
+                result.messages.single().constraintId shouldBe "kova.string.byte"
+                result.messages.single().input shouldBe "256"
             }
         }
 
@@ -206,6 +243,13 @@ class StringValidatorTest :
                 val result = tryValidate { "abc".transformToDouble() }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.double"
+                result.messages.single().input shouldBe "abc"
+            }
+            test("failure stops subsequent validation") {
+                val result = tryValidate { "abc".transformToDouble().ensureNull() }
+                result.shouldBeFailure()
+                result.messages.single().constraintId shouldBe "kova.string.double"
+                result.messages.single().input shouldBe "abc"
             }
         }
 
@@ -219,6 +263,13 @@ class StringValidatorTest :
                 val result = tryValidate { "abc".transformToFloat() }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.float"
+                result.messages.single().input shouldBe "abc"
+            }
+            test("failure stops subsequent validation") {
+                val result = tryValidate { "abc".transformToFloat().ensureNull() }
+                result.shouldBeFailure()
+                result.messages.single().constraintId shouldBe "kova.string.float"
+                result.messages.single().input shouldBe "abc"
             }
         }
 
@@ -232,6 +283,13 @@ class StringValidatorTest :
                 val result = tryValidate { "abc".transformToBigDecimal() }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.bigDecimal"
+                result.messages.single().input shouldBe "abc"
+            }
+            test("failure stops subsequent validation") {
+                val result = tryValidate { "abc".transformToBigDecimal().ensureNull() }
+                result.shouldBeFailure()
+                result.messages.single().constraintId shouldBe "kova.string.bigDecimal"
+                result.messages.single().input shouldBe "abc"
             }
         }
 
@@ -245,6 +303,13 @@ class StringValidatorTest :
                 val result = tryValidate { "123.45".transformToBigInteger() }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.bigInteger"
+                result.messages.single().input shouldBe "123.45"
+            }
+            test("failure stops subsequent validation") {
+                val result = tryValidate { "123.45".transformToBigInteger().ensureNull() }
+                result.shouldBeFailure()
+                result.messages.single().constraintId shouldBe "kova.string.bigInteger"
+                result.messages.single().input shouldBe "123.45"
             }
         }
 
@@ -293,6 +358,13 @@ class StringValidatorTest :
                 val result = tryValidate { "123a".transformToInt() }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.int"
+                result.messages.single().input shouldBe "123a"
+            }
+            test("failure stops subsequent validation") {
+                val result = tryValidate { "123a".transformToInt().ensureNull() }
+                result.shouldBeFailure()
+                result.messages.single().constraintId shouldBe "kova.string.int"
+                result.messages.single().input shouldBe "123a"
             }
         }
 
@@ -349,6 +421,15 @@ class StringValidatorTest :
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.enum"
             }
+            test("failure then other failure") {
+                val result =
+                    tryValidate {
+                        "active".ensureEnum<Status>()
+                        "".ensureNotEmpty()
+                    }
+                result.shouldBeFailure()
+                result.messages.size shouldBe 2
+            }
         }
 
         context("ensureEnum with KClass") {
@@ -374,6 +455,15 @@ class StringValidatorTest :
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.enum"
             }
+            test("failure then other failure") {
+                val result =
+                    tryValidate {
+                        "active".ensureEnum(Status::class)
+                        "".ensureNotEmpty()
+                    }
+                result.shouldBeFailure()
+                result.messages.size shouldBe 2
+            }
         }
 
         context("transformToEnum") {
@@ -396,11 +486,19 @@ class StringValidatorTest :
                 val result = tryValidate { "INVALID".transformToEnum<Status>() }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.enum"
+                result.messages.single().input shouldBe "INVALID"
             }
             test("failure with ensureLowercase") {
                 val result = tryValidate { "active".transformToEnum<Status>() }
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.enum"
+                result.messages.single().input shouldBe "active"
+            }
+            test("failure stops subsequent validation") {
+                val result = tryValidate { "active".transformToEnum<Status>().ensureNull() }
+                result.shouldBeFailure()
+                result.messages.single().constraintId shouldBe "kova.string.enum"
+                result.messages.single().input shouldBe "active"
             }
         }
     }) {
