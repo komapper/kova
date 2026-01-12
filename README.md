@@ -10,102 +10,53 @@ A type-safe Kotlin validation library with composable validators and detailed er
 
 ## Quick Start
 
-Kova lets you write validation rules that are readable, composable, and type-safe.
+Kova provides two validation approaches: **property validation** with `schema` and **argument validation** with `capture`.
 
-**Without Kova** - Validation logic often ends up scattered, and collecting all errors requires extra boilerplate:
+### Property Validation with `schema`
 
-```kotlin
-fun validateUser(name: String, age: Int): Pair<String, Int> {
-    val errors = mutableListOf<String>()
-    if (name.isBlank()) errors.add("Name cannot be blank")
-    if (name.length > 100) errors.add("Name must be at most 100 characters")
-    if (age < 0) errors.add("Age cannot be negative")
-    if (age > 150) errors.add("Age must be at most 150")
-    if (errors.isNotEmpty()) throw IllegalArgumentException(errors.joinToString())
-    return name to age
-}
-```
-
-**With Kova** - Chain validators fluently, and all errors are collected automatically:
+Validate properties of an existing object:
 
 ```kotlin
-import org.komapper.extension.validator.*
-
-context(_: Validation)
-fun validateUser(name: String, age: Int): Pair<String, Int> {
-    val validName = name.ensureNotBlank().ensureLengthAtMost(100)
-    val validAge = age.ensureNotNegative().ensureAtMost(150)
-    return validName to validAge
-}
-```
-
-Use `tryValidate` to run validation and get a result object:
-
-```kotlin
-// Valid input - returns Success
-val result = tryValidate { validateUser("Alice", 25) }
-if (result.isSuccess()) {
-    println(result.value)  // (Alice, 25)
-}
-
-// Invalid input - returns Failure with ALL errors, not just the first one
-val result = tryValidate { validateUser("", -5) }
-if (result.isFailure()) {
-    result.messages.forEach { println(it.text) }
-    // Output:
-    //   "must not be blank"
-    //   "must not be negative"
-}
-```
-
-`tryValidate` returns a `ValidationResult` which is either `Success` or `Failure`:
-- `isSuccess()` - Returns `true` if validation passed. Enables smart cast to access `result.value`.
-- `isFailure()` - Returns `true` if validation failed. Enables smart cast to access `result.messages`.
-
-Alternatively, use `validate` to get the value directly or throw a `ValidationException` on failure:
-
-```kotlin
-val value = validate { validateUser("Alice", 25) }  // Returns (Alice, 25)
-val value = validate { validateUser("", -5) }  // Throws ValidationException with all errors
-```
-
-> **Note**: The `context(_: Validation)` declaration is required for validator functions. This uses Kotlin's [context parameters](https://kotlinlang.org/docs/whatsnew2020.html#context-parameters) feature, which must be enabled in your build (see [Setup](#setup)).
-
-### Complete Example
-
-Here's a complete, runnable example you can copy and paste:
-
-```kotlin
-import org.komapper.extension.validator.*
-
-data class User(val name: String, val email: String, val age: Int)
+data class User(val name: String, val age: Int)
 
 context(_: Validation)
 fun User.validate() = schema {
-    ::name { it.ensureNotBlank().ensureLengthInRange(1..50) }
-    ::email { it.ensureNotBlank().ensureContains("@") }
+    ::name { it.ensureNotBlank().ensureLengthAtMost(100) }
     ::age { it.ensureInRange(0..150) }
 }
 
-fun main() {
-    // Valid user
-    val validResult = tryValidate { User("Alice", "alice@example.com", 25).validate() }
-    if (validResult.isSuccess()) println("Valid") else error("never happens")
-  
-    // Invalid user - collects ALL errors
-    val invalidResult = tryValidate { User("", "invalid", -5).validate() }
-    if (invalidResult.isSuccess()) {
-        error("never happens")
-    } else {
-        println("Invalid")
-        invalidResult.messages.forEach { println(it) }
-        // Message(constraintId=kova.charSequence.notBlank, text='must not be blank', root=User, path=name, input=, args=[])
-        // Message(constraintId=kova.charSequence.lengthInRange, text='must have length within range 1..50', root=User, path=name, input=, args=[1..50])
-        // Message(constraintId=kova.charSequence.contains, text='must contain "@"', root=User, path=email, input=invalid, args=[@])
-        // Message(constraintId=kova.comparable.inRange, text='must be within range 0..150', root=User, path=age, input=-5, args=[0..150])
-    }
+val result = tryValidate { User("Alice", 25).validate() }
+```
+
+### Argument Validation with `capture`
+
+Validate and transform function arguments:
+
+```kotlin
+context(_: Validation)
+fun buildUser(rawName: String, rawAge: String): User {
+    val name by capture { rawName.ensureNotBlank() }
+    val age by capture { rawAge.transformToInt().ensurePositive() }
+    return User(name, age)
+}
+
+val result = tryValidate { buildUser("Alice", "25") }
+```
+
+### Error Handling
+
+Both approaches collect all errors and provide detailed path information:
+
+```kotlin
+val result = tryValidate { buildUser("", "invalid") }
+if (result.isFailure()) {
+    result.messages.forEach { println("${it.path}: ${it.text}") }
+    // name: must not be blank
+    // age: must be a valid integer
 }
 ```
+
+> **Note**: Validators require `context(_: Validation)`. This uses Kotlin's [context parameters](https://kotlinlang.org/docs/whatsnew2020.html#context-parameters), which must be enabled (see [Setup](#setup)).
 
 ## Why Kova?
 
@@ -113,9 +64,10 @@ fun main() {
 |-------------------------------|-------------------------|----------------------------------|-------------------------|
 | **Approach**                  | Function-based          | Annotation-based                 | DSL-based               |
 | **Kotlin-native**             | Yes                     | No (`@field:` required)          | Yes                     |
+| **Property validation**       | Yes (`schema`)          | Yes                              | Yes                     |
+| **Argument validation**       | Yes (`capture`)         | No                               | No                      |
 | **Custom validators**         | Simple (functions)      | Complex (annotation + class)     | Simple (lambdas)        |
 | **Cross-property validation** | Simple (`constrain`)    | Complex (class-level constraint) | Simple                  |
-| **Object creation**           | Yes (`capture`)         | No                               | No                      |
 | **Metadata API**              | No                      | Yes                              | No                      |
 | **Validation groups**         | Via function parameters | Built-in                         | Via separate validators |
 | **Multiplatform**             | JVM                     | JVM                              | JVM, JS, Native, Wasm   |
@@ -126,8 +78,8 @@ fun main() {
 ### When to Choose Each
 
 **Choose Kova when you:**
-- Build validated objects from raw input (form data, API requests, CSV, etc.)
-- Need simple custom validators and cross-property validation
+- Need **property validation** for existing objects (`schema`)
+- Need **argument validation** to build typed objects from raw input (`capture`)
 - Prefer composing validators as regular Kotlin functions
 - Want a lightweight, zero-dependency solution for Kotlin
 
@@ -193,9 +145,9 @@ fun Car.validate() = schema {
 
 In Hibernate Validator, this requires a class-level constraint annotation with a custom `ConstraintValidator` implementation.
 
-### Object Creation with Validation
+### Argument Validation with `capture`
 
-Kova can validate raw input and construct typed objects in one step using `capture`:
+Kova can validate and transform function arguments using `capture`:
 
 ```kotlin
 data class User(val name: String, val age: Int)
@@ -280,8 +232,8 @@ kotlin {
 - [Setup](#setup)
 - [Basic Usage](#basic-usage)
   - [Multiple Validators](#multiple-validators)
-  - [Object Validation](#object-validation)
-- [Object Creation with Validation](#object-creation-with-validation)
+  - [Property Validation](#property-validation)
+- [Argument Validation](#argument-validation)
 - [Ktor Integration](#ktor-integration)
 - [Available Validators](#available-validators)
 - [Error Handling](#error-handling)
@@ -331,9 +283,9 @@ if (result.isSuccess()) {
 }
 ```
 
-### Object Validation
+### Property Validation
 
-Validate class properties using the `schema` function.
+Validate object properties using the `schema` function.
 
 ```kotlin
 data class Product(val id: Int, val name: String, val price: Double)
@@ -383,7 +335,7 @@ Reusable validators can be shared across multiple schemas, ensuring consistent v
 
 Validators can accept parameters to make them more flexible. By using default parameter values, you can provide sensible defaults while allowing customization when needed. In the example above, `validateName` uses a default `maxLength` of 100, but the `Service.title` validation overrides it to 200, demonstrating how the same validator can be adapted to different requirements.
 
-#### Nested object validation
+#### Nested property validation
 
 Validate nested objects by calling their validation functions within the parent's schema. Error messages include the full path to the failed property:
 
@@ -402,7 +354,7 @@ context(_: Validation)
 fun Customer.validate() = schema {
     ::name { it.ensureNotBlank().ensureLengthInRange(1..100) }
     ::email { it.ensureNotBlank().ensureContains("@") }
-    ::address { it.validate() }  // Nested validation
+    ::address { it.validate() }  // Nested property validation
 }
 
 val customer = Customer(
@@ -439,9 +391,9 @@ fun PriceRange.validate() = schema {
 val result = tryValidate { PriceRange(10.0, 100.0).validate() }
 ```
 
-## Object Creation with Validation
+## Argument Validation
 
-Use the `capture` function to validate and transform raw input while creating typed objects. This is useful for handling form data, API requests, or any scenario where you need to convert and validate external input.
+Use the `capture` function to validate and transform function arguments. This is useful for handling form data, API requests, or any scenario where you need to convert and validate external input.
 
 ### Basic Usage
 
@@ -516,9 +468,9 @@ val result = tryValidate { buildPerson("1", "", "") }
 //   fullName.last.value -> "must not be blank"
 ```
 
-### Combining with Schema Validation
+### Combining with Property Validation
 
-You can combine `capture` for input transformation with `schema` for object-level validation:
+You can combine argument validation (`capture`) with property validation (`schema`):
 
 ```kotlin
 data class User(val name: String, val age: Int)
@@ -532,7 +484,7 @@ context(_: Validation)
 fun buildUser(rawName: String, rawAge: String): User {
     val name by capture { rawName.ensureNotBlank() }
     val age by capture { rawAge.transformToInt() }
-    return User(name, age).also { it.validate() }  // Additional validation
+    return User(name, age).also { it.validate() }  // Property validation
 }
 
 // Invalid: age "130" passes transformToInt() but fails ensureInRange(0..120)
@@ -604,7 +556,7 @@ Each validation error is represented by a `Message` object with the following pr
 |----------------|-----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `text`         | `String`        | The formatted error message text, ready to display to users. For resource-based messages, parameters are already substituted using MessageFormat.                                                 |
 | `constraintId` | `String`        | The unique identifier for the constraint that failed (e.g., `kova.charSequence.minLength`). Useful for programmatic error handling or custom error formatting.                                    |
-| `root`         | `String`        | The root object identifier in the validation hierarchy. For schema validation, this is the simple class name (e.g., `Customer`). For simple validations, this is empty.                           |
+| `root`         | `String`        | The root object identifier in the validation hierarchy. For property validation, this is the simple class name (e.g., `Customer`). For argument validation, this is empty.                         |
 | `path`         | `Path`          | The path to the validated value in the object graph (e.g., `address.zipCode` for nested properties, `items[0]` for collection elements). Use `path.fullName` to get the string representation.    |
 | `input`        | `Any?`          | The actual input value that failed validation. Useful for debugging or creating custom error messages that include the problematic value.                                                         |
 | `args`         | `List<Any?>`    | Arguments used for MessageFormat substitution. These correspond to the `{0}`, `{1}`, etc. placeholders in resource bundle messages. Can include nested Message objects for composite validations. |
@@ -620,7 +572,7 @@ Each validation error is represented by a `Message` object with the following pr
 // Data class
 data class Product(val id: Int, val name: String, val price: Double)
 
-// Schema validation function
+// Property validation function
 context(_: Validation)
 fun Product.validate() = schema {
     ::id { it.ensureAtLeast(1) }
@@ -739,7 +691,7 @@ To understand how Kova's error accumulation mechanism works internally, includin
 
 The project includes several example modules demonstrating different use cases:
 
-- **[example-core](example-core/)** - Basic validation examples including schema validation, cross-property validation, nested object validation, and factory-style object construction with `capture`
+- **[example-core](example-core/)** - Basic validation examples including property validation with `schema`, cross-property validation, nested property validation, and argument validation with `capture`
 - **[example-ktor](example-ktor/)** - Ktor integration examples with request validation and error handling
 - **[example-exposed](example-exposed/)** - Database integration examples using Exposed ORM
 - **[example-hibernate-validator](example-hibernate-validator/)** - Side-by-side comparison of Kova and Hibernate Validator validation approaches
@@ -757,7 +709,7 @@ Context parameters allow validators to access the `Validation` context without e
 
 Both are Kotlin-native libraries with zero dependencies. The main differences:
 
-- **Kova** uses function-based validators. Validators are regular Kotlin functions that can be composed, parameterized, and reused freely. Kova also supports object creation from raw input using `capture`.
+- **Kova** uses function-based validators. Validators are regular Kotlin functions that can be composed, parameterized, and reused freely. Kova supports both property validation (`schema`) and argument validation (`capture`).
 - **Konform** uses a DSL-based approach where you define validation rules declaratively. Konform supports Kotlin Multiplatform (JS, Native, Wasm).
 
 See [Why Kova?](#why-kova) for a detailed comparison.
