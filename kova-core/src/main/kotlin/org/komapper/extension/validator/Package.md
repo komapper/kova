@@ -40,6 +40,7 @@ together naturally while automatically tracking validation paths and accumulatin
 - `Accumulate` - Error accumulation strategy (collect all vs fail-fast)
 - `Message` - Validation error messages (Text or Resource-based)
 - `text`, `resource` - Message creation functions
+- `withMessage` - Wraps validation block errors in a custom message
 
 ### Logging
 - `LogEntry` - Debug log entries (Satisfied/Violated)
