@@ -43,7 +43,7 @@ public fun <R> tryValidate(
     config: ValidationConfig = ValidationConfig(),
     validator: context(Validation)() -> R,
 ): ValidationResult<R> =
-    when (val result = context(Validation(config = config)) { or { validator() } }) {
+    when (val result = context(Validation(config = config)) { ior { validator() } }) {
         is ValidationResult -> result
         is Both -> Failure(result.messages)
     }
@@ -82,37 +82,6 @@ public fun <R> validate(
     }
 
 /**
- * Executes a validation block and returns a [ValidationIor] with accumulated errors.
- *
- * This function executes the validation logic within an accumulating context that collects
- * all validation errors (unless failFast is enabled). It returns either [Success] if no
- * errors occurred, [Failure] if validation failed with no result, or [Both] if validation
- * produced a result but also accumulated errors.
- *
- * This is typically used internally by [tryValidate] and other validation combinators.
- *
- * @param Validation (context parameter) The validation context for constraint checking and error accumulation
- * @param R The type of the validation result
- * @param block The validation logic to execute
- * @return A [ValidationIor] containing the result and/or accumulated error messages
- */
-context(v: Validation)
-public inline fun <R> or(block: context(Validation)() -> R): ValidationIor<R> {
-    val messages = mutableListOf<Message>()
-    return recoverValidation({ Failure(messages) }) {
-        val result =
-            block(
-                v.copy(acc = {
-                    messages.addAll(it)
-                    if (v.config.failFast) raise()
-                    this
-                }),
-            )
-        if (messages.isEmpty()) Success(result) else Both(result, messages)
-    }
-}
-
-/**
  * Executes a validation block and wraps any errors in a custom message.
  *
  * If the validation block fails, all accumulated error messages are transformed
@@ -140,7 +109,7 @@ public inline fun <R> withMessage(
     noinline transform: (List<Message>) -> Message = { "kova.withMessage".resource(it) },
     block: context(Validation)() -> R,
 ): R =
-    when (val result = or(block)) {
+    when (val result = ior(block)) {
         is Success -> result.value
         is FailureLike -> result.withMessage(transform(result.messages)).bind()
     }
