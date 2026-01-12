@@ -14,6 +14,7 @@ A type-safe Kotlin validation library with composable validators and detailed er
 - [Setup](#setup)
 - [Why Kova?](#why-kova)
 - [Features](#features)
+- [Running Validation](#running-validation)
 - [Property Validation](#property-validation)
 - [Argument Validation](#argument-validation)
 - [Available Validators](#available-validators)
@@ -156,6 +157,68 @@ For detailed code comparisons with Hibernate Validator and Konform, see **[docs/
 - **Internationalization**: Built-in support for localized error messages
 - **Fail-Fast Support**: Option to stop validation at the first error or collect all errors
 - **Zero Dependencies**: No external runtime dependencies, only requires Kotlin standard library
+
+## Running Validation
+
+Kova provides two functions to execute validation: `tryValidate` and `validate`.
+
+### tryValidate
+
+Returns a `ValidationResult<T>` that can be either `Success` or `Failure`. This is the recommended approach when you want to handle validation results programmatically:
+
+```kotlin
+val result = tryValidate { user.validate() }
+
+// Pattern matching with when expression
+when (result) {
+    is ValidationResult.Success -> println("Valid: ${result.value}")
+    is ValidationResult.Failure -> println("Errors: ${result.messages}")
+}
+
+// Or use isSuccess() / isFailure() with smart casting
+if (result.isSuccess()) {
+    // result is smart-cast to Success
+    println("Valid: ${result.value}")
+} else {
+    // result is smart-cast to Failure
+    println("Errors: ${result.messages}")
+}
+```
+
+### validate
+
+Returns the validated value directly, or throws `ValidationException` on failure. Use this when you prefer exception-based error handling:
+
+```kotlin
+try {
+    val user = validate { buildUser("Alice", "25") }
+    println("Created: $user")
+} catch (e: ValidationException) {
+    e.messages.forEach { println("${it.path.fullName}: ${it.text}") }
+}
+```
+
+### ValidationResult
+
+A sealed interface with two subtypes:
+
+| Type         | Properties                | Description                        |
+|--------------|---------------------------|------------------------------------|
+| `Success<T>` | `value: T`                | Contains the validated value       |
+| `Failure`    | `messages: List<Message>` | Contains validation error messages |
+
+Helper methods with Kotlin contracts for smart casting:
+
+- `isSuccess()` - Returns `true` if `Success`, enables smart cast
+- `isFailure()` - Returns `true` if `Failure`, enables smart cast
+
+### ValidationException
+
+A `RuntimeException` thrown by `validate` when validation fails:
+
+| Property   | Type            | Description                       |
+|------------|-----------------|-----------------------------------|
+| `messages` | `List<Message>` | List of validation error messages |
 
 ## Property Validation
 
