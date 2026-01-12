@@ -13,13 +13,24 @@ import org.komapper.extension.validator.text
 import org.komapper.extension.validator.transformToInt
 import org.komapper.extension.validator.tryValidate
 
-data class User(val name: String, val age: Int)
+data class User(
+    val name: String,
+    val age: Int,
+)
 
-data class Age(val value: Int)
+data class Age(
+    val value: Int,
+)
 
-data class Person(val name: String, val age: Age)
+data class Person(
+    val name: String,
+    val age: Age,
+)
 
-data class PriceRange(val minPrice: Double, val maxPrice: Double)
+data class PriceRange(
+    val minPrice: Double,
+    val maxPrice: Double,
+)
 
 /** Schema validation for User. */
 context(_: Validation)
@@ -59,7 +70,10 @@ fun PriceRange.validate() =
 
 /** Build User from raw strings with validation. */
 context(_: Validation)
-fun buildUser(name: String, age: String): User {
+fun buildUser(
+    name: String,
+    age: String,
+): User {
     val name by capture { name.ensureLengthAtLeast(1).ensureNotBlank() }
     val age by capture { age.transformToInt() }
     return User(name, age).also { it.validate() }
@@ -74,7 +88,10 @@ fun buildAge(age: String): Age {
 
 /** Build Person with nested builder call. Error path: "age.value". */
 context(_: Validation)
-fun buildPerson(name: String, age: String): Person {
+fun buildPerson(
+    name: String,
+    age: String,
+): Person {
     val name by capture { name.ensureLengthAtLeast(1).ensureNotBlank() }
     val age by capture { buildAge(age) }
     return Person(name, age)
