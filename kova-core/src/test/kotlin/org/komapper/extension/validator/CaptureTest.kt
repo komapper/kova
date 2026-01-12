@@ -1,16 +1,9 @@
-package org.komapper.extension.validator.factory
+package org.komapper.extension.validator
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
-import org.komapper.extension.validator.Validation
-import org.komapper.extension.validator.ValidationConfig
-import org.komapper.extension.validator.ValidationException
-import org.komapper.extension.validator.ensureNotBlank
-import org.komapper.extension.validator.transformToInt
-import org.komapper.extension.validator.tryValidate
-import org.komapper.extension.validator.validate
 
-class FactoryTest :
+class CaptureTest :
     FunSpec({
 
         context("factory with single argument") {
@@ -19,11 +12,10 @@ class FactoryTest :
             )
 
             context(_: Validation)
-            fun buildUser(name: String) =
-                factory {
-                    val name by bind(name) { it.ensureNotBlank() }
-                    User(name)
-                }
+            fun buildUser(name: String): User {
+                val name by capture { name.ensureNotBlank() }
+                return User(name)
+            }
 
             context("using tryValidate") {
                 test("success") {
@@ -37,7 +29,7 @@ class FactoryTest :
                     result.shouldBeFailure()
                     result.messages.size shouldBe 1
                     result.messages[0].constraintId shouldBe "kova.charSequence.notBlank"
-                    result.messages[0].root shouldBe "factory"
+                    result.messages[0].root shouldBe ""
                     result.messages[0].path.fullName shouldBe "name"
                 }
             }
@@ -77,28 +69,26 @@ class FactoryTest :
             )
 
             context(_: Validation)
-            fun buildName(value: String) =
-                factory {
-                    val value by bind(value) { it.ensureNotBlank() }
-                    Name(value)
-                }
+            fun buildName(value: String): Name {
+                val value by capture { value.ensureNotBlank() }
+                return Name(value)
+            }
 
             context(_: Validation)
             fun buildFullName(
                 first: String,
                 last: String,
-            ) = factory {
-                val first by bind { buildName(first) }
-                val last by bind { buildName(last) }
-                FullName(first, last)
+            ): FullName {
+                val first by capture { buildName(first) }
+                val last by capture { buildName(last) }
+                return FullName(first, last)
             }
 
             context(_: Validation)
-            fun buildAge(value: String) =
-                factory {
-                    val value by bind(value) { it.transformToInt() }
-                    Age(value)
-                }
+            fun buildAge(value: String): Age {
+                val value by capture { value.transformToInt() }
+                return Age(value)
+            }
 
             context(_: Validation)
             fun buildUser(
@@ -106,11 +96,11 @@ class FactoryTest :
                 firstName: String,
                 lastName: String,
                 age: String,
-            ) = factory {
-                val id by bind(id) { it.transformToInt() }
-                val fullName by bind { buildFullName(firstName, lastName) }
-                val age by bind { buildAge(age) }
-                User(id, fullName, age)
+            ): User {
+                val id by capture { id.transformToInt() }
+                val fullName by capture { buildFullName(firstName, lastName) }
+                val age by capture { buildAge(age) }
+                return User(id, fullName, age)
             }
 
             test("success") {
