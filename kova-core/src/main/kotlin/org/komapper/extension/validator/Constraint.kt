@@ -37,17 +37,17 @@ context(_: Validation)
 public inline fun <T> T.constrain(
     id: String,
     check: context(Validation) Constraint.(T) -> Unit,
-): T = apply { accumulatingThenCheck(id, check) }
+): T = apply { checkWithAccumulating(id, check) }
 
 @IgnorableReturnValue
 @PublishedApi
 context(_: Validation)
-internal inline fun <T> T.accumulatingThenCheck(
+internal inline fun <T> T.checkWithAccumulating(
     id: String,
     check: context(Validation) Constraint.(T) -> Unit,
 ): Accumulate.Value<T> =
     accumulating {
-        mapEachMessage({ logAndAddDetails(it, this@accumulatingThenCheck, id) }) {
+        mapEachMessage({ logAndAddDetails(it, this@checkWithAccumulating, id) }) {
             val v = contextOf<Validation>()
             Constraint.check(this)
             log {
@@ -89,7 +89,7 @@ internal fun <T> T.raiseIf(
     predicate: (T) -> Boolean,
 ) {
     contract { returns() implies (this@raiseIf != null) }
-    val result = accumulatingThenCheck(constraintId) { satisfies(!predicate(it), message) }
+    val result = checkWithAccumulating(constraintId) { satisfies(!predicate(it), message) }
     when (result) {
         is Accumulate.Ok -> {}
         is Accumulate.Error -> result.raise()
