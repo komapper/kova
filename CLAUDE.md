@@ -2,7 +2,7 @@
 
 This file helps AI assistants and contributors navigate and modify the Kova codebase.
 
-For API documentation and usage examples, see `Package.md` or README.md.
+For API documentation and usage examples, see [`Package.md`](kova-core/src/main/kotlin/org/komapper/extension/validator/Package.md) or README.md.
 
 ## Build Commands
 
