@@ -22,17 +22,6 @@ public data class Validation(
 )
 
 /**
- * The clock used for temporal validation constraints (ensurePast, ensureFuture, etc.).
- *
- * Delegates to [ValidationConfig.clock].
- *
- * @param Validation (context parameter) The validation context containing the clock configuration
- * @return The configured [Clock] instance
- */
-context(v: Validation)
-public val clock: Clock get() = v.config.clock
-
-/**
  * Configuration settings for validation execution.
  *
  * @property failFast If true, validation stops at the first failure instead of collecting all errors.
@@ -65,3 +54,4 @@ public data class ValidationConfig(
     val clock: Clock = Clock.systemDefaultZone(),
     val logger: ((LogEntry) -> Unit)? = null,
 )
+
