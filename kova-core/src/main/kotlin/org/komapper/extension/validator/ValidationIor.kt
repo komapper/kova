@@ -91,6 +91,41 @@ public fun <T> ValidationIor<T>.bind(): T =
     }
 
 /**
+ * Executes a validation block and returns a [ValidationIor] with accumulated errors.
+ *
+ * This function executes the validation logic within an accumulating context that collects
+ * all validation errors (unless failFast is enabled). It returns either [Success] if no
+ * errors occurred, [Failure] if validation failed with no result, or [Both] if validation
+ * produced a result but also accumulated errors.
+ *
+ * This is typically used internally by [tryValidate] and other validation combinators.
+ *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param R The type of the validation result
+ * @param block The validation logic to execute
+ * @return A [ValidationIor] containing the result and/or accumulated error messages
+ */
+context(v: Validation)
+public inline fun <R> or(block: context(Validation)() -> R): ValidationIor<R> = ior(block)
+
+@PublishedApi
+context(v: Validation)
+internal inline fun <R> ior(block: context(Validation)() -> R): ValidationIor<R> {
+    val messages = mutableListOf<Message>()
+    return recoverValidation({ Failure(messages) }) {
+        val result =
+            block(
+                v.copy(acc = {
+                    messages.addAll(it)
+                    if (v.config.failFast) raise()
+                    this
+                }),
+            )
+        if (messages.isEmpty()) Success(result) else Both(result, messages)
+    }
+}
+
+/**
  * Attempts alternative validation logic if this validation fails.
  *
  * This function implements a fallback strategy: if the current validation succeeds
@@ -114,14 +149,10 @@ public fun <T> ValidationIor<T>.bind(): T =
 context(v: Validation)
 public inline infix fun <R> ValidationIor<R>.or(block: context(Validation)() -> R): ValidationIor<R> {
     if (this !is FailureLike) return this
-    val other = eval(block)
+    val other = ior(block)
     if (other !is FailureLike) return other
     return (this as? Both ?: other).withMessage("kova.or".resource(messages, other.messages))
 }
-
-@PublishedApi
-context(v: Validation)
-internal inline fun <R> eval(block: context(Validation)() -> R): ValidationIor<R> = or(block)
 
 /**
  * Attempts alternative validation logic and extracts the result, raising errors if both fail.

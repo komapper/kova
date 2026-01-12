@@ -2,7 +2,7 @@
 
 This file helps AI assistants and contributors navigate and modify the Kova codebase.
 
-For API documentation and usage examples, see `Package.md` or README.md.
+For API documentation and usage examples, see [`Package.md`](kova-core/src/main/kotlin/org/komapper/extension/validator/Package.md) or README.md.
 
 ## Build Commands
 
@@ -26,18 +26,17 @@ For API documentation and usage examples, see `Package.md` or README.md.
 ## Key Files
 
 ### kova-core
-- `Validator.kt` - `tryValidate`, `validate` entry points
+- `Validator.kt` - `tryValidate`, `validate`, `ValidationException`
 - `Validation.kt` - `Validation` context class and `ValidationConfig`
 - `ValidationResult.kt` - `ValidationResult` (Success/Failure)
 - `ValidationIor.kt` - Internal inclusive-or type, `bind`, `or`, `orElse`
 - `Schema.kt` - `schema` function and `Schema` class for object validation
 - `Constraint.kt` - `constrain`, `transformOrRaise`, `Constraint` class
 - `Accumulate.kt` - Error accumulation logic
-- `Message.kt` - `Message` types, `text()`, `resource()`
+- `Message.kt` - `Message` types, `text()`, `resource()`, `withMessage`
 - `Path.kt` - `Path` class, `addPath`, `addPathChecked`, `named`
 - `Log.kt` - `LogEntry`, `log()`
 - `Capture.kt` - `capture()` for object creation with property delegation
-- `ValidationException.kt` - Exception thrown by `validate`
 - Validators: `AnyValidator.kt`, `BooleanValidator.kt`, `NullableValidator.kt`, `CharSequenceValidator.kt`, `StringValidator.kt`, `NumberValidator.kt`, `ComparableValidator.kt`, `IterableValidator.kt`, `CollectionValidator.kt`, `MapValidator.kt`, `TemporalValidator.kt`
 
 ### kova-ktor

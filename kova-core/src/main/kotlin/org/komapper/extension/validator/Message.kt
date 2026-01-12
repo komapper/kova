@@ -1,5 +1,7 @@
 package org.komapper.extension.validator
 
+import org.komapper.extension.validator.ValidationIor.FailureLike
+import org.komapper.extension.validator.ValidationResult.Success
 import java.text.MessageFormat
 import java.util.ResourceBundle
 
@@ -311,3 +313,61 @@ public fun String.resource(vararg args: Any?): Message.Resource = Message.Resour
  */
 context(_: Validation)
 public val String.resource: Message.Resource get() = resource()
+
+/**
+ * Executes a validation block and wraps any errors in a custom message.
+ *
+ * If the validation block fails, all accumulated error messages are transformed
+ * into a single message using the provided transform function. If validation
+ * succeeds, the result is returned directly.
+ *
+ * This is useful for providing context-specific error messages that wrap
+ * detailed validation failures.
+ *
+ * Example:
+ * ```kotlin
+ * withMessage({ messages -> "Address validation failed".resource(messages) }) {
+ *     // Validate address fields
+ * }
+ * ```
+ *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param R The type of the validation result
+ * @param transform Function to transform the list of error messages into a single message
+ * @param block The validation logic to execute
+ * @return The validated result
+ */
+context(_: Validation)
+public inline fun <R> withMessage(
+    noinline transform: (List<Message>) -> Message = { "kova.withMessage".resource(it) },
+    block: context(Validation)() -> R,
+): R =
+    when (val result = ior(block)) {
+        is Success -> result.value
+        is FailureLike -> result.withMessage(transform(result.messages)).bind()
+    }
+
+/**
+ * Executes a validation block and wraps any errors in a text message.
+ *
+ * This is a convenience overload of [withMessage] that creates a simple text
+ * message instead of requiring a transform function.
+ *
+ * Example:
+ * ```kotlin
+ * withMessage("Address validation failed") {
+ *     // Validate address fields
+ * }
+ * ```
+ *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param R The type of the validation result
+ * @param message The error message text to use if validation fails
+ * @param block The validation logic to execute
+ * @return The validated result
+ */
+context(_: Validation)
+public inline fun <R> withMessage(
+    message: String,
+    block: context(Validation)() -> R,
+): R = withMessage({ text(message) }, block)

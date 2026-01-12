@@ -54,7 +54,7 @@ context(_: Validation)
 public inline fun <T> T.ensureNullOr(
     noinline message: MessageProvider = { "kova.nullable.null".resource },
     block: context(Validation)(T & Any) -> Unit,
-): T = apply { or<Unit> { this.ensureNull(message) } orElse { block(this!!) } }
+): T = apply { ior<Unit> { this.ensureNull(message) } orElse { block(this!!) } }
 
 /**
  * Validates that the input is not null.
