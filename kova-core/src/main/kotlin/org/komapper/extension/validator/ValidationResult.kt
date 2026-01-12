@@ -1,6 +1,5 @@
 package org.komapper.extension.validator
 
-import org.komapper.extension.validator.ValidationIor.Both
 import org.komapper.extension.validator.ValidationIor.FailureLike
 import org.komapper.extension.validator.ValidationResult.Failure
 import org.komapper.extension.validator.ValidationResult.Success
