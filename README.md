@@ -109,63 +109,125 @@ fun main() {
 
 ## Why Kova?
 
-There are several validation libraries for Kotlin. Here's why you might choose Kova:
+| Feature                       | Kova                    | Hibernate Validator              | Konform                 |
+|-------------------------------|-------------------------|----------------------------------|-------------------------|
+| **Approach**                  | Function-based          | Annotation-based                 | DSL-based               |
+| **Kotlin-native**             | Yes                     | No (`@field:` required)          | Yes                     |
+| **Custom validators**         | Simple (functions)      | Complex (annotation + class)     | Simple (lambdas)        |
+| **Cross-property validation** | Simple (`constrain`)    | Complex (class-level constraint) | Simple                  |
+| **Object creation**           | Yes (`capture`)         | No                               | No                      |
+| **Metadata API**              | No                      | Yes                              | No                      |
+| **Validation groups**         | Via function parameters | Built-in                         | Via separate validators |
+| **Multiplatform**             | JVM                     | JVM                              | JVM, JS, Native, Wasm   |
+| **Dependencies**              | Zero                    | Many                             | Zero                    |
+| **Standard compliance**       | —                       | JSR-380 (Jakarta Validation)     | —                       |
+| **Framework integration**     | Ktor                    | Spring, Jakarta EE, CDI          | —                       |
 
-| Feature                  | Kova                              | Hibernate Validator  | Konform                 |
-|--------------------------|-----------------------------------|----------------------|-------------------------|
-| **Approach**             | Function-based                    | Annotation-based     | DSL-based               |
-| **Type safety**          | Compile-time (context parameters) | Runtime (reflection) | Compile-time            |
-| **Value transformation** | Yes (`transformToInt()`, etc.)    | No                   | No                      |
-| **Smart cast support**   | Yes (`ensureNotNull()`)           | No                   | No                      |
-| **Dependencies**         | Zero                              | Many                 | Zero                    |
-| **Error collection**     | All errors or fail-fast           | All errors or fail-fast | All errors or fail-fast |
+### When to Choose Each
+
+**Choose Kova when you:**
+- Build validated objects from raw input (form data, API requests, CSV, etc.)
+- Need simple custom validators and cross-property validation
+- Prefer composing validators as regular Kotlin functions
+- Want a lightweight, zero-dependency solution for Kotlin
+
+**Choose Hibernate Validator when you:**
+- Need JSR-380 (Jakarta Validation) standard compliance
+- Use Spring Boot, Jakarta EE, or other integrated frameworks
+- Want to introspect constraints via Metadata API (form generation, documentation)
+- Need validation groups for context-dependent rules
+
+**Choose Konform when you:**
+- Need Kotlin Multiplatform support (JS, Native, Wasm)
+- Prefer DSL-style validation definitions
+
+### Kotlin-Native Design
+
+Kova is designed specifically for Kotlin. Hibernate Validator, being a Java library, requires annotation use-site targets:
+
+```kotlin
+// Hibernate Validator - @field: prefix required in Kotlin
+class User(
+    @field:NotBlank
+    @field:Size(max = 100)
+    val name: String,
+)
+
+// Kova - natural Kotlin syntax
+context(_: Validation)
+fun User.validate() = schema {
+    ::name { it.ensureNotBlank().ensureLengthAtMost(100) }
+}
+```
+
+### Simple Custom Validators
+
+In Hibernate Validator, creating a custom constraint requires an annotation class plus a validator class. In Kova, it's just a function:
+
+```kotlin
+// Kova - custom validator is just a function
+context(_: Validation)
+fun String.ensureNoTabCharacters() = constrain("noTabs") {
+    satisfies(!it.contains("\t")) { text("must not contain tabs") }
+}
+```
+
+### Simple Cross-Property Validation
+
+Comparing multiple properties is straightforward in Kova:
+
+```kotlin
+context(_: Validation)
+fun Car.validate() = schema {
+    ::seatCount { it.ensurePositive() }
+    ::passengers { it.ensureNotNull() }
+
+    // Cross-property validation - just access both properties
+    constrain("passengerCount") {
+        satisfies(it.passengers.size <= it.seatCount) {
+            text("Passengers cannot exceed seat count")
+        }
+    }
+}
+```
+
+In Hibernate Validator, this requires a class-level constraint annotation with a custom `ConstraintValidator` implementation.
+
+### Object Creation with Validation
+
+Kova can validate raw input and construct typed objects in one step using `capture`:
+
+```kotlin
+data class User(val name: String, val age: Int)
+
+context(_: Validation)
+fun buildUser(rawName: String, rawAge: String): User {
+    val name by capture { rawName.ensureNotBlank() }
+    val age by capture { rawAge.transformToInt().ensurePositive() }
+    return User(name, age)
+}
+
+// Collects ALL errors across both fields
+val result = tryValidate { buildUser("", "invalid") }
+// Errors: name -> "must not be blank", age -> "must be a valid integer"
+```
 
 ### Function-Based Validation
 
-Unlike annotation-based approaches, Kova validators are regular Kotlin functions. This means you can:
-
-- **Compose freely**: Combine validators using standard function composition
-- **Parameterize easily**: Pass arguments to customize validation behavior
-- **Reuse across types**: Apply the same validator to different properties or classes
-- **Test simply**: Unit test validators like any other function
+Validators are regular Kotlin functions, enabling natural composition:
 
 ```kotlin
 // Reusable, parameterized validator
 context(_: Validation)
-fun validateLength(value: String, min: Int, max: Int): String {
-    return value.ensureLengthAtLeast(min).ensureLengthAtMost(max)
+fun validatePrice(value: Double, max: Double = 10000.0): Double {
+    return value.ensurePositive().ensureAtMost(max)
 }
 
-// Use it anywhere
+// Compose validators freely
 context(_: Validation)
-fun User.validate() = schema {
-    ::name { validateLength(it, 1, 100) }
-    ::bio { validateLength(it, 0, 500) }
-}
-```
-
-### Type-Safe Transformations
-
-Kova can validate and transform values in a single operation—useful for handling raw input:
-
-```kotlin
-context(_: Validation)
-fun buildProduct(rawPrice: String, rawQuantity: String): Product {
-    val price by capture { rawPrice.transformToDouble().ensureNotNegative() }
-    val quantity by capture { rawQuantity.transformToInt().ensurePositive() }
-    return Product(price, quantity)
-}
-```
-
-### Smart Cast Support
-
-`ensureNotNull()` uses Kotlin contracts, enabling smart casts in subsequent code:
-
-```kotlin
-context(_: Validation)
-fun processEmail(email: String?): String {
-    email.ensureNotNull()  // Validates and enables smart cast
-    return email.ensureContains("@").ensureLengthAtMost(254)  // email is now String, not String?
+fun Product.validate() = schema {
+    ::price { validatePrice(it) }
+    ::discountedPrice { validatePrice(it, max = price) }  // Cross-field reference
 }
 ```
 
@@ -693,12 +755,12 @@ Context parameters allow validators to access the `Validation` context without e
 
 ### How is Kova different from Konform?
 
-Both libraries are type-safe and have zero dependencies, but they take different approaches:
+Both are Kotlin-native libraries with zero dependencies. The main differences:
 
-- **Kova** uses function-based validators with context parameters. Validators are regular Kotlin functions that can be composed, parameterized, and reused freely.
-- **Konform** uses a DSL-based approach where you define validation rules declaratively.
+- **Kova** uses function-based validators. Validators are regular Kotlin functions that can be composed, parameterized, and reused freely. Kova also supports object creation from raw input using `capture`.
+- **Konform** uses a DSL-based approach where you define validation rules declaratively. Konform supports Kotlin Multiplatform (JS, Native, Wasm).
 
-Kova also supports value transformation (`transformToInt()`, etc.) and smart casting with `ensureNotNull()`, which Konform does not.
+See [Why Kova?](#why-kova) for a detailed comparison.
 
 ### How do I display error messages in my language?
 
