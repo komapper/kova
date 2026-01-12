@@ -10,7 +10,7 @@ import org.komapper.extension.validator.transformToInt
 import org.komapper.extension.validator.tryValidate
 import org.komapper.extension.validator.validate
 
-class FactoryTest :
+class CaptureTest :
     FunSpec({
 
         context("factory with single argument") {
@@ -20,7 +20,7 @@ class FactoryTest :
 
             context(_: Validation)
             fun buildUser(name: String): User {
-                val name by bind { name.ensureNotBlank() }
+                val name by capture { name.ensureNotBlank() }
                 return User(name)
             }
 
@@ -77,7 +77,7 @@ class FactoryTest :
 
             context(_: Validation)
             fun buildName(value: String): Name {
-                val value by bind { value.ensureNotBlank() }
+                val value by capture { value.ensureNotBlank() }
                 return Name(value)
             }
 
@@ -86,14 +86,14 @@ class FactoryTest :
                 first: String,
                 last: String,
             ): FullName {
-                val first by bind { buildName(first) }
-                val last by bind { buildName(last) }
+                val first by capture { buildName(first) }
+                val last by capture { buildName(last) }
                 return FullName(first, last)
             }
 
             context(_: Validation)
             fun buildAge(value: String): Age {
-                val value by bind { value.transformToInt() }
+                val value by capture { value.transformToInt() }
                 return Age(value)
             }
 
@@ -104,9 +104,9 @@ class FactoryTest :
                 lastName: String,
                 age: String,
             ): User {
-                val id by bind { id.transformToInt() }
-                val fullName by bind { buildFullName(firstName, lastName) }
-                val age by bind { buildAge(age) }
+                val id by capture { id.transformToInt() }
+                val fullName by capture { buildFullName(firstName, lastName) }
+                val age by capture { buildAge(age) }
                 return User(id, fullName, age)
             }
 
