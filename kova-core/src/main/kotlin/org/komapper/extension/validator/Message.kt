@@ -196,3 +196,118 @@ internal fun getPattern(key: String): String {
     val bundle = ResourceBundle.getBundle(RESOURCE_BUNDLE_BASE_NAME)
     return bundle.getString(key)
 }
+
+/**
+ * Creates a text-based validation message with plain text content.
+ *
+ * Use this method to create ad-hoc validation messages instead of using i18n resource keys.
+ * When a validation error occurs, the enclosing `constrain()` call will automatically populate
+ * the constraint ID and input value in the message.
+ *
+ * Example usage in a constraint:
+ * ```kotlin
+ * tryValidate {
+ *     10.constrain("ensurePositive") {
+ *         satisfies(it > 0) { text("Value must be ensurePositive") }
+ *     }
+ * }
+ * ```
+ *
+ * Example with schema validation:
+ * ```kotlin
+ * data class Period(val startDate: LocalDate, val endDate: LocalDate)
+ *
+ * context(_: Validation)
+ * fun validate(period: Period) = period.schema {
+ *     period::startDate { it.ensurePastOrPresent() }
+ *     period::endDate { it.ensureFutureOrPresent() }
+ *     period.constrain("period") {
+ *         satisfies(it.startDate <= it.endDate) {
+ *             text("Start date must be before or equal to end date")
+ *         }
+ *     }
+ * }
+ * ```
+ *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param content The text content of the error message
+ * @return A [Message.Text] instance with the given content
+ */
+context(v: Validation)
+public fun text(content: String): Message = Message.Text("", v.root, v.path, content, null)
+
+/**
+ * Creates a resource-based validation message for internationalization.
+ *
+ * Use this method to create internationalized messages that load text from `kova.properties`.
+ * The message key is the receiver string (typically a constraint ID like "kova.number.min").
+ * Arguments are provided as a vararg and used for MessageFormat substitution
+ * (i.e., the first argument becomes {0}, second becomes {1}, etc.).
+ *
+ * When a validation error occurs, the enclosing `constrain()` call will automatically populate
+ * the constraint ID and input value in the message.
+ *
+ * Example usage in a constraint:
+ * ```kotlin
+ * context(_: Validation)
+ * fun Int.min(
+ *     value: Int,
+ *     message: MessageProvider = { "kova.number.min".resource(value) }
+ * ) = apply {
+ *     constrain("kova.number.min") {
+ *         satisfies(it >= value, message)
+ *     }
+ * }
+ *
+ * tryValidate { 5.min(0) } // Success
+ * ```
+ *
+ * The corresponding entry in `kova.properties` would be:
+ * ```
+ * kova.number.min=The value must be greater than or equal to {0}.
+ * ```
+ *
+ * For multiple arguments:
+ * ```kotlin
+ * context(_: Validation)
+ * fun Int.range(
+ *     min: Int,
+ *     max: Int,
+ *     message: MessageProvider = { "kova.number.range".resource(min, max) }
+ * ) = apply {
+ *     constrain("kova.number.range") {
+ *         satisfies(it in min..max, message)
+ *     }
+ * }
+ * ```
+ *
+ * With corresponding resource:
+ * ```
+ * kova.number.range=The value must be between {0} and {1}.
+ * ```
+ *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver String The resource key (typically a constraint ID like "kova.number.min")
+ * @param args Arguments to be interpolated into the message template using MessageFormat
+ * @return A [Message.Resource] instance configured with the provided arguments
+ */
+context(v: Validation)
+public fun String.resource(vararg args: Any?): Message.Resource = Message.Resource(this, this, v.root, v.path, null, args = args.toList())
+
+/**
+ * Creates a resource-based validation message without arguments.
+ *
+ * This is a convenience property that calls [resource] with no arguments.
+ * Use this for simple messages that don't require parameter interpolation.
+ *
+ * Example:
+ * ```kotlin
+ * satisfies(condition) { "kova.string.notBlank".resource }
+ * ```
+ *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver String The resource key (typically a constraint ID like "kova.string.notBlank")
+ * @return A [Message.Resource] instance with no interpolation arguments
+ */
+context(_: Validation)
+public val String.resource: Message.Resource get() = resource()
