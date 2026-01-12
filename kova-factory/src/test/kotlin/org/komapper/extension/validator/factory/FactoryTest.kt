@@ -19,11 +19,10 @@ class FactoryTest :
             )
 
             context(_: Validation)
-            fun buildUser(name: String) =
-                factory {
-                    val name by bind(name) { it.ensureNotBlank() }
-                    User(name)
-                }
+            fun buildUser(name: String): User {
+                val name by bind { name.ensureNotBlank() }
+                return User(name)
+            }
 
             context("using tryValidate") {
                 test("success") {
@@ -37,7 +36,7 @@ class FactoryTest :
                     result.shouldBeFailure()
                     result.messages.size shouldBe 1
                     result.messages[0].constraintId shouldBe "kova.charSequence.notBlank"
-                    result.messages[0].root shouldBe "factory"
+                    result.messages[0].root shouldBe ""
                     result.messages[0].path.fullName shouldBe "name"
                 }
             }
@@ -77,28 +76,26 @@ class FactoryTest :
             )
 
             context(_: Validation)
-            fun buildName(value: String) =
-                factory {
-                    val value by bind(value) { it.ensureNotBlank() }
-                    Name(value)
-                }
+            fun buildName(value: String): Name {
+                val value by bind { value.ensureNotBlank() }
+                return Name(value)
+            }
 
             context(_: Validation)
             fun buildFullName(
                 first: String,
                 last: String,
-            ) = factory {
+            ): FullName {
                 val first by bind { buildName(first) }
                 val last by bind { buildName(last) }
-                FullName(first, last)
+                return FullName(first, last)
             }
 
             context(_: Validation)
-            fun buildAge(value: String) =
-                factory {
-                    val value by bind(value) { it.transformToInt() }
-                    Age(value)
-                }
+            fun buildAge(value: String): Age {
+                val value by bind { value.transformToInt() }
+                return Age(value)
+            }
 
             context(_: Validation)
             fun buildUser(
@@ -106,11 +103,11 @@ class FactoryTest :
                 firstName: String,
                 lastName: String,
                 age: String,
-            ) = factory {
-                val id by bind(id) { it.transformToInt() }
+            ): User {
+                val id by bind { id.transformToInt() }
                 val fullName by bind { buildFullName(firstName, lastName) }
                 val age by bind { buildAge(age) }
-                User(id, fullName, age)
+                return User(id, fullName, age)
             }
 
             test("success") {

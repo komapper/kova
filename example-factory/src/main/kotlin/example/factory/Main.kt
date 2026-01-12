@@ -6,7 +6,6 @@ import org.komapper.extension.validator.ensureInRange
 import org.komapper.extension.validator.ensureLengthAtLeast
 import org.komapper.extension.validator.ensureNotBlank
 import org.komapper.extension.validator.factory.bind
-import org.komapper.extension.validator.factory.factory
 import org.komapper.extension.validator.isSuccess
 import org.komapper.extension.validator.schema
 import org.komapper.extension.validator.transformToInt
@@ -58,21 +57,20 @@ context(_: Validation)
 fun buildUser(
     name: String,
     age: String,
-) = factory {
-    val name by bind(name) { it.ensureLengthAtLeast(1).ensureNotBlank() } // argument validator
-    val age by bind(age) { it.transformToInt() } // argument validator
-    User(name, age)
-}.also { it.validate() } // object validator
+): User {
+    val name by bind { name.ensureLengthAtLeast(1).ensureNotBlank() } // argument validator
+    val age by bind { age.transformToInt() } // argument validator
+    return User(name, age).also { it.validate() }
+}
 
 /**
  * Factory function to build an Age from a string.
  */
 context(_: Validation)
-fun buildAge(age: String) =
-    factory {
-        val value by bind(age) { it.transformToInt() } // argument validator
-        Age(value)
-    }
+fun buildAge(age: String): Age {
+    val value by bind { age.transformToInt() } // argument validator
+    return Age(value)
+}
 
 /**
  * Factory function to build a Person with nested object creation.
@@ -82,10 +80,10 @@ context(_: Validation)
 fun buildPerson(
     name: String,
     age: String,
-) = factory {
-    val name by bind(name) { it.ensureLengthAtLeast(1).ensureNotBlank() } // argument validator
+): Person {
+    val name by bind { name.ensureLengthAtLeast(1).ensureNotBlank() } // argument validator
     val age by bind { buildAge(age) } // nested object validator
-    Person(name, age)
+    return Person(name, age)
 }
 
 /**
