@@ -63,6 +63,37 @@ internal inline fun <T> T.checkWithAccumulating(
     }
 
 /**
+ * Executes a validation block with a message transformation function applied to all errors.
+ *
+ * This function wraps the error accumulator so that each validation message accumulated
+ * during the block's execution is transformed by the provided function. This is useful
+ * for enriching messages with additional context or modifying their content.
+ *
+ * The transformation is applied to all validation errors that occur within the block,
+ * including nested validation errors. This is used internally by the [constrain] function
+ * to add constraint details (input value and constraint ID) to error messages.
+ *
+ * Example internal usage:
+ * ```kotlin
+ * mapEachMessage({ logAndAddDetails(it, input, "kova.string.min") }) {
+ *     // All messages from this block will have details added
+ *     satisfies(condition) { "kova.string.min".resource }
+ * }
+ * ```
+ *
+ * @param R the type of the validation result
+ * @param transform The function to apply to each validation message
+ * @param block The validation logic to execute
+ * @return The result of executing the validation block
+ */
+@PublishedApi
+context(v: Validation)
+internal inline fun <R> mapEachMessage(
+    noinline transform: (Message) -> Message,
+    block: context(Validation)() -> R,
+): R = block(v.copy(acc = { accumulate(it.map(transform)) }))
+
+/**
  * Raises a validation error immediately if the predicate returns true.
  *
  * This function evaluates the predicate against the input value and, if true,
