@@ -31,41 +31,6 @@ public inline fun log(block: () -> LogEntry) {
 }
 
 /**
- * Logs a constraint violation and enriches the message with constraint details.
- *
- * This function performs two operations:
- * 1. Logs a [LogEntry.Violated] entry with constraint information if logging is enabled
- * 2. Enriches the message with the input value and constraint ID
- *
- * This is typically called internally by the [constrain] function when a validation
- * constraint fails. The enriched message includes the actual input value and constraint ID,
- * which are displayed in error messages to help users understand what failed and why.
- *
- * @param message The validation error message to enrich
- * @param input The input value that failed validation
- * @param id The constraint identifier (e.g., "kova.number.min")
- * @return The enriched message with input and constraint ID details
- */
-@PublishedApi
-context(v: Validation)
-internal fun logAndAddDetails(
-    message: Message,
-    input: Any?,
-    id: String,
-): Message {
-    log {
-        LogEntry.Violated(
-            constraintId = id,
-            root = message.root,
-            path = message.path.fullName,
-            input = input,
-            args = if (message is Message.Resource) message.args else emptyList(),
-        )
-    }
-    return message.withDetails(input, id)
-}
-
-/**
  * Represents a log entry generated during validation execution.
  *
  * Log entries are generated when validation constraints are evaluated and sent to the
