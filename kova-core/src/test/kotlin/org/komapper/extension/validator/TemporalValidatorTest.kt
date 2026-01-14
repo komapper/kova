@@ -154,25 +154,6 @@ class TemporalValidatorTest :
                 }
             }
 
-            context("ensureGreaterThanOrEqual") {
-                val date = LocalDate.of(2025, 6, 15)
-
-                test("success with greater value") {
-                    val result = tryValidate { date.plusDays(1).ensureGreaterThanOrEqual(date) }
-                    result.shouldBeSuccess()
-                }
-
-                test("success with equal value") {
-                    val result = tryValidate { date.ensureGreaterThanOrEqual(date) }
-                    result.shouldBeSuccess()
-                }
-
-                test("failure") {
-                    val result = tryValidate { date.minusDays(1).ensureGreaterThanOrEqual(date) }
-                    result.shouldBeFailure()
-                }
-            }
-
             context("ensureLessThan") {
                 val date = LocalDate.of(2025, 6, 15)
 
@@ -188,25 +169,6 @@ class TemporalValidatorTest :
 
                 test("failure with greater value") {
                     val result = tryValidate { date.plusDays(1).ensureLessThan(date) }
-                    result.shouldBeFailure()
-                }
-            }
-
-            context("ensureLessThanOrEqual") {
-                val date = LocalDate.of(2025, 6, 15)
-
-                test("success with smaller value") {
-                    val result = tryValidate { date.minusDays(1).ensureLessThanOrEqual(date) }
-                    result.shouldBeSuccess()
-                }
-
-                test("success with equal value") {
-                    val result = tryValidate { date.ensureLessThanOrEqual(date) }
-                    result.shouldBeSuccess()
-                }
-
-                test("failure") {
-                    val result = tryValidate { date.plusDays(1).ensureLessThanOrEqual(date) }
                     result.shouldBeFailure()
                 }
             }
@@ -345,25 +307,6 @@ class TemporalValidatorTest :
                 }
             }
 
-            context("ensureGreaterThanOrEqual") {
-                val time = LocalTime.of(12, 0, 0)
-
-                test("success with greater value") {
-                    val result = tryValidate { time.plusHours(1).ensureGreaterThanOrEqual(time) }
-                    result.shouldBeSuccess()
-                }
-
-                test("success with equal value") {
-                    val result = tryValidate { time.ensureGreaterThanOrEqual(time) }
-                    result.shouldBeSuccess()
-                }
-
-                test("failure") {
-                    val result = tryValidate { time.minusHours(1).ensureGreaterThanOrEqual(time) }
-                    result.shouldBeFailure()
-                }
-            }
-
             context("ensureLessThan") {
                 val time = LocalTime.of(12, 0, 0)
 
@@ -379,25 +322,6 @@ class TemporalValidatorTest :
 
                 test("failure with greater value") {
                     val result = tryValidate { time.plusHours(1).ensureLessThan(time) }
-                    result.shouldBeFailure()
-                }
-            }
-
-            context("ensureLessThanOrEqual") {
-                val time = LocalTime.of(12, 0, 0)
-
-                test("success with smaller value") {
-                    val result = tryValidate { time.minusHours(1).ensureLessThanOrEqual(time) }
-                    result.shouldBeSuccess()
-                }
-
-                test("success with equal value") {
-                    val result = tryValidate { time.ensureLessThanOrEqual(time) }
-                    result.shouldBeSuccess()
-                }
-
-                test("failure") {
-                    val result = tryValidate { time.plusHours(1).ensureLessThanOrEqual(time) }
                     result.shouldBeFailure()
                 }
             }
@@ -535,25 +459,6 @@ class TemporalValidatorTest :
                 }
             }
 
-            context("ensureGreaterThanOrEqual") {
-                val dateTime = LocalDateTime.of(2025, 6, 15, 12, 0, 0)
-
-                test("success with greater value") {
-                    val result = tryValidate { dateTime.plusHours(1).ensureGreaterThanOrEqual(dateTime) }
-                    result.shouldBeSuccess()
-                }
-
-                test("success with equal value") {
-                    val result = tryValidate { dateTime.ensureGreaterThanOrEqual(dateTime) }
-                    result.shouldBeSuccess()
-                }
-
-                test("failure") {
-                    val result = tryValidate { dateTime.minusHours(1).ensureGreaterThanOrEqual(dateTime) }
-                    result.shouldBeFailure()
-                }
-            }
-
             context("ensureLessThan") {
                 val dateTime = LocalDateTime.of(2025, 6, 15, 12, 0, 0)
 
@@ -569,25 +474,6 @@ class TemporalValidatorTest :
 
                 test("failure with greater value") {
                     val result = tryValidate { dateTime.plusHours(1).ensureLessThan(dateTime) }
-                    result.shouldBeFailure()
-                }
-            }
-
-            context("ensureLessThanOrEqual") {
-                val dateTime = LocalDateTime.of(2025, 6, 15, 12, 0, 0)
-
-                test("success with smaller value") {
-                    val result = tryValidate { dateTime.minusHours(1).ensureLessThanOrEqual(dateTime) }
-                    result.shouldBeSuccess()
-                }
-
-                test("success with equal value") {
-                    val result = tryValidate { dateTime.ensureLessThanOrEqual(dateTime) }
-                    result.shouldBeSuccess()
-                }
-
-                test("failure") {
-                    val result = tryValidate { dateTime.plusHours(1).ensureLessThanOrEqual(dateTime) }
                     result.shouldBeFailure()
                 }
             }
@@ -719,25 +605,6 @@ class TemporalValidatorTest :
                 }
             }
 
-            context("ensureGreaterThanOrEqual") {
-                val monthDay = MonthDay.of(6, 15)
-
-                test("success with greater value") {
-                    val result = tryValidate { MonthDay.of(6, 16).ensureGreaterThanOrEqual(monthDay) }
-                    result.shouldBeSuccess()
-                }
-
-                test("success with equal value") {
-                    val result = tryValidate { monthDay.ensureGreaterThanOrEqual(monthDay) }
-                    result.shouldBeSuccess()
-                }
-
-                test("failure") {
-                    val result = tryValidate { MonthDay.of(6, 14).ensureGreaterThanOrEqual(monthDay) }
-                    result.shouldBeFailure()
-                }
-            }
-
             context("ensureLessThan") {
                 val monthDay = MonthDay.of(6, 15)
 
@@ -753,25 +620,6 @@ class TemporalValidatorTest :
 
                 test("failure with greater value") {
                     val result = tryValidate { MonthDay.of(6, 16).ensureLessThan(monthDay) }
-                    result.shouldBeFailure()
-                }
-            }
-
-            context("ensureLessThanOrEqual") {
-                val monthDay = MonthDay.of(6, 15)
-
-                test("success with smaller value") {
-                    val result = tryValidate { MonthDay.of(6, 14).ensureLessThanOrEqual(monthDay) }
-                    result.shouldBeSuccess()
-                }
-
-                test("success with equal value") {
-                    val result = tryValidate { monthDay.ensureLessThanOrEqual(monthDay) }
-                    result.shouldBeSuccess()
-                }
-
-                test("failure") {
-                    val result = tryValidate { MonthDay.of(6, 16).ensureLessThanOrEqual(monthDay) }
                     result.shouldBeFailure()
                 }
             }

@@ -71,30 +71,6 @@ public fun <S : Comparable<S>> S.ensureGreaterThan(
 ): S = constrain("kova.comparable.greaterThan") { satisfies(it > value, message) }
 
 /**
- * Validates that the value is greater than or equal to the specified value.
- *
- * Example:
- * ```kotlin
- * tryValidate { 1.ensureGreaterThanOrEqual(0) }   // Success
- * tryValidate { 0.ensureGreaterThanOrEqual(0) }   // Success
- * tryValidate { (-1).ensureGreaterThanOrEqual(0) }  // Failure
- * ```
- *
- * @param Validation (context parameter) The validation context for constraint checking and error accumulation
- * @param S The comparable type being validated
- * @receiver The comparable value to validate
- * @param value The value to compare against (inclusive)
- * @param message Custom error message provider
- * @return The validated input value (allows method chaining)
- */
-@IgnorableReturnValue
-context(_: Validation)
-public fun <S : Comparable<S>> S.ensureGreaterThanOrEqual(
-    value: S,
-    message: MessageProvider = { "kova.comparable.greaterThanOrEqual".resource(value) },
-): S = constrain("kova.comparable.greaterThanOrEqual") { satisfies(it >= value, message) }
-
-/**
  * Validates that the value is strictly less than the specified value.
  *
  * Example:
@@ -117,30 +93,6 @@ public fun <S : Comparable<S>> S.ensureLessThan(
     value: S,
     message: MessageProvider = { "kova.comparable.lessThan".resource(value) },
 ): S = constrain("kova.comparable.lessThan") { satisfies(it < value, message) }
-
-/**
- * Validates that the value is less than or equal to the specified value.
- *
- * Example:
- * ```kotlin
- * tryValidate { 50.ensureLessThanOrEqual(100) }   // Success
- * tryValidate { 100.ensureLessThanOrEqual(100) }  // Success
- * tryValidate { 150.ensureLessThanOrEqual(100) }  // Failure
- * ```
- *
- * @param Validation (context parameter) The validation context for constraint checking and error accumulation
- * @param S The comparable type being validated
- * @receiver The comparable value to validate
- * @param value The value to compare against (inclusive)
- * @param message Custom error message provider
- * @return The validated input value (allows method chaining)
- */
-@IgnorableReturnValue
-context(_: Validation)
-public fun <S : Comparable<S>> S.ensureLessThanOrEqual(
-    value: S,
-    message: MessageProvider = { "kova.comparable.lessThanOrEqual".resource(value) },
-): S = constrain("kova.comparable.lessThanOrEqual") { satisfies(it <= value, message) }
 
 /**
  * Validates that the value is within the specified range.

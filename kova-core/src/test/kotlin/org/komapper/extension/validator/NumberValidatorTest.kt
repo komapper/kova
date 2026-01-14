@@ -168,42 +168,6 @@ class NumberValidatorTest :
             }
         }
 
-        context("ensureGreaterThanOrEqual (greater than or equal)") {
-            test("success with value greater than threshold") {
-                val result = tryValidate { 6.ensureGreaterThanOrEqual(5) }
-                result.shouldBeSuccess()
-            }
-
-            test("success with equal value") {
-                val result = tryValidate { 5.ensureGreaterThanOrEqual(5) }
-                result.shouldBeSuccess()
-            }
-
-            test("failure with value less than threshold") {
-                val result = tryValidate { 4.ensureGreaterThanOrEqual(5) }
-                result.shouldBeFailure()
-                result.messages[0].constraintId shouldBe "kova.comparable.greaterThanOrEqual"
-            }
-        }
-
-        context("ensureGreaterThanOrEqual with double") {
-            test("success with greater value") {
-                val result = tryValidate { 5.6.ensureGreaterThanOrEqual(5.5) }
-                result.shouldBeSuccess()
-            }
-
-            test("success with equal value") {
-                val result = tryValidate { 5.5.ensureGreaterThanOrEqual(5.5) }
-                result.shouldBeSuccess()
-            }
-
-            test("failure with value less than threshold") {
-                val result = tryValidate { 5.4.ensureGreaterThanOrEqual(5.5) }
-                result.shouldBeFailure()
-                result.messages[0].constraintId shouldBe "kova.comparable.greaterThanOrEqual"
-            }
-        }
-
         context("ensureLessThan (less than)") {
             test("success with value less than threshold") {
                 val result = tryValidate { 4.ensureLessThan(5) }
@@ -244,42 +208,6 @@ class NumberValidatorTest :
                 val result = tryValidate { 5.6.ensureLessThan(5.5) }
                 result.shouldBeFailure()
                 result.messages[0].constraintId shouldBe "kova.comparable.lessThan"
-            }
-        }
-
-        context("ensureLessThanOrEqual (less than or equal)") {
-            test("success with value less than threshold") {
-                val result = tryValidate { 4.ensureLessThanOrEqual(5) }
-                result.shouldBeSuccess()
-            }
-
-            test("success with equal value") {
-                val result = tryValidate { 5.ensureLessThanOrEqual(5) }
-                result.shouldBeSuccess()
-            }
-
-            test("failure with value greater than threshold") {
-                val result = tryValidate { 6.ensureLessThanOrEqual(5) }
-                result.shouldBeFailure()
-                result.messages[0].constraintId shouldBe "kova.comparable.lessThanOrEqual"
-            }
-        }
-
-        context("ensureLessThanOrEqual with double") {
-            test("success with smaller value") {
-                val result = tryValidate { 5.4.ensureLessThanOrEqual(5.5) }
-                result.shouldBeSuccess()
-            }
-
-            test("success with equal value") {
-                val result = tryValidate { 5.5.ensureLessThanOrEqual(5.5) }
-                result.shouldBeSuccess()
-            }
-
-            test("failure with value greater than threshold") {
-                val result = tryValidate { 5.6.ensureLessThanOrEqual(5.5) }
-                result.shouldBeFailure()
-                result.messages[0].constraintId shouldBe "kova.comparable.lessThanOrEqual"
             }
         }
 

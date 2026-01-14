@@ -74,25 +74,6 @@ class IterableValidatorTest :
             }
         }
 
-        context("ensureHas") {
-            test("success") {
-                val result = tryValidate { listOf("foo", "bar").ensureHas("foo") }
-                result.shouldBeSuccess()
-            }
-
-            test("failure") {
-                val result = tryValidate { listOf("bar", "baz").ensureHas("foo") }
-                result.shouldBeFailure()
-                result.messages.size shouldBe 1
-                result.messages[0].constraintId shouldBe "kova.iterable.contains"
-            }
-
-            test("failure with ensureEmpty list") {
-                val result = tryValidate { emptyList<Nothing>().ensureHas("foo") }
-                result.shouldBeFailure()
-            }
-        }
-
         context("ensureContains") {
             test("success") {
                 val result = tryValidate { listOf("foo", "bar").ensureContains("foo") }

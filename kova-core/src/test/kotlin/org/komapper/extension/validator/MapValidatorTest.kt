@@ -199,25 +199,6 @@ class MapValidatorTest :
             }
         }
 
-        context("ensureHasKey") {
-            test("success") {
-                val result = tryValidate { mapOf("foo" to 1, "bar" to 2).ensureHasKey("foo") }
-                result.shouldBeSuccess()
-            }
-
-            test("failure") {
-                val result = tryValidate { mapOf("bar" to 2, "baz" to 3).ensureHasKey("foo") }
-                result.shouldBeFailure()
-                result.messages.size shouldBe 1
-                result.messages[0].constraintId shouldBe "kova.map.containsKey"
-            }
-
-            test("failure with ensureEmpty map") {
-                val result = tryValidate { emptyMap<String, Nothing>().ensureHasKey("foo") }
-                result.shouldBeFailure()
-            }
-        }
-
         context("ensureContainsKey") {
             test("success") {
                 val result = tryValidate { mapOf("foo" to 1, "bar" to 2).ensureContainsKey("foo") }
@@ -253,25 +234,6 @@ class MapValidatorTest :
             test("success with ensureEmpty map") {
                 val result = tryValidate { emptyMap<String, Nothing>().ensureNotContainsKey("foo") }
                 result.shouldBeSuccess()
-            }
-        }
-
-        context("ensureHasValue") {
-            test("success") {
-                val result = tryValidate { mapOf("foo" to 42, "bar" to 2).ensureHasValue(42) }
-                result.shouldBeSuccess()
-            }
-
-            test("failure") {
-                val result = tryValidate { mapOf("foo" to 1, "bar" to 2).ensureHasValue(42) }
-                result.shouldBeFailure()
-                result.messages.size shouldBe 1
-                result.messages[0].constraintId shouldBe "kova.map.containsValue"
-            }
-
-            test("failure with ensureEmpty map") {
-                val result = tryValidate { emptyMap<Nothing, Int>().ensureHasValue(42) }
-                result.shouldBeFailure()
             }
         }
 
