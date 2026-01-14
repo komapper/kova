@@ -508,14 +508,14 @@ class MessagePropertiesTest :
             }
 
             test("ensureContains") {
-                val result = tryValidate { listOf("bar", "baz").ensureHas("foo") }
+                val result = tryValidate { listOf("bar", "baz").ensureContains("foo") }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must contain foo"
             }
 
             test("ensureContains with message") {
-                val result = tryValidate { listOf("bar", "baz").ensureHas("foo") { text("must contain foo") } }
+                val result = tryValidate { listOf("bar", "baz").ensureContains("foo") { text("must contain foo") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must contain foo"
@@ -635,7 +635,7 @@ class MessagePropertiesTest :
             }
 
             test("ensureContainsKey") {
-                val result = tryValidate { mapOf("bar" to 2, "baz" to 3).ensureHasKey("foo") }
+                val result = tryValidate { mapOf("bar" to 2, "baz" to 3).ensureContainsKey("foo") }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must contain key foo"
@@ -644,7 +644,7 @@ class MessagePropertiesTest :
             test("ensureContainsKey with message") {
                 val result =
                     tryValidate {
-                        mapOf("bar" to 2, "baz" to 3).ensureHasKey(
+                        mapOf("bar" to 2, "baz" to 3).ensureContainsKey(
                             "foo",
                         ) { text("must contain key foo") }
                     }
@@ -673,14 +673,14 @@ class MessagePropertiesTest :
             }
 
             test("ensureContainsValue") {
-                val result = tryValidate { mapOf("foo" to 1, "bar" to 2).ensureHasValue(42) }
+                val result = tryValidate { mapOf("foo" to 1, "bar" to 2).ensureContainsValue(42) }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must contain value 42"
             }
 
             test("ensureContainsValue with message") {
-                val result = tryValidate { mapOf("foo" to 1, "bar" to 2).ensureHasValue(42) { text("must contain value 42") } }
+                val result = tryValidate { mapOf("foo" to 1, "bar" to 2).ensureContainsValue(42) { text("must contain value 42") } }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must contain value 42"

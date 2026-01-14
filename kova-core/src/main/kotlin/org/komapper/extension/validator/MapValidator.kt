@@ -119,30 +119,6 @@ public fun <T : Map<*, *>> T.ensureNotEmpty(message: MessageProvider = { "kova.m
  *
  * Example:
  * ```kotlin
- * tryValidate { mapOf("foo" to 1, "bar" to 2).ensureHasKey("foo") }  // Success
- * tryValidate { mapOf("bar" to 2, "baz" to 3).ensureHasKey("foo") }  // Failure
- * ```
- *
- * @param Validation (context parameter) The validation context for constraint checking and error accumulation
- * @param T The map type being validated
- * @param K The key type of the map
- * @receiver The map to validate
- * @param key The key that must be present in the map
- * @param message Custom error message provider
- * @return The validated input value (allows method chaining)
- */
-@IgnorableReturnValue
-context(_: Validation)
-public fun <T : Map<K, *>, K> T.ensureHasKey(
-    key: K,
-    message: MessageProvider = { "kova.map.containsKey".resource(key) },
-): T = ensureContainsKey(key, message)
-
-/**
- * Validates that the map contains the specified key.
- *
- * Example:
- * ```kotlin
  * tryValidate { mapOf("foo" to 1, "bar" to 2).ensureContainsKey("foo") }  // Success
  * tryValidate { mapOf("bar" to 2, "baz" to 3).ensureContainsKey("foo") }  // Failure
  * ```
@@ -185,30 +161,6 @@ public fun <T : Map<K, *>, K> T.ensureNotContainsKey(
     key: K,
     message: MessageProvider = { "kova.map.notContainsKey".resource(key) },
 ): T = constrain("kova.map.notContainsKey") { satisfies(!it.containsKey(key), message) }
-
-/**
- * Validates that the map contains the specified value.
- *
- * Example:
- * ```kotlin
- * tryValidate { mapOf("foo" to 42, "bar" to 2).ensureHasValue(42) }  // Success
- * tryValidate { mapOf("foo" to 1, "bar" to 2).ensureHasValue(42) }   // Failure
- * ```
- *
- * @param Validation (context parameter) The validation context for constraint checking and error accumulation
- * @param T The map type being validated
- * @param V The value type of the map
- * @receiver The map to validate
- * @param value The value that must be present in the map
- * @param message Custom error message provider
- * @return The validated input value (allows method chaining)
- */
-@IgnorableReturnValue
-context(_: Validation)
-public fun <T : Map<*, V>, V> T.ensureHasValue(
-    value: V,
-    message: MessageProvider = { "kova.map.containsValue".resource(value) },
-): T = ensureContainsValue(value, message)
 
 /**
  * Validates that the map contains the specified value.

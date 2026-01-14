@@ -27,30 +27,6 @@ public fun <T : Iterable<*>> T.ensureNotEmpty(message: MessageProvider = { "kova
  *
  * Example:
  * ```kotlin
- * tryValidate { listOf("foo", "bar").ensureHas("foo") }  // Success
- * tryValidate { listOf("bar", "baz").ensureHas("foo") }  // Failure
- * ```
- *
- * @param Validation (context parameter) The validation context for constraint checking and error accumulation
- * @param T The type of iterable being validated
- * @param E The type of elements in the iterable
- * @receiver The iterable to validate
- * @param element The element that must be present in the iterable
- * @param message Custom error message provider
- * @return The validated input value (allows method chaining)
- */
-@IgnorableReturnValue
-context(_: Validation)
-public fun <T : Iterable<E>, E> T.ensureHas(
-    element: E,
-    message: MessageProvider = { "kova.iterable.contains".resource(element) },
-): T = ensureContains(element, message)
-
-/**
- * Validates that the iterable contains the specified element.
- *
- * Example:
- * ```kotlin
  * tryValidate { listOf("foo", "bar").ensureContains("foo") }  // Success
  * tryValidate { listOf("bar", "baz").ensureContains("foo") }  // Failure
  * ```
