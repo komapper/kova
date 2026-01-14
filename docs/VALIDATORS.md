@@ -187,7 +187,6 @@ Works with any `Iterable` including `List`, `Set`, and custom iterables.
 |------------------------------|-----------------------------|--------------------------------------------------|-------------------------------------|
 | `ensureNotEmpty()`           | `kova.iterable.notEmpty`    | must not be empty                                | `input.ensureNotEmpty()`            |
 | `ensureContains(element)`    | `kova.iterable.contains`    | must contain {0}                                 | `input.ensureContains("admin")`     |
-| `ensureHas(element)`         | `kova.iterable.contains`    | must contain {0}                                 | Alias for `ensureContains`          |
 | `ensureNotContains(element)` | `kova.iterable.notContains` | must not contain {0}                             | `input.ensureNotContains("banned")` |
 | `ensureEach { }`             | `kova.iterable.each`        | Some elements do not satisfy the constraint: {0} | See below                           |
 
@@ -212,10 +211,8 @@ fun List<Int>.validateScores() {
 | `ensureSizeInRange(range)`      | `kova.map.sizeInRange`      | Map size must be within range {0}               | `input.ensureSizeInRange(1..10)`         |
 | `ensureNotEmpty()`              | `kova.map.notEmpty`         | must not be empty                               | `input.ensureNotEmpty()`                 |
 | `ensureContainsKey(key)`        | `kova.map.containsKey`      | must contain key {0}                            | `input.ensureContainsKey("id")`          |
-| `ensureHasKey(key)`             | `kova.map.containsKey`      | must contain key {0}                            | Alias for `ensureContainsKey`            |
 | `ensureNotContainsKey(key)`     | `kova.map.notContainsKey`   | must not contain key {0}                        | `input.ensureNotContainsKey("password")` |
 | `ensureContainsValue(value)`    | `kova.map.containsValue`    | must contain value {0}                          | `input.ensureContainsValue(true)`        |
-| `ensureHasValue(value)`         | `kova.map.containsValue`    | must contain value {0}                          | Alias for `ensureContainsValue`          |
 | `ensureNotContainsValue(value)` | `kova.map.notContainsValue` | must not contain value {0}                      | `input.ensureNotContainsValue(null)`     |
 | `ensureEachKey { }`             | `kova.map.eachKey`          | Some keys do not satisfy the constraint: {0}    | See below                                |
 | `ensureEachValue { }`           | `kova.map.eachValue`        | Some values do not satisfy the constraint: {0}  | See below                                |
