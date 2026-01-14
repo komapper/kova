@@ -407,20 +407,6 @@ class MessagePropertiesTest :
                 message.text shouldBe "must be greater than 10"
             }
 
-            test("ensureGreaterThanOrEqual") {
-                val result = tryValidate { 9.ensureGreaterThanOrEqual(10) }
-                result.shouldBeFailure()
-                val message = result.messages.single()
-                message.text shouldBe "must be greater than or equal to 10"
-            }
-
-            test("ensureGreaterThanOrEqual with message") {
-                val result = tryValidate { 9.ensureGreaterThanOrEqual(10) { text("must be greater than or equal to 10") } }
-                result.shouldBeFailure()
-                val message = result.messages.single()
-                message.text shouldBe "must be greater than or equal to 10"
-            }
-
             test("ensureLessThan") {
                 val result = tryValidate { 10.ensureLessThan(10) }
                 result.shouldBeFailure()
@@ -433,20 +419,6 @@ class MessagePropertiesTest :
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be less than 10"
-            }
-
-            test("ensureLessThanOrEqual") {
-                val result = tryValidate { 11.ensureLessThanOrEqual(10) }
-                result.shouldBeFailure()
-                val message = result.messages.single()
-                message.text shouldBe "must be less than or equal to 10"
-            }
-
-            test("ensureLessThanOrEqual with message") {
-                val result = tryValidate { 11.ensureLessThanOrEqual(10) { text("must be less than or equal to 10") } }
-                result.shouldBeFailure()
-                val message = result.messages.single()
-                message.text shouldBe "must be less than or equal to 10"
             }
 
             test("ensureInRange") {

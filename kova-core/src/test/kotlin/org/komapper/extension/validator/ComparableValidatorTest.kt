@@ -71,24 +71,6 @@ class ComparableValidatorTest :
                 }
             }
 
-            context("ensureGreaterThanOrEqual (greater than or equal)") {
-                test("success with value greater than threshold") {
-                    val result = tryValidate { 6u.ensureGreaterThanOrEqual(5u) }
-                    result.shouldBeSuccess()
-                }
-
-                test("success with equal value") {
-                    val result = tryValidate { 5u.ensureGreaterThanOrEqual(5u) }
-                    result.shouldBeSuccess()
-                }
-
-                test("failure with value less than threshold") {
-                    val result = tryValidate { 4u.ensureGreaterThanOrEqual(5u) }
-                    result.shouldBeFailure()
-                    result.messages[0].constraintId shouldBe "kova.comparable.greaterThanOrEqual"
-                }
-            }
-
             context("ensureLessThan (less than)") {
                 test("success with value less than threshold") {
                     val result = tryValidate { 4u.ensureLessThan(5u) }
@@ -110,24 +92,6 @@ class ComparableValidatorTest :
                     val result = tryValidate { 6u.ensureLessThan(5u) }
                     result.shouldBeFailure()
                     result.messages[0].constraintId shouldBe "kova.comparable.lessThan"
-                }
-            }
-
-            context("ensureLessThanOrEqual (less than or equal)") {
-                test("success with value less than threshold") {
-                    val result = tryValidate { 4u.ensureLessThanOrEqual(5u) }
-                    result.shouldBeSuccess()
-                }
-
-                test("success with equal value") {
-                    val result = tryValidate { 5u.ensureLessThanOrEqual(5u) }
-                    result.shouldBeSuccess()
-                }
-
-                test("failure with value greater than threshold") {
-                    val result = tryValidate { 6u.ensureLessThanOrEqual(5u) }
-                    result.shouldBeFailure()
-                    result.messages[0].constraintId shouldBe "kova.comparable.lessThanOrEqual"
                 }
             }
 

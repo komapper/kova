@@ -120,14 +120,12 @@ Works with any `Comparable` type including numbers, strings, dates, and custom t
 
 ### Comparison Validators
 
-| Validator                         | Constraint ID                        | Error Message                        | Condition |
-|-----------------------------------|--------------------------------------|--------------------------------------|-----------|
-| `ensureAtLeast(value)`            | `kova.comparable.atLeast`            | must be greater than or equal to {0} | >= value  |
-| `ensureAtMost(value)`             | `kova.comparable.atMost`             | must be less than or equal to {0}    | <= value  |
-| `ensureGreaterThan(value)`        | `kova.comparable.greaterThan`        | must be greater than {0}             | > value   |
-| `ensureGreaterThanOrEqual(value)` | `kova.comparable.greaterThanOrEqual` | must be greater than or equal to {0} | >= value  |
-| `ensureLessThan(value)`           | `kova.comparable.lessThan`           | must be less than {0}                | < value   |
-| `ensureLessThanOrEqual(value)`    | `kova.comparable.lessThanOrEqual`    | must be less than or equal to {0}    | <= value  |
+| Validator                  | Constraint ID                 | Error Message                        | Condition |
+|----------------------------|-------------------------------|--------------------------------------|-----------|
+| `ensureAtLeast(value)`     | `kova.comparable.atLeast`     | must be greater than or equal to {0} | >= value  |
+| `ensureAtMost(value)`      | `kova.comparable.atMost`      | must be less than or equal to {0}    | <= value  |
+| `ensureGreaterThan(value)` | `kova.comparable.greaterThan` | must be greater than {0}             | > value   |
+| `ensureLessThan(value)`    | `kova.comparable.lessThan`    | must be less than {0}                | < value   |
 
 ### Range Validators
 
