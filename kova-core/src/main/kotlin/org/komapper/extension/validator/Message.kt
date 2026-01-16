@@ -99,8 +99,7 @@ public sealed interface Message {
 
         override val descendants: List<Message> = emptyList()
 
-        override fun toString(): String =
-            "Message(constraintId=$constraintId, text='$text', root=$root, path=${path.fullName}, input=$input)"
+        override fun toString(): String = "Message(constraintId=$constraintId, text='$text', root=$root, path=$path, input=$input)"
 
         /**
          * Creates a new [Text] message with updated input value and constraint ID.
@@ -168,7 +167,7 @@ public sealed interface Message {
             }
 
         override fun toString(): String =
-            "Message(constraintId=$constraintId, text='$text', root=$root, path=${path.fullName}, input=$input, args=$args)"
+            "Message(constraintId=$constraintId, text='$text', root=$root, path=$path, input=$input, args=$args)"
 
         /**
          * Creates a new [Resource] message with updated input value and constraint ID.
