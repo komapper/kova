@@ -85,10 +85,10 @@ Add Kova to your Gradle project:
 ```kotlin
 dependencies {
     // Core validation library
-    implementation("org.komapper:kova-core:0.1.0")
+    implementation("org.komapper:kova-core:0.2.0")
 
     // Ktor integration (optional)
-    implementation("org.komapper:kova-ktor:0.1.0")
+    implementation("org.komapper:kova-ktor:0.2.0")
 }
 ```
 
