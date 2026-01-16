@@ -70,7 +70,7 @@ Both approaches collect all errors and provide detailed path information:
 ```kotlin
 val result = tryValidate { buildUser("", "invalid") }
 if (result.isFailure()) { 
-    result.messages.forEach { println("${it.path.fullName}: ${it.text}") }
+    result.messages.forEach { println("${it.path}: ${it.text}") }
     // name: must not be blank
     // age: must be a valid integer
 }
@@ -195,7 +195,7 @@ try {
     val user = validate { buildUser("Alice", "25") }
     println("Created: $user")
 } catch (e: ValidationException) {
-    e.messages.forEach { println("${it.path.fullName}: ${it.text}") }
+    e.messages.forEach { println("${it.path}: ${it.text}") }
 }
 ```
 
@@ -429,18 +429,18 @@ For the complete list, see **[docs/VALIDATORS.md](docs/VALIDATORS.md)**.
 
 Each validation error is represented by a `Message` object:
 
-| Property       | Type         | Description                                              |
-|----------------|--------------|----------------------------------------------------------|
-| `text`         | `String`     | Formatted error message text                             |
-| `constraintId` | `String`     | Unique constraint identifier (e.g., `kova.charSequence.notBlank`) |
-| `path`         | `Path`       | Path to the value (e.g., `address.zipCode`). Use `path.fullName` |
-| `input`        | `Any?`       | The actual value that failed validation                  |
-| `root`         | `String`     | Root object class name (for property validation)         |
+| Property       | Type     | Description                                                       |
+|----------------|----------|-------------------------------------------------------------------|
+| `text`         | `String` | Formatted error message text                                      |
+| `constraintId` | `String` | Unique constraint identifier (e.g., `kova.charSequence.notBlank`) |
+| `path`         | `Path`   | Path to the value (e.g., `address.zipCode`)                       |
+| `input`        | `Any?`   | The actual value that failed validation                           |
+| `root`         | `String` | Root object class name (for property validation)                  |
 
 ```kotlin
 if (!result.isSuccess()) {
     result.messages.forEach { message ->
-        println("${message.path.fullName}: ${message.text}")  // name: must not be blank
+        println("${message.path}: ${message.text}")           // name: must not be blank
         println("Constraint: ${message.constraintId}")        // kova.charSequence.notBlank
     }
 }

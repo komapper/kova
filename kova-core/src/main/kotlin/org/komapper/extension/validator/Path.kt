@@ -222,4 +222,6 @@ public data class Path(
         if (obj === target) return true
         return parent?.containsObject(target) ?: false
     }
+
+    override fun toString(): String = fullName
 }
