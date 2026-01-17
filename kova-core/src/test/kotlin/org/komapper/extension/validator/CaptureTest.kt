@@ -127,4 +127,104 @@ class CaptureTest :
                 result.messages[0].path.fullName shouldBe "fullName.first.value"
             }
         }
+
+        context("standalone constrain for argument correlation") {
+            data class DateRange(
+                val start: Int,
+                val end: Int,
+            )
+
+            context(_: Validation)
+            fun buildDateRange(
+                start: String,
+                end: String,
+            ): DateRange {
+                val start by capture { start.transformToInt() }
+                val end by capture { end.transformToInt() }
+                constrain("dateRange.order") {
+                    satisfies(start <= end) { text("End must be >= start") }
+                }
+                return DateRange(start, end)
+            }
+
+            test("success - correlation constraint satisfied") {
+                val result = tryValidate { buildDateRange("1", "10") }
+                result.shouldBeSuccess()
+                result.value shouldBe DateRange(1, 10)
+            }
+
+            test("success - equal values satisfy constraint") {
+                val result = tryValidate { buildDateRange("5", "5") }
+                result.shouldBeSuccess()
+                result.value shouldBe DateRange(5, 5)
+            }
+
+            test("failure - correlation constraint violated") {
+                val result = tryValidate { buildDateRange("10", "1") }
+                result.shouldBeFailure()
+                result.messages.size shouldBe 1
+                result.messages[0].constraintId shouldBe "dateRange.order"
+                result.messages[0].text shouldBe "End must be >= start"
+            }
+
+            test("failure - property validation fails") {
+                val result = tryValidate { buildDateRange("abc", "10") }
+                result.shouldBeFailure()
+                result.messages.size shouldBe 1
+                result.messages[0].constraintId shouldBe "kova.string.int"
+                result.messages[0].path.fullName shouldBe "start"
+            }
+        }
+
+        context("standalone constrain with property validation") {
+            data class NumberRange(
+                val min: Int,
+                val max: Int,
+            )
+
+            context(_: Validation)
+            fun buildNumberRange(
+                min: String,
+                max: String,
+            ): NumberRange {
+                val min by capture { min.transformToInt().ensurePositive() }
+                val max by capture { max.transformToInt().ensurePositive() }
+                constrain("numberRange.order") {
+                    satisfies(min <= max) { text("Max must be >= min") }
+                }
+                return NumberRange(min, max)
+            }
+
+            test("success - all validations pass") {
+                val result = tryValidate { buildNumberRange("1", "10") }
+                result.shouldBeSuccess()
+                result.value shouldBe NumberRange(1, 10)
+            }
+
+            test("failure - property validation fails") {
+                val result = tryValidate { buildNumberRange("-1", "10") }
+                result.shouldBeFailure()
+                result.messages.size shouldBe 1
+                result.messages[0].constraintId shouldBe "kova.number.positive"
+                result.messages[0].path.fullName shouldBe "min"
+            }
+
+            test("failure - correlation constraint fails") {
+                val result = tryValidate { buildNumberRange("10", "1") }
+                result.shouldBeFailure()
+                result.messages.size shouldBe 1
+                result.messages[0].constraintId shouldBe "numberRange.order"
+            }
+
+            test("failure - accumulates errors from property validation and correlation") {
+                val result = tryValidate { buildNumberRange("-5", "-10") }
+                result.shouldBeFailure()
+                result.messages.size shouldBe 3
+                result.messages[0].constraintId shouldBe "kova.number.positive"
+                result.messages[0].path.fullName shouldBe "min"
+                result.messages[1].constraintId shouldBe "kova.number.positive"
+                result.messages[1].path.fullName shouldBe "max"
+                result.messages[2].constraintId shouldBe "numberRange.order"
+            }
+        }
     })

@@ -419,6 +419,34 @@ val result = tryValidate { buildUser("Alice", "130") }
 // Error: age -> "must be within range 0..120"
 ```
 
+### Cross-Property Validation
+
+Use the standalone `constrain` function to validate relationships between multiple captured values:
+
+```kotlin
+data class DateRange(val start: LocalDate, val end: LocalDate)
+
+context(_: Validation)
+fun buildDateRange(startStr: String, endStr: String): DateRange {
+    val start by capture { startStr.transformToDate() }
+    val end by capture { endStr.transformToDate() }
+    constrain("dateRange.order") {
+        satisfies(start <= end) { text("End date must be after start date") }
+    }
+    return DateRange(start, end)
+}
+
+// Valid input
+val result = tryValidate { buildDateRange("2025-01-01", "2025-12-31") }
+// result.value = DateRange(start=2025-01-01, end=2025-12-31)
+
+// Invalid input - correlation constraint violated
+val result = tryValidate { buildDateRange("2025-12-31", "2025-01-01") }
+// Error: "End date must be after start date"
+```
+
+This standalone `constrain` function (without a receiver) is designed for cross-property validation during object construction. It differs from the receiver-based `constrain` used in `schema` blocks, which operates on the schema's target object.
+
 ## Available Validators
 
 Kova provides validators for many types including String, Numbers, Temporal types, Collections, Maps, and more.

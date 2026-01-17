@@ -39,6 +39,43 @@ public inline fun <T> T.constrain(
     check: context(Validation) Constraint.(T) -> Unit,
 ): T = apply { checkWithAccumulating(id, check) }
 
+/**
+ * Adds a standalone constraint for validating relationships between multiple values.
+ *
+ * Unlike the receiver-based [constrain] extension, this function does not operate on a specific
+ * input value. It is designed for cross-property validation scenarios where you need to check
+ * relationships or correlations between multiple captured arguments during object construction.
+ *
+ * Example:
+ * ```kotlin
+ * context(_: Validation)
+ * fun buildDateRange(startStr: String, endStr: String): DateRange {
+ *     val start by capture { startStr.transformToDate().ensureDateInFuture() }
+ *     val end by capture { endStr.transformToDate().ensureDateInFuture() }
+ *     constrain("dateRange.order") {
+ *         satisfies(start <= end) { text("End date must be after start date") }
+ *     }
+ *     return DateRange(start, end)
+ * }
+ *
+ * tryValidate { buildDateRange("2025-01-01", "2025-12-31") } // Success
+ * tryValidate { buildDateRange("2025-12-31", "2025-01-01") } // Failure (order constraint)
+ * ```
+ *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @param id Unique identifier for the constraint (used in error messages and logging)
+ * @param check Constraint logic that validates the relationship; receives the [Validation] context
+ *              and executes within a [Constraint] receiver scope
+ */
+@IgnorableReturnValue
+context(_: Validation)
+public inline fun constrain(
+    id: String,
+    check: context(Validation) Constraint.(Unit) -> Unit,
+) {
+  val _ = Unit.checkWithAccumulating(id, check)
+}
+
 @IgnorableReturnValue
 @PublishedApi
 context(_: Validation)
