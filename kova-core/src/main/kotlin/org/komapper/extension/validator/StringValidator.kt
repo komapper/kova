@@ -1,5 +1,9 @@
 package org.komapper.extension.validator
 
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 import kotlin.reflect.KClass
 
@@ -515,3 +519,81 @@ public fun <E : Enum<E>> String.transformToEnum(
 
 private fun <E : Enum<E>> String.toEnumOrNull(klass: KClass<E>): E? =
     runCatching { java.lang.Enum.valueOf(klass.java, this) }.getOrNull()
+
+/**
+ * Validates that the string can be parsed as a LocalDate and converts it.
+ *
+ * This is a type-transforming validator that outputs LocalDate.
+ *
+ * Example:
+ * ```kotlin
+ * tryValidate { "2025-01-17".transformToDate() }                                    // Success (ISO format)
+ * tryValidate { "17/01/2025".transformToDate(DateTimeFormatter.ofPattern("dd/MM/yyyy")) } // Success (custom format)
+ * tryValidate { "invalid".transformToDate() }                                        // Failure
+ * ```
+ *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver String The string to validate and convert
+ * @param formatter The DateTimeFormatter to use for parsing (defaults to ISO_LOCAL_DATE)
+ * @param message Custom error message provider
+ * @return The converted LocalDate value
+ */
+context(_: Validation)
+public fun String.transformToDate(
+    formatter: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE,
+    message: MessageProvider = { "kova.string.localDate".resource },
+): LocalDate = transformOrRaise("kova.string.localDate", message) {
+    runCatching { LocalDate.parse(it, formatter) }.getOrNull()
+}
+
+/**
+ * Validates that the string can be parsed as a LocalDateTime and converts it.
+ *
+ * This is a type-transforming validator that outputs LocalDateTime.
+ *
+ * Example:
+ * ```kotlin
+ * tryValidate { "2025-01-17T10:30:00".transformToDateTime() }                                    // Success (ISO format)
+ * tryValidate { "17/01/2025 10:30".transformToDateTime(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) } // Success (custom format)
+ * tryValidate { "invalid".transformToDateTime() }                                                // Failure
+ * ```
+ *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver String The string to validate and convert
+ * @param formatter The DateTimeFormatter to use for parsing (defaults to ISO_LOCAL_DATE_TIME)
+ * @param message Custom error message provider
+ * @return The converted LocalDateTime value
+ */
+context(_: Validation)
+public fun String.transformToDateTime(
+    formatter: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME,
+    message: MessageProvider = { "kova.string.localDateTime".resource },
+): LocalDateTime = transformOrRaise("kova.string.localDateTime", message) {
+    runCatching { LocalDateTime.parse(it, formatter) }.getOrNull()
+}
+
+/**
+ * Validates that the string can be parsed as a LocalTime and converts it.
+ *
+ * This is a type-transforming validator that outputs LocalTime.
+ *
+ * Example:
+ * ```kotlin
+ * tryValidate { "10:30:00".transformToTime() }                                    // Success (ISO format)
+ * tryValidate { "10:30".transformToTime(DateTimeFormatter.ofPattern("HH:mm")) }   // Success (custom format)
+ * tryValidate { "invalid".transformToTime() }                                     // Failure
+ * ```
+ *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver String The string to validate and convert
+ * @param formatter The DateTimeFormatter to use for parsing (defaults to ISO_LOCAL_TIME)
+ * @param message Custom error message provider
+ * @return The converted LocalTime value
+ */
+context(_: Validation)
+public fun String.transformToTime(
+    formatter: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_TIME,
+    message: MessageProvider = { "kova.string.localTime".resource },
+): LocalTime = transformOrRaise("kova.string.localTime", message) {
+    runCatching { LocalTime.parse(it, formatter) }.getOrNull()
+}
