@@ -29,70 +29,70 @@ class TemporalValidatorTest :
             val clock = Clock.fixed(instant, zone)
             val config = ValidationConfig(clock = clock)
 
-            context("ensureFuture") {
+            context("ensureInFuture") {
                 test("success") {
-                    val result = tryValidate(config) { date.plusDays(1).ensureFuture() }
+                    val result = tryValidate(config) { date.plusDays(1).ensureInFuture() }
                     result.shouldBeSuccess()
                 }
 
                 test("failure with present value") {
-                    val result = tryValidate(config) { date.ensureFuture() }
+                    val result = tryValidate(config) { date.ensureInFuture() }
                     result.shouldBeFailure()
                 }
 
-                test("failure with ensurePast value") {
-                    val result = tryValidate(config) { date.minusDays(1).ensureFuture() }
+                test("failure with ensureInPast value") {
+                    val result = tryValidate(config) { date.minusDays(1).ensureInFuture() }
                     result.shouldBeFailure()
                 }
             }
 
-            context("ensureFutureOrPresent") {
-                test("success with ensureFuture value") {
-                    val result = tryValidate(config) { date.plusDays(1).ensureFutureOrPresent() }
+            context("ensureInFutureOrPresent") {
+                test("success with ensureInFuture value") {
+                    val result = tryValidate(config) { date.plusDays(1).ensureInFutureOrPresent() }
                     result.shouldBeSuccess()
                 }
 
                 test("success with present value") {
-                    val result = tryValidate(config) { date.ensureFutureOrPresent() }
+                    val result = tryValidate(config) { date.ensureInFutureOrPresent() }
                     result.shouldBeSuccess()
                 }
 
-                test("failure with ensurePast value") {
-                    val result = tryValidate(config) { date.minusDays(1).ensureFutureOrPresent() }
+                test("failure with ensureInPast value") {
+                    val result = tryValidate(config) { date.minusDays(1).ensureInFutureOrPresent() }
                     result.shouldBeFailure()
                 }
             }
 
-            context("ensurePast") {
+            context("ensureInPast") {
                 test("success") {
-                    val result = tryValidate(config) { date.minusDays(1).ensurePast() }
+                    val result = tryValidate(config) { date.minusDays(1).ensureInPast() }
                     result.shouldBeSuccess()
                 }
 
                 test("failure with present value") {
-                    val result = tryValidate(config) { date.ensurePast() }
+                    val result = tryValidate(config) { date.ensureInPast() }
                     result.shouldBeFailure()
                 }
 
-                test("failure with ensureFuture value") {
-                    val result = tryValidate(config) { date.plusDays(1).ensurePast() }
+                test("failure with ensureInFuture value") {
+                    val result = tryValidate(config) { date.plusDays(1).ensureInPast() }
                     result.shouldBeFailure()
                 }
             }
 
-            context("ensurePastOrPresent") {
-                test("success with ensurePast value") {
-                    val result = tryValidate(config) { date.minusDays(1).ensurePastOrPresent() }
+            context("ensureInPastOrPresent") {
+                test("success with ensureInPast value") {
+                    val result = tryValidate(config) { date.minusDays(1).ensureInPastOrPresent() }
                     result.shouldBeSuccess()
                 }
 
                 test("success with present value") {
-                    val result = tryValidate(config) { date.ensurePastOrPresent() }
+                    val result = tryValidate(config) { date.ensureInPastOrPresent() }
                     result.shouldBeSuccess()
                 }
 
-                test("failure with ensureFuture value") {
-                    val result = tryValidate(config) { date.plusDays(1).ensurePastOrPresent() }
+                test("failure with ensureInFuture value") {
+                    val result = tryValidate(config) { date.plusDays(1).ensureInPastOrPresent() }
                     result.shouldBeFailure()
                 }
             }
@@ -182,70 +182,70 @@ class TemporalValidatorTest :
             val clock = Clock.fixed(instant, zone)
             val config = ValidationConfig(clock = clock)
 
-            context("ensureFuture") {
+            context("ensureInFuture") {
                 test("success") {
-                    val result = tryValidate(config) { time.plusHours(1).ensureFuture() }
+                    val result = tryValidate(config) { time.plusHours(1).ensureInFuture() }
                     result.shouldBeSuccess()
                 }
 
                 test("failure with present value") {
-                    val result = tryValidate(config) { time.ensureFuture() }
+                    val result = tryValidate(config) { time.ensureInFuture() }
                     result.shouldBeFailure()
                 }
 
-                test("failure with ensurePast value") {
-                    val result = tryValidate(config) { time.minusHours(1).ensureFuture() }
+                test("failure with ensureInPast value") {
+                    val result = tryValidate(config) { time.minusHours(1).ensureInFuture() }
                     result.shouldBeFailure()
                 }
             }
 
-            context("ensureFutureOrPresent") {
-                test("success with ensureFuture value") {
-                    val result = tryValidate(config) { time.plusHours(1).ensureFutureOrPresent() }
+            context("ensureInFutureOrPresent") {
+                test("success with ensureInFuture value") {
+                    val result = tryValidate(config) { time.plusHours(1).ensureInFutureOrPresent() }
                     result.shouldBeSuccess()
                 }
 
                 test("success with present value") {
-                    val result = tryValidate(config) { time.ensureFutureOrPresent() }
+                    val result = tryValidate(config) { time.ensureInFutureOrPresent() }
                     result.shouldBeSuccess()
                 }
 
-                test("failure with ensurePast value") {
-                    val result = tryValidate(config) { time.minusHours(1).ensureFutureOrPresent() }
+                test("failure with ensureInPast value") {
+                    val result = tryValidate(config) { time.minusHours(1).ensureInFutureOrPresent() }
                     result.shouldBeFailure()
                 }
             }
 
-            context("ensurePast") {
+            context("ensureInPast") {
                 test("success") {
-                    val result = tryValidate(config) { time.minusHours(1).ensurePast() }
+                    val result = tryValidate(config) { time.minusHours(1).ensureInPast() }
                     result.shouldBeSuccess()
                 }
 
                 test("failure with present value") {
-                    val result = tryValidate(config) { time.ensurePast() }
+                    val result = tryValidate(config) { time.ensureInPast() }
                     result.shouldBeFailure()
                 }
 
-                test("failure with ensureFuture value") {
-                    val result = tryValidate(config) { time.plusHours(1).ensurePast() }
+                test("failure with ensureInFuture value") {
+                    val result = tryValidate(config) { time.plusHours(1).ensureInPast() }
                     result.shouldBeFailure()
                 }
             }
 
-            context("ensurePastOrPresent") {
-                test("success with ensurePast value") {
-                    val result = tryValidate(config) { time.minusHours(1).ensurePastOrPresent() }
+            context("ensureInPastOrPresent") {
+                test("success with ensureInPast value") {
+                    val result = tryValidate(config) { time.minusHours(1).ensureInPastOrPresent() }
                     result.shouldBeSuccess()
                 }
 
                 test("success with present value") {
-                    val result = tryValidate(config) { time.ensurePastOrPresent() }
+                    val result = tryValidate(config) { time.ensureInPastOrPresent() }
                     result.shouldBeSuccess()
                 }
 
-                test("failure with ensureFuture value") {
-                    val result = tryValidate(config) { time.plusHours(1).ensurePastOrPresent() }
+                test("failure with ensureInFuture value") {
+                    val result = tryValidate(config) { time.plusHours(1).ensureInPastOrPresent() }
                     result.shouldBeFailure()
                 }
             }
@@ -334,70 +334,70 @@ class TemporalValidatorTest :
             val clock = Clock.fixed(instant, zone)
             val config = ValidationConfig(clock = clock)
 
-            context("ensureFuture") {
+            context("ensureInFuture") {
                 test("success") {
-                    val result = tryValidate(config) { dateTime.plusHours(1).ensureFuture() }
+                    val result = tryValidate(config) { dateTime.plusHours(1).ensureInFuture() }
                     result.shouldBeSuccess()
                 }
 
                 test("failure with present value") {
-                    val result = tryValidate(config) { dateTime.ensureFuture() }
+                    val result = tryValidate(config) { dateTime.ensureInFuture() }
                     result.shouldBeFailure()
                 }
 
-                test("failure with ensurePast value") {
-                    val result = tryValidate(config) { dateTime.minusHours(1).ensureFuture() }
+                test("failure with ensureInPast value") {
+                    val result = tryValidate(config) { dateTime.minusHours(1).ensureInFuture() }
                     result.shouldBeFailure()
                 }
             }
 
-            context("ensureFutureOrPresent") {
-                test("success with ensureFuture value") {
-                    val result = tryValidate(config) { dateTime.plusHours(1).ensureFutureOrPresent() }
+            context("ensureInFutureOrPresent") {
+                test("success with ensureInFuture value") {
+                    val result = tryValidate(config) { dateTime.plusHours(1).ensureInFutureOrPresent() }
                     result.shouldBeSuccess()
                 }
 
                 test("success with present value") {
-                    val result = tryValidate(config) { dateTime.ensureFutureOrPresent() }
+                    val result = tryValidate(config) { dateTime.ensureInFutureOrPresent() }
                     result.shouldBeSuccess()
                 }
 
-                test("failure with ensurePast value") {
-                    val result = tryValidate(config) { dateTime.minusHours(1).ensureFutureOrPresent() }
+                test("failure with ensureInPast value") {
+                    val result = tryValidate(config) { dateTime.minusHours(1).ensureInFutureOrPresent() }
                     result.shouldBeFailure()
                 }
             }
 
-            context("ensurePast") {
+            context("ensureInPast") {
                 test("success") {
-                    val result = tryValidate(config) { dateTime.minusHours(1).ensurePast() }
+                    val result = tryValidate(config) { dateTime.minusHours(1).ensureInPast() }
                     result.shouldBeSuccess()
                 }
 
                 test("failure with present value") {
-                    val result = tryValidate(config) { dateTime.ensurePast() }
+                    val result = tryValidate(config) { dateTime.ensureInPast() }
                     result.shouldBeFailure()
                 }
 
-                test("failure with ensureFuture value") {
-                    val result = tryValidate(config) { dateTime.plusHours(1).ensurePast() }
+                test("failure with ensureInFuture value") {
+                    val result = tryValidate(config) { dateTime.plusHours(1).ensureInPast() }
                     result.shouldBeFailure()
                 }
             }
 
-            context("ensurePastOrPresent") {
-                test("success with ensurePast value") {
-                    val result = tryValidate(config) { dateTime.minusHours(1).ensurePastOrPresent() }
+            context("ensureInPastOrPresent") {
+                test("success with ensureInPast value") {
+                    val result = tryValidate(config) { dateTime.minusHours(1).ensureInPastOrPresent() }
                     result.shouldBeSuccess()
                 }
 
                 test("success with present value") {
-                    val result = tryValidate(config) { dateTime.ensurePastOrPresent() }
+                    val result = tryValidate(config) { dateTime.ensureInPastOrPresent() }
                     result.shouldBeSuccess()
                 }
 
-                test("failure with ensureFuture value") {
-                    val result = tryValidate(config) { dateTime.plusHours(1).ensurePastOrPresent() }
+                test("failure with ensureInFuture value") {
+                    val result = tryValidate(config) { dateTime.plusHours(1).ensureInPastOrPresent() }
                     result.shouldBeFailure()
                 }
             }
@@ -484,26 +484,26 @@ class TemporalValidatorTest :
             val clock = Clock.fixed(instant, ZoneOffset.UTC)
             val config = ValidationConfig(clock = clock)
 
-            context("ensureFuture") {
+            context("ensureInFuture") {
                 test("success") {
-                    val result = tryValidate(config) { instant.plusSeconds(3600).ensureFuture() }
+                    val result = tryValidate(config) { instant.plusSeconds(3600).ensureInFuture() }
                     result.shouldBeSuccess()
                 }
 
-                test("failure with ensurePast value") {
-                    val result = tryValidate(config) { instant.minusSeconds(3600).ensureFuture() }
+                test("failure with ensureInPast value") {
+                    val result = tryValidate(config) { instant.minusSeconds(3600).ensureInFuture() }
                     result.shouldBeFailure()
                 }
             }
 
-            context("ensurePast") {
+            context("ensureInPast") {
                 test("success") {
-                    val result = tryValidate(config) { instant.minusSeconds(3600).ensurePast() }
+                    val result = tryValidate(config) { instant.minusSeconds(3600).ensureInPast() }
                     result.shouldBeSuccess()
                 }
 
-                test("failure with ensureFuture value") {
-                    val result = tryValidate(config) { instant.plusSeconds(3600).ensurePast() }
+                test("failure with ensureInFuture value") {
+                    val result = tryValidate(config) { instant.plusSeconds(3600).ensureInPast() }
                     result.shouldBeFailure()
                 }
             }
@@ -630,26 +630,26 @@ class TemporalValidatorTest :
             val clock = Clock.fixed(offsetDateTime.toInstant(), ZoneOffset.UTC)
             val config = ValidationConfig(clock = clock)
 
-            context("ensureFuture") {
+            context("ensureInFuture") {
                 test("success") {
-                    val result = tryValidate(config) { offsetDateTime.plusHours(1).ensureFuture() }
+                    val result = tryValidate(config) { offsetDateTime.plusHours(1).ensureInFuture() }
                     result.shouldBeSuccess()
                 }
 
-                test("failure with ensurePast value") {
-                    val result = tryValidate(config) { offsetDateTime.minusHours(1).ensureFuture() }
+                test("failure with ensureInPast value") {
+                    val result = tryValidate(config) { offsetDateTime.minusHours(1).ensureInFuture() }
                     result.shouldBeFailure()
                 }
             }
 
-            context("ensurePast") {
+            context("ensureInPast") {
                 test("success") {
-                    val result = tryValidate(config) { offsetDateTime.minusHours(1).ensurePast() }
+                    val result = tryValidate(config) { offsetDateTime.minusHours(1).ensureInPast() }
                     result.shouldBeSuccess()
                 }
 
-                test("failure with ensureFuture value") {
-                    val result = tryValidate(config) { offsetDateTime.plusHours(1).ensurePast() }
+                test("failure with ensureInFuture value") {
+                    val result = tryValidate(config) { offsetDateTime.plusHours(1).ensureInPast() }
                     result.shouldBeFailure()
                 }
             }
@@ -700,26 +700,26 @@ class TemporalValidatorTest :
             val clock = Clock.fixed(instant, ZoneOffset.UTC)
             val config = ValidationConfig(clock = clock)
 
-            context("ensureFuture") {
+            context("ensureInFuture") {
                 test("success") {
-                    val result = tryValidate(config) { offsetTime.plusHours(1).ensureFuture() }
+                    val result = tryValidate(config) { offsetTime.plusHours(1).ensureInFuture() }
                     result.shouldBeSuccess()
                 }
 
-                test("failure with ensurePast value") {
-                    val result = tryValidate(config) { offsetTime.minusHours(1).ensureFuture() }
+                test("failure with ensureInPast value") {
+                    val result = tryValidate(config) { offsetTime.minusHours(1).ensureInFuture() }
                     result.shouldBeFailure()
                 }
             }
 
-            context("ensurePast") {
+            context("ensureInPast") {
                 test("success") {
-                    val result = tryValidate(config) { offsetTime.minusHours(1).ensurePast() }
+                    val result = tryValidate(config) { offsetTime.minusHours(1).ensureInPast() }
                     result.shouldBeSuccess()
                 }
 
-                test("failure with ensureFuture value") {
-                    val result = tryValidate(config) { offsetTime.plusHours(1).ensurePast() }
+                test("failure with ensureInFuture value") {
+                    val result = tryValidate(config) { offsetTime.plusHours(1).ensureInPast() }
                     result.shouldBeFailure()
                 }
             }
@@ -770,26 +770,26 @@ class TemporalValidatorTest :
             val clock = Clock.fixed(instant, zone)
             val config = ValidationConfig(clock = clock)
 
-            context("ensureFuture") {
+            context("ensureInFuture") {
                 test("success") {
-                    val result = tryValidate(config) { Year.of(2026).ensureFuture() }
+                    val result = tryValidate(config) { Year.of(2026).ensureInFuture() }
                     result.shouldBeSuccess()
                 }
 
-                test("failure with ensurePast value") {
-                    val result = tryValidate(config) { Year.of(2024).ensureFuture() }
+                test("failure with ensureInPast value") {
+                    val result = tryValidate(config) { Year.of(2024).ensureInFuture() }
                     result.shouldBeFailure()
                 }
             }
 
-            context("ensurePast") {
+            context("ensureInPast") {
                 test("success") {
-                    val result = tryValidate(config) { Year.of(2024).ensurePast() }
+                    val result = tryValidate(config) { Year.of(2024).ensureInPast() }
                     result.shouldBeSuccess()
                 }
 
-                test("failure with ensureFuture value") {
-                    val result = tryValidate(config) { Year.of(2026).ensurePast() }
+                test("failure with ensureInFuture value") {
+                    val result = tryValidate(config) { Year.of(2026).ensureInPast() }
                     result.shouldBeFailure()
                 }
             }
@@ -840,26 +840,26 @@ class TemporalValidatorTest :
             val clock = Clock.fixed(instant, zone)
             val config = ValidationConfig(clock = clock)
 
-            context("ensureFuture") {
+            context("ensureInFuture") {
                 test("success") {
-                    val result = tryValidate(config) { YearMonth.of(2025, 2).ensureFuture() }
+                    val result = tryValidate(config) { YearMonth.of(2025, 2).ensureInFuture() }
                     result.shouldBeSuccess()
                 }
 
-                test("failure with ensurePast value") {
-                    val result = tryValidate(config) { YearMonth.of(2024, 12).ensureFuture() }
+                test("failure with ensureInPast value") {
+                    val result = tryValidate(config) { YearMonth.of(2024, 12).ensureInFuture() }
                     result.shouldBeFailure()
                 }
             }
 
-            context("ensurePast") {
+            context("ensureInPast") {
                 test("success") {
-                    val result = tryValidate(config) { YearMonth.of(2024, 12).ensurePast() }
+                    val result = tryValidate(config) { YearMonth.of(2024, 12).ensureInPast() }
                     result.shouldBeSuccess()
                 }
 
-                test("failure with ensureFuture value") {
-                    val result = tryValidate(config) { YearMonth.of(2025, 2).ensurePast() }
+                test("failure with ensureInFuture value") {
+                    val result = tryValidate(config) { YearMonth.of(2025, 2).ensureInPast() }
                     result.shouldBeFailure()
                 }
             }
@@ -908,26 +908,26 @@ class TemporalValidatorTest :
             val clock = Clock.fixed(zonedDateTime.toInstant(), ZoneOffset.UTC)
             val config = ValidationConfig(clock = clock)
 
-            context("ensureFuture") {
+            context("ensureInFuture") {
                 test("success") {
-                    val result = tryValidate(config) { zonedDateTime.plusHours(1).ensureFuture() }
+                    val result = tryValidate(config) { zonedDateTime.plusHours(1).ensureInFuture() }
                     result.shouldBeSuccess()
                 }
 
-                test("failure with ensurePast value") {
-                    val result = tryValidate(config) { zonedDateTime.minusHours(1).ensureFuture() }
+                test("failure with ensureInPast value") {
+                    val result = tryValidate(config) { zonedDateTime.minusHours(1).ensureInFuture() }
                     result.shouldBeFailure()
                 }
             }
 
-            context("ensurePast") {
+            context("ensureInPast") {
                 test("success") {
-                    val result = tryValidate(config) { zonedDateTime.minusHours(1).ensurePast() }
+                    val result = tryValidate(config) { zonedDateTime.minusHours(1).ensureInPast() }
                     result.shouldBeSuccess()
                 }
 
-                test("failure with ensureFuture value") {
-                    val result = tryValidate(config) { zonedDateTime.plusHours(1).ensurePast() }
+                test("failure with ensureInFuture value") {
+                    val result = tryValidate(config) { zonedDateTime.plusHours(1).ensureInPast() }
                     result.shouldBeFailure()
                 }
             }

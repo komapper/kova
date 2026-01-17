@@ -13,16 +13,16 @@ import java.time.temporal.Temporal
 import kotlin.reflect.KClass
 
 /**
- * Validates that the temporal value is in the ensureFuture (strictly greater than now).
+ * Validates that the temporal value is in the future (strictly greater than now).
  *
  * The current time is determined by the clock in [ValidationConfig] at validation time.
  *
  * Example:
  * ```kotlin
  * // Assuming today is 2025-01-15
- * tryValidate { LocalDate.of(2025, 1, 16).ensureFuture() }  // Success
- * tryValidate { LocalDate.of(2025, 1, 15).ensureFuture() }  // Failure (present)
- * tryValidate { LocalDate.of(2025, 1, 14).ensureFuture() }  // Failure (ensurePast)
+ * tryValidate { LocalDate.of(2025, 1, 16).ensureInFuture() }  // Success
+ * tryValidate { LocalDate.of(2025, 1, 15).ensureInFuture() }  // Failure (present)
+ * tryValidate { LocalDate.of(2025, 1, 14).ensureInFuture() }  // Failure (past)
  * ```
  *
  * @param Validation (context parameter) The validation context for constraint checking and error accumulation
@@ -33,21 +33,21 @@ import kotlin.reflect.KClass
  */
 @IgnorableReturnValue
 context(_: Validation)
-public inline fun <reified S> S.ensureFuture(
-    noinline message: MessageProvider = { "kova.temporal.future".resource },
-): S where S : Temporal, S : Comparable<S> = constrain("kova.temporal.future") { satisfies(it > now(), message) }
+public inline fun <reified S> S.ensureInFuture(
+    noinline message: MessageProvider = { "kova.temporal.inFuture".resource },
+): S where S : Temporal, S : Comparable<S> = constrain("kova.temporal.inFuture") { satisfies(it > now(), message) }
 
 /**
- * Validates that the temporal value is in the ensureFuture or present (greater than or equal to now).
+ * Validates that the temporal value is in the future or present (greater than or equal to now).
  *
  * The current time is determined by the clock in [ValidationConfig] at validation time.
  *
  * Example:
  * ```kotlin
  * // Assuming today is 2025-01-15
- * tryValidate { LocalDate.of(2025, 1, 16).ensureFutureOrPresent() }  // Success (ensureFuture)
- * tryValidate { LocalDate.of(2025, 1, 15).ensureFutureOrPresent() }  // Success (present)
- * tryValidate { LocalDate.of(2025, 1, 14).ensureFutureOrPresent() }  // Failure (ensurePast)
+ * tryValidate { LocalDate.of(2025, 1, 16).ensureInFutureOrPresent() }  // Success (future)
+ * tryValidate { LocalDate.of(2025, 1, 15).ensureInFutureOrPresent() }  // Success (present)
+ * tryValidate { LocalDate.of(2025, 1, 14).ensureInFutureOrPresent() }  // Failure (past)
  * ```
  *
  * @param Validation (context parameter) The validation context for constraint checking and error accumulation
@@ -58,21 +58,21 @@ public inline fun <reified S> S.ensureFuture(
  */
 @IgnorableReturnValue
 context(_: Validation)
-public inline fun <reified S> S.ensureFutureOrPresent(
-    noinline message: MessageProvider = { "kova.temporal.futureOrPresent".resource },
-): S where S : Temporal, S : Comparable<S> = constrain("kova.temporal.futureOrPresent") { satisfies(it >= now(), message) }
+public inline fun <reified S> S.ensureInFutureOrPresent(
+    noinline message: MessageProvider = { "kova.temporal.inFutureOrPresent".resource },
+): S where S : Temporal, S : Comparable<S> = constrain("kova.temporal.inFutureOrPresent") { satisfies(it >= now(), message) }
 
 /**
- * Validates that the temporal value is in the ensurePast (strictly less than now).
+ * Validates that the temporal value is in the past (strictly less than now).
  *
  * The current time is determined by the clock in [ValidationConfig] at validation time.
  *
  * Example:
  * ```kotlin
  * // Assuming today is 2025-01-15
- * tryValidate { LocalDate.of(2025, 1, 14).ensurePast() }  // Success
- * tryValidate { LocalDate.of(2025, 1, 15).ensurePast() }  // Failure (present)
- * tryValidate { LocalDate.of(2025, 1, 16).ensurePast() }  // Failure (ensureFuture)
+ * tryValidate { LocalDate.of(2025, 1, 14).ensureInPast() }  // Success
+ * tryValidate { LocalDate.of(2025, 1, 15).ensureInPast() }  // Failure (present)
+ * tryValidate { LocalDate.of(2025, 1, 16).ensureInPast() }  // Failure (future)
  * ```
  *
  * @param Validation (context parameter) The validation context for constraint checking and error accumulation
@@ -83,21 +83,21 @@ public inline fun <reified S> S.ensureFutureOrPresent(
  */
 @IgnorableReturnValue
 context(_: Validation)
-public inline fun <reified S> S.ensurePast(
-    noinline message: MessageProvider = { "kova.temporal.past".resource },
-): S where S : Temporal, S : Comparable<S> = constrain("kova.temporal.past") { satisfies(it < now(), message) }
+public inline fun <reified S> S.ensureInPast(
+    noinline message: MessageProvider = { "kova.temporal.inPast".resource },
+): S where S : Temporal, S : Comparable<S> = constrain("kova.temporal.inPast") { satisfies(it < now(), message) }
 
 /**
- * Validates that the temporal value is in the ensurePast or present (less than or equal to now).
+ * Validates that the temporal value is in the past or present (less than or equal to now).
  *
  * The current time is determined by the clock in [ValidationConfig] at validation time.
  *
  * Example:
  * ```kotlin
  * // Assuming today is 2025-01-15
- * tryValidate { LocalDate.of(2025, 1, 14).ensurePastOrPresent() }  // Success (ensurePast)
- * tryValidate { LocalDate.of(2025, 1, 15).ensurePastOrPresent() }  // Success (present)
- * tryValidate { LocalDate.of(2025, 1, 16).ensurePastOrPresent() }  // Failure (ensureFuture)
+ * tryValidate { LocalDate.of(2025, 1, 14).ensureInPastOrPresent() }  // Success (past)
+ * tryValidate { LocalDate.of(2025, 1, 15).ensureInPastOrPresent() }  // Success (present)
+ * tryValidate { LocalDate.of(2025, 1, 16).ensureInPastOrPresent() }  // Failure (future)
  * ```
  *
  * @param Validation (context parameter) The validation context for constraint checking and error accumulation
@@ -108,16 +108,16 @@ public inline fun <reified S> S.ensurePast(
  */
 @IgnorableReturnValue
 context(_: Validation)
-public inline fun <reified S> S.ensurePastOrPresent(
-    noinline message: MessageProvider = { "kova.temporal.pastOrPresent".resource },
-): S where S : Temporal, S : Comparable<S> = constrain("kova.temporal.pastOrPresent") { satisfies(it <= now(), message) }
+public inline fun <reified S> S.ensureInPastOrPresent(
+    noinline message: MessageProvider = { "kova.temporal.inPastOrPresent".resource },
+): S where S : Temporal, S : Comparable<S> = constrain("kova.temporal.inPastOrPresent") { satisfies(it <= now(), message) }
 
 /**
  * Obtains the current temporal value for the specified type using the configured clock.
  *
  * This internal function maps from a [KClass] to the appropriate static `now(Clock)` method
  * for each supported temporal type. It is used by the temporal constraint extension functions
- * (ensureFuture, ensurePast, etc.) to obtain the current time at validation time.
+ * (ensureInFuture, ensureInPast, etc.) to obtain the current time at validation time.
  *
  * The clock is obtained from [ValidationConfig.clock] via the [Validation] context parameter.
  *

@@ -147,12 +147,12 @@ Works with any `Comparable` type including numbers, strings, dates, and custom t
 
 Supported types: `LocalDate`, `LocalTime`, `LocalDateTime`, `Instant`, `OffsetDateTime`, `OffsetTime`, `ZonedDateTime`, `Year`, `YearMonth`, `MonthDay`
 
-| Validator                 | Constraint ID                   | Error Message                    | Description               |
-|---------------------------|---------------------------------|----------------------------------|---------------------------|
-| `ensureFuture()`          | `kova.temporal.future`          | must be in the future            | After current time        |
-| `ensureFutureOrPresent()` | `kova.temporal.futureOrPresent` | must be in the future or present | At or after current time  |
-| `ensurePast()`            | `kova.temporal.past`            | must be in the past              | Before current time       |
-| `ensurePastOrPresent()`   | `kova.temporal.pastOrPresent`   | must be in the past or present   | At or before current time |
+| Validator                   | Constraint ID                     | Error Message                    | Description               |
+|-----------------------------|-----------------------------------|----------------------------------|---------------------------|
+| `ensureInFuture()`          | `kova.temporal.inFuture`          | must be in the future            | After current time        |
+| `ensureInFutureOrPresent()` | `kova.temporal.inFutureOrPresent` | must be in the future or present | At or after current time  |
+| `ensureInPast()`            | `kova.temporal.inPast`            | must be in the past              | Before current time       |
+| `ensureInPastOrPresent()`   | `kova.temporal.inPastOrPresent`   | must be in the past or present   | At or before current time |
 
 Temporal types also support all [Comparable validators](#comparable) for date/time comparisons.
 
@@ -162,7 +162,7 @@ Temporal types also support all [Comparable validators](#comparable) for date/ti
 ```kotlin
 val fixedClock = Clock.fixed(Instant.parse("2024-06-15T10:00:00Z"), ZoneId.of("UTC"))
 val result = tryValidate(ValidationConfig(clock = fixedClock)) {
-    date.ensureFuture()
+    date.ensureInFuture()
 }
 ```
 
@@ -312,7 +312,7 @@ Default messages are loaded from `kova.properties`. Create locale-specific files
 ```properties
 kova.charSequence.notBlank=空白にできません
 kova.number.positive=正の数である必要があります
-kova.temporal.future=将来の日付である必要があります
+kova.temporal.inFuture=将来の日付である必要があります
 ```
 
 The constraint ID is used as the property key.

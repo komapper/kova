@@ -101,8 +101,8 @@ public class Schema<T>(
      *
      * context(_: Validation)
      * fun validate(period: Period) = period.schema {
-     *     period::startDate { it.ensurePastOrPresent() }
-     *     period::endDate { it.ensureFutureOrPresent() }
+     *     period::startDate { it.ensureInPastOrPresent() }
+     *     period::endDate { it.ensureInFutureOrPresent() }
      *     constrain("period.dateOrder") {
      *         satisfies(it.startDate <= it.endDate) { text("Start date must be before end date") }
      *     }

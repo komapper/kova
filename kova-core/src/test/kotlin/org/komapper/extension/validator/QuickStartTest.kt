@@ -205,7 +205,7 @@ class QuickStartTest :
         context("custom clock") {
             context(_: Validation)
             fun validateDate(date: LocalDate) {
-                date.ensureFuture()
+                date.ensureInFuture()
             }
 
             test("test") {

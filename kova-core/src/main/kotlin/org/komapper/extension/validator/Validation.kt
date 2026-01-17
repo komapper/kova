@@ -26,7 +26,7 @@ public data class Validation(
  *
  * @property failFast If true, validation stops at the first failure instead of collecting all errors.
  *                    Default is false (collect all errors).
- * @property clock The clock used for temporal validation constraints (ensurePast, ensureFuture, ensurePastOrPresent, ensureFutureOrPresent).
+ * @property clock The clock used for temporal validation constraints (ensureInPast, ensureInFuture, ensureInPastOrPresent, ensureInFutureOrPresent).
  *                 Defaults to [Clock.systemDefaultZone]. Use a fixed clock for deterministic testing.
  * @property logger Optional callback function for receiving debug log messages during validation.
  *                  If null (default), no logging is performed. Each log message ensureContains information
@@ -45,7 +45,7 @@ public data class Validation(
  * val fixedClock = Clock.fixed(Instant.parse("2025-01-01T00:00:00Z"), ZoneOffset.UTC)
  * val testConfig = ValidationConfig(clock = fixedClock)
  * val result2 = tryValidate(testConfig) {
- *     ensurePast(LocalDate.of(2024, 12, 31))
+ *     LocalDate.of(2024, 12, 31).ensureInPast()
  * }
  * ```
  */
