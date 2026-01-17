@@ -138,8 +138,9 @@ public fun raise(message: Message): Nothing = raise(listOf(message))
  *         if validation fails with accumulated error messages
  */
 @IgnorableReturnValue
+@PublishedApi
 context(v: Validation)
-public inline fun <R> accumulating(block: context(Validation)() -> R): Accumulate.Value<R> {
+internal inline fun <R> accumulating(block: context(Validation)() -> R): Accumulate.Value<R> {
     lateinit var outsideError: Accumulate.Error
     // raise/error is only used after outsideError is initialized
     return recoverValidation({ outsideError }) {
@@ -201,7 +202,8 @@ public class ValidationCancellationException(
  * @return the result from the block if successful, or the result from recovery if validation fails
  * @throws ValidationCancellationException if the exception belongs to a different error context
  */
-public inline fun <R> recoverValidation(
+@PublishedApi
+internal inline fun <R> recoverValidation(
     recover: () -> R,
     block: Accumulate.Error.() -> R,
 ): R =
