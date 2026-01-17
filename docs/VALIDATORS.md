@@ -58,35 +58,41 @@ All validators are extension functions with a `context(_: Validation)` receiver.
 
 These validators check if the string can be parsed as the specified type without converting.
 
-| Validator            | Constraint ID            | Error Message                  |
-|----------------------|--------------------------|--------------------------------|
-| `ensureInt()`        | `kova.string.int`        | must be a valid integer        |
-| `ensureLong()`       | `kova.string.long`       | must be a valid long           |
-| `ensureShort()`      | `kova.string.short`      | must be a valid short          |
-| `ensureByte()`       | `kova.string.byte`       | must be a valid byte           |
-| `ensureDouble()`     | `kova.string.double`     | must be a valid double         |
-| `ensureFloat()`      | `kova.string.float`      | must be a valid float          |
-| `ensureBigDecimal()` | `kova.string.bigDecimal` | must be a valid decimal number |
-| `ensureBigInteger()` | `kova.string.bigInteger` | must be a valid integer number |
-| `ensureBoolean()`    | `kova.string.boolean`    | must be "true" or "false"      |
-| `ensureEnum<T>()`    | `kova.string.enum`       | must be one of: {0}            |
+| Validator            | Constraint ID               | Error Message                  |
+|----------------------|-----------------------------|--------------------------------|
+| `ensureInt()`        | `kova.string.int`           | must be a valid integer        |
+| `ensureLong()`       | `kova.string.long`          | must be a valid long           |
+| `ensureShort()`      | `kova.string.short`         | must be a valid short          |
+| `ensureByte()`       | `kova.string.byte`          | must be a valid byte           |
+| `ensureDouble()`     | `kova.string.double`        | must be a valid double         |
+| `ensureFloat()`      | `kova.string.float`         | must be a valid float          |
+| `ensureBigDecimal()` | `kova.string.bigDecimal`    | must be a valid decimal number |
+| `ensureBigInteger()` | `kova.string.bigInteger`    | must be a valid integer number |
+| `ensureBoolean()`    | `kova.string.boolean`       | must be "true" or "false"      |
+| `ensureEnum<T>()`    | `kova.string.enum`          | must be one of: {0}            |
+| `ensureDate()`       | `kova.string.localDate`     | must be a valid date           |
+| `ensureDateTime()`   | `kova.string.localDateTime` | must be a valid date and time  |
+| `ensureTime()`       | `kova.string.localTime`     | must be a valid time           |
 
 ### Type Conversion (String only)
 
 These validators convert the string to the specified type, raising an error immediately if conversion fails.
 
-| Validator                 | Constraint ID            | Return Type  | Error Message                  |
-|---------------------------|--------------------------|--------------|--------------------------------|
-| `transformToInt()`        | `kova.string.int`        | `Int`        | must be a valid integer        |
-| `transformToLong()`       | `kova.string.long`       | `Long`       | must be a valid long           |
-| `transformToShort()`      | `kova.string.short`      | `Short`      | must be a valid short          |
-| `transformToByte()`       | `kova.string.byte`       | `Byte`       | must be a valid byte           |
-| `transformToDouble()`     | `kova.string.double`     | `Double`     | must be a valid double         |
-| `transformToFloat()`      | `kova.string.float`      | `Float`      | must be a valid float          |
-| `transformToBigDecimal()` | `kova.string.bigDecimal` | `BigDecimal` | must be a valid decimal number |
-| `transformToBigInteger()` | `kova.string.bigInteger` | `BigInteger` | must be a valid integer number |
-| `transformToBoolean()`    | `kova.string.boolean`    | `Boolean`    | must be "true" or "false"      |
-| `transformToEnum<T>()`    | `kova.string.enum`       | `T`          | must be one of: {0}            |
+| Validator                 | Constraint ID               | Return Type     | Error Message                  |
+|---------------------------|-----------------------------|-----------------|--------------------------------|
+| `transformToInt()`        | `kova.string.int`           | `Int`           | must be a valid integer        |
+| `transformToLong()`       | `kova.string.long`          | `Long`          | must be a valid long           |
+| `transformToShort()`      | `kova.string.short`         | `Short`         | must be a valid short          |
+| `transformToByte()`       | `kova.string.byte`          | `Byte`          | must be a valid byte           |
+| `transformToDouble()`     | `kova.string.double`        | `Double`        | must be a valid double         |
+| `transformToFloat()`      | `kova.string.float`         | `Float`         | must be a valid float          |
+| `transformToBigDecimal()` | `kova.string.bigDecimal`    | `BigDecimal`    | must be a valid decimal number |
+| `transformToBigInteger()` | `kova.string.bigInteger`    | `BigInteger`    | must be a valid integer number |
+| `transformToBoolean()`    | `kova.string.boolean`       | `Boolean`       | must be "true" or "false"      |
+| `transformToEnum<T>()`    | `kova.string.enum`          | `T`             | must be one of: {0}            |
+| `transformToDate()`       | `kova.string.localDate`     | `LocalDate`     | must be a valid date           |
+| `transformToDateTime()`   | `kova.string.localDateTime` | `LocalDateTime` | must be a valid date and time  |
+| `transformToTime()`       | `kova.string.localTime`     | `LocalTime`     | must be a valid time           |
 
 **Usage:**
 ```kotlin
