@@ -3,13 +3,16 @@ package example.core
 import org.komapper.extension.validator.Validation
 import org.komapper.extension.validator.ValidationResult
 import org.komapper.extension.validator.capture
+import org.komapper.extension.validator.constrain
 import org.komapper.extension.validator.ensureInRange
 import org.komapper.extension.validator.ensureLengthAtLeast
 import org.komapper.extension.validator.ensureNotBlank
 import org.komapper.extension.validator.ensureNotNegative
+import org.komapper.extension.validator.ensureNotNull
 import org.komapper.extension.validator.isSuccess
 import org.komapper.extension.validator.schema
 import org.komapper.extension.validator.text
+import org.komapper.extension.validator.transformToDouble
 import org.komapper.extension.validator.transformToInt
 import org.komapper.extension.validator.tryValidate
 
@@ -97,6 +100,19 @@ fun buildPerson(
     return Person(name, age)
 }
 
+context(_: Validation)
+fun buildPriceRange(
+    rawMinPrice: String?,
+    rawMaxPrice: String?,
+): PriceRange {
+    val minPrice by capture { rawMinPrice.ensureNotNull().transformToDouble() }
+    val maxPrice by capture { rawMaxPrice.ensureNotNull().transformToDouble() }
+    constrain("priceRange") {
+        satisfies(minPrice <= maxPrice) { text("minPrice must be less than or equal to maxPrice") }
+    }
+    return PriceRange(minPrice, maxPrice)
+}
+
 fun main() {
     println("\n# Example 1: Basic schema validation")
     tryValidate { User("a", 10).validate() }.printResult() // valid
@@ -117,6 +133,10 @@ fun main() {
     println("\n# Example 5: Nested object creation")
     tryValidate { buildPerson("a", "10") }.printResult() // valid
     tryValidate { buildPerson("   ", "abc") }.printResult() // invalid: blank name, non-integer age
+
+    println("\n# Example 6: Cross-property validation")
+    tryValidate { buildPriceRange("10.0", "20.0") }.printResult() // valid
+    tryValidate { buildPriceRange("30.0", "20.0") }.printResult() // invalid: min > max
 }
 
 private fun ValidationResult<*>.printResult() {
