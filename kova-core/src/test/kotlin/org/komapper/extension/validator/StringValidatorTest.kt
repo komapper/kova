@@ -470,6 +470,72 @@ class StringValidatorTest :
             }
         }
 
+        context("ensureDate") {
+            test("success") {
+                val result = tryValidate { "2025-01-17".ensureDate() }
+                result.shouldBeSuccess()
+            }
+            test("failure") {
+                val result = tryValidate { "invalid".ensureDate() }
+                result.shouldBeFailure()
+                result.messages.single().constraintId shouldBe "kova.string.localDate"
+                result.messages.single().input shouldBe "invalid"
+            }
+            test("failure then other failure") {
+                val result =
+                    tryValidate {
+                        "invalid".ensureDate()
+                        "".ensureNotEmpty()
+                    }
+                result.shouldBeFailure()
+                result.messages.size shouldBe 2
+            }
+        }
+
+        context("ensureDateTime") {
+            test("success") {
+                val result = tryValidate { "2025-01-17T10:30:00".ensureDateTime() }
+                result.shouldBeSuccess()
+            }
+            test("failure") {
+                val result = tryValidate { "invalid".ensureDateTime() }
+                result.shouldBeFailure()
+                result.messages.single().constraintId shouldBe "kova.string.localDateTime"
+                result.messages.single().input shouldBe "invalid"
+            }
+            test("failure then other failure") {
+                val result =
+                    tryValidate {
+                        "invalid".ensureDateTime()
+                        "".ensureNotEmpty()
+                    }
+                result.shouldBeFailure()
+                result.messages.size shouldBe 2
+            }
+        }
+
+        context("ensureTime") {
+            test("success") {
+                val result = tryValidate { "10:30:00".ensureTime() }
+                result.shouldBeSuccess()
+            }
+            test("failure") {
+                val result = tryValidate { "invalid".ensureTime() }
+                result.shouldBeFailure()
+                result.messages.single().constraintId shouldBe "kova.string.localTime"
+                result.messages.single().input shouldBe "invalid"
+            }
+            test("failure then other failure") {
+                val result =
+                    tryValidate {
+                        "invalid".ensureTime()
+                        "".ensureNotEmpty()
+                    }
+                result.shouldBeFailure()
+                result.messages.size shouldBe 2
+            }
+        }
+
         context("transformToEnum") {
             test("success with ACTIVE") {
                 val result = tryValidate { "ACTIVE".transformToEnum<Status>() }

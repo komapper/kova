@@ -238,6 +238,75 @@ public inline fun <reified E : Enum<E>> String.ensureEnum(
 ): String = ensureEnum(E::class, message)
 
 /**
+ * Validates that the string can be parsed as a LocalDate.
+ *
+ * Example:
+ * ```kotlin
+ * tryValidate { "2025-01-17".ensureDate() }                                    // Success (ISO format)
+ * tryValidate { "17/01/2025".ensureDate(DateTimeFormatter.ofPattern("dd/MM/yyyy")) } // Success (custom format)
+ * tryValidate { "invalid".ensureDate() }                                       // Failure
+ * ```
+ *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver String The string to validate
+ * @param formatter The DateTimeFormatter to use for parsing (defaults to ISO_LOCAL_DATE)
+ * @param message Custom error message provider
+ * @return The validated string value (allows method chaining)
+ */
+@IgnorableReturnValue
+context(_: Validation)
+public fun String.ensureDate(
+    formatter: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE,
+    message: MessageProvider = { "kova.string.localDate".resource },
+): String = constrain("kova.string.localDate") { val _ = it.transformToDate(formatter, message) }
+
+/**
+ * Validates that the string can be parsed as a LocalDateTime.
+ *
+ * Example:
+ * ```kotlin
+ * tryValidate { "2025-01-17T10:30:00".ensureDateTime() }                                    // Success (ISO format)
+ * tryValidate { "17/01/2025 10:30".ensureDateTime(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) } // Success (custom format)
+ * tryValidate { "invalid".ensureDateTime() }                                               // Failure
+ * ```
+ *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver String The string to validate
+ * @param formatter The DateTimeFormatter to use for parsing (defaults to ISO_LOCAL_DATE_TIME)
+ * @param message Custom error message provider
+ * @return The validated string value (allows method chaining)
+ */
+@IgnorableReturnValue
+context(_: Validation)
+public fun String.ensureDateTime(
+    formatter: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME,
+    message: MessageProvider = { "kova.string.localDateTime".resource },
+): String = constrain("kova.string.localDateTime") { val _ = it.transformToDateTime(formatter, message) }
+
+/**
+ * Validates that the string can be parsed as a LocalTime.
+ *
+ * Example:
+ * ```kotlin
+ * tryValidate { "10:30:00".ensureTime() }                                    // Success (ISO format)
+ * tryValidate { "10:30".ensureTime(DateTimeFormatter.ofPattern("HH:mm")) }   // Success (custom format)
+ * tryValidate { "invalid".ensureTime() }                                     // Failure
+ * ```
+ *
+ * @param Validation (context parameter) The validation context for constraint checking and error accumulation
+ * @receiver String The string to validate
+ * @param formatter The DateTimeFormatter to use for parsing (defaults to ISO_LOCAL_TIME)
+ * @param message Custom error message provider
+ * @return The validated string value (allows method chaining)
+ */
+@IgnorableReturnValue
+context(_: Validation)
+public fun String.ensureTime(
+    formatter: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_TIME,
+    message: MessageProvider = { "kova.string.localTime".resource },
+): String = constrain("kova.string.localTime") { val _ = it.transformToTime(formatter, message) }
+
+/**
  * Validates that the string is in ensureUppercase.
  *
  * Example:
