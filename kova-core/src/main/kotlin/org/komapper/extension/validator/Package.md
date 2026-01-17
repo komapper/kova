@@ -59,7 +59,7 @@ Built-in validators are organized by type:
 - `IterableValidator.kt` - Iterable validators (ensureEach, ensureContains)
 - `CollectionValidator.kt` - Collection validators (ensureNotEmpty, ensureSizeAtLeast)
 - `MapValidator.kt` - Map validators (ensureContainsKey, ensureEachEntry)
-- `TemporalValidator.kt` - Date/time validators (ensurePast, ensureFuture)
+- `TemporalValidator.kt` - Date/time validators (ensureInPast, ensureInFuture)
 
 ## Object Creation
 

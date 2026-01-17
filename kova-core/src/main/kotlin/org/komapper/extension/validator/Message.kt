@@ -220,8 +220,8 @@ internal fun getPattern(key: String): String {
  *
  * context(_: Validation)
  * fun validate(period: Period) = period.schema {
- *     period::startDate { it.ensurePastOrPresent() }
- *     period::endDate { it.ensureFutureOrPresent() }
+ *     period::startDate { it.ensureInPastOrPresent() }
+ *     period::endDate { it.ensureInFutureOrPresent() }
  *     period.constrain("period") {
  *         satisfies(it.startDate <= it.endDate) {
  *             text("Start date must be before or equal to end date")

@@ -21,7 +21,7 @@ val result = tryValidate(ValidationConfig(failFast = true)) { user.validate() }
 
 ## Custom Clock for Temporal Validation
 
-Temporal validators (`ensureFuture()`, `ensurePast()`, etc.) use the system clock by default. Provide a custom clock for testing:
+Temporal validators (`ensureInFuture()`, `ensureInPast()`, etc.) use the system clock by default. Provide a custom clock for testing:
 
 ```kotlin
 import java.time.Clock
@@ -30,7 +30,7 @@ import java.time.ZoneId
 
 context(_: Validation)
 fun validateDate(date: LocalDate) {
-    date.ensureFuture()
+    date.ensureInFuture()
 }
 
 // Fixed clock for testing

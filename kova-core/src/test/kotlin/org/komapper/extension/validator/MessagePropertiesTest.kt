@@ -823,52 +823,52 @@ class MessagePropertiesTest :
         }
 
         context("kova.temporal") {
-            test("ensureFuture") {
+            test("ensureInFuture") {
                 val result =
                     tryValidate {
                         LocalDate
                             .now()
                             .minusDays(1)
-                            .ensureFuture()
+                            .ensureInFuture()
                     }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be in the future"
             }
 
-            test("ensureFutureOrPresent") {
+            test("ensureInFutureOrPresent") {
                 val result =
                     tryValidate {
                         LocalDate
                             .now()
                             .minusDays(1)
-                            .ensureFutureOrPresent()
+                            .ensureInFutureOrPresent()
                     }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be in the future or present"
             }
 
-            test("ensurePast") {
+            test("ensureInPast") {
                 val result =
                     tryValidate {
                         LocalDate
                             .now()
                             .plusDays(1)
-                            .ensurePast()
+                            .ensureInPast()
                     }
                 result.shouldBeFailure()
                 val message = result.messages.single()
                 message.text shouldBe "must be in the past"
             }
 
-            test("ensurePastOrPresent") {
+            test("ensureInPastOrPresent") {
                 val result =
                     tryValidate {
                         LocalDate
                             .now()
                             .plusDays(1)
-                            .ensurePastOrPresent()
+                            .ensureInPastOrPresent()
                     }
                 result.shouldBeFailure()
                 val message = result.messages.single()
