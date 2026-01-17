@@ -1,6 +1,10 @@
 package org.komapper.extension.validator
 
 import io.kotest.core.spec.style.FunSpec
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 class StringValidatorTest :
@@ -466,6 +470,72 @@ class StringValidatorTest :
             }
         }
 
+        context("ensureDate") {
+            test("success") {
+                val result = tryValidate { "2025-01-17".ensureDate() }
+                result.shouldBeSuccess()
+            }
+            test("failure") {
+                val result = tryValidate { "invalid".ensureDate() }
+                result.shouldBeFailure()
+                result.messages.single().constraintId shouldBe "kova.string.localDate"
+                result.messages.single().input shouldBe "invalid"
+            }
+            test("failure then other failure") {
+                val result =
+                    tryValidate {
+                        "invalid".ensureDate()
+                        "".ensureNotEmpty()
+                    }
+                result.shouldBeFailure()
+                result.messages.size shouldBe 2
+            }
+        }
+
+        context("ensureDateTime") {
+            test("success") {
+                val result = tryValidate { "2025-01-17T10:30:00".ensureDateTime() }
+                result.shouldBeSuccess()
+            }
+            test("failure") {
+                val result = tryValidate { "invalid".ensureDateTime() }
+                result.shouldBeFailure()
+                result.messages.single().constraintId shouldBe "kova.string.localDateTime"
+                result.messages.single().input shouldBe "invalid"
+            }
+            test("failure then other failure") {
+                val result =
+                    tryValidate {
+                        "invalid".ensureDateTime()
+                        "".ensureNotEmpty()
+                    }
+                result.shouldBeFailure()
+                result.messages.size shouldBe 2
+            }
+        }
+
+        context("ensureTime") {
+            test("success") {
+                val result = tryValidate { "10:30:00".ensureTime() }
+                result.shouldBeSuccess()
+            }
+            test("failure") {
+                val result = tryValidate { "invalid".ensureTime() }
+                result.shouldBeFailure()
+                result.messages.single().constraintId shouldBe "kova.string.localTime"
+                result.messages.single().input shouldBe "invalid"
+            }
+            test("failure then other failure") {
+                val result =
+                    tryValidate {
+                        "invalid".ensureTime()
+                        "".ensureNotEmpty()
+                    }
+                result.shouldBeFailure()
+                result.messages.size shouldBe 2
+            }
+        }
+
         context("transformToEnum") {
             test("success with ACTIVE") {
                 val result = tryValidate { "ACTIVE".transformToEnum<Status>() }
@@ -499,6 +569,92 @@ class StringValidatorTest :
                 result.shouldBeFailure()
                 result.messages.single().constraintId shouldBe "kova.string.enum"
                 result.messages.single().input shouldBe "active"
+            }
+        }
+
+        context("transformToDate") {
+            test("success with ISO format") {
+                val result = tryValidate { "2025-01-17".transformToDate() }
+                result.shouldBeSuccess()
+                result.value shouldBe LocalDate.of(2025, 1, 17)
+            }
+            test("success with custom format") {
+                val result =
+                    tryValidate {
+                        "17/01/2025".transformToDate(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                    }
+                result.shouldBeSuccess()
+                result.value shouldBe LocalDate.of(2025, 1, 17)
+            }
+            test("failure") {
+                val result = tryValidate { "invalid".transformToDate() }
+                result.shouldBeFailure()
+                result.messages.single().constraintId shouldBe "kova.string.localDate"
+                result.messages.single().input shouldBe "invalid"
+            }
+            test("failure stops subsequent validation") {
+                val result = tryValidate { "invalid".transformToDate().ensureNull() }
+                result.shouldBeFailure()
+                result.messages.single().constraintId shouldBe "kova.string.localDate"
+                result.messages.single().input shouldBe "invalid"
+            }
+        }
+
+        context("transformToDateTime") {
+            test("success with ISO format") {
+                val result = tryValidate { "2025-01-17T10:30:00".transformToDateTime() }
+                result.shouldBeSuccess()
+                result.value shouldBe LocalDateTime.of(2025, 1, 17, 10, 30, 0)
+            }
+            test("success with custom format") {
+                val result =
+                    tryValidate {
+                        "17/01/2025 10:30".transformToDateTime(
+                            DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"),
+                        )
+                    }
+                result.shouldBeSuccess()
+                result.value shouldBe LocalDateTime.of(2025, 1, 17, 10, 30)
+            }
+            test("failure") {
+                val result = tryValidate { "invalid".transformToDateTime() }
+                result.shouldBeFailure()
+                result.messages.single().constraintId shouldBe "kova.string.localDateTime"
+                result.messages.single().input shouldBe "invalid"
+            }
+            test("failure stops subsequent validation") {
+                val result = tryValidate { "invalid".transformToDateTime().ensureNull() }
+                result.shouldBeFailure()
+                result.messages.single().constraintId shouldBe "kova.string.localDateTime"
+                result.messages.single().input shouldBe "invalid"
+            }
+        }
+
+        context("transformToTime") {
+            test("success with ISO format") {
+                val result = tryValidate { "10:30:00".transformToTime() }
+                result.shouldBeSuccess()
+                result.value shouldBe LocalTime.of(10, 30, 0)
+            }
+            test("success with custom format") {
+                val result =
+                    tryValidate {
+                        "10:30".transformToTime(DateTimeFormatter.ofPattern("HH:mm"))
+                    }
+                result.shouldBeSuccess()
+                result.value shouldBe LocalTime.of(10, 30)
+            }
+            test("failure") {
+                val result = tryValidate { "invalid".transformToTime() }
+                result.shouldBeFailure()
+                result.messages.single().constraintId shouldBe "kova.string.localTime"
+                result.messages.single().input shouldBe "invalid"
+            }
+            test("failure stops subsequent validation") {
+                val result = tryValidate { "invalid".transformToTime().ensureNull() }
+                result.shouldBeFailure()
+                result.messages.single().constraintId shouldBe "kova.string.localTime"
+                result.messages.single().input shouldBe "invalid"
             }
         }
     }) {
