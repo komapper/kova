@@ -12,14 +12,14 @@ class MessagePropertiesSyncTest :
             val japaneseProps = Properties()
 
             MessagePropertiesSyncTest::class.java
-                .getResourceAsStream("/kova.properties")
+                .getResourceAsStream("/kova-default.properties")
                 ?.use { englishProps.load(it) }
-                ?: error("Failed to load kova.properties")
+                ?: error("Failed to load kova-default.properties")
 
             MessagePropertiesSyncTest::class.java
-                .getResourceAsStream("/kova_ja.properties")
+                .getResourceAsStream("/kova-default_ja.properties")
                 ?.use { japaneseProps.load(it) }
-                ?: error("Failed to load kova_ja.properties")
+                ?: error("Failed to load kova-default_ja.properties")
 
             val englishKeys = englishProps.stringPropertyNames()
             val japaneseKeys = japaneseProps.stringPropertyNames()
@@ -31,10 +31,10 @@ class MessagePropertiesSyncTest :
                 val message =
                     buildString {
                         if (missingInJapanese.isNotEmpty()) {
-                            appendLine("Keys missing in kova_ja.properties: $missingInJapanese")
+                            appendLine("Keys missing in kova-default_ja.properties: $missingInJapanese")
                         }
                         if (missingInEnglish.isNotEmpty()) {
-                            appendLine("Keys missing in kova.properties: $missingInEnglish")
+                            appendLine("Keys missing in kova-default.properties: $missingInEnglish")
                         }
                     }
                 error(message)
