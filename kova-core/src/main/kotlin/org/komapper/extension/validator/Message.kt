@@ -3,7 +3,11 @@ package org.komapper.extension.validator
 import org.komapper.extension.validator.ValidationIor.FailureLike
 import org.komapper.extension.validator.ValidationResult.Success
 import java.text.MessageFormat
+import java.util.Locale
+import java.util.MissingResourceException
+import java.util.Optional
 import java.util.ResourceBundle
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * A lazy provider for validation error messages.
@@ -191,11 +195,32 @@ public sealed interface Message {
     }
 }
 
-private const val RESOURCE_BUNDLE_BASE_NAME = "kova"
+private const val DEFAULT_BUNDLE_BASE_NAME = "kova-default"
+private const val USER_BUNDLE_BASE_NAME = "kova"
+
+private object UserBundleCache {
+    private val cache = ConcurrentHashMap<Locale, Optional<ResourceBundle>>()
+
+    fun get(): ResourceBundle? {
+        val locale = Locale.getDefault()
+        return cache
+            .computeIfAbsent(locale) {
+                try {
+                    Optional.of(ResourceBundle.getBundle(USER_BUNDLE_BASE_NAME, locale))
+                } catch (_: MissingResourceException) {
+                    Optional.empty()
+                }
+            }.orElse(null)
+    }
+}
 
 internal fun getPattern(key: String): String {
-    val bundle = ResourceBundle.getBundle(RESOURCE_BUNDLE_BASE_NAME)
-    return bundle.getString(key)
+    UserBundleCache.get()?.let { bundle ->
+        if (bundle.containsKey(key)) {
+            return bundle.getString(key)
+        }
+    }
+    return ResourceBundle.getBundle(DEFAULT_BUNDLE_BASE_NAME).getString(key)
 }
 
 /**
