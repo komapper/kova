@@ -274,4 +274,128 @@ class NumberValidatorTest :
                 result.messages[0].constraintId shouldBe "kova.comparable.lessThan"
             }
         }
+
+        context("ensureDigits with BigDecimal") {
+            test("success with valid integer and fraction digits") {
+                val result = tryValidate { "123456.78".toBigDecimal().ensureDigits(integer = 6, fraction = 2) }
+                result.shouldBeSuccess()
+            }
+
+            test("success with fewer digits than maximum") {
+                val result = tryValidate { "12.3".toBigDecimal().ensureDigits(integer = 6, fraction = 2) }
+                result.shouldBeSuccess()
+            }
+
+            test("success with zero fractional part") {
+                val result = tryValidate { "1234".toBigDecimal().ensureDigits(integer = 6, fraction = 2) }
+                result.shouldBeSuccess()
+            }
+
+            test("success with only fractional part") {
+                val result = tryValidate { "0.99".toBigDecimal().ensureDigits(integer = 6, fraction = 2) }
+                result.shouldBeSuccess()
+            }
+
+            test("failure with too many integer digits") {
+                val result = tryValidate { "1234567.89".toBigDecimal().ensureDigits(integer = 6, fraction = 2) }
+                result.shouldBeFailure()
+                result.messages[0].constraintId shouldBe "kova.number.digits"
+            }
+
+            test("failure with too many fraction digits") {
+                val result = tryValidate { "123456.789".toBigDecimal().ensureDigits(integer = 6, fraction = 2) }
+                result.shouldBeFailure()
+                result.messages[0].constraintId shouldBe "kova.number.digits"
+            }
+
+            test("success with zero value") {
+                val result =
+                    tryValidate {
+                        java.math.BigDecimal.ZERO
+                            .ensureDigits(integer = 6, fraction = 2)
+                    }
+                result.shouldBeSuccess()
+            }
+
+            test("success with negative value within bounds") {
+                val result = tryValidate { "-123.45".toBigDecimal().ensureDigits(integer = 6, fraction = 2) }
+                result.shouldBeSuccess()
+            }
+
+            test("failure with negative value exceeding integer bounds") {
+                val result = tryValidate { "-1234567.89".toBigDecimal().ensureDigits(integer = 6, fraction = 2) }
+                result.shouldBeFailure()
+            }
+
+            test("success with very small number") {
+                val result = tryValidate { "0.001".toBigDecimal().ensureDigits(integer = 1, fraction = 3) }
+                result.shouldBeSuccess()
+            }
+
+            test("failure with very small number exceeding fraction") {
+                val result = tryValidate { "0.0001".toBigDecimal().ensureDigits(integer = 1, fraction = 3) }
+                result.shouldBeFailure()
+            }
+
+            test("success with scientific notation within bounds (1E3 = 1000)") {
+                val result = tryValidate { "1E3".toBigDecimal().ensureDigits(integer = 4, fraction = 0) }
+                result.shouldBeSuccess()
+            }
+
+            test("failure with scientific notation exceeding integer bounds (1E3 = 1000)") {
+                val result = tryValidate { "1E3".toBigDecimal().ensureDigits(integer = 3, fraction = 0) }
+                result.shouldBeFailure()
+            }
+
+            test("success with scientific notation with decimal (1.5E2 = 150)") {
+                val result = tryValidate { "1.5E2".toBigDecimal().ensureDigits(integer = 3, fraction = 0) }
+                result.shouldBeSuccess()
+            }
+
+            test("success with negative exponent (1E-3 = 0.001)") {
+                val result = tryValidate { "1E-3".toBigDecimal().ensureDigits(integer = 1, fraction = 3) }
+                result.shouldBeSuccess()
+            }
+
+            test("failure with negative exponent exceeding fraction (1E-4 = 0.0001)") {
+                val result = tryValidate { "1E-4".toBigDecimal().ensureDigits(integer = 1, fraction = 3) }
+                result.shouldBeFailure()
+            }
+        }
+
+        context("ensureDigits with Int") {
+            test("success with integer within bounds") {
+                val result = tryValidate { 12345.ensureDigits(integer = 6) }
+                result.shouldBeSuccess()
+            }
+
+            test("failure with integer exceeding bounds") {
+                val result = tryValidate { 1234567.ensureDigits(integer = 6) }
+                result.shouldBeFailure()
+            }
+        }
+
+        context("ensureDigits with Double") {
+            test("success with double within bounds") {
+                val result = tryValidate { 123.45.ensureDigits(integer = 6, fraction = 2) }
+                result.shouldBeSuccess()
+            }
+
+            test("failure with double exceeding fraction bounds") {
+                val result = tryValidate { 123.456.ensureDigits(integer = 6, fraction = 2) }
+                result.shouldBeFailure()
+            }
+        }
+
+        context("ensureDigits with Long") {
+            test("success with long within bounds") {
+                val result = tryValidate { 123456L.ensureDigits(integer = 6) }
+                result.shouldBeSuccess()
+            }
+
+            test("failure with long exceeding bounds") {
+                val result = tryValidate { 1234567L.ensureDigits(integer = 6) }
+                result.shouldBeFailure()
+            }
+        }
     })

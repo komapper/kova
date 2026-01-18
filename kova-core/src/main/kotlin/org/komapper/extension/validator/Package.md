@@ -55,7 +55,7 @@ Built-in validators are organized by type:
 - `ComparableValidator.kt` - Comparison validators (ensureAtLeast, ensureAtMost, ensureInRange)
 - `CharSequenceValidator.kt` - Text validators (ensureNotBlank, ensureLengthAtLeast, ensureMatches)
 - `StringValidator.kt` - String transformers (transformToInt, transformToLocalDate, etc.)
-- `NumberValidator.kt` - Numeric validators (ensurePositive, ensureNegative)
+- `NumberValidator.kt` - Numeric validators (ensurePositive, ensureNegative, ensureDigits)
 - `IterableValidator.kt` - Iterable validators (ensureEach, ensureContains)
 - `CollectionValidator.kt` - Collection validators (ensureNotEmpty, ensureSizeAtLeast)
 - `MapValidator.kt` - Map validators (ensureContainsKey, ensureEachEntry)
