@@ -7,7 +7,7 @@ All validators are extension functions with a `context(_: Validation)` receiver.
 | Category                                       | Types                                                | Validators                                         |
 |------------------------------------------------|------------------------------------------------------|----------------------------------------------------|
 | [String & CharSequence](#string--charsequence) | `String`, `CharSequence`                             | Length, content, pattern matching, type conversion |
-| [Numbers](#numbers)                            | `Int`, `Long`, `Double`, `Float`, `BigDecimal`, etc. | Positive, negative, range validation               |
+| [Numbers](#numbers)                            | `Int`, `Long`, `Double`, `Float`, `BigDecimal`, etc. | Positive, negative, digit constraints, range       |
 | [Comparable](#comparable)                      | Any `Comparable` type                                | Comparison operators, range validation             |
 | [Temporal](#temporal)                          | `LocalDate`, `LocalDateTime`, `Instant`, etc.        | Past, future, date comparisons                     |
 | [Collections](#collections)                    | `List`, `Set`, `Collection`                          | Size, element validation                           |
@@ -115,6 +115,30 @@ Supported types: `Int`, `Long`, `Double`, `Float`, `Byte`, `Short`, `BigDecimal`
 | `ensureNegative()`    | `kova.number.negative`    | must be negative     | < 0       |
 | `ensureNotPositive()` | `kova.number.notPositive` | must not be positive | <= 0      |
 | `ensureNotNegative()` | `kova.number.notNegative` | must not be negative | >= 0      |
+
+### Digit Validation
+
+| Validator                           | Constraint ID        | Error Message                                                    | Description                               |
+|-------------------------------------|----------------------|------------------------------------------------------------------|-------------------------------------------|
+| `ensureDigits(integer, fraction=0)` | `kova.number.digits` | numeric value out of bounds (<{0} digits>.<{1} digits> expected) | Max integer and fractional digits allowed |
+
+Equivalent to Hibernate Validator's `@Digits` annotation.
+
+**Usage:**
+```kotlin
+// BigDecimal - most precise for decimal validation
+"123456.78".toBigDecimal().ensureDigits(integer = 6, fraction = 2)  // Success
+"1234567.89".toBigDecimal().ensureDigits(integer = 6, fraction = 2) // Failure (7 integer digits)
+"123456.789".toBigDecimal().ensureDigits(integer = 6, fraction = 2) // Failure (3 fractional digits)
+
+// Integer types (fraction defaults to 0)
+12345.ensureDigits(integer = 6)     // Success
+1234567.ensureDigits(integer = 6)   // Failure
+
+// Scientific notation is handled correctly
+"1E3".toBigDecimal().ensureDigits(integer = 4, fraction = 0)   // Success (1E3 = 1000, 4 digits)
+"1E-3".toBigDecimal().ensureDigits(integer = 1, fraction = 3)  // Success (1E-3 = 0.001, 3 fractional)
+```
 
 Numbers also support all [Comparable validators](#comparable) for range and comparison operations.
 
