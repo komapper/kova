@@ -84,44 +84,44 @@ class NumberValidatorTest :
             }
         }
 
-        context("ensureNotPositive") {
+        context("ensureNegativeOrZero") {
             test("success with zero") {
-                val result = tryValidate { 0.ensureNotPositive() }
+                val result = tryValidate { 0.ensureNegativeOrZero() }
                 result.shouldBeSuccess()
             }
 
             test("success with ensureNegative number") {
-                val result = tryValidate { (-1).ensureNotPositive() }
+                val result = tryValidate { (-1).ensureNegativeOrZero() }
                 result.shouldBeSuccess()
             }
 
             test("success with large ensureNegative number") {
-                val result = tryValidate { (-100).ensureNotPositive() }
+                val result = tryValidate { (-100).ensureNegativeOrZero() }
                 result.shouldBeSuccess()
             }
 
             test("failure with ensurePositive number") {
-                val result = tryValidate { 1.ensureNotPositive() }
+                val result = tryValidate { 1.ensureNegativeOrZero() }
                 result.shouldBeFailure()
-                result.messages[0].constraintId shouldBe "kova.number.notPositive"
+                result.messages[0].constraintId shouldBe "kova.number.negativeOrZero"
             }
         }
 
-        context("ensureNotPositive with double") {
+        context("ensureNegativeOrZero with double") {
             test("success with zero") {
-                val result = tryValidate { 0.0.ensureNotPositive() }
+                val result = tryValidate { 0.0.ensureNegativeOrZero() }
                 result.shouldBeSuccess()
             }
 
             test("success with ensureNegative number") {
-                val result = tryValidate { (-0.1).ensureNotPositive() }
+                val result = tryValidate { (-0.1).ensureNegativeOrZero() }
                 result.shouldBeSuccess()
             }
 
             test("failure with ensurePositive number") {
-                val result = tryValidate { 0.1.ensureNotPositive() }
+                val result = tryValidate { 0.1.ensureNegativeOrZero() }
                 result.shouldBeFailure()
-                result.messages[0].constraintId shouldBe "kova.number.notPositive"
+                result.messages[0].constraintId shouldBe "kova.number.negativeOrZero"
             }
         }
 
