@@ -113,10 +113,38 @@ Kova automatically detects and handles circular references in nested object vali
 
 ## Internationalization
 
-Error messages use resource bundles from `kova.properties`. The `resource()` function creates internationalized messages with parameter substitution (using MessageFormat syntax where {0}, {1}, etc. are replaced with the provided arguments):
+Kova uses Java's `ResourceBundle` for internationalization. Default messages are provided in `kova-default.properties` within the library. You can override any message by creating a `kova.properties` file in your project's resources directory.
+
+### Overriding Messages
+
+Create `src/main/resources/kova.properties` to customize messages:
+
+```properties
+# Override only the messages you want to customize
+kova.charSequence.notBlank=This field is required
+kova.number.positive=Please enter a positive number
+```
+
+Messages not overridden in your `kova.properties` will fall back to the library defaults. This allows you to customize only the messages relevant to your application.
+
+### Locale-Specific Messages
+
+For locale-specific overrides, create files like `src/main/resources/kova_ja.properties` (Japanese), `src/main/resources/kova_fr.properties` (French), etc.:
+
+```properties
+# kova_ja.properties
+kova.charSequence.notBlank=空白にできません
+kova.number.positive=正の数である必要があります
+```
+
+The appropriate locale is selected automatically based on `Locale.getDefault()`.
+
+### Using `resource()` in Custom Validators
+
+The `resource()` function creates internationalized messages with parameter substitution (using MessageFormat syntax where {0}, {1}, etc. are replaced with the provided arguments):
 
 ```kotlin
-// Using resource keys from kova.properties
+// Using resource keys
 str.ensureLengthAtLeast(5, message = { "custom.message.key".resource(5) })
 
 // Multiple parameters

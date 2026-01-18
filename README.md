@@ -530,14 +530,22 @@ Context parameters allow validators to access the `Validation` context without e
 
 ### How do I display error messages in my language?
 
-Kova uses Java's `ResourceBundle` for internationalization. Create a `kova.properties` file for your locale (e.g., `kova_ja.properties` for Japanese) in your resources directory:
+Kova uses Java's `ResourceBundle` for internationalization. Default messages are in `kova-default.properties` within the library. To customize messages, create a `kova.properties` file in your `src/main/resources` directory:
+
+```properties
+# Override only the messages you need
+kova.charSequence.notBlank=This field is required
+kova.number.positive=Please enter a positive number
+```
+
+For locale-specific messages (e.g., Japanese), create `src/main/resources/kova_ja.properties`:
 
 ```properties
 kova.charSequence.notBlank=空白にできません
 kova.number.positive=正の数である必要があります
 ```
 
-The appropriate locale is selected automatically based on `Locale.getDefault()`.
+You only need to specify the messages you want to override. Non-overridden keys automatically fall back to library defaults. The appropriate locale is selected based on `Locale.getDefault()`.
 
 ### Should I use fail-fast mode or collect all errors?
 
