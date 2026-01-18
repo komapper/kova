@@ -109,12 +109,12 @@ fun buildProduct(rawPrice: String): Product {
 
 Supported types: `Int`, `Long`, `Double`, `Float`, `Byte`, `Short`, `BigDecimal`, `BigInteger`
 
-| Validator             | Constraint ID             | Error Message        | Condition |
-|-----------------------|---------------------------|----------------------|-----------|
-| `ensurePositive()`    | `kova.number.positive`    | must be positive     | > 0       |
-| `ensureNegative()`    | `kova.number.negative`    | must be negative     | < 0       |
-| `ensureNotPositive()` | `kova.number.notPositive` | must not be positive | <= 0      |
-| `ensureNotNegative()` | `kova.number.notNegative` | must not be negative | >= 0      |
+| Validator                | Constraint ID                | Error Message            | Condition |
+|--------------------------|------------------------------|--------------------------|-----------|
+| `ensurePositive()`       | `kova.number.positive`       | must be positive         | > 0       |
+| `ensureNegative()`       | `kova.number.negative`       | must be negative         | < 0       |
+| `ensurePositiveOrZero()` | `kova.number.positiveOrZero` | must be positive or zero | >= 0      |
+| `ensureNegativeOrZero()` | `kova.number.negativeOrZero` | must be negative or zero | <= 0      |
 
 ### Digit Validation
 

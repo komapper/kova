@@ -45,13 +45,13 @@ public fun <T : Number> T.ensureNegative(message: MessageProvider = { "kova.numb
     constrain("kova.number.negative") { satisfies(it.toDouble() < 0.0, message) }
 
 /**
- * Validates that the number is not ensurePositive (less than or equal to zero).
+ * Validates that the number is positive or zero (greater than or equal to zero).
  *
  * Example:
  * ```kotlin
- * tryValidate { (-1).ensureNotPositive() }  // Success
- * tryValidate { 0.ensureNotPositive() }   // Success
- * tryValidate { 1.ensureNotPositive() }   // Failure
+ * tryValidate { 0.ensurePositiveOrZero() }   // Success
+ * tryValidate { 1.ensurePositiveOrZero() }   // Success
+ * tryValidate { (-1).ensurePositiveOrZero() }  // Failure
  * ```
  *
  * @param Validation (context parameter) The validation context for constraint checking and error accumulation
@@ -62,17 +62,17 @@ public fun <T : Number> T.ensureNegative(message: MessageProvider = { "kova.numb
  */
 @IgnorableReturnValue
 context(_: Validation)
-public fun <T : Number> T.ensureNotPositive(message: MessageProvider = { "kova.number.notPositive".resource }): T =
-    constrain("kova.number.notPositive") { satisfies(it.toDouble() <= 0.0, message) }
+public fun <T : Number> T.ensurePositiveOrZero(message: MessageProvider = { "kova.number.positiveOrZero".resource }): T =
+    constrain("kova.number.positiveOrZero") { satisfies(it.toDouble() >= 0.0, message) }
 
 /**
- * Validates that the number is not ensureNegative (greater than or equal to zero).
+ * Validates that the number is negative or zero (less than or equal to zero).
  *
  * Example:
  * ```kotlin
- * tryValidate { 0.ensureNotNegative() }   // Success
- * tryValidate { 1.ensureNotNegative() }   // Success
- * tryValidate { (-1).ensureNotNegative() }  // Failure
+ * tryValidate { (-1).ensureNegativeOrZero() }  // Success
+ * tryValidate { 0.ensureNegativeOrZero() }   // Success
+ * tryValidate { 1.ensureNegativeOrZero() }   // Failure
  * ```
  *
  * @param Validation (context parameter) The validation context for constraint checking and error accumulation
@@ -83,8 +83,8 @@ public fun <T : Number> T.ensureNotPositive(message: MessageProvider = { "kova.n
  */
 @IgnorableReturnValue
 context(_: Validation)
-public fun <T : Number> T.ensureNotNegative(message: MessageProvider = { "kova.number.notNegative".resource }): T =
-    constrain("kova.number.notNegative") { satisfies(it.toDouble() >= 0.0, message) }
+public fun <T : Number> T.ensureNegativeOrZero(message: MessageProvider = { "kova.number.negativeOrZero".resource }): T =
+    constrain("kova.number.negativeOrZero") { satisfies(it.toDouble() <= 0.0, message) }
 
 /**
  * Validates that the number has at most the specified number of integer and fractional digits.

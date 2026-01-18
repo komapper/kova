@@ -708,18 +708,18 @@ class MessagePropertiesTest :
                 message.text shouldBe "must be negative"
             }
 
-            test("ensureNotPositive") {
-                val result = tryValidate { 5.ensureNotPositive() }
+            test("ensurePositiveOrZero") {
+                val result = tryValidate { (-5).ensurePositiveOrZero() }
                 result.shouldBeFailure()
                 val message = result.messages.single()
-                message.text shouldBe "must not be positive"
+                message.text shouldBe "must be positive or zero"
             }
 
-            test("ensureNotNegative") {
-                val result = tryValidate { (-5).ensureNotNegative() }
+            test("ensureNegativeOrZero") {
+                val result = tryValidate { 5.ensureNegativeOrZero() }
                 result.shouldBeFailure()
                 val message = result.messages.single()
-                message.text shouldBe "must not be negative"
+                message.text shouldBe "must be negative or zero"
             }
         }
 

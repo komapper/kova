@@ -317,8 +317,8 @@ data class PriceRange(val minPrice: Double, val maxPrice: Double)
 
 context(_: Validation)
 fun PriceRange.validate() = schema {
-    ::minPrice { it.ensureNotNegative() }
-    ::maxPrice { it.ensureNotNegative() }
+    ::minPrice { it.ensurePositiveOrZero() }
+    ::maxPrice { it.ensurePositiveOrZero() }
 
     // Validate relationship
     constrain("priceRange") {

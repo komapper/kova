@@ -7,8 +7,8 @@ import org.komapper.extension.validator.constrain
 import org.komapper.extension.validator.ensureInRange
 import org.komapper.extension.validator.ensureLengthAtLeast
 import org.komapper.extension.validator.ensureNotBlank
-import org.komapper.extension.validator.ensureNotNegative
 import org.komapper.extension.validator.ensureNotNull
+import org.komapper.extension.validator.ensurePositiveOrZero
 import org.komapper.extension.validator.isSuccess
 import org.komapper.extension.validator.schema
 import org.komapper.extension.validator.text
@@ -62,8 +62,8 @@ fun Person.validate() =
 context(_: Validation)
 fun PriceRange.validate() =
     schema {
-        ::minPrice { it.ensureNotNegative() }
-        ::maxPrice { it.ensureNotNegative() }
+        ::minPrice { it.ensurePositiveOrZero() }
+        ::maxPrice { it.ensurePositiveOrZero() }
         constrain("priceRange") {
             satisfies(it.minPrice <= it.maxPrice) {
                 text("minPrice must be less than or equal to maxPrice")
