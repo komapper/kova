@@ -11,12 +11,12 @@ class NumberValidatorTest :
         }
 
         context("ensurePositive") {
-            test("success with ensurePositive number") {
+            test("success with positive number") {
                 val result = tryValidate { 1.ensurePositive() }
                 result.shouldBeSuccess()
             }
 
-            test("success with large ensurePositive number") {
+            test("success with large positive number") {
                 val result = tryValidate { 100.ensurePositive() }
                 result.shouldBeSuccess()
             }
@@ -27,7 +27,7 @@ class NumberValidatorTest :
                 result.messages[0].constraintId shouldBe "kova.number.positive"
             }
 
-            test("failure with ensureNegative number") {
+            test("failure with negative number") {
                 val result = tryValidate { (-1).ensurePositive() }
                 result.shouldBeFailure()
                 result.messages[0].constraintId shouldBe "kova.number.positive"
@@ -35,25 +35,38 @@ class NumberValidatorTest :
         }
 
         context("ensurePositive with double") {
-            test("success with ensurePositive number") {
+            test("success with positive number") {
                 val result = tryValidate { 0.1.ensurePositive() }
                 result.shouldBeSuccess()
             }
 
-            test("failure with ensureNegative number") {
+            test("failure with negative number") {
                 val result = tryValidate { (-0.1).ensurePositive() }
                 result.shouldBeFailure()
                 result.messages[0].constraintId shouldBe "kova.number.positive"
             }
         }
 
+        context("ensurePositive with float") {
+            test("success with positive number") {
+                val result = tryValidate { 1.5f.ensurePositive() }
+                result.shouldBeSuccess()
+            }
+
+            test("failure with negative number") {
+                val result = tryValidate { (-1.5f).ensurePositive() }
+                result.shouldBeFailure()
+                result.messages[0].constraintId shouldBe "kova.number.positive"
+            }
+        }
+
         context("ensureNegative") {
-            test("success with ensureNegative number") {
+            test("success with negative number") {
                 val result = tryValidate { (-1).ensureNegative() }
                 result.shouldBeSuccess()
             }
 
-            test("success with large ensureNegative number") {
+            test("success with large negative number") {
                 val result = tryValidate { (-100).ensureNegative() }
                 result.shouldBeSuccess()
             }
@@ -64,7 +77,7 @@ class NumberValidatorTest :
                 result.messages[0].constraintId shouldBe "kova.number.negative"
             }
 
-            test("failure with ensurePositive number") {
+            test("failure with positive number") {
                 val result = tryValidate { 1.ensureNegative() }
                 result.shouldBeFailure()
                 result.messages[0].constraintId shouldBe "kova.number.negative"
@@ -72,15 +85,69 @@ class NumberValidatorTest :
         }
 
         context("ensureNegative with double") {
-            test("success with ensureNegative number") {
+            test("success with negative number") {
                 val result = tryValidate { (-0.1).ensureNegative() }
                 result.shouldBeSuccess()
             }
 
-            test("failure with ensurePositive number") {
+            test("failure with positive number") {
                 val result = tryValidate { 0.1.ensureNegative() }
                 result.shouldBeFailure()
                 result.messages[0].constraintId shouldBe "kova.number.negative"
+            }
+        }
+
+        context("ensureNegative with byte") {
+            test("success with negative number") {
+                val result = tryValidate { (-10).ensureNegative() }
+                result.shouldBeSuccess()
+            }
+
+            test("failure with positive number") {
+                val result = tryValidate { 10.ensureNegative() }
+                result.shouldBeFailure()
+                result.messages[0].constraintId shouldBe "kova.number.negative"
+            }
+        }
+
+        context("ensurePositiveOrZero") {
+            test("success with zero") {
+                val result = tryValidate { 0.ensurePositiveOrZero() }
+                result.shouldBeSuccess()
+            }
+
+            test("success with positive number") {
+                val result = tryValidate { 1.ensurePositiveOrZero() }
+                result.shouldBeSuccess()
+            }
+
+            test("success with large positive number") {
+                val result = tryValidate { 100.ensurePositiveOrZero() }
+                result.shouldBeSuccess()
+            }
+
+            test("failure with negative number") {
+                val result = tryValidate { (-1).ensurePositiveOrZero() }
+                result.shouldBeFailure()
+                result.messages[0].constraintId shouldBe "kova.number.positiveOrZero"
+            }
+        }
+
+        context("ensurePositiveOrZero with double") {
+            test("success with zero") {
+                val result = tryValidate { 0.0.ensurePositiveOrZero() }
+                result.shouldBeSuccess()
+            }
+
+            test("success with positive number") {
+                val result = tryValidate { 0.1.ensurePositiveOrZero() }
+                result.shouldBeSuccess()
+            }
+
+            test("failure with negative number") {
+                val result = tryValidate { (-0.1).ensurePositiveOrZero() }
+                result.shouldBeFailure()
+                result.messages[0].constraintId shouldBe "kova.number.positiveOrZero"
             }
         }
 
@@ -90,17 +157,17 @@ class NumberValidatorTest :
                 result.shouldBeSuccess()
             }
 
-            test("success with ensureNegative number") {
+            test("success with negative number") {
                 val result = tryValidate { (-1).ensureNegativeOrZero() }
                 result.shouldBeSuccess()
             }
 
-            test("success with large ensureNegative number") {
+            test("success with large negative number") {
                 val result = tryValidate { (-100).ensureNegativeOrZero() }
                 result.shouldBeSuccess()
             }
 
-            test("failure with ensurePositive number") {
+            test("failure with positive number") {
                 val result = tryValidate { 1.ensureNegativeOrZero() }
                 result.shouldBeFailure()
                 result.messages[0].constraintId shouldBe "kova.number.negativeOrZero"
@@ -113,19 +180,19 @@ class NumberValidatorTest :
                 result.shouldBeSuccess()
             }
 
-            test("success with ensureNegative number") {
+            test("success with negative number") {
                 val result = tryValidate { (-0.1).ensureNegativeOrZero() }
                 result.shouldBeSuccess()
             }
 
-            test("failure with ensurePositive number") {
+            test("failure with positive number") {
                 val result = tryValidate { 0.1.ensureNegativeOrZero() }
                 result.shouldBeFailure()
                 result.messages[0].constraintId shouldBe "kova.number.negativeOrZero"
             }
         }
 
-        context("ensureGreaterThan (greater than)") {
+        context("ensureGreaterThan") {
             test("success with value greater than threshold") {
                 val result = tryValidate { 6.ensureGreaterThan(5) }
                 result.shouldBeSuccess()
@@ -168,13 +235,32 @@ class NumberValidatorTest :
             }
         }
 
-        context("ensureLessThan (less than)") {
+        context("ensureGreaterThan with bigDecimal") {
+            test("success with value greater than threshold") {
+                val result = tryValidate { 150.toBigDecimal().ensureGreaterThan(100.toBigDecimal()) }
+                result.shouldBeSuccess()
+            }
+
+            test("failure with equal value") {
+                val result = tryValidate { 100.toBigDecimal().ensureGreaterThan(100.toBigDecimal()) }
+                result.shouldBeFailure()
+                result.messages[0].constraintId shouldBe "kova.comparable.greaterThan"
+            }
+
+            test("failure with smaller value") {
+                val result = tryValidate { 50.toBigDecimal().ensureGreaterThan(100.toBigDecimal()) }
+                result.shouldBeFailure()
+                result.messages[0].constraintId shouldBe "kova.comparable.greaterThan"
+            }
+        }
+
+        context("ensureLessThan") {
             test("success with value less than threshold") {
                 val result = tryValidate { 4.ensureLessThan(5) }
                 result.shouldBeSuccess()
             }
 
-            test("success with large ensureNegative value") {
+            test("success with large negative value") {
                 val result = tryValidate { (-100).ensureLessThan(5) }
                 result.shouldBeSuccess()
             }
@@ -208,51 +294,6 @@ class NumberValidatorTest :
                 val result = tryValidate { 5.6.ensureLessThan(5.5) }
                 result.shouldBeFailure()
                 result.messages[0].constraintId shouldBe "kova.comparable.lessThan"
-            }
-        }
-
-        context("ensurePositive with float") {
-            test("success with ensurePositive number") {
-                val result = tryValidate { 1.5f.ensurePositive() }
-                result.shouldBeSuccess()
-            }
-
-            test("failure with ensureNegative number") {
-                val result = tryValidate { (-1.5f).ensurePositive() }
-                result.shouldBeFailure()
-                result.messages[0].constraintId shouldBe "kova.number.positive"
-            }
-        }
-
-        context("ensureNegative with byte") {
-            test("success with ensureNegative number") {
-                val result = tryValidate { (-10).ensureNegative() }
-                result.shouldBeSuccess()
-            }
-
-            test("failure with ensurePositive number") {
-                val result = tryValidate { 10.ensureNegative() }
-                result.shouldBeFailure()
-                result.messages[0].constraintId shouldBe "kova.number.negative"
-            }
-        }
-
-        context("ensureGreaterThan with bigDecimal") {
-            test("success with value greater than threshold") {
-                val result = tryValidate { 150.toBigDecimal().ensureGreaterThan(100.toBigDecimal()) }
-                result.shouldBeSuccess()
-            }
-
-            test("failure with equal value") {
-                val result = tryValidate { 100.toBigDecimal().ensureGreaterThan(100.toBigDecimal()) }
-                result.shouldBeFailure()
-                result.messages[0].constraintId shouldBe "kova.comparable.greaterThan"
-            }
-
-            test("failure with smaller value") {
-                val result = tryValidate { 50.toBigDecimal().ensureGreaterThan(100.toBigDecimal()) }
-                result.shouldBeFailure()
-                result.messages[0].constraintId shouldBe "kova.comparable.greaterThan"
             }
         }
 
