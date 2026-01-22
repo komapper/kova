@@ -4,7 +4,7 @@ ktor = "3.4.0"
 logback = "1.5.25"
 kotest = "6.1.0"
 spotless = "8.1.0"
-exposed = "1.0.0-rc-4"
+exposed = "1.0.0"
 
 
 [libraries]
