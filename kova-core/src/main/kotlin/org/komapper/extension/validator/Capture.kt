@@ -117,6 +117,11 @@ public class Capture<S>(
         property: KProperty<*>,
     ): Accumulate.Value<S> =
         context(validation) {
-            null.named(property.name) { accumulating { block() } }
+            addPath(property.name, null) {
+                when (val result = ior { block() }) {
+                    is ValidationResult.Success<S> -> Accumulate.Ok(result.value)
+                    is ValidationIor.FailureLike<S> -> accumulate(result.messages)
+                }
+            }
         }
 }

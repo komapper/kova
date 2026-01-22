@@ -219,12 +219,11 @@ class CaptureTest :
             test("failure - accumulates errors from property validation and correlation") {
                 val result = tryValidate { buildNumberRange("-5", "-10") }
                 result.shouldBeFailure()
-                result.messages.size shouldBe 3
+                result.messages.size shouldBe 2
                 result.messages[0].constraintId shouldBe "kova.number.positive"
                 result.messages[0].path.fullName shouldBe "min"
                 result.messages[1].constraintId shouldBe "kova.number.positive"
                 result.messages[1].path.fullName shouldBe "max"
-                result.messages[2].constraintId shouldBe "numberRange.order"
             }
         }
     })
