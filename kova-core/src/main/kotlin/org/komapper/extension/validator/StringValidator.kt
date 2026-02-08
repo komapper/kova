@@ -24,9 +24,8 @@ import kotlin.reflect.KClass
  */
 @IgnorableReturnValue
 context(_: Validation)
-public fun String.ensureInt(
-    message: MessageProvider = { "kova.string.int".resource },
-): String = constrain("kova.string.int") { satisfies(it.toIntOrNull() != null, message) }
+public fun String.ensureInt(message: MessageProvider = { "kova.string.int".resource }): String =
+    constrain("kova.string.int") { satisfies(it.toIntOrNull() != null, message) }
 
 /**
  * Validates that the string can be parsed as a Long.
@@ -44,9 +43,8 @@ public fun String.ensureInt(
  */
 @IgnorableReturnValue
 context(_: Validation)
-public fun String.ensureLong(
-    message: MessageProvider = { "kova.string.long".resource },
-): String = constrain("kova.string.long") { satisfies(it.toLongOrNull() != null, message) }
+public fun String.ensureLong(message: MessageProvider = { "kova.string.long".resource }): String =
+    constrain("kova.string.long") { satisfies(it.toLongOrNull() != null, message) }
 
 /**
  * Validates that the string can be parsed as a Short.
@@ -64,9 +62,8 @@ public fun String.ensureLong(
  */
 @IgnorableReturnValue
 context(_: Validation)
-public fun String.ensureShort(
-    message: MessageProvider = { "kova.string.short".resource },
-): String = constrain("kova.string.short") { satisfies(it.toShortOrNull() != null, message) }
+public fun String.ensureShort(message: MessageProvider = { "kova.string.short".resource }): String =
+    constrain("kova.string.short") { satisfies(it.toShortOrNull() != null, message) }
 
 /**
  * Validates that the string can be parsed as a Byte.
@@ -84,9 +81,8 @@ public fun String.ensureShort(
  */
 @IgnorableReturnValue
 context(_: Validation)
-public fun String.ensureByte(
-    message: MessageProvider = { "kova.string.byte".resource },
-): String = constrain("kova.string.byte") { satisfies(it.toByteOrNull() != null, message) }
+public fun String.ensureByte(message: MessageProvider = { "kova.string.byte".resource }): String =
+    constrain("kova.string.byte") { satisfies(it.toByteOrNull() != null, message) }
 
 /**
  * Validates that the string can be parsed as a Double.
@@ -104,9 +100,8 @@ public fun String.ensureByte(
  */
 @IgnorableReturnValue
 context(_: Validation)
-public fun String.ensureDouble(
-    message: MessageProvider = { "kova.string.double".resource },
-): String = constrain("kova.string.double") { satisfies(it.toDoubleOrNull() != null, message) }
+public fun String.ensureDouble(message: MessageProvider = { "kova.string.double".resource }): String =
+    constrain("kova.string.double") { satisfies(it.toDoubleOrNull() != null, message) }
 
 /**
  * Validates that the string can be parsed as a Float.
@@ -124,9 +119,8 @@ public fun String.ensureDouble(
  */
 @IgnorableReturnValue
 context(_: Validation)
-public fun String.ensureFloat(
-    message: MessageProvider = { "kova.string.float".resource },
-): String = constrain("kova.string.float") { satisfies(it.toFloatOrNull() != null, message) }
+public fun String.ensureFloat(message: MessageProvider = { "kova.string.float".resource }): String =
+    constrain("kova.string.float") { satisfies(it.toFloatOrNull() != null, message) }
 
 /**
  * Validates that the string can be parsed as a BigDecimal.
@@ -144,9 +138,8 @@ public fun String.ensureFloat(
  */
 @IgnorableReturnValue
 context(_: Validation)
-public fun String.ensureBigDecimal(
-    message: MessageProvider = { "kova.string.bigDecimal".resource },
-): String = constrain("kova.string.bigDecimal") { satisfies(it.toBigDecimalOrNull() != null, message) }
+public fun String.ensureBigDecimal(message: MessageProvider = { "kova.string.bigDecimal".resource }): String =
+    constrain("kova.string.bigDecimal") { satisfies(it.toBigDecimalOrNull() != null, message) }
 
 /**
  * Validates that the string can be parsed as a BigInteger.
@@ -164,9 +157,8 @@ public fun String.ensureBigDecimal(
  */
 @IgnorableReturnValue
 context(_: Validation)
-public fun String.ensureBigInteger(
-    message: MessageProvider = { "kova.string.bigInteger".resource },
-): String = constrain("kova.string.bigInteger") { satisfies(it.toBigIntegerOrNull() != null, message) }
+public fun String.ensureBigInteger(message: MessageProvider = { "kova.string.bigInteger".resource }): String =
+    constrain("kova.string.bigInteger") { satisfies(it.toBigIntegerOrNull() != null, message) }
 
 /**
  * Validates that the string can be parsed as a Boolean.
@@ -187,9 +179,8 @@ public fun String.ensureBigInteger(
  */
 @IgnorableReturnValue
 context(_: Validation)
-public fun String.ensureBoolean(
-    message: MessageProvider = { "kova.string.boolean".resource },
-): String = constrain("kova.string.boolean") { satisfies(it.toBooleanStrictOrNull() != null, message) }
+public fun String.ensureBoolean(message: MessageProvider = { "kova.string.boolean".resource }): String =
+    constrain("kova.string.boolean") { satisfies(it.toBooleanStrictOrNull() != null, message) }
 
 /**
  * Validates that the string is a valid name for the specified enum type.
@@ -322,9 +313,8 @@ public fun String.ensureTime(
  */
 @IgnorableReturnValue
 context(_: Validation)
-public fun String.ensureUppercase(
-    message: MessageProvider = { "kova.string.uppercase".resource },
-): String = constrain("kova.string.uppercase") { satisfies(it == it.uppercase(Locale.getDefault()), message) }
+public fun String.ensureUppercase(message: MessageProvider = { "kova.string.uppercase".resource }): String =
+    constrain("kova.string.uppercase") { satisfies(it == it.uppercase(Locale.getDefault()), message) }
 
 /**
  * Validates that the string is in ensureLowercase.
@@ -342,9 +332,8 @@ public fun String.ensureUppercase(
  */
 @IgnorableReturnValue
 context(_: Validation)
-public fun String.ensureLowercase(
-    message: MessageProvider = { "kova.string.lowercase".resource },
-): String = constrain("kova.string.lowercase") { satisfies(it == it.lowercase(Locale.getDefault()), message) }
+public fun String.ensureLowercase(message: MessageProvider = { "kova.string.lowercase".resource }): String =
+    constrain("kova.string.lowercase") { satisfies(it == it.lowercase(Locale.getDefault()), message) }
 
 /**
  * Validates that the string can be parsed as an Int and converts it.
@@ -363,9 +352,8 @@ public fun String.ensureLowercase(
  * @return The converted Int value
  */
 context(_: Validation)
-public fun String.transformToInt(
-    message: MessageProvider = { "kova.string.int".resource },
-): Int = transformOrRaise("kova.string.int", message) { it.toIntOrNull() }
+public fun String.transformToInt(message: MessageProvider = { "kova.string.int".resource }): Int =
+    transformOrRaise("kova.string.int", message) { it.toIntOrNull() }
 
 /**
  * Validates that the string can be parsed as a Long and converts it.
@@ -384,9 +372,8 @@ public fun String.transformToInt(
  * @return The converted Long value
  */
 context(_: Validation)
-public fun String.transformToLong(
-    message: MessageProvider = { "kova.string.long".resource },
-): Long = transformOrRaise("kova.string.long", message) { it.toLongOrNull() }
+public fun String.transformToLong(message: MessageProvider = { "kova.string.long".resource }): Long =
+    transformOrRaise("kova.string.long", message) { it.toLongOrNull() }
 
 /**
  * Validates that the string can be parsed as a Short and converts it.
@@ -405,9 +392,8 @@ public fun String.transformToLong(
  * @return The converted Short value
  */
 context(_: Validation)
-public fun String.transformToShort(
-    message: MessageProvider = { "kova.string.short".resource },
-): Short = transformOrRaise("kova.string.short", message) { it.toShortOrNull() }
+public fun String.transformToShort(message: MessageProvider = { "kova.string.short".resource }): Short =
+    transformOrRaise("kova.string.short", message) { it.toShortOrNull() }
 
 /**
  * Validates that the string can be parsed as a Byte and converts it.
@@ -426,9 +412,8 @@ public fun String.transformToShort(
  * @return The converted Byte value
  */
 context(_: Validation)
-public fun String.transformToByte(
-    message: MessageProvider = { "kova.string.byte".resource },
-): Byte = transformOrRaise("kova.string.byte", message) { it.toByteOrNull() }
+public fun String.transformToByte(message: MessageProvider = { "kova.string.byte".resource }): Byte =
+    transformOrRaise("kova.string.byte", message) { it.toByteOrNull() }
 
 /**
  * Validates that the string can be parsed as a Double and converts it.
@@ -447,9 +432,8 @@ public fun String.transformToByte(
  * @return The converted Double value
  */
 context(_: Validation)
-public fun String.transformToDouble(
-    message: MessageProvider = { "kova.string.double".resource },
-): Double = transformOrRaise("kova.string.double", message) { it.toDoubleOrNull() }
+public fun String.transformToDouble(message: MessageProvider = { "kova.string.double".resource }): Double =
+    transformOrRaise("kova.string.double", message) { it.toDoubleOrNull() }
 
 /**
  * Validates that the string can be parsed as a Float and converts it.
@@ -468,9 +452,8 @@ public fun String.transformToDouble(
  * @return The converted Float value
  */
 context(_: Validation)
-public fun String.transformToFloat(
-    message: MessageProvider = { "kova.string.float".resource },
-): Float = transformOrRaise("kova.string.float", message) { it.toFloatOrNull() }
+public fun String.transformToFloat(message: MessageProvider = { "kova.string.float".resource }): Float =
+    transformOrRaise("kova.string.float", message) { it.toFloatOrNull() }
 
 /**
  * Validates that the string can be parsed as a BigDecimal and converts it.
@@ -489,9 +472,8 @@ public fun String.transformToFloat(
  * @return The converted BigDecimal value
  */
 context(_: Validation)
-public fun String.transformToBigDecimal(
-    message: MessageProvider = { "kova.string.bigDecimal".resource },
-): java.math.BigDecimal = transformOrRaise("kova.string.bigDecimal", message) { it.toBigDecimalOrNull() }
+public fun String.transformToBigDecimal(message: MessageProvider = { "kova.string.bigDecimal".resource }): java.math.BigDecimal =
+    transformOrRaise("kova.string.bigDecimal", message) { it.toBigDecimalOrNull() }
 
 /**
  * Validates that the string can be parsed as a BigInteger and converts it.
@@ -510,9 +492,8 @@ public fun String.transformToBigDecimal(
  * @return The converted BigInteger value
  */
 context(_: Validation)
-public fun String.transformToBigInteger(
-    message: MessageProvider = { "kova.string.bigInteger".resource },
-): java.math.BigInteger = transformOrRaise("kova.string.bigInteger", message) { it.toBigIntegerOrNull() }
+public fun String.transformToBigInteger(message: MessageProvider = { "kova.string.bigInteger".resource }): java.math.BigInteger =
+    transformOrRaise("kova.string.bigInteger", message) { it.toBigIntegerOrNull() }
 
 /**
  * Validates that the string can be parsed as a Boolean and converts it.
@@ -532,9 +513,8 @@ public fun String.transformToBigInteger(
  * @return The converted Boolean value
  */
 context(_: Validation)
-public fun String.transformToBoolean(
-    message: MessageProvider = { "kova.string.boolean".resource },
-): Boolean = transformOrRaise("kova.string.boolean", message) { it.toBooleanStrictOrNull() }
+public fun String.transformToBoolean(message: MessageProvider = { "kova.string.boolean".resource }): Boolean =
+    transformOrRaise("kova.string.boolean", message) { it.toBooleanStrictOrNull() }
 
 /**
  * Validates that the string is a valid enum name and converts it to the enum value (reified version).
@@ -582,12 +562,12 @@ context(_: Validation)
 public fun <E : Enum<E>> String.transformToEnum(
     klass: KClass<E>,
     message: (validNames: List<String>) -> Message = { "kova.string.enum".resource(it) },
-): E = transformOrRaise("kova.string.enum", {
-    message(klass.java.enumConstants.map { enum -> enum.name })
-}) { it.toEnumOrNull(klass) }
+): E =
+    transformOrRaise("kova.string.enum", {
+        message(klass.java.enumConstants.map { enum -> enum.name })
+    }) { it.toEnumOrNull(klass) }
 
-private fun <E : Enum<E>> String.toEnumOrNull(klass: KClass<E>): E? =
-    runCatching { java.lang.Enum.valueOf(klass.java, this) }.getOrNull()
+private fun <E : Enum<E>> String.toEnumOrNull(klass: KClass<E>): E? = runCatching { java.lang.Enum.valueOf(klass.java, this) }.getOrNull()
 
 /**
  * Validates that the string can be parsed as a LocalDate and converts it.
@@ -611,9 +591,10 @@ context(_: Validation)
 public fun String.transformToDate(
     formatter: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE,
     message: MessageProvider = { "kova.string.localDate".resource },
-): LocalDate = transformOrRaise("kova.string.localDate", message) {
-    runCatching { LocalDate.parse(it, formatter) }.getOrNull()
-}
+): LocalDate =
+    transformOrRaise("kova.string.localDate", message) {
+        runCatching { LocalDate.parse(it, formatter) }.getOrNull()
+    }
 
 /**
  * Validates that the string can be parsed as a LocalDateTime and converts it.
@@ -637,9 +618,10 @@ context(_: Validation)
 public fun String.transformToDateTime(
     formatter: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME,
     message: MessageProvider = { "kova.string.localDateTime".resource },
-): LocalDateTime = transformOrRaise("kova.string.localDateTime", message) {
-    runCatching { LocalDateTime.parse(it, formatter) }.getOrNull()
-}
+): LocalDateTime =
+    transformOrRaise("kova.string.localDateTime", message) {
+        runCatching { LocalDateTime.parse(it, formatter) }.getOrNull()
+    }
 
 /**
  * Validates that the string can be parsed as a LocalTime and converts it.
@@ -663,6 +645,7 @@ context(_: Validation)
 public fun String.transformToTime(
     formatter: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_TIME,
     message: MessageProvider = { "kova.string.localTime".resource },
-): LocalTime = transformOrRaise("kova.string.localTime", message) {
-    runCatching { LocalTime.parse(it, formatter) }.getOrNull()
-}
+): LocalTime =
+    transformOrRaise("kova.string.localTime", message) {
+        runCatching { LocalTime.parse(it, formatter) }.getOrNull()
+    }

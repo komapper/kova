@@ -82,8 +82,14 @@ public sealed interface ValidationIor<out T> {
 context(_: Validation)
 public fun <T> ValidationIor<T>.bind(): T =
     when (this) {
-        is Success -> value
-        is Failure -> raise(messages)
+        is Success -> {
+            value
+        }
+
+        is Failure -> {
+            raise(messages)
+        }
+
         is Both -> {
             accumulate(messages)
             value

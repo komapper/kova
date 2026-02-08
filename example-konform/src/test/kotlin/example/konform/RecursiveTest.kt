@@ -73,9 +73,7 @@ class RecursiveTest :
                 result.errors[0].dataPath shouldBe ".children"
             }
 
-            /**
-             * Not executed, as it would result in a stack overflow.
-             */
+            // Not executed, as it would result in a stack overflow.
             xtest("cyclic") {
                 val result = validationNode(cyclicNode)
                 result.isValid shouldBe true

@@ -73,7 +73,7 @@ public inline fun constrain(
     id: String,
     check: context(Validation) Constraint.(Unit) -> Unit,
 ) {
-  val _ = Unit.checkWithAccumulating(id, check)
+    val _ = Unit.checkWithAccumulating(id, check)
 }
 
 @IgnorableReturnValue
@@ -195,7 +195,10 @@ internal fun <T> T.raiseIf(
     val result = checkWithAccumulating(constraintId) { satisfies(!predicate(it), message) }
     when (result) {
         is Accumulate.Ok -> {}
-        is Accumulate.Error -> result.raise()
+
+        is Accumulate.Error -> {
+            result.raise()
+        }
     }
 }
 
