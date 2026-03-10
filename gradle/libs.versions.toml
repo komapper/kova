@@ -2,7 +2,7 @@
 kotlin = "2.3.10"
 ktor = "3.4.1"
 logback = "1.5.32"
-kotest = "6.1.5"
+kotest = "6.1.6"
 spotless = "8.3.0"
 exposed = "1.1.1"
 
