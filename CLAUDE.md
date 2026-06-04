@@ -15,7 +15,7 @@ For API documentation and usage examples, see [`Package.md`](kova-core/src/main/
 
 **Stack**: Kotlin, Gradle 8.14, Java 17, Kotest, Ktor 3.0.0+
 
-**Requires**: `-Xcontext-parameters` compiler flag (configured in build.gradle.kts)
+**Note**: Kova's API relies on context parameters, which are enabled by default since Kotlin 2.4.0 (no `-Xcontext-parameters` flag required).
 
 ## Modules
 

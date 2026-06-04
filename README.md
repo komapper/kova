@@ -92,19 +92,11 @@ dependencies {
 }
 ```
 
-Enable Kotlin's context parameters feature:
-
-```kotlin
-kotlin {
-    compilerOptions {
-        freeCompilerArgs.add("-Xcontext-parameters")
-    }
-}
-```
+Kova's API is built around Kotlin's context parameters, which are enabled by default since Kotlin 2.4.0. No additional compiler flag is required.
 
 ### Requirements
 
-- Kotlin 2.3.0+
+- Kotlin 2.4.0+
 - Java 17+
 - Gradle 8.14+
 
@@ -560,9 +552,9 @@ tryValidate { /* ... */ }
 tryValidate(ValidationConfig(failFast = true)) { /* ... */ }
 ```
 
-### Can I use Kova without the context parameters compiler flag?
+### Do I need the context parameters compiler flag?
 
-No. The `-Xcontext-parameters` flag is required because Kova's API is built around context parameters. This is a deliberate design choice that enables the clean, fluent API.
+No. Since Kotlin 2.4.0, context parameters are enabled by default, so the `-Xcontext-parameters` flag is no longer required. Kova's API is built around context parameters — a deliberate design choice that enables the clean, fluent API.
 
 ## License
 
