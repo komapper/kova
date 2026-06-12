@@ -2,7 +2,7 @@
 
 [![Build](https://github.com/komapper/kova/actions/workflows/ci.yml/badge.svg)](https://github.com/komapper/kova/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Kotlin](https://img.shields.io/badge/Kotlin-2.3.0+-purple.svg)](https://kotlinlang.org)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.4.0+-purple.svg)](https://kotlinlang.org)
 
 A type-safe Kotlin validation library with composable validators and detailed error reporting.
 
@@ -76,7 +76,7 @@ if (result.isFailure()) {
 }
 ```
 
-> **Note**: Validators require `context(_: Validation)`. This uses Kotlin's [context parameters](https://kotlinlang.org/docs/whatsnew2020.html#context-parameters), which must be enabled (see [Setup](#setup)).
+> **Note**: Validators require `context(_: Validation)`. This uses Kotlin's [context parameters](https://kotlinlang.org/docs/context-parameters.html), which are enabled by default since Kotlin 2.4.0.
 
 ## Setup
 
@@ -518,7 +518,7 @@ Each example module contains complete, runnable code that you can use as a refer
 
 ### Why does Kova use context parameters?
 
-Context parameters allow validators to access the `Validation` context without explicitly passing it as an argument. This makes the API cleaner and enables fluent chaining like `name.ensureNotBlank().ensureLengthAtMost(100)`. While context parameters are still experimental in Kotlin, they are stable enough for production use and represent the future direction of Kotlin's context-aware programming.
+Context parameters allow validators to access the `Validation` context without explicitly passing it as an argument. This makes the API cleaner and enables fluent chaining like `name.ensureNotBlank().ensureLengthAtMost(100)`. Context parameters are enabled by default since Kotlin 2.4.0 and represent the direction of Kotlin's context-aware programming.
 
 ### How do I display error messages in my language?
 
