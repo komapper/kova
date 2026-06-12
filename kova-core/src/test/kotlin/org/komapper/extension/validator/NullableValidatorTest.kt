@@ -112,7 +112,7 @@ class NullableValidatorTest :
                 result.messages[0].let {
                     it.constraintId shouldBe "kova.or"
                     it.text shouldBe
-                        "at least one constraint must be satisfied: [[must be null], [must be less than or equal to 3]]"
+                        "at least one constraint must be satisfied: [must be null], [must be less than or equal to 3]"
                 }
             }
         }

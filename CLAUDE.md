@@ -74,7 +74,7 @@ fun String.ensureAlphanumeric() = constrain("custom.alphanumeric") {
 
 ### Collections
 - `collection.ensureEach { constraint }` - validates each element
-- Automatic index tracking: `items[0]<collection element>`
+- Automatic index tracking: `items[0]<iterable element>`
 
 ### Temporal Validators
 - Clock from `ValidationConfig.clock` (use fixed clock for testing)

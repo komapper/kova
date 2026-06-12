@@ -130,7 +130,7 @@ class SchemaTest :
                 result.messages[0].let {
                     it.constraintId shouldBe "kova.or"
                     it.text shouldBe
-                        "at least one constraint must be satisfied: [[must be at most 10 characters], [must be greater than or equal to 1]]"
+                        "at least one constraint must be satisfied: [must be at most 10 characters], [must be greater than or equal to 1]"
                 }
             }
         }
