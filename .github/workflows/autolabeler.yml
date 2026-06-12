@@ -1,7 +1,10 @@
 name: Autolabeler
 
+# Use pull_request_target (not pull_request) so the GITHUB_TOKEN keeps
+# write permissions for PRs from forks. Safe because this workflow never
+# checks out or runs PR code.
 on:
-  pull_request:
+  pull_request_target:
     types:
       - opened
       - reopened
