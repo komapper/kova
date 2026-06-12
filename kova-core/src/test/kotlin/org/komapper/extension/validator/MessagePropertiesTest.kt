@@ -732,7 +732,7 @@ class MessagePropertiesTest :
                     }
                 result.shouldBeFailure()
                 val message = result.messages.single()
-                message.text shouldBe "at least one constraint must be satisfied: [[must be positive], [must be less than 0]]"
+                message.text shouldBe "at least one constraint must be satisfied: [must be positive], [must be less than 0]"
             }
         }
 

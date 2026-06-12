@@ -63,7 +63,7 @@ fun validatePhone(phone: String) =
 val result = tryValidate { validatePhone("123-abc-456") }
 if (!result.isSuccess()) {
     result.messages.map { it.text }.forEach { println(it) }
-    // at least one constraint must be satisfied: [[must match pattern: ^\d{3}-\d{4}$], [must match pattern: ^\+\d{1,3}-\d+$]]
+    // at least one constraint must be satisfied: [must match pattern: ^\d{3}-\d{4}$], [must match pattern: ^\+\d{1,3}-\d+$]
 }
 
 // Chain multiple alternatives
