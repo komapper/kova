@@ -128,9 +128,9 @@ public inline fun <T, R> addPathChecked(
  *
  * Example usage in collection validation:
  * ```kotlin
- * appendPath("[0]<collection element>") {
+ * appendPath("[0]<iterable element>") {
  *     // Validate element at index 0
- *     // If path was "items", it becomes "items[0]<collection element>"
+ *     // If path was "items", it becomes "items[0]<iterable element>"
  * }
  * ```
  *
