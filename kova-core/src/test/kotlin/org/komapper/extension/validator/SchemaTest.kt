@@ -512,4 +512,27 @@ class SchemaTest :
                 result.messages[0].constraintId.shouldNotBeNull() shouldBeEqual "kova.comparable.atMost"
             }
         }
+
+        context("schema inside named block") {
+            context(_: Validation)
+            fun validate(user: User) =
+                user.named("payload") {
+                    it.schema {
+                        it::name { name -> name.ensureNotBlank() }
+                    }
+                }
+
+            test("success") {
+                val result = tryValidate { validate(User(1, "abc")) }
+                result.shouldBeSuccess()
+            }
+
+            test("failure keeps the named path prefix") {
+                val result = tryValidate { validate(User(1, "")) }
+                result.shouldBeFailure()
+                result.messages.size shouldBe 1
+                result.messages[0].constraintId shouldBe "kova.charSequence.notBlank"
+                result.messages[0].path.fullName shouldBe "payload.name"
+            }
+        }
     })

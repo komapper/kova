@@ -32,8 +32,8 @@ public inline fun <R> addRoot(
 ): R =
     block(
         if (v.root.isEmpty()) {
-            // initialize root
-            v.copy(root = name, path = Path(name = "", obj = obj, parent = null))
+            // initialize root, keeping path segments added before the root (e.g. by capture or named)
+            v.copy(root = name, path = Path(name = "", obj = obj, parent = v.path))
         } else {
             v
         },
@@ -205,8 +205,12 @@ public data class Path(
      */
     val fullName: String
         get() {
-            if (parent == null || parent.name.isEmpty()) return name
-            return if (name.isEmpty()) parent.fullName else "${parent.fullName}.$name"
+            val prefix = parent?.fullName ?: ""
+            return when {
+                name.isEmpty() -> prefix
+                prefix.isEmpty() -> name
+                else -> "$prefix.$name"
+            }
         }
 
     /**
