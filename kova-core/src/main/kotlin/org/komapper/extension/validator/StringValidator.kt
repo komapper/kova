@@ -204,7 +204,10 @@ context(_: Validation)
 public fun <E : Enum<E>> String.ensureEnum(
     klass: KClass<E>,
     message: (validNames: List<String>) -> Message = { "kova.string.enum".resource(it) },
-): String = constrain("kova.string.enum") { val _ = it.transformToEnum(klass, message) }
+): String =
+    constrain("kova.string.enum") {
+        satisfies(it.toEnumOrNull(klass) != null) { message(klass.java.enumConstants.map { enum -> enum.name }) }
+    }
 
 /**
  * Validates that the string is a valid name for the specified enum type (reified version).
@@ -249,7 +252,7 @@ context(_: Validation)
 public fun String.ensureDate(
     formatter: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE,
     message: MessageProvider = { "kova.string.localDate".resource },
-): String = constrain("kova.string.localDate") { val _ = it.transformToDate(formatter, message) }
+): String = constrain("kova.string.localDate") { satisfies(it.toLocalDateOrNull(formatter) != null, message) }
 
 /**
  * Validates that the string can be parsed as a LocalDateTime.
@@ -272,7 +275,7 @@ context(_: Validation)
 public fun String.ensureDateTime(
     formatter: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME,
     message: MessageProvider = { "kova.string.localDateTime".resource },
-): String = constrain("kova.string.localDateTime") { val _ = it.transformToDateTime(formatter, message) }
+): String = constrain("kova.string.localDateTime") { satisfies(it.toLocalDateTimeOrNull(formatter) != null, message) }
 
 /**
  * Validates that the string can be parsed as a LocalTime.
@@ -295,7 +298,7 @@ context(_: Validation)
 public fun String.ensureTime(
     formatter: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_TIME,
     message: MessageProvider = { "kova.string.localTime".resource },
-): String = constrain("kova.string.localTime") { val _ = it.transformToTime(formatter, message) }
+): String = constrain("kova.string.localTime") { satisfies(it.toLocalTimeOrNull(formatter) != null, message) }
 
 /**
  * Validates that the string is in ensureUppercase.
@@ -591,10 +594,7 @@ context(_: Validation)
 public fun String.transformToDate(
     formatter: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE,
     message: MessageProvider = { "kova.string.localDate".resource },
-): LocalDate =
-    transformOrRaise("kova.string.localDate", message) {
-        runCatching { LocalDate.parse(it, formatter) }.getOrNull()
-    }
+): LocalDate = transformOrRaise("kova.string.localDate", message) { it.toLocalDateOrNull(formatter) }
 
 /**
  * Validates that the string can be parsed as a LocalDateTime and converts it.
@@ -618,10 +618,7 @@ context(_: Validation)
 public fun String.transformToDateTime(
     formatter: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME,
     message: MessageProvider = { "kova.string.localDateTime".resource },
-): LocalDateTime =
-    transformOrRaise("kova.string.localDateTime", message) {
-        runCatching { LocalDateTime.parse(it, formatter) }.getOrNull()
-    }
+): LocalDateTime = transformOrRaise("kova.string.localDateTime", message) { it.toLocalDateTimeOrNull(formatter) }
 
 /**
  * Validates that the string can be parsed as a LocalTime and converts it.
@@ -645,7 +642,17 @@ context(_: Validation)
 public fun String.transformToTime(
     formatter: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_TIME,
     message: MessageProvider = { "kova.string.localTime".resource },
-): LocalTime =
-    transformOrRaise("kova.string.localTime", message) {
-        runCatching { LocalTime.parse(it, formatter) }.getOrNull()
-    }
+): LocalTime = transformOrRaise("kova.string.localTime", message) { it.toLocalTimeOrNull(formatter) }
+
+private fun String.toLocalDateOrNull(formatter: DateTimeFormatter): LocalDate? =
+    runCatching {
+        LocalDate.parse(this, formatter)
+    }.getOrNull()
+
+private fun String.toLocalDateTimeOrNull(formatter: DateTimeFormatter): LocalDateTime? =
+    runCatching { LocalDateTime.parse(this, formatter) }.getOrNull()
+
+private fun String.toLocalTimeOrNull(formatter: DateTimeFormatter): LocalTime? =
+    runCatching {
+        LocalTime.parse(this, formatter)
+    }.getOrNull()

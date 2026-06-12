@@ -657,6 +657,34 @@ class StringValidatorTest :
                 result.messages.single().input shouldBe "invalid"
             }
         }
+
+        context("logging of wrapper validators") {
+            fun violatedLogs(block: context(Validation)() -> Unit): List<LogEntry> {
+                val logs = mutableListOf<LogEntry>()
+                tryValidate(ValidationConfig(logger = { logs.add(it) })) { block() }.shouldBeFailure()
+                return logs.filterIsInstance<LogEntry.Violated>()
+            }
+
+            fun satisfiedLogs(block: context(Validation)() -> Unit): List<LogEntry> {
+                val logs = mutableListOf<LogEntry>()
+                tryValidate(ValidationConfig(logger = { logs.add(it) })) { block() }.shouldBeSuccess()
+                return logs.filterIsInstance<LogEntry.Satisfied>()
+            }
+
+            test("a single violation produces a single Violated entry") {
+                violatedLogs { "invalid".ensureDate() }.size shouldBe 1
+                violatedLogs { "invalid".ensureDateTime() }.size shouldBe 1
+                violatedLogs { "invalid".ensureTime() }.size shouldBe 1
+                violatedLogs { "INVALID".ensureEnum<Status>() }.size shouldBe 1
+            }
+
+            test("a single success produces a single Satisfied entry") {
+                satisfiedLogs { "2025-01-17".ensureDate() }.size shouldBe 1
+                satisfiedLogs { "2025-01-17T10:30:00".ensureDateTime() }.size shouldBe 1
+                satisfiedLogs { "10:30:00".ensureTime() }.size shouldBe 1
+                satisfiedLogs { "ACTIVE".ensureEnum<Status>() }.size shouldBe 1
+            }
+        }
     }) {
     enum class Status {
         ACTIVE,
