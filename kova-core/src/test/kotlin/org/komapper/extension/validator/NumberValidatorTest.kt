@@ -1,6 +1,8 @@
 package org.komapper.extension.validator
 
 import io.kotest.core.spec.style.FunSpec
+import java.math.BigDecimal
+import java.math.BigInteger
 import java.util.Locale
 
 class NumberValidatorTest :
@@ -34,6 +36,32 @@ class NumberValidatorTest :
             }
         }
 
+        context("ensurePositive with BigDecimal") {
+            test("success with positive value smaller than Double.MIN_VALUE") {
+                val result = tryValidate { BigDecimal("1E-400").ensurePositive() }
+                result.shouldBeSuccess()
+            }
+
+            test("failure with negative value smaller than Double.MIN_VALUE") {
+                val result = tryValidate { BigDecimal("-1E-400").ensurePositive() }
+                result.shouldBeFailure()
+                result.messages[0].constraintId shouldBe "kova.number.positive"
+            }
+        }
+
+        context("ensurePositive with BigInteger") {
+            test("success with positive value") {
+                val result = tryValidate { BigInteger("1").ensurePositive() }
+                result.shouldBeSuccess()
+            }
+
+            test("failure with zero") {
+                val result = tryValidate { BigInteger.ZERO.ensurePositive() }
+                result.shouldBeFailure()
+                result.messages[0].constraintId shouldBe "kova.number.positive"
+            }
+        }
+
         context("ensurePositive with double") {
             test("success with positive number") {
                 val result = tryValidate { 0.1.ensurePositive() }
@@ -42,6 +70,12 @@ class NumberValidatorTest :
 
             test("failure with negative number") {
                 val result = tryValidate { (-0.1).ensurePositive() }
+                result.shouldBeFailure()
+                result.messages[0].constraintId shouldBe "kova.number.positive"
+            }
+
+            test("failure with NaN") {
+                val result = tryValidate { Double.NaN.ensurePositive() }
                 result.shouldBeFailure()
                 result.messages[0].constraintId shouldBe "kova.number.positive"
             }
@@ -55,6 +89,12 @@ class NumberValidatorTest :
 
             test("failure with negative number") {
                 val result = tryValidate { (-1.5f).ensurePositive() }
+                result.shouldBeFailure()
+                result.messages[0].constraintId shouldBe "kova.number.positive"
+            }
+
+            test("failure with NaN") {
+                val result = tryValidate { Float.NaN.ensurePositive() }
                 result.shouldBeFailure()
                 result.messages[0].constraintId shouldBe "kova.number.positive"
             }
@@ -84,6 +124,32 @@ class NumberValidatorTest :
             }
         }
 
+        context("ensureNegative with BigDecimal") {
+            test("success with negative value smaller than Double.MIN_VALUE") {
+                val result = tryValidate { BigDecimal("-1E-400").ensureNegative() }
+                result.shouldBeSuccess()
+            }
+
+            test("failure with positive value smaller than Double.MIN_VALUE") {
+                val result = tryValidate { BigDecimal("1E-400").ensureNegative() }
+                result.shouldBeFailure()
+                result.messages[0].constraintId shouldBe "kova.number.negative"
+            }
+        }
+
+        context("ensureNegative with BigInteger") {
+            test("success with negative value") {
+                val result = tryValidate { BigInteger("-1").ensureNegative() }
+                result.shouldBeSuccess()
+            }
+
+            test("failure with zero") {
+                val result = tryValidate { BigInteger.ZERO.ensureNegative() }
+                result.shouldBeFailure()
+                result.messages[0].constraintId shouldBe "kova.number.negative"
+            }
+        }
+
         context("ensureNegative with double") {
             test("success with negative number") {
                 val result = tryValidate { (-0.1).ensureNegative() }
@@ -92,6 +158,12 @@ class NumberValidatorTest :
 
             test("failure with positive number") {
                 val result = tryValidate { 0.1.ensureNegative() }
+                result.shouldBeFailure()
+                result.messages[0].constraintId shouldBe "kova.number.negative"
+            }
+
+            test("failure with NaN") {
+                val result = tryValidate { Double.NaN.ensureNegative() }
                 result.shouldBeFailure()
                 result.messages[0].constraintId shouldBe "kova.number.negative"
             }
@@ -133,6 +205,19 @@ class NumberValidatorTest :
             }
         }
 
+        context("ensurePositiveOrZero with BigDecimal") {
+            test("success with positive value smaller than Double.MIN_VALUE") {
+                val result = tryValidate { BigDecimal("1E-400").ensurePositiveOrZero() }
+                result.shouldBeSuccess()
+            }
+
+            test("failure with negative value smaller than Double.MIN_VALUE") {
+                val result = tryValidate { BigDecimal("-1E-400").ensurePositiveOrZero() }
+                result.shouldBeFailure()
+                result.messages[0].constraintId shouldBe "kova.number.positiveOrZero"
+            }
+        }
+
         context("ensurePositiveOrZero with double") {
             test("success with zero") {
                 val result = tryValidate { 0.0.ensurePositiveOrZero() }
@@ -146,6 +231,12 @@ class NumberValidatorTest :
 
             test("failure with negative number") {
                 val result = tryValidate { (-0.1).ensurePositiveOrZero() }
+                result.shouldBeFailure()
+                result.messages[0].constraintId shouldBe "kova.number.positiveOrZero"
+            }
+
+            test("failure with NaN") {
+                val result = tryValidate { Double.NaN.ensurePositiveOrZero() }
                 result.shouldBeFailure()
                 result.messages[0].constraintId shouldBe "kova.number.positiveOrZero"
             }
@@ -174,6 +265,19 @@ class NumberValidatorTest :
             }
         }
 
+        context("ensureNegativeOrZero with BigDecimal") {
+            test("success with negative value smaller than Double.MIN_VALUE") {
+                val result = tryValidate { BigDecimal("-1E-400").ensureNegativeOrZero() }
+                result.shouldBeSuccess()
+            }
+
+            test("failure with positive value smaller than Double.MIN_VALUE") {
+                val result = tryValidate { BigDecimal("1E-400").ensureNegativeOrZero() }
+                result.shouldBeFailure()
+                result.messages[0].constraintId shouldBe "kova.number.negativeOrZero"
+            }
+        }
+
         context("ensureNegativeOrZero with double") {
             test("success with zero") {
                 val result = tryValidate { 0.0.ensureNegativeOrZero() }
@@ -187,6 +291,12 @@ class NumberValidatorTest :
 
             test("failure with positive number") {
                 val result = tryValidate { 0.1.ensureNegativeOrZero() }
+                result.shouldBeFailure()
+                result.messages[0].constraintId shouldBe "kova.number.negativeOrZero"
+            }
+
+            test("failure with NaN") {
+                val result = tryValidate { Double.NaN.ensureNegativeOrZero() }
                 result.shouldBeFailure()
                 result.messages[0].constraintId shouldBe "kova.number.negativeOrZero"
             }

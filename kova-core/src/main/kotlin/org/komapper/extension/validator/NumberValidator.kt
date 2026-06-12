@@ -1,6 +1,7 @@
 package org.komapper.extension.validator
 
 import java.math.BigDecimal
+import java.math.BigInteger
 
 /**
  * Validates that the number is ensurePositive (greater than zero).
@@ -21,7 +22,7 @@ import java.math.BigDecimal
 @IgnorableReturnValue
 context(_: Validation)
 public fun <T : Number> T.ensurePositive(message: MessageProvider = { "kova.number.positive".resource }): T =
-    constrain("kova.number.positive") { satisfies(it.toDouble() > 0.0, message) }
+    constrain("kova.number.positive") { satisfies(it.compareToZero() == 1, message) }
 
 /**
  * Validates that the number is ensureNegative (less than zero).
@@ -42,7 +43,7 @@ public fun <T : Number> T.ensurePositive(message: MessageProvider = { "kova.numb
 @IgnorableReturnValue
 context(_: Validation)
 public fun <T : Number> T.ensureNegative(message: MessageProvider = { "kova.number.negative".resource }): T =
-    constrain("kova.number.negative") { satisfies(it.toDouble() < 0.0, message) }
+    constrain("kova.number.negative") { satisfies(it.compareToZero() == -1, message) }
 
 /**
  * Validates that the number is positive or zero (greater than or equal to zero).
@@ -63,7 +64,9 @@ public fun <T : Number> T.ensureNegative(message: MessageProvider = { "kova.numb
 @IgnorableReturnValue
 context(_: Validation)
 public fun <T : Number> T.ensurePositiveOrZero(message: MessageProvider = { "kova.number.positiveOrZero".resource }): T =
-    constrain("kova.number.positiveOrZero") { satisfies(it.toDouble() >= 0.0, message) }
+    constrain("kova.number.positiveOrZero") {
+        satisfies(it.compareToZero()?.let { sign -> sign >= 0 } == true, message)
+    }
 
 /**
  * Validates that the number is negative or zero (less than or equal to zero).
@@ -84,7 +87,29 @@ public fun <T : Number> T.ensurePositiveOrZero(message: MessageProvider = { "kov
 @IgnorableReturnValue
 context(_: Validation)
 public fun <T : Number> T.ensureNegativeOrZero(message: MessageProvider = { "kova.number.negativeOrZero".resource }): T =
-    constrain("kova.number.negativeOrZero") { satisfies(it.toDouble() <= 0.0, message) }
+    constrain("kova.number.negativeOrZero") {
+        satisfies(it.compareToZero()?.let { sign -> sign <= 0 } == true, message)
+    }
+
+private fun Number.compareToZero(): Int? =
+    when (this) {
+        is BigDecimal -> compareTo(BigDecimal.ZERO).sign()
+        is BigInteger -> compareTo(BigInteger.ZERO).sign()
+        is Byte, is Short, is Int, is Long -> toLong().compareTo(0L).sign()
+        is Float -> toDouble().compareFiniteToZero()
+        is Double -> compareFiniteToZero()
+        else -> toDouble().compareFiniteToZero()
+    }
+
+private fun Double.compareFiniteToZero(): Int? =
+    when {
+        isNaN() -> null
+        this > 0.0 -> 1
+        this < 0.0 -> -1
+        else -> 0
+    }
+
+private fun Int.sign(): Int = compareTo(0)
 
 /**
  * Validates that the number has at most the specified number of integer and fractional digits.
