@@ -1,0 +1,17 @@
+public final class org/komapper/extension/validator/ktor/server/SchemaValidator : io/ktor/server/plugins/requestvalidation/Validator {
+	public static final field Companion Lorg/komapper/extension/validator/ktor/server/SchemaValidator$Companion;
+	public fun <init> ()V
+	public fun <init> (Lkotlin/jvm/functions/Function1;)V
+	public synthetic fun <init> (Lkotlin/jvm/functions/Function1;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun filter (Ljava/lang/Object;)Z
+	public fun validate (Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class org/komapper/extension/validator/ktor/server/SchemaValidator$Companion {
+	public final fun defaultErrorFormatter (Ljava/util/List;)Ljava/lang/String;
+}
+
+public abstract interface class org/komapper/extension/validator/ktor/server/Validated {
+	public abstract fun validate (Lorg/komapper/extension/validator/Validation;)V
+}
+

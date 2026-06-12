@@ -11,6 +11,8 @@ For API documentation and usage examples, see [`Package.md`](kova-core/src/main/
 ./gradlew kova-core:test    # Run kova-core tests
 ./gradlew build             # Build project
 ./gradlew spotlessApply     # Format code
+./gradlew apiCheck          # Check public API against dumps in api/ (runs as part of build)
+./gradlew apiDump           # Update API dumps after intentional public API changes
 ```
 
 **Stack**: Kotlin, Gradle 8.14, Java 17, Kotest, Ktor 3.0.0+

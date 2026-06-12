@@ -1,0 +1,487 @@
+public abstract interface class org/komapper/extension/validator/Accumulate {
+	public abstract fun accumulate (Ljava/util/List;)Lorg/komapper/extension/validator/Accumulate$Error;
+}
+
+public final class org/komapper/extension/validator/Accumulate$Error : org/komapper/extension/validator/Accumulate$Value {
+	public fun <init> ()V
+	public synthetic fun getValue ()Ljava/lang/Object;
+	public fun getValue ()Ljava/lang/Void;
+	public final fun raise ()Ljava/lang/Void;
+}
+
+public final class org/komapper/extension/validator/Accumulate$Ok : org/komapper/extension/validator/Accumulate$Value {
+	public fun <init> (Ljava/lang/Object;)V
+	public fun getValue ()Ljava/lang/Object;
+}
+
+public abstract class org/komapper/extension/validator/Accumulate$Value {
+	public abstract fun getValue ()Ljava/lang/Object;
+	public final fun getValue (Ljava/lang/Object;Lkotlin/reflect/KProperty;)Ljava/lang/Object;
+}
+
+public final class org/komapper/extension/validator/AccumulateKt {
+	public static final fun accumulate (Lorg/komapper/extension/validator/Validation;Ljava/util/List;)Lorg/komapper/extension/validator/Accumulate$Error;
+	public static final fun accumulating (Lorg/komapper/extension/validator/Validation;Lkotlin/jvm/functions/Function1;)Lorg/komapper/extension/validator/Accumulate$Value;
+	public static final fun raise (Lorg/komapper/extension/validator/Validation;Ljava/util/List;)Ljava/lang/Void;
+	public static final fun raise (Lorg/komapper/extension/validator/Validation;Lorg/komapper/extension/validator/Message;)Ljava/lang/Void;
+	public static final fun recoverValidation (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+}
+
+public final class org/komapper/extension/validator/AnyValidatorKt {
+	public static final fun ensureEquals (Lorg/komapper/extension/validator/Validation;Ljava/lang/Object;Ljava/lang/Object;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public static synthetic fun ensureEquals$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/Object;Ljava/lang/Object;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun ensureIn (Lorg/komapper/extension/validator/Validation;Ljava/lang/Object;Ljava/lang/Iterable;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public static synthetic fun ensureIn$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/Object;Ljava/lang/Iterable;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun ensureNotEquals (Lorg/komapper/extension/validator/Validation;Ljava/lang/Object;Ljava/lang/Object;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public static synthetic fun ensureNotEquals$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/Object;Ljava/lang/Object;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class org/komapper/extension/validator/BooleanValidatorKt {
+	public static final fun ensureFalse (Lorg/komapper/extension/validator/Validation;ZLkotlin/jvm/functions/Function0;)Z
+	public static synthetic fun ensureFalse$default (Lorg/komapper/extension/validator/Validation;ZLkotlin/jvm/functions/Function0;ILjava/lang/Object;)Z
+	public static final fun ensureTrue (Lorg/komapper/extension/validator/Validation;ZLkotlin/jvm/functions/Function0;)Z
+	public static synthetic fun ensureTrue$default (Lorg/komapper/extension/validator/Validation;ZLkotlin/jvm/functions/Function0;ILjava/lang/Object;)Z
+}
+
+public final class org/komapper/extension/validator/Capture {
+	public fun <init> (Lorg/komapper/extension/validator/Validation;Lkotlin/jvm/functions/Function1;)V
+	public final fun provideDelegate (Ljava/lang/Object;Lkotlin/reflect/KProperty;)Lorg/komapper/extension/validator/Accumulate$Value;
+}
+
+public final class org/komapper/extension/validator/CaptureKt {
+	public static final fun capture (Lorg/komapper/extension/validator/Validation;Lkotlin/jvm/functions/Function1;)Lorg/komapper/extension/validator/Capture;
+}
+
+public final class org/komapper/extension/validator/CharSequenceValidatorKt {
+	public static final fun ensureBlank (Lorg/komapper/extension/validator/Validation;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function0;)Ljava/lang/CharSequence;
+	public static synthetic fun ensureBlank$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/CharSequence;
+	public static final fun ensureContains (Lorg/komapper/extension/validator/Validation;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function0;)Ljava/lang/CharSequence;
+	public static synthetic fun ensureContains$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/CharSequence;
+	public static final fun ensureEmpty (Lorg/komapper/extension/validator/Validation;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function0;)Ljava/lang/CharSequence;
+	public static synthetic fun ensureEmpty$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/CharSequence;
+	public static final fun ensureEndsWith (Lorg/komapper/extension/validator/Validation;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function0;)Ljava/lang/CharSequence;
+	public static synthetic fun ensureEndsWith$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/CharSequence;
+	public static final fun ensureLength (Lorg/komapper/extension/validator/Validation;Ljava/lang/CharSequence;ILkotlin/jvm/functions/Function0;)Ljava/lang/CharSequence;
+	public static synthetic fun ensureLength$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/CharSequence;ILkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/CharSequence;
+	public static final fun ensureLengthAtLeast (Lorg/komapper/extension/validator/Validation;Ljava/lang/CharSequence;ILkotlin/jvm/functions/Function0;)Ljava/lang/CharSequence;
+	public static synthetic fun ensureLengthAtLeast$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/CharSequence;ILkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/CharSequence;
+	public static final fun ensureLengthAtMost (Lorg/komapper/extension/validator/Validation;Ljava/lang/CharSequence;ILkotlin/jvm/functions/Function0;)Ljava/lang/CharSequence;
+	public static synthetic fun ensureLengthAtMost$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/CharSequence;ILkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/CharSequence;
+	public static final fun ensureLengthInRange (Lorg/komapper/extension/validator/Validation;Ljava/lang/CharSequence;Lkotlin/ranges/ClosedRange;Lkotlin/jvm/functions/Function0;)Ljava/lang/CharSequence;
+	public static synthetic fun ensureLengthInRange$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/CharSequence;Lkotlin/ranges/ClosedRange;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/CharSequence;
+	public static final fun ensureMatches (Lorg/komapper/extension/validator/Validation;Ljava/lang/CharSequence;Lkotlin/text/Regex;Lkotlin/jvm/functions/Function0;)Ljava/lang/CharSequence;
+	public static synthetic fun ensureMatches$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/CharSequence;Lkotlin/text/Regex;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/CharSequence;
+	public static final fun ensureNotBlank (Lorg/komapper/extension/validator/Validation;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function0;)Ljava/lang/CharSequence;
+	public static synthetic fun ensureNotBlank$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/CharSequence;
+	public static final fun ensureNotContains (Lorg/komapper/extension/validator/Validation;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function0;)Ljava/lang/CharSequence;
+	public static synthetic fun ensureNotContains$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/CharSequence;
+	public static final fun ensureNotEmpty (Lorg/komapper/extension/validator/Validation;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function0;)Ljava/lang/CharSequence;
+	public static synthetic fun ensureNotEmpty$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/CharSequence;
+	public static final fun ensureNotEndsWith (Lorg/komapper/extension/validator/Validation;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function0;)Ljava/lang/CharSequence;
+	public static synthetic fun ensureNotEndsWith$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/CharSequence;
+	public static final fun ensureNotMatches (Lorg/komapper/extension/validator/Validation;Ljava/lang/CharSequence;Lkotlin/text/Regex;Lkotlin/jvm/functions/Function0;)Ljava/lang/CharSequence;
+	public static synthetic fun ensureNotMatches$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/CharSequence;Lkotlin/text/Regex;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/CharSequence;
+	public static final fun ensureNotStartsWith (Lorg/komapper/extension/validator/Validation;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function0;)Ljava/lang/CharSequence;
+	public static synthetic fun ensureNotStartsWith$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/CharSequence;
+	public static final fun ensureStartsWith (Lorg/komapper/extension/validator/Validation;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function0;)Ljava/lang/CharSequence;
+	public static synthetic fun ensureStartsWith$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/CharSequence;
+}
+
+public final class org/komapper/extension/validator/CollectionValidatorKt {
+	public static final fun ensureSize (Lorg/komapper/extension/validator/Validation;Ljava/util/Collection;ILkotlin/jvm/functions/Function1;)Ljava/util/Collection;
+	public static synthetic fun ensureSize$default (Lorg/komapper/extension/validator/Validation;Ljava/util/Collection;ILkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ljava/util/Collection;
+	public static final fun ensureSizeAtLeast (Lorg/komapper/extension/validator/Validation;Ljava/util/Collection;ILkotlin/jvm/functions/Function1;)Ljava/util/Collection;
+	public static synthetic fun ensureSizeAtLeast$default (Lorg/komapper/extension/validator/Validation;Ljava/util/Collection;ILkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ljava/util/Collection;
+	public static final fun ensureSizeAtMost (Lorg/komapper/extension/validator/Validation;Ljava/util/Collection;ILkotlin/jvm/functions/Function1;)Ljava/util/Collection;
+	public static synthetic fun ensureSizeAtMost$default (Lorg/komapper/extension/validator/Validation;Ljava/util/Collection;ILkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ljava/util/Collection;
+	public static final fun ensureSizeInRange (Lorg/komapper/extension/validator/Validation;Ljava/util/Collection;Lkotlin/ranges/ClosedRange;Lkotlin/jvm/functions/Function0;)Ljava/util/Collection;
+	public static synthetic fun ensureSizeInRange$default (Lorg/komapper/extension/validator/Validation;Ljava/util/Collection;Lkotlin/ranges/ClosedRange;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/util/Collection;
+}
+
+public final class org/komapper/extension/validator/ComparableValidatorKt {
+	public static final fun ensureAtLeast (Lorg/komapper/extension/validator/Validation;Ljava/lang/Comparable;Ljava/lang/Comparable;Lkotlin/jvm/functions/Function0;)Ljava/lang/Comparable;
+	public static synthetic fun ensureAtLeast$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/Comparable;Ljava/lang/Comparable;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/Comparable;
+	public static final fun ensureAtMost (Lorg/komapper/extension/validator/Validation;Ljava/lang/Comparable;Ljava/lang/Comparable;Lkotlin/jvm/functions/Function0;)Ljava/lang/Comparable;
+	public static synthetic fun ensureAtMost$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/Comparable;Ljava/lang/Comparable;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/Comparable;
+	public static final fun ensureGreaterThan (Lorg/komapper/extension/validator/Validation;Ljava/lang/Comparable;Ljava/lang/Comparable;Lkotlin/jvm/functions/Function0;)Ljava/lang/Comparable;
+	public static synthetic fun ensureGreaterThan$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/Comparable;Ljava/lang/Comparable;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/Comparable;
+	public static final fun ensureInClosedRange (Lorg/komapper/extension/validator/Validation;Ljava/lang/Comparable;Lkotlin/ranges/ClosedRange;Lkotlin/jvm/functions/Function0;)Ljava/lang/Comparable;
+	public static synthetic fun ensureInClosedRange$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/Comparable;Lkotlin/ranges/ClosedRange;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/Comparable;
+	public static final fun ensureInOpenEndRange (Lorg/komapper/extension/validator/Validation;Ljava/lang/Comparable;Lkotlin/ranges/OpenEndRange;Lkotlin/jvm/functions/Function0;)Ljava/lang/Comparable;
+	public static synthetic fun ensureInOpenEndRange$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/Comparable;Lkotlin/ranges/OpenEndRange;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/Comparable;
+	public static final fun ensureInRange (Lorg/komapper/extension/validator/Validation;Ljava/lang/Comparable;Lkotlin/ranges/ClosedRange;Lkotlin/jvm/functions/Function0;)Ljava/lang/Comparable;
+	public static synthetic fun ensureInRange$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/Comparable;Lkotlin/ranges/ClosedRange;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/Comparable;
+	public static final fun ensureLessThan (Lorg/komapper/extension/validator/Validation;Ljava/lang/Comparable;Ljava/lang/Comparable;Lkotlin/jvm/functions/Function0;)Ljava/lang/Comparable;
+	public static synthetic fun ensureLessThan$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/Comparable;Ljava/lang/Comparable;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/Comparable;
+}
+
+public final class org/komapper/extension/validator/Constraint {
+	public static final field INSTANCE Lorg/komapper/extension/validator/Constraint;
+	public final fun satisfies (Lorg/komapper/extension/validator/Validation;ZLkotlin/jvm/functions/Function0;)V
+}
+
+public final class org/komapper/extension/validator/ConstraintKt {
+	public static final fun checkWithAccumulating (Lorg/komapper/extension/validator/Validation;Ljava/lang/Object;Ljava/lang/String;Lkotlin/jvm/functions/Function3;)Lorg/komapper/extension/validator/Accumulate$Value;
+	public static final fun constrain (Lorg/komapper/extension/validator/Validation;Ljava/lang/Object;Ljava/lang/String;Lkotlin/jvm/functions/Function3;)Ljava/lang/Object;
+	public static final fun constrain (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/jvm/functions/Function3;)V
+	public static final fun logAndAddDetails (Lorg/komapper/extension/validator/Validation;Lorg/komapper/extension/validator/Message;Ljava/lang/Object;Ljava/lang/String;)Lorg/komapper/extension/validator/Message;
+	public static final fun mapEachMessage (Lorg/komapper/extension/validator/Validation;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public static final fun raiseIf (Lorg/komapper/extension/validator/Validation;Ljava/lang/Object;Ljava/lang/String;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;)V
+	public static final fun transformOrRaise (Lorg/komapper/extension/validator/Validation;Ljava/lang/Object;Ljava/lang/String;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+}
+
+public final class org/komapper/extension/validator/IterableValidatorKt {
+	public static final fun ensureContains (Lorg/komapper/extension/validator/Validation;Ljava/lang/Iterable;Ljava/lang/Object;Lkotlin/jvm/functions/Function0;)Ljava/lang/Iterable;
+	public static synthetic fun ensureContains$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/Iterable;Ljava/lang/Object;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/Iterable;
+	public static final fun ensureEach (Lorg/komapper/extension/validator/Validation;Ljava/lang/Iterable;Lkotlin/jvm/functions/Function2;)Ljava/lang/Iterable;
+	public static final fun ensureNotContains (Lorg/komapper/extension/validator/Validation;Ljava/lang/Iterable;Ljava/lang/Object;Lkotlin/jvm/functions/Function0;)Ljava/lang/Iterable;
+	public static synthetic fun ensureNotContains$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/Iterable;Ljava/lang/Object;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/Iterable;
+	public static final fun ensureNotEmpty (Lorg/komapper/extension/validator/Validation;Ljava/lang/Iterable;Lkotlin/jvm/functions/Function0;)Ljava/lang/Iterable;
+	public static synthetic fun ensureNotEmpty$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/Iterable;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/Iterable;
+}
+
+public abstract interface class org/komapper/extension/validator/LogEntry {
+}
+
+public final class org/komapper/extension/validator/LogEntry$Satisfied : org/komapper/extension/validator/LogEntry {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4 ()Ljava/lang/Object;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;)Lorg/komapper/extension/validator/LogEntry$Satisfied;
+	public static synthetic fun copy$default (Lorg/komapper/extension/validator/LogEntry$Satisfied;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;ILjava/lang/Object;)Lorg/komapper/extension/validator/LogEntry$Satisfied;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getConstraintId ()Ljava/lang/String;
+	public final fun getInput ()Ljava/lang/Object;
+	public final fun getPath ()Ljava/lang/String;
+	public final fun getRoot ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/komapper/extension/validator/LogEntry$Violated : org/komapper/extension/validator/LogEntry {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;Ljava/util/List;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4 ()Ljava/lang/Object;
+	public final fun component5 ()Ljava/util/List;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;Ljava/util/List;)Lorg/komapper/extension/validator/LogEntry$Violated;
+	public static synthetic fun copy$default (Lorg/komapper/extension/validator/LogEntry$Violated;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;Ljava/util/List;ILjava/lang/Object;)Lorg/komapper/extension/validator/LogEntry$Violated;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getArgs ()Ljava/util/List;
+	public final fun getConstraintId ()Ljava/lang/String;
+	public final fun getInput ()Ljava/lang/Object;
+	public final fun getPath ()Ljava/lang/String;
+	public final fun getRoot ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/komapper/extension/validator/LogKt {
+	public static final fun log (Lorg/komapper/extension/validator/Validation;Lkotlin/jvm/functions/Function0;)V
+}
+
+public final class org/komapper/extension/validator/MapValidatorKt {
+	public static final fun ensureContainsKey (Lorg/komapper/extension/validator/Validation;Ljava/util/Map;Ljava/lang/Object;Lkotlin/jvm/functions/Function0;)Ljava/util/Map;
+	public static synthetic fun ensureContainsKey$default (Lorg/komapper/extension/validator/Validation;Ljava/util/Map;Ljava/lang/Object;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/util/Map;
+	public static final fun ensureContainsValue (Lorg/komapper/extension/validator/Validation;Ljava/util/Map;Ljava/lang/Object;Lkotlin/jvm/functions/Function0;)Ljava/util/Map;
+	public static synthetic fun ensureContainsValue$default (Lorg/komapper/extension/validator/Validation;Ljava/util/Map;Ljava/lang/Object;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/util/Map;
+	public static final fun ensureEach (Lorg/komapper/extension/validator/Validation;Ljava/util/Map;Lkotlin/jvm/functions/Function2;)Ljava/util/Map;
+	public static final fun ensureEachKey (Lorg/komapper/extension/validator/Validation;Ljava/util/Map;Lkotlin/jvm/functions/Function2;)Ljava/util/Map;
+	public static final fun ensureEachValue (Lorg/komapper/extension/validator/Validation;Ljava/util/Map;Lkotlin/jvm/functions/Function2;)Ljava/util/Map;
+	public static final fun ensureNotContainsKey (Lorg/komapper/extension/validator/Validation;Ljava/util/Map;Ljava/lang/Object;Lkotlin/jvm/functions/Function0;)Ljava/util/Map;
+	public static synthetic fun ensureNotContainsKey$default (Lorg/komapper/extension/validator/Validation;Ljava/util/Map;Ljava/lang/Object;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/util/Map;
+	public static final fun ensureNotContainsValue (Lorg/komapper/extension/validator/Validation;Ljava/util/Map;Ljava/lang/Object;Lkotlin/jvm/functions/Function0;)Ljava/util/Map;
+	public static synthetic fun ensureNotContainsValue$default (Lorg/komapper/extension/validator/Validation;Ljava/util/Map;Ljava/lang/Object;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/util/Map;
+	public static final fun ensureNotEmpty (Lorg/komapper/extension/validator/Validation;Ljava/util/Map;Lkotlin/jvm/functions/Function0;)Ljava/util/Map;
+	public static synthetic fun ensureNotEmpty$default (Lorg/komapper/extension/validator/Validation;Ljava/util/Map;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/util/Map;
+	public static final fun ensureSize (Lorg/komapper/extension/validator/Validation;Ljava/util/Map;ILkotlin/jvm/functions/Function1;)Ljava/util/Map;
+	public static synthetic fun ensureSize$default (Lorg/komapper/extension/validator/Validation;Ljava/util/Map;ILkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ljava/util/Map;
+	public static final fun ensureSizeAtLeast (Lorg/komapper/extension/validator/Validation;Ljava/util/Map;ILkotlin/jvm/functions/Function1;)Ljava/util/Map;
+	public static synthetic fun ensureSizeAtLeast$default (Lorg/komapper/extension/validator/Validation;Ljava/util/Map;ILkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ljava/util/Map;
+	public static final fun ensureSizeAtMost (Lorg/komapper/extension/validator/Validation;Ljava/util/Map;ILkotlin/jvm/functions/Function1;)Ljava/util/Map;
+	public static synthetic fun ensureSizeAtMost$default (Lorg/komapper/extension/validator/Validation;Ljava/util/Map;ILkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ljava/util/Map;
+	public static final fun ensureSizeInRange (Lorg/komapper/extension/validator/Validation;Ljava/util/Map;Lkotlin/ranges/ClosedRange;Lkotlin/jvm/functions/Function0;)Ljava/util/Map;
+	public static synthetic fun ensureSizeInRange$default (Lorg/komapper/extension/validator/Validation;Ljava/util/Map;Lkotlin/ranges/ClosedRange;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/util/Map;
+}
+
+public abstract interface class org/komapper/extension/validator/Message {
+	public abstract fun getArgs ()Ljava/util/List;
+	public abstract fun getConstraintId ()Ljava/lang/String;
+	public abstract fun getDescendants ()Ljava/util/List;
+	public abstract fun getInput ()Ljava/lang/Object;
+	public abstract fun getPath ()Lorg/komapper/extension/validator/Path;
+	public abstract fun getRoot ()Ljava/lang/String;
+	public abstract fun getText ()Ljava/lang/String;
+	public abstract fun withDetails (Ljava/lang/Object;Ljava/lang/String;)Lorg/komapper/extension/validator/Message;
+}
+
+public final class org/komapper/extension/validator/Message$Resource : org/komapper/extension/validator/Message {
+	public fun getArgs ()Ljava/util/List;
+	public fun getConstraintId ()Ljava/lang/String;
+	public fun getDescendants ()Ljava/util/List;
+	public fun getInput ()Ljava/lang/Object;
+	public fun getPath ()Lorg/komapper/extension/validator/Path;
+	public fun getRoot ()Ljava/lang/String;
+	public fun getText ()Ljava/lang/String;
+	public fun toString ()Ljava/lang/String;
+	public fun withDetails (Ljava/lang/Object;Ljava/lang/String;)Lorg/komapper/extension/validator/Message;
+}
+
+public final class org/komapper/extension/validator/Message$Text : org/komapper/extension/validator/Message {
+	public fun getArgs ()Ljava/util/List;
+	public fun getConstraintId ()Ljava/lang/String;
+	public fun getDescendants ()Ljava/util/List;
+	public fun getInput ()Ljava/lang/Object;
+	public fun getPath ()Lorg/komapper/extension/validator/Path;
+	public fun getRoot ()Ljava/lang/String;
+	public fun getText ()Ljava/lang/String;
+	public fun toString ()Ljava/lang/String;
+	public fun withDetails (Ljava/lang/Object;Ljava/lang/String;)Lorg/komapper/extension/validator/Message$Text;
+	public synthetic fun withDetails (Ljava/lang/Object;Ljava/lang/String;)Lorg/komapper/extension/validator/Message;
+}
+
+public final class org/komapper/extension/validator/MessageKt {
+	public static final fun getResource (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;)Lorg/komapper/extension/validator/Message$Resource;
+	public static final fun resource (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;[Ljava/lang/Object;)Lorg/komapper/extension/validator/Message$Resource;
+	public static final fun text (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;)Lorg/komapper/extension/validator/Message;
+	public static final fun withMessage (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public static final fun withMessage (Lorg/komapper/extension/validator/Validation;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public static synthetic fun withMessage$default (Lorg/komapper/extension/validator/Validation;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class org/komapper/extension/validator/NullableValidatorKt {
+	public static final fun ensureNotNull (Lorg/komapper/extension/validator/Validation;Ljava/lang/Object;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public static synthetic fun ensureNotNull$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/Object;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun ensureNull (Lorg/komapper/extension/validator/Validation;Ljava/lang/Object;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public static synthetic fun ensureNull$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/Object;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun ensureNullOr (Lorg/komapper/extension/validator/Validation;Ljava/lang/Object;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;)Ljava/lang/Object;
+	public static synthetic fun ensureNullOr$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/Object;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class org/komapper/extension/validator/NumberValidatorKt {
+	public static final fun ensureDigits (Lorg/komapper/extension/validator/Validation;Ljava/lang/Number;IILkotlin/jvm/functions/Function0;)Ljava/lang/Number;
+	public static synthetic fun ensureDigits$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/Number;IILkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/Number;
+	public static final fun ensureNegative (Lorg/komapper/extension/validator/Validation;Ljava/lang/Number;Lkotlin/jvm/functions/Function0;)Ljava/lang/Number;
+	public static synthetic fun ensureNegative$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/Number;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/Number;
+	public static final fun ensureNegativeOrZero (Lorg/komapper/extension/validator/Validation;Ljava/lang/Number;Lkotlin/jvm/functions/Function0;)Ljava/lang/Number;
+	public static synthetic fun ensureNegativeOrZero$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/Number;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/Number;
+	public static final fun ensurePositive (Lorg/komapper/extension/validator/Validation;Ljava/lang/Number;Lkotlin/jvm/functions/Function0;)Ljava/lang/Number;
+	public static synthetic fun ensurePositive$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/Number;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/Number;
+	public static final fun ensurePositiveOrZero (Lorg/komapper/extension/validator/Validation;Ljava/lang/Number;Lkotlin/jvm/functions/Function0;)Ljava/lang/Number;
+	public static synthetic fun ensurePositiveOrZero$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/Number;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/Number;
+}
+
+public final class org/komapper/extension/validator/Path {
+	public fun <init> (Ljava/lang/String;Ljava/lang/Object;Lorg/komapper/extension/validator/Path;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/Object;
+	public final fun component3 ()Lorg/komapper/extension/validator/Path;
+	public final fun containsObject (Ljava/lang/Object;)Z
+	public final fun copy (Ljava/lang/String;Ljava/lang/Object;Lorg/komapper/extension/validator/Path;)Lorg/komapper/extension/validator/Path;
+	public static synthetic fun copy$default (Lorg/komapper/extension/validator/Path;Ljava/lang/String;Ljava/lang/Object;Lorg/komapper/extension/validator/Path;ILjava/lang/Object;)Lorg/komapper/extension/validator/Path;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getFullName ()Ljava/lang/String;
+	public final fun getName ()Ljava/lang/String;
+	public final fun getObj ()Ljava/lang/Object;
+	public final fun getParent ()Lorg/komapper/extension/validator/Path;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/komapper/extension/validator/PathKt {
+	public static final fun addPath (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Ljava/lang/Object;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public static final fun addPathChecked (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Ljava/lang/Object;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public static final fun addRoot (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Ljava/lang/Object;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public static final fun appendPath (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public static final fun named (Lorg/komapper/extension/validator/Validation;Ljava/lang/Object;Ljava/lang/String;Lkotlin/jvm/functions/Function2;)Ljava/lang/Object;
+}
+
+public final class org/komapper/extension/validator/Schema {
+	public fun <init> (Ljava/lang/Object;)V
+	public final fun constrain (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/jvm/functions/Function3;)Ljava/lang/Object;
+	public final fun invoke (Lorg/komapper/extension/validator/Validation;Lkotlin/reflect/KProperty0;Lkotlin/jvm/functions/Function2;)Lorg/komapper/extension/validator/Accumulate$Value;
+}
+
+public final class org/komapper/extension/validator/SchemaKt {
+	public static final fun schema (Lorg/komapper/extension/validator/Validation;Ljava/lang/Object;Lkotlin/jvm/functions/Function2;)V
+}
+
+public final class org/komapper/extension/validator/StringValidatorKt {
+	public static final fun ensureBigDecimal (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)Ljava/lang/String;
+	public static synthetic fun ensureBigDecimal$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/String;
+	public static final fun ensureBigInteger (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)Ljava/lang/String;
+	public static synthetic fun ensureBigInteger$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/String;
+	public static final fun ensureBoolean (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)Ljava/lang/String;
+	public static synthetic fun ensureBoolean$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/String;
+	public static final fun ensureByte (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)Ljava/lang/String;
+	public static synthetic fun ensureByte$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/String;
+	public static final fun ensureDate (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Ljava/time/format/DateTimeFormatter;Lkotlin/jvm/functions/Function0;)Ljava/lang/String;
+	public static synthetic fun ensureDate$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Ljava/time/format/DateTimeFormatter;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/String;
+	public static final fun ensureDateTime (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Ljava/time/format/DateTimeFormatter;Lkotlin/jvm/functions/Function0;)Ljava/lang/String;
+	public static synthetic fun ensureDateTime$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Ljava/time/format/DateTimeFormatter;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/String;
+	public static final fun ensureDouble (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)Ljava/lang/String;
+	public static synthetic fun ensureDouble$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/String;
+	public static final fun ensureEnum (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ljava/lang/String;
+	public static synthetic fun ensureEnum$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ljava/lang/String;
+	public static final fun ensureFloat (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)Ljava/lang/String;
+	public static synthetic fun ensureFloat$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/String;
+	public static final fun ensureInt (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)Ljava/lang/String;
+	public static synthetic fun ensureInt$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/String;
+	public static final fun ensureLong (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)Ljava/lang/String;
+	public static synthetic fun ensureLong$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/String;
+	public static final fun ensureLowercase (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)Ljava/lang/String;
+	public static synthetic fun ensureLowercase$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/String;
+	public static final fun ensureShort (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)Ljava/lang/String;
+	public static synthetic fun ensureShort$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/String;
+	public static final fun ensureTime (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Ljava/time/format/DateTimeFormatter;Lkotlin/jvm/functions/Function0;)Ljava/lang/String;
+	public static synthetic fun ensureTime$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Ljava/time/format/DateTimeFormatter;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/String;
+	public static final fun ensureUppercase (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)Ljava/lang/String;
+	public static synthetic fun ensureUppercase$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/String;
+	public static final fun transformToBigDecimal (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)Ljava/math/BigDecimal;
+	public static synthetic fun transformToBigDecimal$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/math/BigDecimal;
+	public static final fun transformToBigInteger (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)Ljava/math/BigInteger;
+	public static synthetic fun transformToBigInteger$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/math/BigInteger;
+	public static final fun transformToBoolean (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)Z
+	public static synthetic fun transformToBoolean$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Z
+	public static final fun transformToByte (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)B
+	public static synthetic fun transformToByte$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)B
+	public static final fun transformToDate (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Ljava/time/format/DateTimeFormatter;Lkotlin/jvm/functions/Function0;)Ljava/time/LocalDate;
+	public static synthetic fun transformToDate$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Ljava/time/format/DateTimeFormatter;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/time/LocalDate;
+	public static final fun transformToDateTime (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Ljava/time/format/DateTimeFormatter;Lkotlin/jvm/functions/Function0;)Ljava/time/LocalDateTime;
+	public static synthetic fun transformToDateTime$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Ljava/time/format/DateTimeFormatter;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/time/LocalDateTime;
+	public static final fun transformToDouble (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)D
+	public static synthetic fun transformToDouble$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)D
+	public static final fun transformToEnum (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ljava/lang/Enum;
+	public static synthetic fun transformToEnum$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ljava/lang/Enum;
+	public static final fun transformToFloat (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)F
+	public static synthetic fun transformToFloat$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)F
+	public static final fun transformToInt (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)I
+	public static synthetic fun transformToInt$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)I
+	public static final fun transformToLong (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)J
+	public static synthetic fun transformToLong$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)J
+	public static final fun transformToShort (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)S
+	public static synthetic fun transformToShort$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)S
+	public static final fun transformToTime (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Ljava/time/format/DateTimeFormatter;Lkotlin/jvm/functions/Function0;)Ljava/time/LocalTime;
+	public static synthetic fun transformToTime$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Ljava/time/format/DateTimeFormatter;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/time/LocalTime;
+}
+
+public final class org/komapper/extension/validator/Validation {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;Lorg/komapper/extension/validator/Path;Lorg/komapper/extension/validator/ValidationConfig;Lorg/komapper/extension/validator/Accumulate;)V
+	public synthetic fun <init> (Ljava/lang/String;Lorg/komapper/extension/validator/Path;Lorg/komapper/extension/validator/ValidationConfig;Lorg/komapper/extension/validator/Accumulate;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Lorg/komapper/extension/validator/Path;
+	public final fun component3 ()Lorg/komapper/extension/validator/ValidationConfig;
+	public final fun component4 ()Lorg/komapper/extension/validator/Accumulate;
+	public final fun copy (Ljava/lang/String;Lorg/komapper/extension/validator/Path;Lorg/komapper/extension/validator/ValidationConfig;Lorg/komapper/extension/validator/Accumulate;)Lorg/komapper/extension/validator/Validation;
+	public static synthetic fun copy$default (Lorg/komapper/extension/validator/Validation;Ljava/lang/String;Lorg/komapper/extension/validator/Path;Lorg/komapper/extension/validator/ValidationConfig;Lorg/komapper/extension/validator/Accumulate;ILjava/lang/Object;)Lorg/komapper/extension/validator/Validation;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAcc ()Lorg/komapper/extension/validator/Accumulate;
+	public final fun getConfig ()Lorg/komapper/extension/validator/ValidationConfig;
+	public final fun getPath ()Lorg/komapper/extension/validator/Path;
+	public final fun getRoot ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/komapper/extension/validator/ValidationCancellationException : java/util/concurrent/CancellationException {
+	public fun <init> (Lorg/komapper/extension/validator/Accumulate$Error;)V
+	public fun fillInStackTrace ()Ljava/lang/Throwable;
+	public final fun getError ()Lorg/komapper/extension/validator/Accumulate$Error;
+}
+
+public final class org/komapper/extension/validator/ValidationConfig {
+	public fun <init> ()V
+	public fun <init> (ZLjava/time/Clock;Lkotlin/jvm/functions/Function1;)V
+	public synthetic fun <init> (ZLjava/time/Clock;Lkotlin/jvm/functions/Function1;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Z
+	public final fun component2 ()Ljava/time/Clock;
+	public final fun component3 ()Lkotlin/jvm/functions/Function1;
+	public final fun copy (ZLjava/time/Clock;Lkotlin/jvm/functions/Function1;)Lorg/komapper/extension/validator/ValidationConfig;
+	public static synthetic fun copy$default (Lorg/komapper/extension/validator/ValidationConfig;ZLjava/time/Clock;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/komapper/extension/validator/ValidationConfig;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getClock ()Ljava/time/Clock;
+	public final fun getFailFast ()Z
+	public final fun getLogger ()Lkotlin/jvm/functions/Function1;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/komapper/extension/validator/ValidationException : java/lang/RuntimeException {
+	public fun <init> (Ljava/util/List;)V
+	public final fun getMessages ()Ljava/util/List;
+}
+
+public abstract interface class org/komapper/extension/validator/ValidationIor {
+}
+
+public final class org/komapper/extension/validator/ValidationIor$Both : org/komapper/extension/validator/ValidationIor$FailureLike {
+	public fun <init> (Ljava/lang/Object;Ljava/util/List;)V
+	public final fun component1 ()Ljava/lang/Object;
+	public final fun component2 ()Ljava/util/List;
+	public final fun copy (Ljava/lang/Object;Ljava/util/List;)Lorg/komapper/extension/validator/ValidationIor$Both;
+	public static synthetic fun copy$default (Lorg/komapper/extension/validator/ValidationIor$Both;Ljava/lang/Object;Ljava/util/List;ILjava/lang/Object;)Lorg/komapper/extension/validator/ValidationIor$Both;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getMessages ()Ljava/util/List;
+	public final fun getValue ()Ljava/lang/Object;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+	public fun withMessage (Lorg/komapper/extension/validator/Message;)Lorg/komapper/extension/validator/ValidationIor$Both;
+	public synthetic fun withMessage (Lorg/komapper/extension/validator/Message;)Lorg/komapper/extension/validator/ValidationIor$FailureLike;
+}
+
+public abstract interface class org/komapper/extension/validator/ValidationIor$FailureLike : org/komapper/extension/validator/ValidationIor {
+	public abstract fun getMessages ()Ljava/util/List;
+	public abstract fun withMessage (Lorg/komapper/extension/validator/Message;)Lorg/komapper/extension/validator/ValidationIor$FailureLike;
+}
+
+public final class org/komapper/extension/validator/ValidationIorKt {
+	public static final fun bind (Lorg/komapper/extension/validator/Validation;Lorg/komapper/extension/validator/ValidationIor;)Ljava/lang/Object;
+	public static final fun ior (Lorg/komapper/extension/validator/Validation;Lkotlin/jvm/functions/Function1;)Lorg/komapper/extension/validator/ValidationIor;
+	public static final fun or (Lorg/komapper/extension/validator/Validation;Lkotlin/jvm/functions/Function1;)Lorg/komapper/extension/validator/ValidationIor;
+	public static final fun or (Lorg/komapper/extension/validator/Validation;Lorg/komapper/extension/validator/ValidationIor;Lkotlin/jvm/functions/Function1;)Lorg/komapper/extension/validator/ValidationIor;
+	public static final fun orElse (Lorg/komapper/extension/validator/Validation;Lorg/komapper/extension/validator/ValidationIor;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+}
+
+public abstract interface class org/komapper/extension/validator/ValidationResult : org/komapper/extension/validator/ValidationIor {
+}
+
+public final class org/komapper/extension/validator/ValidationResult$Failure : org/komapper/extension/validator/ValidationIor$FailureLike, org/komapper/extension/validator/ValidationResult {
+	public fun <init> (Ljava/util/List;)V
+	public final fun component1 ()Ljava/util/List;
+	public final fun copy (Ljava/util/List;)Lorg/komapper/extension/validator/ValidationResult$Failure;
+	public static synthetic fun copy$default (Lorg/komapper/extension/validator/ValidationResult$Failure;Ljava/util/List;ILjava/lang/Object;)Lorg/komapper/extension/validator/ValidationResult$Failure;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getMessages ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+	public synthetic fun withMessage (Lorg/komapper/extension/validator/Message;)Lorg/komapper/extension/validator/ValidationIor$FailureLike;
+	public fun withMessage (Lorg/komapper/extension/validator/Message;)Lorg/komapper/extension/validator/ValidationResult$Failure;
+}
+
+public final class org/komapper/extension/validator/ValidationResult$Success : org/komapper/extension/validator/ValidationResult {
+	public fun <init> (Ljava/lang/Object;)V
+	public final fun component1 ()Ljava/lang/Object;
+	public final fun copy (Ljava/lang/Object;)Lorg/komapper/extension/validator/ValidationResult$Success;
+	public static synthetic fun copy$default (Lorg/komapper/extension/validator/ValidationResult$Success;Ljava/lang/Object;ILjava/lang/Object;)Lorg/komapper/extension/validator/ValidationResult$Success;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getValue ()Ljava/lang/Object;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class org/komapper/extension/validator/ValidationResultKt {
+	public static final fun isFailure (Lorg/komapper/extension/validator/ValidationResult;)Z
+	public static final fun isSuccess (Lorg/komapper/extension/validator/ValidationResult;)Z
+}
+
+public final class org/komapper/extension/validator/ValidatorKt {
+	public static final fun tryValidate (Lorg/komapper/extension/validator/ValidationConfig;Lkotlin/jvm/functions/Function1;)Lorg/komapper/extension/validator/ValidationResult;
+	public static synthetic fun tryValidate$default (Lorg/komapper/extension/validator/ValidationConfig;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/komapper/extension/validator/ValidationResult;
+	public static final fun validate (Lorg/komapper/extension/validator/ValidationConfig;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public static synthetic fun validate$default (Lorg/komapper/extension/validator/ValidationConfig;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
