@@ -128,6 +128,38 @@ class CaptureTest :
             }
         }
 
+        context("factory with schema validation inside capture") {
+            data class User(
+                val name: String,
+            )
+
+            context(_: Validation)
+            fun buildUser(name: String): User {
+                val user by capture {
+                    val u = User(name)
+                    u.schema {
+                        u::name { it.ensureNotBlank() }
+                    }
+                    u
+                }
+                return user
+            }
+
+            test("success") {
+                val result = tryValidate { buildUser("abc") }
+                result.shouldBeSuccess()
+                result.value shouldBe User("abc")
+            }
+
+            test("failure keeps the capture path prefix") {
+                val result = tryValidate { buildUser("") }
+                result.shouldBeFailure()
+                result.messages.size shouldBe 1
+                result.messages[0].constraintId shouldBe "kova.charSequence.notBlank"
+                result.messages[0].path.fullName shouldBe "user.name"
+            }
+        }
+
         context("standalone constrain for argument correlation") {
             data class DateRange(
                 val start: Int,

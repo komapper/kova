@@ -20,7 +20,7 @@ class ValidationContextTest :
             test("no root") {
                 context(Validation(path = Path("c", null, null))) {
                     addRoot("a", null) {
-                        contextOf<Validation>() shouldBe Validation("a", Path("", null, null))
+                        contextOf<Validation>() shouldBe Validation("a", Path("", null, Path("c", null, null)))
                     }
                 }
             }
@@ -36,7 +36,7 @@ class ValidationContextTest :
             test("add empty") {
                 context(Validation(path = Path("c", null, null))) {
                     addRoot("", null) {
-                        contextOf<Validation>() shouldBe Validation("", Path("", null, null))
+                        contextOf<Validation>() shouldBe Validation("", Path("", null, Path("c", null, null)))
                     }
                 }
             }
@@ -177,9 +177,9 @@ class ValidationContextTest :
                 val grandparent = Path("company", null, null)
                 val parent = Path("", null, grandparent)
                 val path = Path("name", null, parent)
-                // When parent name is empty, it's treated as "no parent"
-                // so grandparent is ignored
-                path.fullName shouldBe "name"
+                // An empty-named node (e.g. a root initialized by addRoot) is skipped,
+                // keeping ancestor segments
+                path.fullName shouldBe "company.name"
             }
         }
 
