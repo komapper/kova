@@ -35,6 +35,7 @@ expressly = { module = "org.glassfish.expressly:expressly", version = "6.0.0" }
 konform = { module = "io.konform:konform-jvm", version = "0.11.1"}
 
 [plugins]
+binary-compatibility-validator = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version = "0.18.1" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
 kotest = { id = "io.kotest", version.ref = "kotest" }

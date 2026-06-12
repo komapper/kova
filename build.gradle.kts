@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.spotless)
     alias(libs.plugins.publish)
     alias(libs.plugins.release)
+    alias(libs.plugins.binary.compatibility.validator)
 }
 
 val isReleaseVersion = !version.toString().endsWith("SNAPSHOT")
@@ -45,6 +46,18 @@ tasks {
     build {
         dependsOn(spotlessApply)
     }
+}
+
+apiValidation {
+    ignoredProjects +=
+        listOf(
+            "kova",
+            "example-core",
+            "example-ktor",
+            "example-exposed",
+            "example-hibernate-validator",
+            "example-konform",
+        )
 }
 
 configure(subprojects.filter { !it.name.startsWith("example") }) {
