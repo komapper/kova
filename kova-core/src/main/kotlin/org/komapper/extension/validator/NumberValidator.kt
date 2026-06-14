@@ -142,20 +142,26 @@ public fun <T : Number> T.ensureDigits(
     constrain("kova.number.digits") {
         require(integer >= 0) { "integer must be non-negative" }
         require(fraction >= 0) { "fraction must be non-negative" }
-        val bigDecimal =
-            when (it) {
-                is BigDecimal -> it
-                is java.math.BigInteger -> it.toBigDecimal()
-                is Double -> it.toBigDecimal()
-                is Float -> it.toBigDecimal()
-                is Long -> it.toBigDecimal()
-                is Int -> it.toBigDecimal()
-                is Short -> it.toLong().toBigDecimal()
-                is Byte -> it.toLong().toBigDecimal()
-                else -> it.toDouble().toBigDecimal()
+        val bigDecimal = it.toBigDecimalOrNull()
+        val matches =
+            bigDecimal?.let { value ->
+                val (integerDigits, fractionDigits) = countDigits(value)
+                integerDigits <= integer && fractionDigits <= fraction
             }
-        val (integerDigits, fractionDigits) = countDigits(bigDecimal)
-        satisfies(integerDigits <= integer && fractionDigits <= fraction, message)
+        satisfies(matches == true, message)
+    }
+
+private fun Number.toBigDecimalOrNull(): BigDecimal? =
+    when (this) {
+        is BigDecimal -> this
+        is BigInteger -> toBigDecimal()
+        is Double -> takeIf { it.isFinite() }?.toBigDecimal()
+        is Float -> takeIf { it.isFinite() }?.toBigDecimal()
+        is Long -> toBigDecimal()
+        is Int -> toBigDecimal()
+        is Short -> toLong().toBigDecimal()
+        is Byte -> toLong().toBigDecimal()
+        else -> toDouble().takeIf { it.isFinite() }?.toBigDecimal()
     }
 
 private fun countDigits(value: BigDecimal): Pair<Int, Int> {

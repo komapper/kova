@@ -536,6 +536,16 @@ class NumberValidatorTest :
                 val result = tryValidate { 123.456.ensureDigits(integer = 6, fraction = 2) }
                 result.shouldBeFailure()
             }
+
+            test("Double NaN fails validation") {
+                val result = tryValidate { Double.NaN.ensureDigits(integer = 1, fraction = 0) }
+                result.shouldBeFailure()
+            }
+
+            test("Double infinity fails validation") {
+                val result = tryValidate { Double.POSITIVE_INFINITY.ensureDigits(integer = 1, fraction = 0) }
+                result.shouldBeFailure()
+            }
         }
 
         context("ensureDigits with Long") {
