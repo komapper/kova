@@ -1,6 +1,6 @@
 [versions]
 kotlin = "2.4.20"
-ktor = "3.5.2"
+ktor = "3.6.0"
 logback = "1.6.3"
 kotest = "6.2.5"
 spotless = "8.10.2"
