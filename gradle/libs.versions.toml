@@ -3,7 +3,7 @@ kotlin = "2.4.20"
 ktor = "3.6.0"
 logback = "1.6.4"
 kotest = "6.2.5"
-spotless = "8.10.2"
+spotless = "8.10.3"
 exposed = "1.5.0"
 
 
